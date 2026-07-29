@@ -33,7 +33,7 @@
         "include/containers/block_deque.h"
       ],
       "test_files": [
-        "tests/containers/block_deque_test.c"
+        "tests/containers/block_deque_test.cpp"
       ],
       "direct_test_count": 4,
       "direct_test_filter": "BlockDequeTest.Construction:BlockDequeTest.SingleThreadPushPop:BlockDequeTest.MultiThreadPushPop:BlockDequeTest.Close",
@@ -56,10 +56,10 @@
       "test_descriptor": "BufferTest.Construction, BufferTest.Copy, BufferTest.ReadWriteOffset, BufferTest.ReadWrite, BufferTest.Clear, IOBufferTest.ReadWrite",
       "source_files": [
         "include/containers/buffer.h",
-        "src/containers/buffer/buffer.c"
+        "src/containers/buffer/buffer.cpp"
       ],
       "test_files": [
-        "tests/containers/buffer_test.c"
+        "tests/containers/buffer_test.cpp"
       ],
       "direct_test_count": 6,
       "direct_test_filter": "BufferTest.Construction:BufferTest.Copy:BufferTest.ReadWriteOffset:BufferTest.ReadWrite:BufferTest.Clear:IOBufferTest.ReadWrite",
@@ -84,10 +84,10 @@
       "test_descriptor": "ConfigurationVariableConverterTest.Number, ConfigurationVariableConverterTest.String, ConfigurationVariableConverterTest.List, ConfigurationVariableConverterTest.Set, ConfigurationVariableConverterTest.Map, ConfigurationVariableTest.Construction, ConfigurationVariableTest.ConvertedFromString, ConfigurationVariableTest.Listen, ConfigurationTest.Lookup, ConfigurationTest.Visit",
       "source_files": [
         "include/config.h",
-        "src/config/config.c"
+        "src/config/config.cpp"
       ],
       "test_files": [
-        "tests/config_test.c"
+        "tests/config_test.cpp"
       ],
       "direct_test_count": 10,
       "direct_test_filter": "ConfigurationVariableConverterTest.Number:ConfigurationVariableConverterTest.String:ConfigurationVariableConverterTest.List:ConfigurationVariableConverterTest.Set:ConfigurationVariableConverterTest.Map:ConfigurationVariableTest.Construction:ConfigurationVariableTest.ConvertedFromString:ConfigurationVariableTest.Listen:ConfigurationTest.Lookup:ConfigurationTest.Visit",
@@ -118,7 +118,7 @@
         "include/containers/heap_timer.h"
       ],
       "test_files": [
-        "tests/containers/heap_timer_test.c"
+        "tests/containers/heap_timer_test.cpp"
       ],
       "direct_test_count": 8,
       "direct_test_filter": "HeapTimerTest.Construction:HeapTimerTest.PushPop:HeapTimerTest.Adjust:HeapTimerTest.Remove:HeapTimerTest.Invoke:HeapTimerTest.Tick:HeapTimerTest.ToNextTick:HeapTimerTest.Clear",
@@ -145,16 +145,16 @@
       "test_descriptor": "HTTPTest.StatusCodeEnumConversion, HTTPTest.MethodEnumConversion, HTTPTest.ContentType, HTTPTest.URLEncoding, HTTPTest.HTMLPlaceholder, HTTPTest.PutParameterIntoHTML, HTTPRequestTest.Parse, HTTPResponseTest.BuiltByFile, HTTPResponseTest.BuiltByPredefinedErrorContent",
       "source_files": [
         "include/http.h",
-        "src/http/http.c",
+        "src/http/http.cpp",
         "src/http/request.h",
-        "src/http/request.c",
+        "src/http/request.cpp",
         "src/http/response.h",
-        "src/http/response.c"
+        "src/http/response.cpp"
       ],
       "test_files": [
-        "tests/http_test.c",
-        "src/http/request_test.c",
-        "src/http/response_test.c"
+        "tests/http_test.cpp",
+        "src/http/request_test.cpp",
+        "src/http/response_test.cpp"
       ],
       "direct_test_count": 9,
       "direct_test_filter": "HTTPTest.StatusCodeEnumConversion:HTTPTest.MethodEnumConversion:HTTPTest.ContentType:HTTPTest.URLEncoding:HTTPTest.HTMLPlaceholder:HTTPTest.PutParameterIntoHTML:HTTPRequestTest.Parse:HTTPResponseTest.BuiltByFile:HTTPResponseTest.BuiltByPredefinedErrorContent",
@@ -182,10 +182,10 @@
       "test_descriptor": "StringStreamIOTest.ReadWrite, FileDescriptorIOTest.ReadWrite",
       "source_files": [
         "include/io.h",
-        "src/io/io.c"
+        "src/io/io.cpp"
       ],
       "test_files": [
-        "tests/io_test.c"
+        "tests/io_test.cpp"
       ],
       "direct_test_count": 2,
       "direct_test_filter": "StringStreamIOTest.ReadWrite:FileDescriptorIOTest.ReadWrite",
@@ -206,10 +206,10 @@
       "test_descriptor": "ConceptTest.ValidIPAddr, IPAddrTest.MaximumLength, IPAddrTest.LoopBack, IPAddrTest.Any, IPAddrTest.Construction",
       "source_files": [
         "include/ip.h",
-        "src/ip/ip.c"
+        "src/ip/ip.cpp"
       ],
       "test_files": [
-        "tests/ip_test.c"
+        "tests/ip_test.cpp"
       ],
       "direct_test_count": 5,
       "direct_test_filter": "ConceptTest.ValidIPAddr:IPAddrTest.MaximumLength:IPAddrTest.LoopBack:IPAddrTest.Any:IPAddrTest.Construction",
@@ -233,17 +233,17 @@
       "test_descriptor": "LoggerTest.SynchronousLog, LoggerTest.AsynchronousLog, LogManagementTest.LoggerManager, LogManagementTest.LevelEnumConversion, LogManagementTest.AppenderTypeEnumConversion, LogFormatterTest.Construction, LogFormatterTest.Format, LogFormatFieldTest.ParsePattern, LoggerConfigurationTest.Construction",
       "source_files": [
         "include/log.h",
-        "src/log/log.c",
-        "src/log/appender.c",
+        "src/log/log.cpp",
+        "src/log/appender.cpp",
         "src/log/field.h",
-        "src/log/field.c",
+        "src/log/field.cpp",
         "src/log/config_init.h",
-        "src/log/config_init.c"
+        "src/log/config_init.cpp"
       ],
       "test_files": [
-        "tests/log_test.c",
-        "src/log/field_test.c",
-        "src/log/config_init_test.c"
+        "tests/log_test.cpp",
+        "src/log/field_test.cpp",
+        "src/log/config_init_test.cpp"
       ],
       "direct_test_count": 9,
       "direct_test_filter": "LoggerTest.SynchronousLog:LoggerTest.AsynchronousLog:LogManagementTest.LoggerManager:LogManagementTest.LevelEnumConversion:LogManagementTest.AppenderTypeEnumConversion:LogFormatterTest.Construction:LogFormatterTest.Format:LogFormatFieldTest.ParsePattern:LoggerConfigurationTest.Construction",
@@ -271,10 +271,10 @@
       "test_descriptor": "ThreadPoolTest.Execution",
       "source_files": [
         "include/containers/thread_pool.h",
-        "src/containers/thread_pool/thread_pool.c"
+        "src/containers/thread_pool/thread_pool.cpp"
       ],
       "test_files": [
-        "tests/containers/thread_pool_test.c"
+        "tests/containers/thread_pool_test.cpp"
       ],
       "direct_test_count": 1,
       "direct_test_filter": "ThreadPoolTest.Execution",
@@ -294,10 +294,10 @@
       "test_descriptor": "StringTest.LetterCaseConversion, StringTest.ReplaceString, StringTest.SplitString, StringTest.SplitStringToLines, RAIITest.Destroy, LoadYamlStringTest.RequiredField, YamlNodeTest.ThrowIfFieldIsNotScalar, ConceptTest.Addable, MappedReadOnlyFileTest.Map",
       "source_files": [
         "include/util.h",
-        "src/util/util.c"
+        "src/util/util.cpp"
       ],
       "test_files": [
-        "tests/util_test.c"
+        "tests/util_test.cpp"
       ],
       "direct_test_count": 9,
       "direct_test_filter": "StringTest.LetterCaseConversion:StringTest.ReplaceString:StringTest.SplitString:StringTest.SplitStringToLines:RAIITest.Destroy:LoadYamlStringTest.RequiredField:YamlNodeTest.ThrowIfFieldIsNotScalar:ConceptTest.Addable:MappedReadOnlyFileTest.Map",

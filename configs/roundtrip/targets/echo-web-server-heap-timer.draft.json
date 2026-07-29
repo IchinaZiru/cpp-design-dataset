@@ -11,7 +11,7 @@
     "include/containers/heap_timer.h"
   ],
   "test_files": [
-    "tests/containers/heap_timer_test.c"
+    "tests/containers/heap_timer_test.cpp"
   ],
   "source_descriptor_from_report": "include/containers/heap_timer.h",
   "locator": {},

@@ -9,17 +9,17 @@
   "granularity": "module_files",
   "source_files": [
     "include/config.h",
-    "src/config/config.c"
+    "src/config/config.cpp"
   ],
   "test_files": [
-    "tests/config_test.c"
+    "tests/config_test.cpp"
   ],
   "source_descriptor_from_report": "include/config.h;src/config/config.cpp",
   "locator": {},
   "design_input": {
     "source_files": [
       "include/config.h",
-      "src/config/config.c"
+      "src/config/config.cpp"
     ],
     "extra_context_files": []
   },

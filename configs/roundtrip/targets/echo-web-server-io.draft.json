@@ -9,17 +9,17 @@
   "granularity": "module_files",
   "source_files": [
     "include/io.h",
-    "src/io/io.c"
+    "src/io/io.cpp"
   ],
   "test_files": [
-    "tests/io_test.c"
+    "tests/io_test.cpp"
   ],
   "source_descriptor_from_report": "include/io.h;src/io/io.cpp",
   "locator": {},
   "design_input": {
     "source_files": [
       "include/io.h",
-      "src/io/io.c"
+      "src/io/io.cpp"
     ],
     "extra_context_files": []
   },

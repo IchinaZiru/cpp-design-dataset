@@ -9,29 +9,29 @@
   "granularity": "module_files",
   "source_files": [
     "include/log.h",
-    "src/log/log.c",
-    "src/log/appender.c",
+    "src/log/log.cpp",
+    "src/log/appender.cpp",
     "src/log/field.h",
-    "src/log/field.c",
+    "src/log/field.cpp",
     "src/log/config_init.h",
-    "src/log/config_init.c"
+    "src/log/config_init.cpp"
   ],
   "test_files": [
-    "tests/log_test.c",
-    "src/log/field_test.c",
-    "src/log/config_init_test.c"
+    "tests/log_test.cpp",
+    "src/log/field_test.cpp",
+    "src/log/config_init_test.cpp"
   ],
   "source_descriptor_from_report": "include/log.h;src/log/log.cpp;src/log/appender.cpp;src/log/field.h;src/log/field.cpp;src/log/config_init.h;src/log/config_init.cpp",
   "locator": {},
   "design_input": {
     "source_files": [
       "include/log.h",
-      "src/log/log.c",
-      "src/log/appender.c",
+      "src/log/log.cpp",
+      "src/log/appender.cpp",
       "src/log/field.h",
-      "src/log/field.c",
+      "src/log/field.cpp",
       "src/log/config_init.h",
-      "src/log/config_init.c"
+      "src/log/config_init.cpp"
     ],
     "extra_context_files": []
   },

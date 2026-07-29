@@ -9,27 +9,27 @@
   "granularity": "module_files",
   "source_files": [
     "include/http.h",
-    "src/http/http.c",
+    "src/http/http.cpp",
     "src/http/request.h",
-    "src/http/request.c",
+    "src/http/request.cpp",
     "src/http/response.h",
-    "src/http/response.c"
+    "src/http/response.cpp"
   ],
   "test_files": [
-    "tests/http_test.c",
-    "src/http/request_test.c",
-    "src/http/response_test.c"
+    "tests/http_test.cpp",
+    "src/http/request_test.cpp",
+    "src/http/response_test.cpp"
   ],
   "source_descriptor_from_report": "include/http.h;src/http/http.cpp;src/http/request.h;src/http/request.cpp;src/http/response.h;src/http/response.cpp",
   "locator": {},
   "design_input": {
     "source_files": [
       "include/http.h",
-      "src/http/http.c",
+      "src/http/http.cpp",
       "src/http/request.h",
-      "src/http/request.c",
+      "src/http/request.cpp",
       "src/http/response.h",
-      "src/http/response.c"
+      "src/http/response.cpp"
     ],
     "extra_context_files": []
   },

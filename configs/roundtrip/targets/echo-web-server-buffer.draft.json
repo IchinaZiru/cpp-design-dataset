@@ -9,17 +9,17 @@
   "granularity": "module_files",
   "source_files": [
     "include/containers/buffer.h",
-    "src/containers/buffer/buffer.c"
+    "src/containers/buffer/buffer.cpp"
   ],
   "test_files": [
-    "tests/containers/buffer_test.c"
+    "tests/containers/buffer_test.cpp"
   ],
   "source_descriptor_from_report": "include/containers/buffer.h;src/containers/buffer/buffer.cpp",
   "locator": {},
   "design_input": {
     "source_files": [
       "include/containers/buffer.h",
-      "src/containers/buffer/buffer.c"
+      "src/containers/buffer/buffer.cpp"
     ],
     "extra_context_files": []
   },

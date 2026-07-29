@@ -11,7 +11,7 @@ from typing import Any
 
 
 EXPECTED_TARGET_COUNT = 17
-SOURCE_SUFFIXES = r"(?:h|hh|hpp|hxx|c|cc|cpp|cxx)"
+SOURCE_SUFFIXES = r"(?:cpp|cxx|hpp|hxx|cc|hh|c|h)"
 
 
 @dataclass
@@ -118,7 +118,11 @@ def clean_target_name(value: str) -> str:
 
 def extract_source_paths(value: str) -> list[str]:
     paths = re.findall(
-        rf"(?<![A-Za-z0-9_.-])([A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)+\.{SOURCE_SUFFIXES})",
+        (
+            rf"(?<![A-Za-z0-9_.-])"
+            rf"([A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)+\.{SOURCE_SUFFIXES})"
+            rf"(?![A-Za-z0-9_.-])"
+        ),
         value,
     )
     result: list[str] = []

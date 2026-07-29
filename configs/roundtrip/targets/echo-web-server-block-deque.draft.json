@@ -11,7 +11,7 @@
     "include/containers/block_deque.h"
   ],
   "test_files": [
-    "tests/containers/block_deque_test.c"
+    "tests/containers/block_deque_test.cpp"
   ],
   "source_descriptor_from_report": "include/containers/block_deque.h",
   "locator": {},

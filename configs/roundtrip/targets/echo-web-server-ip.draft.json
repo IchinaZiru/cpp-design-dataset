@@ -9,17 +9,17 @@
   "granularity": "module_files",
   "source_files": [
     "include/ip.h",
-    "src/ip/ip.c"
+    "src/ip/ip.cpp"
   ],
   "test_files": [
-    "tests/ip_test.c"
+    "tests/ip_test.cpp"
   ],
   "source_descriptor_from_report": "include/ip.h;src/ip/ip.cpp",
   "locator": {},
   "design_input": {
     "source_files": [
       "include/ip.h",
-      "src/ip/ip.c"
+      "src/ip/ip.cpp"
     ],
     "extra_context_files": []
   },

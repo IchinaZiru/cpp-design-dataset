@@ -9,17 +9,17 @@
   "granularity": "class_span",
   "source_files": [
     "include/containers/thread_pool.h",
-    "src/containers/thread_pool/thread_pool.c"
+    "src/containers/thread_pool/thread_pool.cpp"
   ],
   "test_files": [
-    "tests/containers/thread_pool_test.c"
+    "tests/containers/thread_pool_test.cpp"
   ],
   "source_descriptor_from_report": "include/containers/thread_pool.h;src/containers/thread_pool/thread_pool.cpp",
   "locator": {},
   "design_input": {
     "source_files": [
       "include/containers/thread_pool.h",
-      "src/containers/thread_pool/thread_pool.c"
+      "src/containers/thread_pool/thread_pool.cpp"
     ],
     "extra_context_files": []
   },

@@ -9,17 +9,17 @@
   "granularity": "module_files",
   "source_files": [
     "include/util.h",
-    "src/util/util.c"
+    "src/util/util.cpp"
   ],
   "test_files": [
-    "tests/util_test.c"
+    "tests/util_test.cpp"
   ],
   "source_descriptor_from_report": "include/util.h;src/util/util.cpp",
   "locator": {},
   "design_input": {
     "source_files": [
       "include/util.h",
-      "src/util/util.c"
+      "src/util/util.cpp"
     ],
     "extra_context_files": []
   },
