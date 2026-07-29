@@ -1,4 +1,4 @@
 ﻿"repository_id","local_path","origin_url","commit","current_management","planned_management","captured_at_utc"
-"Echo-Web-Server","repos/Echo-Web-Server","https://github.com/Zhuagenborn/Echo-Web-Server.git","fb2fadb7e7f4c340325b0a72847425f6e8b6367e","existing_clone","git_submodule","2026-07-29T12:36:22Z"
-"ini-cpp","repos/ini-cpp","https://github.com/SSARCandy/ini-cpp.git","e1779b837274de8be2051bef579c3b9ec3483522","existing_clone","git_submodule","2026-07-29T12:36:22Z"
-"RISCV-Simulator","repos/RISCV-Simulator","https://github.com/skyzh/RISCV-Simulator.git","8989a09c357a69b68612f653380d60816f5176c2","existing_clone","git_submodule","2026-07-29T12:36:22Z"
+"Echo-Web-Server","repos/Echo-Web-Server","https://github.com/Zhuagenborn/Echo-Web-Server.git","fb2fadb7e7f4c340325b0a72847425f6e8b6367e","git_submodule","git_submodule","2026-07-29T14:05:03Z"
+"ini-cpp","repos/ini-cpp","https://github.com/SSARCandy/ini-cpp.git","e1779b837274de8be2051bef579c3b9ec3483522","git_submodule","git_submodule","2026-07-29T14:05:03Z"
+"RISCV-Simulator","repos/RISCV-Simulator","https://github.com/skyzh/RISCV-Simulator.git","8989a09c357a69b68612f653380d60816f5176c2","git_submodule","git_submodule","2026-07-29T14:05:03Z"

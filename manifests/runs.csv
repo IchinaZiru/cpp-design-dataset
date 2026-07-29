@@ -1,1 +1,2 @@
-run_id,repository_id,target_id,model_id,status,started_at_utc,completed_at_utc,result_path
+﻿"run_id","repository_id","target_id","model_id","status","started_at_utc","completed_at_utc","result_path"
+"qwen25coder32b-run-001","ini-cpp","ini-cpp-iniwriter-write","qwen2.5-coder:32b","passed","2026-07-29T13:32:32.625264+00:00","2026-07-29T13:59:21.857579+00:00","experiments/ini-writer-minimal/evaluation/evaluation_manifest.json"
