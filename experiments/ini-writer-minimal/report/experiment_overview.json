@@ -1,0 +1,259 @@
+{
+  "schema_version": "1.0",
+  "generated_at_utc": "2026-07-29T14:09:24.381565+00:00",
+  "experiment_id": "ini-writer-minimal",
+  "run_id": "qwen25coder32b-run-001",
+  "repository": "SSARCandy/ini-cpp",
+  "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+  "submodule_commit": "391ce627def20c1e8a54d10b12949b15086473dd",
+  "target_name": "INIWriter::write",
+  "target_granularity": "function_body",
+  "source_file": "ini/ini.h",
+  "model": {
+    "provider": "ollama-local",
+    "name": "qwen2.5-coder:32b",
+    "local_id": "b92d6a0bd47e",
+    "architecture": "qwen2",
+    "parameters": "32.8B",
+    "quantization": "Q4_K_M",
+    "ollama_version": "0.32.0",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 2048,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  },
+  "overall_pass": true,
+  "stage_passed": 9,
+  "stage_total": 9,
+  "direct_tests": {
+    "ran": 3,
+    "passed": 3,
+    "failed": 0,
+    "expected": 3
+  },
+  "full_tests": {
+    "ran": 27,
+    "passed": 27,
+    "failed": 0,
+    "expected": 27
+  },
+  "generation_total_seconds": 100.82737219985574,
+  "evaluation_total_seconds": 24.987154999980703,
+  "inputs": [
+    {
+      "role": "設計書生成へ与えた元コード",
+      "path": "experiments/ini-writer-minimal/input/design_input.cpp",
+      "exists": true,
+      "size_bytes": 1213,
+      "line_count": 32,
+      "sha256": "303d8a22022c6dc64e933f767eed5c16e63d089e93cd2aafb8133c75f97ebd30"
+    },
+    {
+      "role": "コード再生成時の固定スキャフォールド",
+      "path": "experiments/ini-writer-minimal/input/fixed_scaffold.cpp",
+      "exists": true,
+      "size_bytes": 692,
+      "line_count": 20,
+      "sha256": "1a70671c3bed03469b5b07f8a8bfae4bd7aa94c2d64156f298acaed39fe89f93"
+    },
+    {
+      "role": "コード再生成時の依存関係情報",
+      "path": "experiments/ini-writer-minimal/input/dependency_context.txt",
+      "exists": true,
+      "size_bytes": 587,
+      "line_count": 28,
+      "sha256": "5f63425feaeb333918680b80e67e90fa2b7e6ae9519214a2732e84b9c4d0ae3c"
+    },
+    {
+      "role": "設計書生成プロンプト",
+      "path": "experiments/ini-writer-minimal/prompts/design_generation_prompt.md",
+      "exists": true,
+      "size_bytes": 1182,
+      "line_count": 36,
+      "sha256": "4029be12e90e128c2d8f6244a59fb4000967fa6bccc56be6a0efe74d95ad6368"
+    },
+    {
+      "role": "コード再生成プロンプト",
+      "path": "experiments/ini-writer-minimal/prompts/code_regeneration_prompt.md",
+      "exists": true,
+      "size_bytes": 1166,
+      "line_count": 31,
+      "sha256": "10a38881a02c43f1562ef7e25cdc738088817d41d2613e5e31deaabd76f31ed7"
+    },
+    {
+      "role": "モデル・生成パラメータ",
+      "path": "experiments/ini-writer-minimal/configs/run_config.json",
+      "exists": true,
+      "size_bytes": 1568,
+      "line_count": 48,
+      "sha256": "2f9935bf06304cbd8ec32da82f2dc3e223f9a03adec6337346edcb9f07f88cd4"
+    }
+  ],
+  "outputs": [
+    {
+      "role": "LLMが生成した設計文書",
+      "path": "experiments/ini-writer-minimal/generated/design_document.md",
+      "exists": true,
+      "size_bytes": 2991,
+      "line_count": 51,
+      "sha256": "e25502d694e3a6ec2d02e349d2322e038744225aa0689eb65c290a1296cddcd2"
+    },
+    {
+      "role": "設計文書から再生成した関数本体",
+      "path": "experiments/ini-writer-minimal/generated/regenerated_write_body.cpp",
+      "exists": true,
+      "size_bytes": 495,
+      "line_count": 18,
+      "sha256": "0cef6fb0215bc05f3c06f7ba651a093ad347cd2aa2ef1b3983afefc7e2393322"
+    },
+    {
+      "role": "設計書生成APIリクエスト",
+      "path": "experiments/ini-writer-minimal/raw_output/design_generation_request.json",
+      "exists": true,
+      "size_bytes": 2797,
+      "line_count": 15,
+      "sha256": "4cde576b31ceab0280b0305af29122d6572f500611e0601e8b2a68c31a050e3d"
+    },
+    {
+      "role": "設計書生成API応答",
+      "path": "experiments/ini-writer-minimal/raw_output/design_generation_response.json",
+      "exists": true,
+      "size_bytes": 17528,
+      "line_count": 1388,
+      "sha256": "e19062a53ac7142f75daf083905ce11edbf3709e8197e815c7bc820d8147e6b4"
+    },
+    {
+      "role": "コード再生成APIリクエスト",
+      "path": "experiments/ini-writer-minimal/raw_output/code_regeneration_request.json",
+      "exists": true,
+      "size_bytes": 5841,
+      "line_count": 15,
+      "sha256": "7470cb4c1b56f61a3d8def834360d89d6118cb0a9bbfd94d5ae611483da65dfd"
+    },
+    {
+      "role": "コード再生成API応答",
+      "path": "experiments/ini-writer-minimal/raw_output/code_regeneration_response.json",
+      "exists": true,
+      "size_bytes": 16078,
+      "line_count": 1494,
+      "sha256": "7a8cec42f6e9bce7e9c24943e193aaacccf699f30324586d39c788681e3d6c6e"
+    },
+    {
+      "role": "評価結果の機械可読マニフェスト",
+      "path": "experiments/ini-writer-minimal/evaluation/evaluation_manifest.json",
+      "exists": true,
+      "size_bytes": 1560,
+      "line_count": 33,
+      "sha256": "5f69ce629dd723285eb77c96c759b59cc193712635cdabf22509c45501e5e1b4"
+    },
+    {
+      "role": "評価結果の要約",
+      "path": "experiments/ini-writer-minimal/evaluation/evaluation_summary.md",
+      "exists": true,
+      "size_bytes": 1570,
+      "line_count": 40,
+      "sha256": "ed5d73a6e37129f7b065d5824938e0b535b02cb35458b79f6cfe6128d1d5d6b0"
+    },
+    {
+      "role": "一時置換した差分",
+      "path": "experiments/ini-writer-minimal/evaluation/replacement_diff.patch",
+      "exists": true,
+      "size_bytes": 1361,
+      "line_count": 34,
+      "sha256": "d85fa89bbf1d54dabb03324305fb4139637bd71981935ebf4c73f7aeb2e77caa"
+    }
+  ],
+  "stages": [
+    {
+      "name": "設計書生成",
+      "passed": true,
+      "status": "PASS",
+      "detail": "入力650 tokens，出力725 tokens",
+      "elapsed_seconds": 76.73630780004896
+    },
+    {
+      "name": "コード再生成",
+      "passed": true,
+      "status": "PASS",
+      "detail": "入力1359 tokens，出力121 tokens",
+      "elapsed_seconds": 24.091064399806783
+    },
+    {
+      "name": "clean configure",
+      "passed": true,
+      "status": "PASS",
+      "detail": "exit code 0",
+      "elapsed_seconds": 4.622474799863994
+    },
+    {
+      "name": "full build",
+      "passed": true,
+      "status": "PASS",
+      "detail": "exit code 0",
+      "elapsed_seconds": 18.423598600085825
+    },
+    {
+      "name": "直接テスト",
+      "passed": true,
+      "status": "PASS",
+      "detail": "3/3 passed",
+      "elapsed_seconds": 0.5818700001109391
+    },
+    {
+      "name": "全GoogleTest",
+      "passed": true,
+      "status": "PASS",
+      "detail": "27/27 passed",
+      "elapsed_seconds": 0.657920999918133
+    },
+    {
+      "name": "CTest",
+      "passed": true,
+      "status": "PASS",
+      "detail": "exit code 0",
+      "elapsed_seconds": 0.701290600001812
+    },
+    {
+      "name": "元コード復元",
+      "passed": true,
+      "status": "PASS",
+      "detail": "SHA-256 30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+      "elapsed_seconds": null
+    },
+    {
+      "name": "submodule clean",
+      "passed": true,
+      "status": "PASS",
+      "detail": "追跡対象の差分・変更がないことを確認",
+      "elapsed_seconds": null
+    }
+  ],
+  "code_comparison": {
+    "available": true,
+    "exact_match": false,
+    "whitespace_insensitive_match": false,
+    "similarity_ratio": 0.03857280617164899,
+    "original_lines": 13,
+    "regenerated_lines": 18,
+    "original_sha256": "2c403d3d34cef37f0567b92be924d2278f2f396c43524ac3b63bbcc3271c9358",
+    "regenerated_sha256": "0cef6fb0215bc05f3c06f7ba651a093ad347cd2aa2ef1b3983afefc7e2393322"
+  },
+  "source_replacement": {
+    "experiment_id": "ini-writer-minimal",
+    "run_id": "qwen25coder32b-run-001",
+    "source_path": "repos/ini-cpp/ini/ini.h",
+    "original_source_sha256": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+    "lf_normalized_original_source_sha256": "fd88066d03f26b2ef5fd381291adef4171d994ab2b9a75edafcbd058e564b6ba",
+    "expected_original_source_sha256": "fd88066d03f26b2ef5fd381291adef4171d994ab2b9a75edafcbd058e564b6ba",
+    "source_hash_match_mode": "crlf_to_lf_normalized",
+    "generated_body_path": "experiments/ini-writer-minimal/generated/regenerated_write_body.cpp",
+    "generated_body_sha256": "0cef6fb0215bc05f3c06f7ba651a093ad347cd2aa2ef1b3983afefc7e2393322",
+    "write_open_brace_offset": 19383,
+    "write_close_brace_offset": 19955,
+    "modified_source_sha256": "e56861b7e6cb3c1cab648367eeac5195de01aed8e104c26ae35ef09cd33b8c7d",
+    "replacement_policy": "Only the text between the outer braces of INIWriter::write was replaced. No generated-code repair was performed."
+  }
+}
