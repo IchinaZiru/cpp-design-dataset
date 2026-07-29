@@ -379,12 +379,25 @@ def main() -> int:
 
     original_bytes = source_path.read_bytes()
     original_sha256 = sha256_bytes(original_bytes)
+    normalized_original_bytes = original_bytes.replace(b"\r\n", b"\n")
+    normalized_original_sha256 = sha256_bytes(normalized_original_bytes)
     expected_source_sha256 = read_text(expected_hash_path).strip().split()[0].lower()
-    assert_equal(
-        "Original ini.h SHA-256",
-        original_sha256.lower(),
-        expected_source_sha256,
-    )
+
+    # Windows Git may check out the tracked file with CRLF even though the
+    # repository blob and the original experiment record use LF. Accept only
+    # this line-ending-only difference. The exact working-tree bytes are still
+    # preserved and restored in the finally block.
+    if (
+        original_sha256.lower() != expected_source_sha256
+        and normalized_original_sha256.lower() != expected_source_sha256
+    ):
+        raise RuntimeError(
+            "Original ini.h SHA-256 mismatch even after CRLF-to-LF "
+            "normalization.\n"
+            f"Expected:          {expected_source_sha256}\n"
+            f"Working tree:      {original_sha256.lower()}\n"
+            f"LF-normalized:     {normalized_original_sha256.lower()}"
+        )
 
     source_text = original_bytes.decode("utf-8")
     newline = "\r\n" if "\r\n" in source_text else "\n"
@@ -407,7 +420,13 @@ def main() -> int:
         "run_id": RUN_ID,
         "source_path": "repos/ini-cpp/ini/ini.h",
         "original_source_sha256": original_sha256,
+        "lf_normalized_original_source_sha256": normalized_original_sha256,
         "expected_original_source_sha256": expected_source_sha256,
+        "source_hash_match_mode": (
+            "exact"
+            if original_sha256.lower() == expected_source_sha256
+            else "crlf_to_lf_normalized"
+        ),
         "generated_body_path": (
             "experiments/ini-writer-minimal/generated/"
             "regenerated_write_body.cpp"
