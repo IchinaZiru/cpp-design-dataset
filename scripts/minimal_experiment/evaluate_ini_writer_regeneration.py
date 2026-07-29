@@ -194,6 +194,19 @@ def run_docker_stage(
         "-lc",
         shell_command,
     ]
+    recorded_command = [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        IMAGE,
+        "bash",
+        "-lc",
+        shell_command,
+    ]
 
     started_at = utc_now()
     started = time.perf_counter()
@@ -208,14 +221,14 @@ def run_docker_stage(
 
     return {
         "stage": name,
-        "command": command,
+        "command": recorded_command,
         "container_shell_command": shell_command,
         "started_at_utc": started_at,
         "completed_at_utc": completed_at,
         "elapsed_seconds": elapsed,
         "exit_code": result.returncode,
-        "stdout_log": stdout_path.as_posix(),
-        "stderr_log": stderr_path.as_posix(),
+        "stdout_log": stdout_path.relative_to(project_root).as_posix(),
+        "stderr_log": stderr_path.relative_to(project_root).as_posix(),
         "_stdout": result.stdout,
         "_stderr": result.stderr,
     }
