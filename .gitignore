@@ -60,3 +60,7 @@ desktop.ini
 # Raw experiment execution logs
 /logs/*
 !/logs/README.md
+
+# Local Ollama environment details
+/experiments/ini-writer-minimal/configs/installed_models.txt
+/experiments/ini-writer-minimal/configs/model_modelfile.txt

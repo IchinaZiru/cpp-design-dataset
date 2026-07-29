@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "ini-writer-minimal",
+  "run_id": "qwen25coder32b-run-001",
+  "provider": "ollama-local",
+  "endpoint": "http://localhost:11434/api/generate",
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "local_id": "b92d6a0bd47e",
+    "architecture": "qwen2",
+    "parameters": "32.8B",
+    "quantization": "Q4_K_M",
+    "native_context_length": 32768,
+    "ollama_version": "0.32.0",
+    "modelfile_sha256": "615BCF05D9ABCB4D02B024BE7BDA3624819104124F3A0E24D8DF3C1C382B6339"
+  },
+  "generation": {
+    "stream": false,
+    "options": {
+      "temperature": 0,
+      "seed": 42,
+      "num_ctx": 8192,
+      "num_predict": 2048,
+      "top_k": 40,
+      "top_p": 0.9,
+      "repeat_penalty": 1.1
+    }
+  },
+  "conditions": {
+    "design_language": "ja",
+    "generations_per_stage": 1,
+    "retry_on_failure": false,
+    "automatic_repair": false,
+    "same_model_for_both_stages": true
+  },
+  "inputs": {
+    "design_input": "experiments/ini-writer-minimal/input/design_input.cpp",
+    "design_input_sha256": "303d8a22022c6dc64e933f767eed5c16e63d089e93cd2aafb8133c75f97ebd30",
+    "fixed_scaffold": "experiments/ini-writer-minimal/input/fixed_scaffold.cpp",
+    "dependency_context": "experiments/ini-writer-minimal/input/dependency_context.txt"
+  },
+  "prompts": {
+    "design_generation": "experiments/ini-writer-minimal/prompts/design_generation_prompt.md",
+    "code_regeneration": "experiments/ini-writer-minimal/prompts/code_regeneration_prompt.md",
+    "design_prompt_version": "v1",
+    "code_prompt_version": "v1"
+  }
+}
