@@ -9,8 +9,6 @@ credentials.json
 secrets.json
 
 # External repositories
-# These will be converted to Git submodules later.
-/repos/
 
 # Build outputs
 **/build/

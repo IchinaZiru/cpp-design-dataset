@@ -1,0 +1,9 @@
+[submodule "repos/Echo-Web-Server"]
+	path = repos/Echo-Web-Server
+	url = https://github.com/Zhuagenborn/Echo-Web-Server.git
+[submodule "repos/ini-cpp"]
+	path = repos/ini-cpp
+	url = https://github.com/SSARCandy/ini-cpp.git
+[submodule "repos/RISCV-Simulator"]
+	path = repos/RISCV-Simulator
+	url = https://github.com/skyzh/RISCV-Simulator.git
