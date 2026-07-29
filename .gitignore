@@ -58,3 +58,7 @@ volumes/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Raw experiment execution logs
+/logs/*
+!/logs/README.md

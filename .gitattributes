@@ -1,4 +1,4 @@
-* text=auto
+﻿* text=auto
 
 *.ps1 text eol=crlf
 *.sh text eol=lf
@@ -17,6 +17,5 @@
 *.yaml text eol=lf
 
 # Research-generated artifacts
-logs/** linguist-generated=true
 experiments/**/raw_output/** linguist-generated=true
 experiments/**/generated/** linguist-generated=true
