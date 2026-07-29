@@ -195,6 +195,50 @@ def normalized_text(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n").strip()
 
 
+def pretty_json_file(path: Path) -> str:
+    if not path.exists():
+        return ""
+    try:
+        value = json.loads(read_text(path))
+    except json.JSONDecodeError:
+        return read_text(path)
+    return json.dumps(value, ensure_ascii=False, indent=2)
+
+
+def request_response_info(
+    request_path: Path,
+    response_path: Path,
+    project_root: Path,
+    stage_name: str,
+) -> dict[str, Any]:
+    request_data = load_json(request_path)
+    response_data = load_json(response_path)
+
+    prompt = request_data.get("prompt")
+    system = request_data.get("system")
+    response_text = response_data.get("response")
+
+    return {
+        "stage": stage_name,
+        "request_path": relative_path(request_path, project_root),
+        "response_path": relative_path(response_path, project_root),
+        "model": request_data.get("model") or response_data.get("model"),
+        "stream": request_data.get("stream"),
+        "system_chars": len(system) if isinstance(system, str) else None,
+        "prompt_chars": len(prompt) if isinstance(prompt, str) else None,
+        "response_chars": (
+            len(response_text) if isinstance(response_text, str) else None
+        ),
+        "system": system if isinstance(system, str) else "",
+        "prompt": prompt if isinstance(prompt, str) else "",
+        "response_text": (
+            response_text if isinstance(response_text, str) else ""
+        ),
+        "request_json": pretty_json_file(request_path),
+        "response_json": pretty_json_file(response_path),
+    }
+
+
 def compare_code(original_path: Path, regenerated_path: Path) -> dict[str, Any]:
     if not original_path.exists() or not regenerated_path.exists():
         return {
@@ -255,6 +299,21 @@ def build_report(
         backup_dir / "original_write_body.cpp",
         generated_dir / "regenerated_write_body.cpp",
     )
+
+    llm_io = [
+        request_response_info(
+            raw_dir / "design_generation_request.json",
+            raw_dir / "design_generation_response.json",
+            project_root,
+            "設計書生成",
+        ),
+        request_response_info(
+            raw_dir / "code_regeneration_request.json",
+            raw_dir / "code_regeneration_response.json",
+            project_root,
+            "コード再生成",
+        ),
+    ]
 
     inputs = [
         file_info(
@@ -471,6 +530,22 @@ def build_report(
         "inputs": inputs,
         "outputs": outputs,
         "stages": stages,
+        "llm_input_output": [
+            {
+                "stage": item["stage"],
+                "request_path": item["request_path"],
+                "response_path": item["response_path"],
+                "model": item["model"],
+                "stream": item["stream"],
+                "system_chars": item["system_chars"],
+                "prompt_chars": item["prompt_chars"],
+                "response_chars": item["response_chars"],
+                "system": item["system"],
+                "prompt": item["prompt"],
+                "response_text": item["response_text"],
+            }
+            for item in llm_io
+        ],
         "code_comparison": code_comparison,
         "source_replacement": source_replacement,
     }
@@ -708,7 +783,90 @@ def build_report(
     )
     lines.append("")
 
-    lines.append("## 8. 元コードと再生成コードのテキスト比較")
+    lines.append("## 8. LLMへ送信した入力と返却された出力")
+    lines.append("")
+    lines.append(
+        markdown_table(
+            ["段階", "モデル", "system文字数", "prompt文字数", "出力文字数"],
+            [
+                [
+                    item["stage"],
+                    f"`{item['model']}`",
+                    format_number(item["system_chars"]),
+                    format_number(item["prompt_chars"]),
+                    format_number(item["response_chars"]),
+                ]
+                for item in llm_io
+            ],
+        )
+    )
+    lines.append("")
+    lines.append(
+        "以下には，Ollamaへ実際に送信したsystem・prompt・完全なrequest JSONと，"
+        "Ollamaから返却されたresponse本文・完全なresponse JSONを段階別に掲載する．"
+    )
+    lines.append("")
+
+    if include_content:
+        for item in llm_io:
+            stage = item["stage"]
+            lines.append(f"### {stage}")
+            lines.append("")
+            if item["system"]:
+                lines.append(
+                    collapsible(
+                        f"{stage}：system入力",
+                        item["system"],
+                        "text",
+                    )
+                )
+                lines.append("")
+            if item["prompt"]:
+                lines.append(
+                    collapsible(
+                        f"{stage}：prompt入力",
+                        item["prompt"],
+                        "text",
+                    )
+                )
+                lines.append("")
+            if item["response_text"]:
+                response_language = (
+                    "markdown" if stage == "設計書生成" else "cpp"
+                )
+                lines.append(
+                    collapsible(
+                        f"{stage}：モデルが返した出力本文",
+                        item["response_text"],
+                        response_language,
+                    )
+                )
+                lines.append("")
+            if item["request_json"]:
+                lines.append(
+                    collapsible(
+                        f"{stage}：Ollamaへ送信した完全なrequest JSON",
+                        item["request_json"],
+                        "json",
+                    )
+                )
+                lines.append("")
+            if item["response_json"]:
+                lines.append(
+                    collapsible(
+                        f"{stage}：Ollamaから返った完全なresponse JSON",
+                        item["response_json"],
+                        "json",
+                    )
+                )
+                lines.append("")
+    else:
+        lines.append(
+            "`--no-content`が指定されているため，実際の入力・出力本文は省略した．"
+        )
+        lines.append("")
+
+    lines.append("## 9. 元コードと再生成コードのテキスト比較")
     lines.append("")
     if code_comparison["available"]:
         lines.append(
@@ -756,7 +914,7 @@ def build_report(
         lines.append("比較対象ファイルが不足しているため算出できない．")
     lines.append("")
 
-    lines.append("## 9. 評価の解釈")
+    lines.append("## 10. 評価の解釈")
     lines.append("")
     if evaluation_manifest.get("overall_pass") is True:
         lines.append(
@@ -777,7 +935,7 @@ def build_report(
     lines.append("")
 
     if include_content:
-        lines.append("## 10. 内容確認")
+        lines.append("## 11. 内容確認")
         lines.append("")
 
         content_files = [
@@ -813,7 +971,7 @@ def build_report(
                 )
                 lines.append("")
 
-    lines.append("## 11. 再現性のための主要ファイル")
+    lines.append("## 12. 再現性のための主要ファイル")
     lines.append("")
     lines.append(
         "- 実験条件：`configs/run_config.json`\n"

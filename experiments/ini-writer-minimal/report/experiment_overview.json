@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at_utc": "2026-07-29T14:09:24.381565+00:00",
+  "generated_at_utc": "2026-07-29T14:12:33.781609+00:00",
   "experiment_id": "ini-writer-minimal",
   "run_id": "qwen25coder32b-run-001",
   "repository": "SSARCandy/ini-cpp",
@@ -229,6 +229,34 @@
       "status": "PASS",
       "detail": "追跡対象の差分・変更がないことを確認",
       "elapsed_seconds": null
+    }
+  ],
+  "llm_input_output": [
+    {
+      "stage": "設計書生成",
+      "request_path": "experiments/ini-writer-minimal/raw_output/design_generation_request.json",
+      "response_path": "experiments/ini-writer-minimal/raw_output/design_generation_response.json",
+      "model": "qwen2.5-coder:32b",
+      "stream": false,
+      "system_chars": 83,
+      "prompt_chars": 1715,
+      "response_chars": 1310,
+      "system": "Follow the task and output constraints exactly. Do not add unsupported information.",
+      "prompt": "# 役割\n\nあなたは，C++ソースコードから実装に忠実な設計文書を作成するソフトウェア設計者である．\n\n# タスク\n\n与えられたC++ソースコードを読み，`INIWriter`クラスおよび`INIWriter::write`関数の設計文書を日本語で作成せよ．\n\n# 制約\n\n- 与えられたソースコードだけを根拠とすること．\n- ソースコードから判断できない事項を推測で補わないこと．\n- 判断できない事項は「ソースコードからは判断できない」と明記すること．\n- 実装の改善案，リファクタリング案，代替設計を提案しないこと．\n- 元の関数本体をコードとして再掲しないこと．\n- コードブロックを使用しないこと．\n- 次の見出しを順番どおりに使用すること．\n\n# 出力構成\n\n## 1. クラスの責務\n## 2. 対象関数の責務\n## 3. 入力\n## 4. 出力\n## 5. 使用する内部状態\n## 6. 呼び出す依存関数\n## 7. 事前条件\n## 8. 処理手順\n## 9. 分岐条件\n## 10. 反復処理\n## 11. 例外・失敗条件\n## 12. 保持すべき振る舞い\n\n# 対象ソースコード\n\n/**\n * @brief Write the contents of an INIReader to an ini file.\n */\nclass INIWriter {\n   public:\n    INIWriter() = default;\n    /**\n     * @brief Write the contents of an INI file to a new file\n     * @param filepath The path of the output file\n     * @param reader The INIReader object to write to the file\n     * @param overwrite Whether to just overwrite an existing file\n     * @throws std::runtime_error if the output file already exists or cannot\n     * be opened\n     */\n    inline static void write(const std::string& filepath,\n                             const INIReader& reader,\n                             const bool overwrite = false) {\n        if (!overwrite && std::ifstream{filepath}) {\n            throw std::runtime_error(\"file: \" + filepath + \" already exists.\");\n        }\n        std::ofstream out{filepath};\n        if (!out.is_open()) {\n            throw std::runtime_error(\"cannot open output file: \" + filepath);\n        }\n        for (const auto& section : reader.Sections()) {\n            out << \"[\" << section << \"]\\n\";\n            for (const auto& key : reader.Keys(section)) {\n                out << key << \"=\" << reader.Get(section, key) << \"\\n\";\n            }\n        }\n    }\n};\n\n",
+      "response_text": "## 1. クラスの責務\nINIファイルにデータを書き込むための機能を提供する。\n\n## 2. 対象関数の責務\n与えられたINIReaderオブジェクトの内容を指定されたファイルパスにINI形式で書き込む。\n\n## 3. 入力\n- filepath: 出力ファイルのパス（文字列）\n- reader: ファイルに出力するINIデータを持つINIReaderオブジェクト\n- overwrite: 既存ファイルを上書きするかどうかを示す真偽値（デフォルトはfalse）\n\n## 4. 出力\n関数自体が直接出力を返さない。代わりに、指定されたファイルパスにINIデータを書き込む。\n\n## 5. 使用する内部状態\n- ソースコードからは判断できない\n\n## 6. 呼び出す依存関数\n- std::ifstreamのコンストラクタとis_openメソッド: ファイルが既に存在するか確認するために使用。\n- std::ofstreamのコンストラクタとis_openメソッド: 出力ファイルを開くために使用。\n- INIReader::Sectionsメソッド: セクション名の一覧を取得するために使用。\n- INIReader::Keysメソッド: 指定されたセクション内のキーの一覧を取得するために使用。\n- INIReader::Getメソッド: 指定されたセクションとキーに対応する値を取得するために使用。\n\n## 7. 事前条件\n- filepathが有効なファイルパスであること。\n- readerが適切に初期化され、データを持っていること。\n\n## 8. 処理手順\n1. overwriteフラグがfalseで、指定されたファイルパスのファイルが既に存在する場合、例外をスローする。\n2. 出力ファイルを開く。開けない場合は例外をスローする。\n3. INIReaderオブジェクトからセクション名の一覧を取得し、各セクションに対して以下の処理を行う：\n   - セクション名を出力ファイルに書き込む。\n   - そのセクション内のキーの一覧を取得し、各キーに対して以下の処理を行う：\n     - キーと値を出力ファイルに書き込む。\n\n## 9. 分岐条件\n- overwriteフラグがfalseでかつ指定されたファイルパスのファイルが既存の場合。\n- 出力ファイルを開くことができない場合。\n\n## 10. 反復処理\n- INIReaderオブジェクトから取得したセクション名に対して繰り返し処理を行う。\n- 各セクション内のキーに対して繰り返し処理を行う。\n\n## 11. 例外・失敗条件\n- 指定されたファイルパスのファイルが既に存在する場合、std::runtime_errorをスローする。\n- 出力ファイルを開くことができない場合、std::runtime_errorをスローする。\n\n## 12. 保持すべき振る舞い\n- overwriteフラグがfalseの場合、既存のファイルは上書きされないこと。\n- INIReaderオブジェクトから取得したデータが正しい形式でファイルに出力されること。"
+    },
+    {
+      "stage": "コード再生成",
+      "request_path": "experiments/ini-writer-minimal/raw_output/code_regeneration_request.json",
+      "response_path": "experiments/ini-writer-minimal/raw_output/code_regeneration_response.json",
+      "model": "qwen2.5-coder:32b",
+      "stream": false,
+      "system_chars": 83,
+      "prompt_chars": 3041,
+      "response_chars": 494,
+      "system": "Follow the task and output constraints exactly. Return only the requested C++ body.",
+      "prompt": "# 役割\n\nあなたは，設計文書に基づいてC++コードを再生成するソフトウェア開発者である．\n\n# タスク\n\n設計文書，固定スキャフォールド，依存関係情報に基づき，`INIWriter::write`の外側の波括弧の内側に入る関数本体だけを生成せよ．\n\n# 制約\n\n- 元の`INIWriter::write`実装は提供されていないものとして扱うこと．\n- 設計文書に記載された観測可能な振る舞いを保持すること．\n- 固定スキャフォールドのシグネチャ，クラス宣言，名前空間，includeを変更しないこと．\n- 新しい補助関数，クラス，include，外部依存を追加しないこと．\n- 出力は関数本体の文だけとすること．\n- 関数シグネチャを出力しないこと．\n- 外側の波括弧を出力しないこと．\n- Markdownのコードフェンス，説明文，前置き，後書きを出力しないこと．\n- 質問や再試行を行わず，1回の生成で回答すること．\n\n# 設計文書\n\n## 1. クラスの責務\nINIファイルにデータを書き込むための機能を提供する。\n\n## 2. 対象関数の責務\n与えられたINIReaderオブジェクトの内容を指定されたファイルパスにINI形式で書き込む。\n\n## 3. 入力\n- filepath: 出力ファイルのパス（文字列）\n- reader: ファイルに出力するINIデータを持つINIReaderオブジェクト\n- overwrite: 既存ファイルを上書きするかどうかを示す真偽値（デフォルトはfalse）\n\n## 4. 出力\n関数自体が直接出力を返さない。代わりに、指定されたファイルパスにINIデータを書き込む。\n\n## 5. 使用する内部状態\n- ソースコードからは判断できない\n\n## 6. 呼び出す依存関数\n- std::ifstreamのコンストラクタとis_openメソッド: ファイルが既に存在するか確認するために使用。\n- std::ofstreamのコンストラクタとis_openメソッド: 出力ファイルを開くために使用。\n- INIReader::Sectionsメソッド: セクション名の一覧を取得するために使用。\n- INIReader::Keysメソッド: 指定されたセクション内のキーの一覧を取得するために使用。\n- INIReader::Getメソッド: 指定されたセクションとキーに対応する値を取得するために使用。\n\n## 7. 事前条件\n- filepathが有効なファイルパスであること。\n- readerが適切に初期化され、データを持っていること。\n\n## 8. 処理手順\n1. overwriteフラグがfalseで、指定されたファイルパスのファイルが既に存在する場合、例外をスローする。\n2. 出力ファイルを開く。開けない場合は例外をスローする。\n3. INIReaderオブジェクトからセクション名の一覧を取得し、各セクションに対して以下の処理を行う：\n   - セクション名を出力ファイルに書き込む。\n   - そのセクション内のキーの一覧を取得し、各キーに対して以下の処理を行う：\n     - キーと値を出力ファイルに書き込む。\n\n## 9. 分岐条件\n- overwriteフラグがfalseでかつ指定されたファイルパスのファイルが既存の場合。\n- 出力ファイルを開くことができない場合。\n\n## 10. 反復処理\n- INIReaderオブジェクトから取得したセクション名に対して繰り返し処理を行う。\n- 各セクション内のキーに対して繰り返し処理を行う。\n\n## 11. 例外・失敗条件\n- 指定されたファイルパスのファイルが既に存在する場合、std::runtime_errorをスローする。\n- 出力ファイルを開くことができない場合、std::runtime_errorをスローする。\n\n## 12. 保持すべき振る舞い\n- overwriteフラグがfalseの場合、既存のファイルは上書きされないこと。\n- INIReaderオブジェクトから取得したデータが正しい形式でファイルに出力されること。\n\n\n# 固定スキャフォールド\n\n/**\n * @brief Write the contents of an INIReader to an ini file.\n */\nclass INIWriter {\n   public:\n    INIWriter() = default;\n    /**\n     * @brief Write the contents of an INI file to a new file\n     * @param filepath The path of the output file\n     * @param reader The INIReader object to write to the file\n     * @param overwrite Whether to just overwrite an existing file\n     * @throws std::runtime_error if the output file already exists or cannot\n     * be opened\n     */\n    inline static void write(const std::string& filepath,\n                             const INIReader& reader,\n                             const bool overwrite = false) {\n        /* REGENERATED_BODY */\n    }\n};\n\n\n# 依存関係情報\n\nTarget:\nINIWriter::write\n\nNamespace:\ninih\n\nRegeneration scope:\nOnly the contents inside the braces of INIWriter::write.\n\nFixed and not regenerated:\n- The leading INIWriter comment\n- The INIWriter class declaration\n- The INIWriter default constructor\n- The write() documentation comment\n- The write() function name\n- The write() return type\n- The write() parameters\n- inline and static qualifiers\n- The inih namespace\n- Include directives\n- INIReader\n- Tests\n- CMake files\n\nAvailable INIReader operations:\n- INIReader::Sections()\n- INIReader::Keys(section)\n- INIReader::Get(section, key)\n\n",
+      "response_text": "if (!overwrite) {\n    std::ifstream file(filepath);\n    if (file.is_open()) {\n        throw std::runtime_error(\"File already exists.\");\n    }\n}\n\nstd::ofstream outFile(filepath);\nif (!outFile.is_open()) {\n    throw std::runtime_error(\"Cannot open output file.\");\n}\n\nfor (const auto& section : reader.Sections()) {\n    outFile << \"[\" << section << \"]\" << std::endl;\n    for (const auto& key : reader.Keys(section)) {\n        outFile << key << \"=\" << reader.Get(section, key) << std::endl;\n    }\n}"
     }
   ],
   "code_comparison": {
