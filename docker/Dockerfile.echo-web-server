@@ -1,0 +1,11 @@
+FROM cpp-roundtrip-env:ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libyaml-cpp-dev \
+    libfmt-dev \
+    libgmock-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace

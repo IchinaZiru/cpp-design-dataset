@@ -1,0 +1,27 @@
+{
+    "repository":  "SSARCandy/ini-cpp",
+    "repository_commit":  "e1779b837274de8be2051bef579c3b9ec3483522",
+    "submodule_commit":  "391ce627def20c1e8a54d10b12949b15086473dd",
+    "target_class":  "INIWriter",
+    "target_function":  "INIWriter::write",
+    "target_granularity":  "function_body",
+    "source_file":  "ini/ini.h",
+    "source_sha256":  "fd88066d03f26b2ef5fd381291adef4171d994ab2b9a75edafcbd058e564b6ba",
+    "design_input_sha256":  "303d8a22022c6dc64e933f767eed5c16e63d089e93cd2aafb8133c75f97ebd30",
+    "design_input_start_line":  530,
+    "class_start_line":  533,
+    "class_end_line":  561,
+    "write_open_brace_line":  546,
+    "write_close_brace_line":  560,
+    "leading_class_comment_included":  true,
+    "function_comment_included":  true,
+    "original_function_body_included_for_design_generation":  true,
+    "original_function_body_excluded_from_regeneration_input":  true,
+    "replacement_scope":  "INIWriter::write function body only",
+    "dependency_methods":  [
+                               "Get",
+                               "Keys",
+                               "Sections"
+                           ],
+    "generated_at_utc":  "2026-07-29T11:35:06Z"
+}

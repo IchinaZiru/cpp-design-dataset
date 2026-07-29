@@ -1,0 +1,14 @@
+﻿[
+    {
+        "source":  "metadata/Echo-Web-Server_targets.csv",
+        "archived":  "metadata/history/Echo-Web-Server/run_20260727T130931Z/Echo-Web-Server_targets.csv",
+        "sha256":  "0c6c499aad0514e66e56c0fc7f292e234bba13b363b1ebbca33d2bb94c6bec56",
+        "bytes":  8519
+    },
+    {
+        "source":  "metadata/Echo-Web-Server_report.md",
+        "archived":  "metadata/history/Echo-Web-Server/run_20260727T130931Z/Echo-Web-Server_report.md",
+        "sha256":  "7b4eb427aa2a65e433fa47c278e5e2e84a6b2cd719cc9f5dfbc06a316c351e45",
+        "bytes":  12194
+    }
+]

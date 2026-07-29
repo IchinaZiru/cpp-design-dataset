@@ -1,0 +1,60 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+credentials.json
+secrets.json
+
+# External repositories
+# These will be converted to Git submodules later.
+/repos/
+
+# Build outputs
+**/build/
+**/cmake-build-*/
+**/out/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# Test coverage
+.coverage/
+coverage.info
+*.gcda
+*.gcno
+*.gcov
+
+# Cache
+.cache/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*~
+*.swp
+
+# Full source backups can be restored from fixed commits.
+**/backup/ini.h.original
+
+# Docker local data
+docker-data/
+volumes/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

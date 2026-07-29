@@ -1,0 +1,44 @@
+Step 1 completed successfully.
+
+Repository:
+SSARCandy/ini-cpp
+
+Repository commit:
+e1779b837274de8be2051bef579c3b9ec3483522
+
+Target class:
+INIWriter
+
+Target function:
+INIWriter::write
+
+Design-generation input:
+Leading class comment + complete INIWriter class
+
+Regeneration target:
+Only the write() function body
+
+Fixed during replacement:
+Comments, class declaration, constructor, function signature,
+namespace, includes, INIReader, tests and build configuration
+
+Design input line range:
+530-561
+
+Class line range:
+533-561
+
+write() brace lines:
+546-560
+
+Dependencies:
+Get, Keys, Sections
+
+Source SHA-256:
+fd88066d03f26b2ef5fd381291adef4171d994ab2b9a75edafcbd058e564b6ba
+
+Design input SHA-256:
+303d8a22022c6dc64e933f767eed5c16e63d089e93cd2aafb8133c75f97ebd30
+
+Original source modified:
+no

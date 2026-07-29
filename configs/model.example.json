@@ -1,0 +1,9 @@
+{
+  "provider": "",
+  "model_id": "",
+  "temperature": 0,
+  "seed": null,
+  "max_output_tokens": null,
+  "retry_count": 0,
+  "automatic_repair": false
+}

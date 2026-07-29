@@ -1,0 +1,28 @@
+Target:
+INIWriter::write
+
+Namespace:
+inih
+
+Regeneration scope:
+Only the contents inside the braces of INIWriter::write.
+
+Fixed and not regenerated:
+- The leading INIWriter comment
+- The INIWriter class declaration
+- The INIWriter default constructor
+- The write() documentation comment
+- The write() function name
+- The write() return type
+- The write() parameters
+- inline and static qualifiers
+- The inih namespace
+- Include directives
+- INIReader
+- Tests
+- CMake files
+
+Available INIReader operations:
+- INIReader::Sections()
+- INIReader::Keys(section)
+- INIReader::Get(section, key)

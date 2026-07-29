@@ -1,0 +1,11 @@
+FROM cpp-roundtrip-env:ubuntu22.04@sha256:81e23cc94a387697d7979c847d81bf557543fece913065fbdbd329bf194f62cd
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends libboost-dev && rm -rf /var/lib/apt/lists/*
+
+LABEL research.repository="SSARCandy/ini-cpp"
+LABEL research.commit="e1779b837274de8be2051bef579c3b9ec3483522"
+LABEL research.purpose="cpp-design-dataset evaluation"
+
+WORKDIR /workspace
