@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "ini-writer-minimal",
+  "run_id": "qwen25coder32b-run-001",
+  "completed_at_utc": "2026-07-29T13:59:21.857579+00:00",
+  "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+  "googletest_commit": "391ce627def20c1e8a54d10b12949b15086473dd",
+  "docker_image": "cpp-roundtrip-env:ini-cpp-v2",
+  "docker_image_id": "sha256:68500729fc7fc0ba42377dc0737dea8bc2930d2be6e0d20b307490713c97c802",
+  "expected_direct_tests": 3,
+  "expected_full_tests": 27,
+  "overall_pass": true,
+  "evaluation_error": null,
+  "restoration": {
+    "restored": true,
+    "restored_sha256": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+    "expected_sha256": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+    "submodule_clean": true,
+    "tracked_status_after": "",
+    "googletest_status_after": ""
+  },
+  "git_managed_outputs": [
+    "experiments/ini-writer-minimal/evaluation/replacement_diff.patch",
+    "experiments/ini-writer-minimal/evaluation/source_replacement.json",
+    "experiments/ini-writer-minimal/evaluation/build_result.json",
+    "experiments/ini-writer-minimal/evaluation/direct_test_result.json",
+    "experiments/ini-writer-minimal/evaluation/full_test_result.json",
+    "experiments/ini-writer-minimal/evaluation/ctest_result.json",
+    "experiments/ini-writer-minimal/evaluation/evaluation_summary.md",
+    "experiments/ini-writer-minimal/evaluation/evaluation_manifest.json"
+  ],
+  "local_raw_log_directory": "logs/ini-writer-minimal/qwen25coder32b-run-001/"
+}

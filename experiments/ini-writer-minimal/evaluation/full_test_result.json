@@ -1,0 +1,31 @@
+{
+  "stage": "full_test",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--mount",
+    "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+    "-w",
+    "/workspace/repos/ini-cpp",
+    "cpp-roundtrip-env:ini-cpp-v2",
+    "bash",
+    "-lc",
+    "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && cd build/test && ./all_test --gtest_color=no"
+  ],
+  "container_shell_command": "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && cd build/test && ./all_test --gtest_color=no",
+  "started_at_utc": "2026-07-29T13:59:20.390614+00:00",
+  "completed_at_utc": "2026-07-29T13:59:21.048554+00:00",
+  "elapsed_seconds": 0.657920999918133,
+  "exit_code": 0,
+  "stdout_log": "logs/ini-writer-minimal/qwen25coder32b-run-001/full_test.stdout.txt",
+  "stderr_log": "logs/ini-writer-minimal/qwen25coder32b-run-001/full_test.stderr.txt",
+  "gtest": {
+    "tests_ran": 27,
+    "tests_passed": 27,
+    "tests_failed": 0
+  },
+  "expected_tests": 27,
+  "passed": true,
+  "skipped": false
+}

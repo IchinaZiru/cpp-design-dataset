@@ -1,0 +1,52 @@
+{
+  "configure": {
+    "stage": "configure",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--mount",
+      "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+      "-w",
+      "/workspace/repos/ini-cpp",
+      "cpp-roundtrip-env:ini-cpp-v2",
+      "bash",
+      "-lc",
+      "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+    ],
+    "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "started_at_utc": "2026-07-29T13:58:56.756519+00:00",
+    "completed_at_utc": "2026-07-29T13:59:01.379062+00:00",
+    "elapsed_seconds": 4.622474799863994,
+    "exit_code": 0,
+    "stdout_log": "logs/ini-writer-minimal/qwen25coder32b-run-001/configure.stdout.txt",
+    "stderr_log": "logs/ini-writer-minimal/qwen25coder32b-run-001/configure.stderr.txt",
+    "passed": true,
+    "skipped": false
+  },
+  "build": {
+    "stage": "build",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--mount",
+      "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+      "-w",
+      "/workspace/repos/ini-cpp",
+      "cpp-roundtrip-env:ini-cpp-v2",
+      "bash",
+      "-lc",
+      "cmake --build build --parallel"
+    ],
+    "container_shell_command": "cmake --build build --parallel",
+    "started_at_utc": "2026-07-29T13:59:01.380945+00:00",
+    "completed_at_utc": "2026-07-29T13:59:19.804755+00:00",
+    "elapsed_seconds": 18.423598600085825,
+    "exit_code": 0,
+    "stdout_log": "logs/ini-writer-minimal/qwen25coder32b-run-001/build.stdout.txt",
+    "stderr_log": "logs/ini-writer-minimal/qwen25coder32b-run-001/build.stderr.txt",
+    "passed": true,
+    "skipped": false
+  }
+}

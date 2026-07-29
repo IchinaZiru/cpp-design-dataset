@@ -1,0 +1,25 @@
+{
+  "stage": "ctest",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--mount",
+    "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+    "-w",
+    "/workspace/repos/ini-cpp",
+    "cpp-roundtrip-env:ini-cpp-v2",
+    "bash",
+    "-lc",
+    "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && ctest --test-dir build/test --output-on-failure"
+  ],
+  "container_shell_command": "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && ctest --test-dir build/test --output-on-failure",
+  "started_at_utc": "2026-07-29T13:59:21.050224+00:00",
+  "completed_at_utc": "2026-07-29T13:59:21.751533+00:00",
+  "elapsed_seconds": 0.701290600001812,
+  "exit_code": 0,
+  "stdout_log": "logs/ini-writer-minimal/qwen25coder32b-run-001/ctest.stdout.txt",
+  "stderr_log": "logs/ini-writer-minimal/qwen25coder32b-run-001/ctest.stderr.txt",
+  "passed": true,
+  "skipped": false
+}

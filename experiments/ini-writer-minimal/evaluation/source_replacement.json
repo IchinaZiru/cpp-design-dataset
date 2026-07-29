@@ -1,0 +1,15 @@
+{
+  "experiment_id": "ini-writer-minimal",
+  "run_id": "qwen25coder32b-run-001",
+  "source_path": "repos/ini-cpp/ini/ini.h",
+  "original_source_sha256": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+  "lf_normalized_original_source_sha256": "fd88066d03f26b2ef5fd381291adef4171d994ab2b9a75edafcbd058e564b6ba",
+  "expected_original_source_sha256": "fd88066d03f26b2ef5fd381291adef4171d994ab2b9a75edafcbd058e564b6ba",
+  "source_hash_match_mode": "crlf_to_lf_normalized",
+  "generated_body_path": "experiments/ini-writer-minimal/generated/regenerated_write_body.cpp",
+  "generated_body_sha256": "0cef6fb0215bc05f3c06f7ba651a093ad347cd2aa2ef1b3983afefc7e2393322",
+  "write_open_brace_offset": 19383,
+  "write_close_brace_offset": 19955,
+  "modified_source_sha256": "e56861b7e6cb3c1cab648367eeac5195de01aed8e104c26ae35ef09cd33b8c7d",
+  "replacement_policy": "Only the text between the outer braces of INIWriter::write was replaced. No generated-code repair was performed."
+}

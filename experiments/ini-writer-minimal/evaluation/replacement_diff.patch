@@ -1,0 +1,34 @@
+diff --git a/ini/ini.h b/ini/ini.h
+index d119bbc..7e9fcbd 100644
+--- a/ini/ini.h
++++ b/ini/ini.h
+@@ -544,17 +544,22 @@ class INIWriter {
+     inline static void write(const std::string& filepath,
+                              const INIReader& reader,
+                              const bool overwrite = false) {
+-        if (!overwrite && std::ifstream{filepath}) {
+-            throw std::runtime_error("file: " + filepath + " already exists.");
++        if (!overwrite) {
++            std::ifstream file(filepath);
++            if (file.is_open()) {
++                throw std::runtime_error("File already exists.");
++            }
+         }
+-        std::ofstream out{filepath};
+-        if (!out.is_open()) {
+-            throw std::runtime_error("cannot open output file: " + filepath);
++
++        std::ofstream outFile(filepath);
++        if (!outFile.is_open()) {
++            throw std::runtime_error("Cannot open output file.");
+         }
++
+         for (const auto& section : reader.Sections()) {
+-            out << "[" << section << "]\n";
++            outFile << "[" << section << "]" << std::endl;
+             for (const auto& key : reader.Keys(section)) {
+-                out << key << "=" << reader.Get(section, key) << "\n";
++                outFile << key << "=" << reader.Get(section, key) << std::endl;
+             }
+         }
+     }
