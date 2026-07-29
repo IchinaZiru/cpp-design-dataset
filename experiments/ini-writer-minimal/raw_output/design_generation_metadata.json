@@ -1,0 +1,17 @@
+{
+  "started_at_utc": "2026-07-29T13:32:32.625264+00:00",
+  "completed_at_utc": "2026-07-29T13:33:49.362391+00:00",
+  "elapsed_seconds": 76.73630780004896,
+  "model": "qwen2.5-coder:32b",
+  "created_at": "2026-07-29T13:33:49.3534015Z",
+  "done": true,
+  "done_reason": "stop",
+  "total_duration_ns": 76671594800,
+  "load_duration_ns": 38641503200,
+  "prompt_eval_count": 650,
+  "prompt_eval_duration_ns": 18887109000,
+  "eval_count": 725,
+  "eval_duration_ns": 19119216000,
+  "retry_performed": false,
+  "automatic_repair_performed": false
+}

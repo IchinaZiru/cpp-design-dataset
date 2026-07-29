@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "Follow the task and output constraints exactly. Do not add unsupported information.",
+  "prompt": "# 役割\n\nあなたは，C++ソースコードから実装に忠実な設計文書を作成するソフトウェア設計者である．\n\n# タスク\n\n与えられたC++ソースコードを読み，`INIWriter`クラスおよび`INIWriter::write`関数の設計文書を日本語で作成せよ．\n\n# 制約\n\n- 与えられたソースコードだけを根拠とすること．\n- ソースコードから判断できない事項を推測で補わないこと．\n- 判断できない事項は「ソースコードからは判断できない」と明記すること．\n- 実装の改善案，リファクタリング案，代替設計を提案しないこと．\n- 元の関数本体をコードとして再掲しないこと．\n- コードブロックを使用しないこと．\n- 次の見出しを順番どおりに使用すること．\n\n# 出力構成\n\n## 1. クラスの責務\n## 2. 対象関数の責務\n## 3. 入力\n## 4. 出力\n## 5. 使用する内部状態\n## 6. 呼び出す依存関数\n## 7. 事前条件\n## 8. 処理手順\n## 9. 分岐条件\n## 10. 反復処理\n## 11. 例外・失敗条件\n## 12. 保持すべき振る舞い\n\n# 対象ソースコード\n\n/**\n * @brief Write the contents of an INIReader to an ini file.\n */\nclass INIWriter {\n   public:\n    INIWriter() = default;\n    /**\n     * @brief Write the contents of an INI file to a new file\n     * @param filepath The path of the output file\n     * @param reader The INIReader object to write to the file\n     * @param overwrite Whether to just overwrite an existing file\n     * @throws std::runtime_error if the output file already exists or cannot\n     * be opened\n     */\n    inline static void write(const std::string& filepath,\n                             const INIReader& reader,\n                             const bool overwrite = false) {\n        if (!overwrite && std::ifstream{filepath}) {\n            throw std::runtime_error(\"file: \" + filepath + \" already exists.\");\n        }\n        std::ofstream out{filepath};\n        if (!out.is_open()) {\n            throw std::runtime_error(\"cannot open output file: \" + filepath);\n        }\n        for (const auto& section : reader.Sections()) {\n            out << \"[\" << section << \"]\\n\";\n            for (const auto& key : reader.Keys(section)) {\n                out << key << \"=\" << reader.Get(section, key) << \"\\n\";\n            }\n        }\n    }\n};\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 2048,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}

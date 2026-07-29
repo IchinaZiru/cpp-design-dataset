@@ -64,3 +64,6 @@ desktop.ini
 # Local Ollama environment details
 /experiments/ini-writer-minimal/configs/installed_models.txt
 /experiments/ini-writer-minimal/configs/model_modelfile.txt
+
+# Duplicate plain-text copies of generated artifacts
+/experiments/ini-writer-minimal/raw_output/*_raw.txt
