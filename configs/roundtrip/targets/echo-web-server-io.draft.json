@@ -1,0 +1,74 @@
+{
+  "schema_version": "2.0",
+  "enabled": false,
+  "target_id": "echo-web-server-io",
+  "experiment_id": "echo-web-server-io-roundtrip",
+  "repository_id": "Echo-Web-Server",
+  "target_name": "io",
+  "adoption_status": "採用",
+  "granularity": "module_files",
+  "source_files": [
+    "include/io.h",
+    "src/io/io.c"
+  ],
+  "test_files": [
+    "tests/io_test.c"
+  ],
+  "source_descriptor_from_report": "include/io.h;src/io/io.cpp",
+  "locator": {},
+  "design_input": {
+    "source_files": [
+      "include/io.h",
+      "src/io/io.c"
+    ],
+    "extra_context_files": []
+  },
+  "regeneration_input": {
+    "fixed_scaffold_files": [],
+    "dependency_context_files": [],
+    "output_mode": "file_map_json"
+  },
+  "evaluation": {
+    "direct_test_filter": "StringStreamIOTest.ReadWrite:FileDescriptorIOTest.ReadWrite",
+    "direct_test_names": [
+      "StringStreamIOTest.ReadWrite",
+      "FileDescriptorIOTest.ReadWrite"
+    ],
+    "expected_direct_tests": 2,
+    "expected_full_tests": 63,
+    "docker_image": "",
+    "configure_command": "",
+    "build_command": "",
+    "direct_test_command": "",
+    "full_test_command": "",
+    "ctest_command": ""
+  },
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 2048,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "stage_commands": {},
+  "readiness": {
+    "metadata_complete": true,
+    "metadata_missing": [],
+    "execution_ready": false,
+    "execution_missing": [
+      "verified replacement locator",
+      "fixed scaffold/dependency context",
+      "verified Docker image",
+      "configure/build/test commands",
+      "stage_commands"
+    ]
+  },
+  "notes": ""
+}

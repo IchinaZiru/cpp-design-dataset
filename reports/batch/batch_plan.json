@@ -1,0 +1,243 @@
+[
+  {
+    "target_id": "echo-web-server-block-deque",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/echo-web-server-block-deque.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "echo-web-server-buffer",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/echo-web-server-buffer.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "echo-web-server-config",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/echo-web-server-config.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "echo-web-server-heap-timer",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/echo-web-server-heap-timer.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "echo-web-server-http",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/echo-web-server-http.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "echo-web-server-io",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/echo-web-server-io.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "echo-web-server-ip",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/echo-web-server-ip.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "echo-web-server-log",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/echo-web-server-log.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "echo-web-server-thread-pool",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/echo-web-server-thread-pool.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "echo-web-server-util",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/echo-web-server-util.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "ini-cpp-inireader",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/ini-cpp-inireader.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "ini-cpp-iniwriter",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "fixed scaffold/dependency context",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/ini-cpp-iniwriter.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "riscv-simulator-instruction",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "direct_test_filter",
+      "expected_direct_tests",
+      "fixed scaffold/dependency context",
+      "granularity",
+      "source_files",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/riscv-simulator-instruction.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "riscv-simulator-memory",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "direct_test_filter",
+      "expected_direct_tests",
+      "fixed scaffold/dependency context",
+      "granularity",
+      "source_files",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/riscv-simulator-memory.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "riscv-simulator-parser",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "direct_test_filter",
+      "expected_direct_tests",
+      "fixed scaffold/dependency context",
+      "granularity",
+      "source_files",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/riscv-simulator-parser.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "riscv-simulator-register",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "direct_test_filter",
+      "expected_direct_tests",
+      "fixed scaffold/dependency context",
+      "granularity",
+      "source_files",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/riscv-simulator-register.draft.json",
+    "stages": []
+  },
+  {
+    "target_id": "riscv-simulator-registerfile",
+    "status": "draft",
+    "missing": [
+      "configure/build/test commands",
+      "direct_test_filter",
+      "expected_direct_tests",
+      "fixed scaffold/dependency context",
+      "granularity",
+      "source_files",
+      "stage_commands",
+      "verified Docker image",
+      "verified replacement locator"
+    ],
+    "config_path": "C:/Users/kikumanetworklab/Documents/research/cpp-design-dataset/configs/roundtrip/targets/riscv-simulator-registerfile.draft.json",
+    "stages": []
+  }
+]

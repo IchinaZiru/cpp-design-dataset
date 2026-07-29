@@ -1,0 +1,435 @@
+{
+  "schema_version": "2.0",
+  "expected_target_count": 17,
+  "detected_target_count": 17,
+  "excluded_targets": [
+    {
+      "repository_id": "RISCV-Simulator",
+      "target_id": "riscv-simulator-session",
+      "target_name": "Session",
+      "adoption_status": "除外",
+      "granularity": "",
+      "source_descriptor": "`Session.h` / `Session.cpp` 分離",
+      "test_descriptor": "1",
+      "source_files": [],
+      "test_files": [],
+      "direct_test_count": null,
+      "direct_test_filter": "",
+      "direct_test_names": [],
+      "expected_full_tests": 18,
+      "notes": "既存テストは構築・破棄だけで、主要動作を壊す3件がすべて生存"
+    }
+  ],
+  "targets": [
+    {
+      "repository_id": "Echo-Web-Server",
+      "target_id": "echo-web-server-block-deque",
+      "target_name": "block-deque",
+      "adoption_status": "採用",
+      "granularity": "class_span",
+      "source_descriptor": "include/containers/block_deque.h",
+      "test_descriptor": "BlockDequeTest.Construction, BlockDequeTest.SingleThreadPushPop, BlockDequeTest.MultiThreadPushPop, BlockDequeTest.Close",
+      "source_files": [
+        "include/containers/block_deque.h"
+      ],
+      "test_files": [
+        "tests/containers/block_deque_test.c"
+      ],
+      "direct_test_count": 4,
+      "direct_test_filter": "BlockDequeTest.Construction:BlockDequeTest.SingleThreadPushPop:BlockDequeTest.MultiThreadPushPop:BlockDequeTest.Close",
+      "direct_test_names": [
+        "BlockDequeTest.Construction",
+        "BlockDequeTest.SingleThreadPushPop",
+        "BlockDequeTest.MultiThreadPushPop",
+        "BlockDequeTest.Close"
+      ],
+      "expected_full_tests": 63,
+      "notes": ""
+    },
+    {
+      "repository_id": "Echo-Web-Server",
+      "target_id": "echo-web-server-buffer",
+      "target_name": "buffer",
+      "adoption_status": "採用",
+      "granularity": "module_files",
+      "source_descriptor": "include/containers/buffer.h;src/containers/buffer/buffer.cpp",
+      "test_descriptor": "BufferTest.Construction, BufferTest.Copy, BufferTest.ReadWriteOffset, BufferTest.ReadWrite, BufferTest.Clear, IOBufferTest.ReadWrite",
+      "source_files": [
+        "include/containers/buffer.h",
+        "src/containers/buffer/buffer.c"
+      ],
+      "test_files": [
+        "tests/containers/buffer_test.c"
+      ],
+      "direct_test_count": 6,
+      "direct_test_filter": "BufferTest.Construction:BufferTest.Copy:BufferTest.ReadWriteOffset:BufferTest.ReadWrite:BufferTest.Clear:IOBufferTest.ReadWrite",
+      "direct_test_names": [
+        "BufferTest.Construction",
+        "BufferTest.Copy",
+        "BufferTest.ReadWriteOffset",
+        "BufferTest.ReadWrite",
+        "BufferTest.Clear",
+        "IOBufferTest.ReadWrite"
+      ],
+      "expected_full_tests": 63,
+      "notes": ""
+    },
+    {
+      "repository_id": "Echo-Web-Server",
+      "target_id": "echo-web-server-config",
+      "target_name": "config",
+      "adoption_status": "採用",
+      "granularity": "module_files",
+      "source_descriptor": "include/config.h;src/config/config.cpp",
+      "test_descriptor": "ConfigurationVariableConverterTest.Number, ConfigurationVariableConverterTest.String, ConfigurationVariableConverterTest.List, ConfigurationVariableConverterTest.Set, ConfigurationVariableConverterTest.Map, ConfigurationVariableTest.Construction, ConfigurationVariableTest.ConvertedFromString, ConfigurationVariableTest.Listen, ConfigurationTest.Lookup, ConfigurationTest.Visit",
+      "source_files": [
+        "include/config.h",
+        "src/config/config.c"
+      ],
+      "test_files": [
+        "tests/config_test.c"
+      ],
+      "direct_test_count": 10,
+      "direct_test_filter": "ConfigurationVariableConverterTest.Number:ConfigurationVariableConverterTest.String:ConfigurationVariableConverterTest.List:ConfigurationVariableConverterTest.Set:ConfigurationVariableConverterTest.Map:ConfigurationVariableTest.Construction:ConfigurationVariableTest.ConvertedFromString:ConfigurationVariableTest.Listen:ConfigurationTest.Lookup:ConfigurationTest.Visit",
+      "direct_test_names": [
+        "ConfigurationVariableConverterTest.Number",
+        "ConfigurationVariableConverterTest.String",
+        "ConfigurationVariableConverterTest.List",
+        "ConfigurationVariableConverterTest.Set",
+        "ConfigurationVariableConverterTest.Map",
+        "ConfigurationVariableTest.Construction",
+        "ConfigurationVariableTest.ConvertedFromString",
+        "ConfigurationVariableTest.Listen",
+        "ConfigurationTest.Lookup",
+        "ConfigurationTest.Visit"
+      ],
+      "expected_full_tests": 63,
+      "notes": ""
+    },
+    {
+      "repository_id": "Echo-Web-Server",
+      "target_id": "echo-web-server-heap-timer",
+      "target_name": "heap-timer",
+      "adoption_status": "採用",
+      "granularity": "class_span",
+      "source_descriptor": "include/containers/heap_timer.h",
+      "test_descriptor": "HeapTimerTest.Construction, HeapTimerTest.PushPop, HeapTimerTest.Adjust, HeapTimerTest.Remove, HeapTimerTest.Invoke, HeapTimerTest.Tick, HeapTimerTest.ToNextTick, HeapTimerTest.Clear",
+      "source_files": [
+        "include/containers/heap_timer.h"
+      ],
+      "test_files": [
+        "tests/containers/heap_timer_test.c"
+      ],
+      "direct_test_count": 8,
+      "direct_test_filter": "HeapTimerTest.Construction:HeapTimerTest.PushPop:HeapTimerTest.Adjust:HeapTimerTest.Remove:HeapTimerTest.Invoke:HeapTimerTest.Tick:HeapTimerTest.ToNextTick:HeapTimerTest.Clear",
+      "direct_test_names": [
+        "HeapTimerTest.Construction",
+        "HeapTimerTest.PushPop",
+        "HeapTimerTest.Adjust",
+        "HeapTimerTest.Remove",
+        "HeapTimerTest.Invoke",
+        "HeapTimerTest.Tick",
+        "HeapTimerTest.ToNextTick",
+        "HeapTimerTest.Clear"
+      ],
+      "expected_full_tests": 63,
+      "notes": ""
+    },
+    {
+      "repository_id": "Echo-Web-Server",
+      "target_id": "echo-web-server-http",
+      "target_name": "http",
+      "adoption_status": "採用",
+      "granularity": "module_files",
+      "source_descriptor": "include/http.h;src/http/http.cpp;src/http/request.h;src/http/request.cpp;src/http/response.h;src/http/response.cpp",
+      "test_descriptor": "HTTPTest.StatusCodeEnumConversion, HTTPTest.MethodEnumConversion, HTTPTest.ContentType, HTTPTest.URLEncoding, HTTPTest.HTMLPlaceholder, HTTPTest.PutParameterIntoHTML, HTTPRequestTest.Parse, HTTPResponseTest.BuiltByFile, HTTPResponseTest.BuiltByPredefinedErrorContent",
+      "source_files": [
+        "include/http.h",
+        "src/http/http.c",
+        "src/http/request.h",
+        "src/http/request.c",
+        "src/http/response.h",
+        "src/http/response.c"
+      ],
+      "test_files": [
+        "tests/http_test.c",
+        "src/http/request_test.c",
+        "src/http/response_test.c"
+      ],
+      "direct_test_count": 9,
+      "direct_test_filter": "HTTPTest.StatusCodeEnumConversion:HTTPTest.MethodEnumConversion:HTTPTest.ContentType:HTTPTest.URLEncoding:HTTPTest.HTMLPlaceholder:HTTPTest.PutParameterIntoHTML:HTTPRequestTest.Parse:HTTPResponseTest.BuiltByFile:HTTPResponseTest.BuiltByPredefinedErrorContent",
+      "direct_test_names": [
+        "HTTPTest.StatusCodeEnumConversion",
+        "HTTPTest.MethodEnumConversion",
+        "HTTPTest.ContentType",
+        "HTTPTest.URLEncoding",
+        "HTTPTest.HTMLPlaceholder",
+        "HTTPTest.PutParameterIntoHTML",
+        "HTTPRequestTest.Parse",
+        "HTTPResponseTest.BuiltByFile",
+        "HTTPResponseTest.BuiltByPredefinedErrorContent"
+      ],
+      "expected_full_tests": 63,
+      "notes": ""
+    },
+    {
+      "repository_id": "Echo-Web-Server",
+      "target_id": "echo-web-server-io",
+      "target_name": "io",
+      "adoption_status": "採用",
+      "granularity": "module_files",
+      "source_descriptor": "include/io.h;src/io/io.cpp",
+      "test_descriptor": "StringStreamIOTest.ReadWrite, FileDescriptorIOTest.ReadWrite",
+      "source_files": [
+        "include/io.h",
+        "src/io/io.c"
+      ],
+      "test_files": [
+        "tests/io_test.c"
+      ],
+      "direct_test_count": 2,
+      "direct_test_filter": "StringStreamIOTest.ReadWrite:FileDescriptorIOTest.ReadWrite",
+      "direct_test_names": [
+        "StringStreamIOTest.ReadWrite",
+        "FileDescriptorIOTest.ReadWrite"
+      ],
+      "expected_full_tests": 63,
+      "notes": ""
+    },
+    {
+      "repository_id": "Echo-Web-Server",
+      "target_id": "echo-web-server-ip",
+      "target_name": "ip",
+      "adoption_status": "採用",
+      "granularity": "module_files",
+      "source_descriptor": "include/ip.h;src/ip/ip.cpp",
+      "test_descriptor": "ConceptTest.ValidIPAddr, IPAddrTest.MaximumLength, IPAddrTest.LoopBack, IPAddrTest.Any, IPAddrTest.Construction",
+      "source_files": [
+        "include/ip.h",
+        "src/ip/ip.c"
+      ],
+      "test_files": [
+        "tests/ip_test.c"
+      ],
+      "direct_test_count": 5,
+      "direct_test_filter": "ConceptTest.ValidIPAddr:IPAddrTest.MaximumLength:IPAddrTest.LoopBack:IPAddrTest.Any:IPAddrTest.Construction",
+      "direct_test_names": [
+        "ConceptTest.ValidIPAddr",
+        "IPAddrTest.MaximumLength",
+        "IPAddrTest.LoopBack",
+        "IPAddrTest.Any",
+        "IPAddrTest.Construction"
+      ],
+      "expected_full_tests": 63,
+      "notes": ""
+    },
+    {
+      "repository_id": "Echo-Web-Server",
+      "target_id": "echo-web-server-log",
+      "target_name": "log",
+      "adoption_status": "採用",
+      "granularity": "module_files",
+      "source_descriptor": "include/log.h;src/log/log.cpp;src/log/appender.cpp;src/log/field.h;src/log/field.cpp;src/log/config_init.h;src/log/config_init.cpp",
+      "test_descriptor": "LoggerTest.SynchronousLog, LoggerTest.AsynchronousLog, LogManagementTest.LoggerManager, LogManagementTest.LevelEnumConversion, LogManagementTest.AppenderTypeEnumConversion, LogFormatterTest.Construction, LogFormatterTest.Format, LogFormatFieldTest.ParsePattern, LoggerConfigurationTest.Construction",
+      "source_files": [
+        "include/log.h",
+        "src/log/log.c",
+        "src/log/appender.c",
+        "src/log/field.h",
+        "src/log/field.c",
+        "src/log/config_init.h",
+        "src/log/config_init.c"
+      ],
+      "test_files": [
+        "tests/log_test.c",
+        "src/log/field_test.c",
+        "src/log/config_init_test.c"
+      ],
+      "direct_test_count": 9,
+      "direct_test_filter": "LoggerTest.SynchronousLog:LoggerTest.AsynchronousLog:LogManagementTest.LoggerManager:LogManagementTest.LevelEnumConversion:LogManagementTest.AppenderTypeEnumConversion:LogFormatterTest.Construction:LogFormatterTest.Format:LogFormatFieldTest.ParsePattern:LoggerConfigurationTest.Construction",
+      "direct_test_names": [
+        "LoggerTest.SynchronousLog",
+        "LoggerTest.AsynchronousLog",
+        "LogManagementTest.LoggerManager",
+        "LogManagementTest.LevelEnumConversion",
+        "LogManagementTest.AppenderTypeEnumConversion",
+        "LogFormatterTest.Construction",
+        "LogFormatterTest.Format",
+        "LogFormatFieldTest.ParsePattern",
+        "LoggerConfigurationTest.Construction"
+      ],
+      "expected_full_tests": 63,
+      "notes": ""
+    },
+    {
+      "repository_id": "Echo-Web-Server",
+      "target_id": "echo-web-server-thread-pool",
+      "target_name": "thread-pool",
+      "adoption_status": "採用",
+      "granularity": "class_span",
+      "source_descriptor": "include/containers/thread_pool.h;src/containers/thread_pool/thread_pool.cpp",
+      "test_descriptor": "ThreadPoolTest.Execution",
+      "source_files": [
+        "include/containers/thread_pool.h",
+        "src/containers/thread_pool/thread_pool.c"
+      ],
+      "test_files": [
+        "tests/containers/thread_pool_test.c"
+      ],
+      "direct_test_count": 1,
+      "direct_test_filter": "ThreadPoolTest.Execution",
+      "direct_test_names": [
+        "ThreadPoolTest.Execution"
+      ],
+      "expected_full_tests": 63,
+      "notes": ""
+    },
+    {
+      "repository_id": "Echo-Web-Server",
+      "target_id": "echo-web-server-util",
+      "target_name": "util",
+      "adoption_status": "採用",
+      "granularity": "module_files",
+      "source_descriptor": "include/util.h;src/util/util.cpp",
+      "test_descriptor": "StringTest.LetterCaseConversion, StringTest.ReplaceString, StringTest.SplitString, StringTest.SplitStringToLines, RAIITest.Destroy, LoadYamlStringTest.RequiredField, YamlNodeTest.ThrowIfFieldIsNotScalar, ConceptTest.Addable, MappedReadOnlyFileTest.Map",
+      "source_files": [
+        "include/util.h",
+        "src/util/util.c"
+      ],
+      "test_files": [
+        "tests/util_test.c"
+      ],
+      "direct_test_count": 9,
+      "direct_test_filter": "StringTest.LetterCaseConversion:StringTest.ReplaceString:StringTest.SplitString:StringTest.SplitStringToLines:RAIITest.Destroy:LoadYamlStringTest.RequiredField:YamlNodeTest.ThrowIfFieldIsNotScalar:ConceptTest.Addable:MappedReadOnlyFileTest.Map",
+      "direct_test_names": [
+        "StringTest.LetterCaseConversion",
+        "StringTest.ReplaceString",
+        "StringTest.SplitString",
+        "StringTest.SplitStringToLines",
+        "RAIITest.Destroy",
+        "LoadYamlStringTest.RequiredField",
+        "YamlNodeTest.ThrowIfFieldIsNotScalar",
+        "ConceptTest.Addable",
+        "MappedReadOnlyFileTest.Map"
+      ],
+      "expected_full_tests": 63,
+      "notes": ""
+    },
+    {
+      "repository_id": "ini-cpp",
+      "target_id": "ini-cpp-inireader",
+      "target_name": "INIReader",
+      "adoption_status": "採用",
+      "granularity": "class_span",
+      "source_descriptor": "ini/ini.h",
+      "test_descriptor": "",
+      "source_files": [
+        "ini/ini.h"
+      ],
+      "test_files": [],
+      "direct_test_count": 24,
+      "direct_test_filter": "INIReader.*` (24)",
+      "direct_test_names": [],
+      "expected_full_tests": 27,
+      "notes": ""
+    },
+    {
+      "repository_id": "ini-cpp",
+      "target_id": "ini-cpp-iniwriter",
+      "target_name": "INIWriter",
+      "adoption_status": "採用",
+      "granularity": "class_span",
+      "source_descriptor": "ini/ini.h",
+      "test_descriptor": "",
+      "source_files": [
+        "ini/ini.h"
+      ],
+      "test_files": [],
+      "direct_test_count": 3,
+      "direct_test_filter": "INIWriter.*` (3)",
+      "direct_test_names": [],
+      "expected_full_tests": 27,
+      "notes": ""
+    },
+    {
+      "repository_id": "RISCV-Simulator",
+      "target_id": "riscv-simulator-instruction",
+      "target_name": "Instruction",
+      "adoption_status": "条件付き採用",
+      "granularity": "",
+      "source_descriptor": "`Instruction.hpp` header-only型群",
+      "test_descriptor": "7",
+      "source_files": [],
+      "test_files": [],
+      "direct_test_count": null,
+      "direct_test_filter": "",
+      "direct_test_names": [],
+      "expected_full_tests": 18,
+      "notes": "6形式のデコードと符号拡張は強いが、nop sentinelと複数の公開helperが未検証"
+    },
+    {
+      "repository_id": "RISCV-Simulator",
+      "target_id": "riscv-simulator-memory",
+      "target_name": "Memory",
+      "adoption_status": "条件付き採用",
+      "granularity": "",
+      "source_descriptor": "`Memory.hpp` header-only",
+      "test_descriptor": "4",
+      "source_files": [],
+      "test_files": [],
+      "direct_test_count": null,
+      "direct_test_filter": "",
+      "direct_test_names": [],
+      "expected_full_tests": 18,
+      "notes": "word/shortの基本操作は検出するが、範囲上限の破壊を検出せず、実装にendianness・alignment・aliasing依存がある"
+    },
+    {
+      "repository_id": "RISCV-Simulator",
+      "target_id": "riscv-simulator-parser",
+      "target_name": "Parser",
+      "adoption_status": "条件付き採用",
+      "granularity": "",
+      "source_descriptor": "`Parser.hpp` header-only",
+      "test_descriptor": "3",
+      "source_files": [],
+      "test_files": [],
+      "direct_test_count": null,
+      "direct_test_filter": "",
+      "direct_test_names": [],
+      "expected_full_tests": 18,
+      "notes": "16進変換とバイト進行は検出するが、複数wordの配置進行を検出しない"
+    },
+    {
+      "repository_id": "RISCV-Simulator",
+      "target_id": "riscv-simulator-register",
+      "target_name": "Register",
+      "adoption_status": "条件付き採用",
+      "granularity": "",
+      "source_descriptor": "`Register.hpp` header-only template",
+      "test_descriptor": "2",
+      "source_files": [],
+      "test_files": [],
+      "direct_test_count": null,
+      "direct_test_filter": "",
+      "direct_test_names": [],
+      "expected_full_tests": 18,
+      "notes": "write・tick・stallは検出するが、`current()` の意味反転を検出しない"
+    },
+    {
+      "repository_id": "RISCV-Simulator",
+      "target_id": "riscv-simulator-registerfile",
+      "target_name": "RegisterFile",
+      "adoption_status": "条件付き採用",
+      "granularity": "",
+      "source_descriptor": "`RegisterFile.hpp` header-only",
+      "test_descriptor": "1",
+      "source_files": [],
+      "test_files": [],
+      "direct_test_count": null,
+      "direct_test_filter": "",
+      "direct_test_names": [],
+      "expected_full_tests": 18,
+      "notes": "tick・readは検出するが、レジスタ2～31への書き込み停止を検出しない"
+    }
+  ]
+}
