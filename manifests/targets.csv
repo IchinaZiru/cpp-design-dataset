@@ -1,3 +1,4 @@
 repository_id,target_id,target_name,target_granularity,source_file,status,notes
 ini-cpp,ini-cpp-iniwriter-write,INIWriter::write,function_body,ini/ini.h,adopted,Minimal round-trip target; function-body replacement; INIWriter.* 3/3 tests.
 Echo-Web-Server,echo-web-server-io,io,module_files,include/io.h;src/io/io.cpp,採用,Registered by generic round-trip harness.
+Echo-Web-Server,echo-web-server-ip,ip,module_files,include/ip.h;src/ip/ip.cpp,採用,Registered by generic round-trip harness.

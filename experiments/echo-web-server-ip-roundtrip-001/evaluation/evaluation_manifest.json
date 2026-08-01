@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0",
+  "target_id": "echo-web-server-ip",
+  "run_id": "echo-web-server-ip-qwen25coder32b-001",
+  "completed_at_utc": "2026-08-01T05:02:14.728702+00:00",
+  "overall_pass": true,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "started_at_utc": "2026-08-01T05:01:33.641057+00:00",
+      "completed_at_utc": "2026-08-01T05:01:38.917861+00:00",
+      "elapsed_seconds": 5.275350800016895,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip/echo-web-server-ip-qwen25coder32b-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip/echo-web-server-ip-qwen25coder32b-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-01T05:01:38.918270+00:00",
+      "completed_at_utc": "2026-08-01T05:02:12.042246+00:00",
+      "elapsed_seconds": 33.12226069997996,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip/echo-web-server-ip-qwen25coder32b-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip/echo-web-server-ip-qwen25coder32b-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='ConceptTest.ValidIPAddr:IPAddrTest.MaximumLength:IPAddrTest.LoopBack:IPAddrTest.Any:IPAddrTest.Construction'"
+      ],
+      "container_shell_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='ConceptTest.ValidIPAddr:IPAddrTest.MaximumLength:IPAddrTest.LoopBack:IPAddrTest.Any:IPAddrTest.Construction'",
+      "started_at_utc": "2026-08-01T05:02:12.042329+00:00",
+      "completed_at_utc": "2026-08-01T05:02:12.632815+00:00",
+      "elapsed_seconds": 0.5892048999667168,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip/echo-web-server-ip-qwen25coder32b-001/direct_test.stdout.txt",
+      "stderr_log": "logs/roundtrip/echo-web-server-ip-qwen25coder32b-001/direct_test.stderr.txt",
+      "counts": {
+        "ran": 5,
+        "passed": 5,
+        "failed": 0
+      }
+    },
+    "full_test": {
+      "stage": "full_test",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "ctest --test-dir build --output-on-failure"
+      ],
+      "container_shell_command": "ctest --test-dir build --output-on-failure",
+      "started_at_utc": "2026-08-01T05:02:12.633148+00:00",
+      "completed_at_utc": "2026-08-01T05:02:14.674804+00:00",
+      "elapsed_seconds": 2.040360900107771,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip/echo-web-server-ip-qwen25coder32b-001/full_test.stdout.txt",
+      "stderr_log": "logs/roundtrip/echo-web-server-ip-qwen25coder32b-001/full_test.stderr.txt",
+      "counts": {
+        "ran": 63,
+        "passed": 63,
+        "failed": 0
+      }
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "original_hashes": {
+      "include/ip.h": "82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1",
+      "src/ip/ip.cpp": "b61e08ee3f4d11802b86ff445586120f1d0ca48ede8fb22b0b39cc4841b0f9d7"
+    },
+    "restored_hashes": {
+      "include/ip.h": "82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1",
+      "src/ip/ip.cpp": "b61e08ee3f4d11802b86ff445586120f1d0ca48ede8fb22b0b39cc4841b0f9d7"
+    },
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "local_raw_log_directory": "logs/roundtrip/echo-web-server-ip-qwen25coder32b-001"
+}

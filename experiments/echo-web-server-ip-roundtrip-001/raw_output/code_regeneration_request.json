@@ -1,0 +1,49 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: ip\n- granularity: module_files\n- source_files: [\"include/ip.h\", \"src/ip/ip.cpp\"]\n\n# 出力規則\n出力は指定されたJSON Schemaに一致するJSONのみとし、Markdownコードフェンスを使用しないでください。source_filesにある各ファイルを完全な内容として1回ずつ返してください。C++コード中の改行や引用符はJSON文字列として正しくエスケープしてください。\n\n# JSON Schema\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"files\": {\n      \"type\": \"array\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"path\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"include/ip.h\",\n              \"src/ip/ip.cpp\"\n            ]\n          },\n          \"content\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"path\",\n          \"content\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\n    \"files\"\n  ],\n  \"additionalProperties\": false\n}\n\n# 設計文書\n# デザイン文書: IPアドレスインターフェースと実装\n\n## 概要\nこの設計文書は、IPアドレスを扱うための抽象クラス`IPAddr`とその派生クラス`IPv4Addr`、`IPv6Addr`について記述します。これらのクラスはネットワークプログラミングにおいてIPアドレスの操作を行うために使用されます。\n\n## 責務\n- IPアドレスのバージョンを取得する。\n- ソケットアドレス構造体へのポインタを取得する。\n- IPアドレスとポート番号を文字列として取得する。\n- ネットワークバイトオーダーとホストバイトオーダー間での変換を行う。\n\n## 公開インターフェース\n### クラス: `IPAddr`\n| 関数名 | 戻り値 | 説明 |\n|--------|--------|------|\n| `Version()` | int | IPアドレスのバージョンを返す。 |\n| `Size()` | std::size_t | ソケットアドレス構造体のサイズを返す。 |\n| `Raw()` | const sockaddr* | ソケットアドレスへのポインタを返す。 |\n| `Port()` | std::uint16_t | ポート番号をホストバイトオーダーで返す。 |\n| `IPAddress()` | std::string | IPアドレスを文字列として返す。 |\n\n### クラス: `IPv4Addr`\n| 関数名 | 戻り値 | 説明 |\n|--------|--------|------|\n| コンストラクタ(sockaddr_in) | - | sockaddr_in構造体からIPv4アドレスを初期化する。 |\n| コンストラクタ(std::string, std::uint16_t) | - | IPアドレスとポート番号の文字列からIPv4アドレスを初期化する。 |\n\n### クラス: `IPv6Addr`\n| 関数名 | 戻り値 | 説明 |\n|--------|--------|------|\n| コンストラクタ(sockaddr_in6) | - | sockaddr_in6構造体からIPv6アドレスを初期化する。 |\n| コンストラクタ(std::string, std::uint16_t) | - | IPアドレスとポート番号の文字列からIPv6アドレスを初期化する。 |\n\n## 入力\n- `IPv4Addr`および`IPv6Addr`のコンストラクタは、IPアドレスとポート番号を受け取る。\n\n## 出力\n- 各関数は指定された情報を返す。\n\n## 状態\n- IPアドレスとポート番号を保持するプライベートメンバ変数を持つ。\n- IPv4Addr: `ip_`, `raw_`\n- IPv6Addr: `ip_`, `raw_`\n\n## 処理手順\n1. コンストラクタが呼び出される。\n2. IPアドレスとポート番号を初期化する。\n3. 必要に応じてネットワークバイトオーダーへの変換を行う。\n\n## 例外・失敗条件\n- `inet_pton`または`inet_ntop`の呼び出しでエラーが発生した場合、システムエラーコードをスローする。\n\n## 依存関係\n- `<concepts>`\n- `<cstdint>`\n- `<string>`\n- `<string_view>`\n- `<netinet/in.h>`\n- `<arpa/inet.h>`\n\n## 重要な不変条件\n- `IPv4Addr`と`IPv6Addr`のインスタンスは、それぞれ正しい形式のIPアドレスとポート番号を持つこと。\n- `Raw()`が返すポインタは有効なソケットアドレス構造体を指していること。\n\n# 固定インターフェース・スキャフォールド\n===== FILE: include/ip.h =====\n/**\n * @file ip.h\n * @brief The IP address interface.\n *\n * @author Zhenshuo Chen (chenzs108@outlook.com)\n * @par GitHub\n * https://github.com/Zhuagenborn\n * @version 1.0\n * @date 2022-06-06\n */\n\n#pragma once\n\n#include <concepts>\n#include <cstdint>\n#include <string>\n#include <string_view>\n\n#include <netinet/in.h>\n\n\nnamespace ws {\n\n//! The interface of IP address.\nclass IPAddr {\npublic:\n    virtual ~IPAddr() noexcept = default;\n\n    //! Get the IP version.\n    virtual int Version() const noexcept = 0;\n\n    //! Get the size of socket address.\n    virtual std::size_t Size() const noexcept = 0;\n\n    //! Get the socket address.\n    virtual const sockaddr* Raw() const noexcept = 0;\n\n    virtual std::uint16_t Port() const noexcept = 0;\n\n    virtual std::string IPAddress() const noexcept = 0;\n};\n\n//! The IPv4 address.\nclass IPv4Addr : public IPAddr {\npublic:\n    static constexpr int version {AF_INET};\n\n    static constexpr std::string_view loop_back {\"127.0.0.1\"};\n\n    static constexpr std::string_view any {\"0.0.0.0\"};\n\n    static constexpr std::size_t max_length {15};\n\n    using RawType = sockaddr_in;\n\n    explicit IPv4Addr(sockaddr_in addr);\n\n    explicit IPv4Addr(std::string ip, std::uint16_t port);\n\n    int Version() const noexcept override;\n\n    std::size_t Size() const noexcept override;\n\n    const sockaddr* Raw() const noexcept override;\n\n    std::uint16_t Port() const noexcept override;\n\n    std::string IPAddress() const noexcept override;\n\nprivate:\n    std::string ip_;\n    sockaddr_in raw_ {};\n};\n\n//! The IPv6 address.\nclass IPv6Addr : public IPAddr {\npublic:\n    static constexpr int version {AF_INET6};\n\n    static constexpr std::string_view loop_back {\"::1\"};\n\n    static constexpr std::string_view any {\"::\"};\n\n    static constexpr std::size_t max_length {45};\n\n    using RawType = sockaddr_in6;\n\n    explicit IPv6Addr(sockaddr_in6 addr);\n\n    explicit IPv6Addr(std::string ip, std::uint16_t port);\n\n    int Version() const noexcept override;\n\n    std::size_t Size() const noexcept override;\n\n    const sockaddr* Raw() const noexcept override;\n\n    std::uint16_t Port() const noexcept override;\n\n    std::string IPAddress() const noexcept override;\n\nprivate:\n    std::string ip_;\n    sockaddr_in6 raw_ {};\n};\n\ntemplate <typename T>\nconcept ValidIPAddr = std::same_as<T, IPv4Addr> || std::same_as<T, IPv6Addr>;\n\n}  // namespace ws\n\n\n# 依存情報\n#include <concepts>\n#include <cstdint>\n#include <string>\n#include <string_view>\n#include <netinet/in.h>\n#include \"ip.h\"\n#include \"util.h\"\n#include <arpa/inet.h>\n#include <array>\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 2048,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  },
+  "format": {
+    "type": "object",
+    "properties": {
+      "files": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "enum": [
+                "include/ip.h",
+                "src/ip/ip.cpp"
+              ]
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "files"
+    ],
+    "additionalProperties": false
+  }
+}

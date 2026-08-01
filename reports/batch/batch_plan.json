@@ -3,5 +3,10 @@
     "target_id": "echo-web-server-io",
     "status": "disabled",
     "config": "configs/roundtrip/targets/echo-web-server-io.json"
+  },
+  {
+    "target_id": "echo-web-server-ip",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/echo-web-server-ip.json"
   }
 ]
