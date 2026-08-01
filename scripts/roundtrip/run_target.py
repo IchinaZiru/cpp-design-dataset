@@ -183,10 +183,43 @@ def generate_design(config: dict[str, Any], experiment_root: Path) -> dict[str, 
     return metadata
 
 
+def module_output_schema(expected_paths: list[str]) -> dict[str, Any]:
+    return {
+        "type": "object",
+        "properties": {
+            "files": {
+                "type": "array",
+                "minItems": len(expected_paths),
+                "maxItems": len(expected_paths),
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "path": {"type": "string", "enum": expected_paths},
+                        "content": {"type": "string"},
+                    },
+                    "required": ["path", "content"],
+                    "additionalProperties": False,
+                },
+            }
+        },
+        "required": ["files"],
+        "additionalProperties": False,
+    }
+
+
 def parse_module_output(text: str, expected_paths: list[str]) -> dict[str, str]:
     if "```" in text:
         raise RuntimeError("Code regeneration output contains Markdown fences")
-    value = json.loads(text)
+    try:
+        value = json.loads(text)
+    except json.JSONDecodeError as error:
+        start = max(0, error.pos - 80)
+        end = min(len(text), error.pos + 80)
+        context = repr(text[start:end])
+        raise RuntimeError(
+            "Code regeneration output is not valid JSON: "
+            f"line={error.lineno}, column={error.colno}, context={context}"
+        ) from error
     if not isinstance(value, dict) or not isinstance(value.get("files"), list):
         raise RuntimeError("Module output must be an object containing a files array")
     files: dict[str, str] = {}
@@ -210,11 +243,15 @@ def regenerate(config: dict[str, Any], experiment_root: Path) -> dict[str, Any]:
     scaffold = read_text(experiment_root / "input" / "fixed_scaffold.txt")
     dependency = read_text(experiment_root / "input" / "dependency_context.txt")
 
+    output_schema: dict[str, Any] | None = None
     if config["granularity"] == "module_files":
+        expected_paths = [str(item) for item in config["source_files"]]
+        output_schema = module_output_schema(expected_paths)
         output_instruction = (
-            "出力はJSONのみとし、Markdownコードフェンスを使用しないでください。"
-            "形式は {\"files\":[{\"path\":\"...\",\"content\":\"...\"}]} です。"
+            "出力は指定されたJSON Schemaに一致するJSONのみとし、"
+            "Markdownコードフェンスを使用しないでください。"
             "source_filesにある各ファイルを完全な内容として1回ずつ返してください。"
+            "C++コード中の改行や引用符はJSON文字列として正しくエスケープしてください。"
         )
     else:
         output_instruction = (
@@ -234,6 +271,9 @@ def regenerate(config: dict[str, Any], experiment_root: Path) -> dict[str, Any]:
 # 出力規則
 {output_instruction}
 
+# JSON Schema
+{json.dumps(output_schema, ensure_ascii=False, indent=2) if output_schema else "N/A"}
+
 # 設計文書
 {design}
 
@@ -250,6 +290,8 @@ def regenerate(config: dict[str, Any], experiment_root: Path) -> dict[str, Any]:
         "stream": False,
         "options": ollama_options(config),
     }
+    if output_schema is not None:
+        payload["format"] = output_schema
     response, elapsed = call_ollama(payload)
     raw_dir = experiment_root / "raw_output"
     write_json(raw_dir / "code_regeneration_request.json", payload)
@@ -498,6 +540,44 @@ def register(config: dict[str, Any], project_root: Path, evaluation: dict[str, A
             writer.writerows(targets)
 
 
+
+def record_pipeline_failure(
+    *,
+    config: dict[str, Any],
+    project_root: Path,
+    experiment_root: Path,
+    stage: str,
+    error: Exception,
+) -> None:
+    repository = project_root / config.get("repository_path", "")
+    repository_clean: bool | None = None
+    tracked_status: str | None = None
+    try:
+        if repository.exists():
+            tracked_status = git_output(
+                repository, "status", "--short", "--untracked-files=no"
+            )
+            repository_clean = tracked_status == ""
+    except Exception:
+        repository_clean = None
+
+    write_json(
+        experiment_root / "evaluation" / "pipeline_failure.json",
+        {
+            "schema_version": "1.0",
+            "target_id": config.get("target_id"),
+            "run_id": config.get("run_id"),
+            "failed_stage": stage,
+            "error_type": type(error).__name__,
+            "error": str(error),
+            "recorded_at_utc": utc_now(),
+            "retry_performed": False,
+            "automatic_repair_performed": False,
+            "repository_clean": repository_clean,
+            "tracked_status": tracked_status,
+        },
+    )
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run one configured round-trip target end to end.")
     parser.add_argument("--config", type=Path, required=True)
@@ -516,14 +596,30 @@ def main() -> int:
             raise FileExistsError(f"Experiment output already exists: {experiment_root}")
         shutil.rmtree(experiment_root)
 
-    prepare(config, project_root, experiment_root)
-    generate_design(config, experiment_root)
-    regenerate(config, experiment_root)
-    evaluation = evaluate(config, project_root, experiment_root)
-    report = build_report(config, experiment_root, evaluation)
-    write_text(experiment_root / "report" / "experiment_overview.md", report)
-    write_json(experiment_root / "report" / "experiment_overview.json", evaluation)
-    register(config, project_root, evaluation, experiment_root)
+    stage = "prepare"
+    try:
+        prepare(config, project_root, experiment_root)
+        stage = "generate_design"
+        generate_design(config, experiment_root)
+        stage = "regenerate_code"
+        regenerate(config, experiment_root)
+        stage = "evaluate"
+        evaluation = evaluate(config, project_root, experiment_root)
+        stage = "generate_report"
+        report = build_report(config, experiment_root, evaluation)
+        write_text(experiment_root / "report" / "experiment_overview.md", report)
+        write_json(experiment_root / "report" / "experiment_overview.json", evaluation)
+        stage = "register_run"
+        register(config, project_root, evaluation, experiment_root)
+    except Exception as error:
+        record_pipeline_failure(
+            config=config,
+            project_root=project_root,
+            experiment_root=experiment_root,
+            stage=stage,
+            error=error,
+        )
+        raise
 
     print(f"Target:  {config['target_id']}")
     print(f"Result:  {'PASS' if evaluation['overall_pass'] else 'FAIL'}")
