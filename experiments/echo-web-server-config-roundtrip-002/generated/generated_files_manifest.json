@@ -1,0 +1,6 @@
+{
+  "files": [
+    "include/config.h",
+    "src/config/config.cpp"
+  ]
+}

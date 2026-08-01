@@ -1,0 +1,22 @@
+{
+  "target_id": "echo-web-server-config",
+  "target_name": "config",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "source_files": [
+    "include/config.h",
+    "src/config/config.cpp"
+  ],
+  "prepared_at_utc": "2026-08-01T05:40:15.488511+00:00",
+  "original_files": [
+    {
+      "path": "include/config.h",
+      "sha256": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc"
+    },
+    {
+      "path": "src/config/config.cpp",
+      "sha256": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a"
+    }
+  ]
+}

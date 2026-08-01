@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "target_id": "echo-web-server-config",
+  "run_id": "echo-web-server-config-qwen25coder32b-002",
+  "completed_at_utc": "2026-08-01T05:46:55.842227+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "started_at_utc": "2026-08-01T05:46:39.534140+00:00",
+      "completed_at_utc": "2026-08-01T05:46:48.294370+00:00",
+      "elapsed_seconds": 8.758542200084776,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip/echo-web-server-config-qwen25coder32b-002/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip/echo-web-server-config-qwen25coder32b-002/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-01T05:46:48.294760+00:00",
+      "completed_at_utc": "2026-08-01T05:46:55.782535+00:00",
+      "elapsed_seconds": 7.485100599937141,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip/echo-web-server-config-qwen25coder32b-002/build.stdout.txt",
+      "stderr_log": "logs/roundtrip/echo-web-server-config-qwen25coder32b-002/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "original_hashes": {
+      "include/config.h": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc",
+      "src/config/config.cpp": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a"
+    },
+    "restored_hashes": {
+      "include/config.h": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc",
+      "src/config/config.cpp": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a"
+    },
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "local_raw_log_directory": "logs/roundtrip/echo-web-server-config-qwen25coder32b-002"
+}
