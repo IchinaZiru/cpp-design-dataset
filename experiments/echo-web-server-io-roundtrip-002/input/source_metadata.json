@@ -1,0 +1,22 @@
+{
+  "target_id": "echo-web-server-io",
+  "target_name": "io",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "source_files": [
+    "include/io.h",
+    "src/io/io.cpp"
+  ],
+  "prepared_at_utc": "2026-07-29T15:09:12.877042+00:00",
+  "original_files": [
+    {
+      "path": "include/io.h",
+      "sha256": "760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241"
+    },
+    {
+      "path": "src/io/io.cpp",
+      "sha256": "3b651a328148eb1dd0151f1b889524a4ee624d3d2c549d57a22e021f179a0975"
+    }
+  ]
+}

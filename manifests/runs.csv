@@ -1,2 +1,3 @@
-﻿"run_id","repository_id","target_id","model_id","status","started_at_utc","completed_at_utc","result_path"
-"qwen25coder32b-run-001","ini-cpp","ini-cpp-iniwriter-write","qwen2.5-coder:32b","passed","2026-07-29T13:32:32.625264+00:00","2026-07-29T13:59:21.857579+00:00","experiments/ini-writer-minimal/evaluation/evaluation_manifest.json"
+run_id,repository_id,target_id,model_id,status,started_at_utc,completed_at_utc,result_path
+qwen25coder32b-run-001,ini-cpp,ini-cpp-iniwriter-write,qwen2.5-coder:32b,passed,2026-07-29T13:32:32.625264+00:00,2026-07-29T13:59:21.857579+00:00,experiments/ini-writer-minimal/evaluation/evaluation_manifest.json
+echo-web-server-io-qwen25coder32b-002,Echo-Web-Server,echo-web-server-io,qwen2.5-coder:32b,failed,2026-07-29T15:10:23.430084+00:00,2026-07-29T15:11:19.221414+00:00,experiments/echo-web-server-io-roundtrip-002/evaluation/evaluation_manifest.json
