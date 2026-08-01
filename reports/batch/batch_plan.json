@@ -1,7 +1,7 @@
 [
   {
     "target_id": "echo-web-server-io",
-    "status": "ready",
+    "status": "disabled",
     "config": "configs/roundtrip/targets/echo-web-server-io.json"
   }
 ]

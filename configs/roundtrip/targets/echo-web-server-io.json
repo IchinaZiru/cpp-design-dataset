@@ -1,6 +1,6 @@
 {
   "schema_version": "3.0",
-  "enabled": true,
+  "enabled": false,
   "target_id": "echo-web-server-io",
   "experiment_id": "echo-web-server-io-roundtrip-002",
   "run_id": "echo-web-server-io-qwen25coder32b-002",
