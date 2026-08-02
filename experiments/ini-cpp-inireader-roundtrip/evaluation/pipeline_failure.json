@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "target_id": "ini-cpp-inireader",
+  "run_id": "ini-cpp-inireader-qwen25coder32b-001",
+  "failed_stage": "regenerate_code",
+  "error_type": "RuntimeError",
+  "error": "Class regeneration output contains Markdown fences",
+  "recorded_at_utc": "2026-08-02T07:04:48.473863+00:00",
+  "retry_performed": false,
+  "automatic_repair_performed": false,
+  "repository_clean": true,
+  "tracked_status": ""
+}

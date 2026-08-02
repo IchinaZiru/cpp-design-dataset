@@ -1,6 +1,6 @@
 {
   "schema_version": "3.0",
-  "enabled": false,
+  "enabled": true,
   "target_id": "ini-cpp-inireader",
   "experiment_id": "ini-cpp-inireader-roundtrip",
   "run_id": "ini-cpp-inireader-qwen25coder32b-001",

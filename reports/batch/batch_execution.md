@@ -1,6 +1,6 @@
 # Round-trip batch execution
 
-- generated_at: `2026-08-02T06:05:48.747130+00:00`
+- generated_at: `2026-08-02T07:04:48.501580+00:00`
 
 | target | status | config |
 |---|---|---|
@@ -13,4 +13,5 @@
 | echo-web-server-ip | disabled | `configs/roundtrip/targets/echo-web-server-ip.json` |
 | echo-web-server-log | disabled | `configs/roundtrip/targets/echo-web-server-log.json` |
 | echo-web-server-thread-pool | disabled | `configs/roundtrip/targets/echo-web-server-thread-pool.json` |
-| echo-web-server-util | failed | `configs/roundtrip/targets/echo-web-server-util.json` |
+| echo-web-server-util | disabled | `configs/roundtrip/targets/echo-web-server-util.json` |
+| ini-cpp-inireader | failed | `configs/roundtrip/targets/ini-cpp-inireader.json` |

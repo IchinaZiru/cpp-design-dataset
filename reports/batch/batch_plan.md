@@ -1,6 +1,6 @@
 # Round-trip batch plan
 
-- generated_at: `2026-08-02T06:10:35.234934+00:00`
+- generated_at: `2026-08-02T07:10:18.175611+00:00`
 
 | target | status | config |
 |---|---|---|
@@ -14,3 +14,4 @@
 | echo-web-server-log | disabled | `configs/roundtrip/targets/echo-web-server-log.json` |
 | echo-web-server-thread-pool | disabled | `configs/roundtrip/targets/echo-web-server-thread-pool.json` |
 | echo-web-server-util | disabled | `configs/roundtrip/targets/echo-web-server-util.json` |
+| ini-cpp-inireader | disabled | `configs/roundtrip/targets/ini-cpp-inireader.json` |

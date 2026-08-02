@@ -46,10 +46,15 @@
   },
   {
     "target_id": "echo-web-server-util",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/echo-web-server-util.json"
+  },
+  {
+    "target_id": "ini-cpp-inireader",
     "status": "failed",
     "exit_code": 1,
-    "stdout": "Target:  echo-web-server-util\nResult:  FAIL\nReport:  C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset\\experiments\\echo-web-server-util-roundtrip\\report\\experiment_overview.md\n",
-    "stderr": "",
-    "config": "configs/roundtrip/targets/echo-web-server-util.json"
+    "stdout": "",
+    "stderr": "ERROR: Class regeneration output contains Markdown fences\n",
+    "config": "configs/roundtrip/targets/ini-cpp-inireader.json"
   }
 ]

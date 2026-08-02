@@ -1,0 +1,23 @@
+{
+  "target_id": "ini-cpp-inireader",
+  "target_name": "INIReader",
+  "repository_id": "ini-cpp",
+  "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+  "granularity": "class_span",
+  "source_files": [
+    "ini/ini.h"
+  ],
+  "prepared_at_utc": "2026-08-02T07:00:40.648442+00:00",
+  "original_files": [
+    {
+      "path": "ini/ini.h",
+      "sha256": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+    }
+  ],
+  "locator": {
+    "symbol": "INIReader",
+    "start_offset": 3339,
+    "end_offset": 18186,
+    "original_span_sha256": "7b704984f285c25ca6c01c80ef527448675b11b9efa9677a8161e65d0b650b01"
+  }
+}
