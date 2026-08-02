@@ -56,17 +56,17 @@
   },
   {
     "target_id": "riscv-simulator-instruction",
-    "status": "disabled",
+    "status": "ready",
     "config": "configs/roundtrip/targets/riscv-simulator-instruction.json"
   },
   {
     "target_id": "riscv-simulator-memory",
-    "status": "disabled",
+    "status": "ready",
     "config": "configs/roundtrip/targets/riscv-simulator-memory.json"
   },
   {
     "target_id": "riscv-simulator-parser",
-    "status": "disabled",
+    "status": "ready",
     "config": "configs/roundtrip/targets/riscv-simulator-parser.json"
   },
   {
@@ -76,7 +76,7 @@
   },
   {
     "target_id": "riscv-simulator-registerfile",
-    "status": "disabled",
+    "status": "ready",
     "config": "configs/roundtrip/targets/riscv-simulator-registerfile.json"
   }
 ]

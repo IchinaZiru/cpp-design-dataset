@@ -1,6 +1,6 @@
 {
   "schema_version": "3.0",
-  "enabled": false,
+  "enabled": true,
   "target_id": "riscv-simulator-memory",
   "experiment_id": "riscv-simulator-memory-roundtrip",
   "run_id": "riscv-simulator-memory-qwen25coder32b-001",

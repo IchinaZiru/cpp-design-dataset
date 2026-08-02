@@ -1,6 +1,6 @@
 {
   "schema_version": "3.0",
-  "enabled": false,
+  "enabled": true,
   "target_id": "riscv-simulator-parser",
   "experiment_id": "riscv-simulator-parser-roundtrip",
   "run_id": "riscv-simulator-parser-qwen25coder32b-001",
