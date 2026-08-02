@@ -1,0 +1,6 @@
+{
+  "files": [
+    "include/containers/thread_pool.h",
+    "src/containers/thread_pool/thread_pool.cpp"
+  ]
+}

@@ -36,10 +36,15 @@
   },
   {
     "target_id": "echo-web-server-log",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/echo-web-server-log.json"
+  },
+  {
+    "target_id": "echo-web-server-thread-pool",
     "status": "failed",
     "exit_code": 1,
-    "stdout": "",
-    "stderr": "ERROR: Code regeneration output is not valid JSON: line=21, column=18, context='s::log::field\"\\n    },\\n    {\\n      \"path\": \"src/log/field.cpp\",\\n      \"content\": \"#include \\\\\"field.h\\\\\"\\\\n#include <ctime>\\\\n#include <iomanip>\\\\n#include <sstream>\\\\'\n",
-    "config": "configs/roundtrip/targets/echo-web-server-log.json"
+    "stdout": "Target:  echo-web-server-thread-pool\nResult:  FAIL\nReport:  C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset\\experiments\\echo-web-server-thread-pool-roundtrip\\report\\experiment_overview.md\n",
+    "stderr": "",
+    "config": "configs/roundtrip/targets/echo-web-server-thread-pool.json"
   }
 ]

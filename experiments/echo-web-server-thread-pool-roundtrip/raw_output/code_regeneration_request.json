@@ -1,0 +1,49 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: thread-pool\n- granularity: module_files\n- source_files: [\"include/containers/thread_pool.h\", \"src/containers/thread_pool/thread_pool.cpp\"]\n\n# 出力規則\n出力は指定されたJSON Schemaに一致するJSONのみとし、Markdownコードフェンスを使用しないでください。source_filesにある各ファイルを完全な内容として1回ずつ返してください。C++コード中の改行や引用符はJSON文字列として正しくエスケープしてください。\n\n# JSON Schema\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"files\": {\n      \"type\": \"array\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"path\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"include/containers/thread_pool.h\",\n              \"src/containers/thread_pool/thread_pool.cpp\"\n            ]\n          },\n          \"content\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"path\",\n          \"content\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\n    \"files\"\n  ],\n  \"additionalProperties\": false\n}\n\n# 設計文書\n# デザイン文書: スレッドプールモジュール\n\n## 概要\nこの設計文書は、`thread_pool.h`と`thread_pool.cpp`に定義されているスレッドプールクラスの再実装に必要な情報を提供します。スレッドプールは指定された数のワーカースレッドを使用してタスクを並列に処理するためのコンポーネントです。\n\n## 責務\n- 指定された数のワーカースレッドを作成し、管理します。\n- タスクキューにタスクをプッシュし、ワーカースレッドがタスクを実行できるようにします。\n- スレッドプールを開始・停止する機能を提供します。\n\n## 公開インターフェース\n### コンストラクタ\n```cpp\nThreadPool(std::optional<std::size_t> thread_count = std::nullopt, log::Logger::Ptr logger = log::RootLogger()) noexcept;\n```\n- `thread_count`: スレッドプールで使用するワーカースレッドの数。`std::nullopt`またはゼロの場合、ハードウェアがサポートする並列スレッド数を使用します。\n- `logger`: ロガー。`nullptr`の場合、グローバルルートロガーを使用します。\n\n### デストラクタ\n```cpp\n~ThreadPool() noexcept;\n```\n\n### コピー・ムーブコンストラクタと代入演算子\nコピーとムーブは禁止されています。\n```cpp\nThreadPool(const ThreadPool&) = delete;\nThreadPool(ThreadPool&&) = delete;\nThreadPool& operator=(const ThreadPool&) = delete;\nThreadPool& operator=(ThreadPool&&) = delete;\n```\n\n### メソッド\n- `void Start() noexcept;`\n  - スレッドプールを開始します。\n- `void Push(Task task) noexcept;`\n  - タスクキューにタスクをプッシュします。\n- `void Close() noexcept;`\n  - スレッドプールを閉じます。未処理のタスクは実行されません。\n\n## 入力\n- コンストラクタ: スレッド数とロガー（オプション）\n- `Push`: 実行するためのタスク\n\n## 出力\n- なし（内部状態の変化）\n\n## 状態\n- `logger_`: ロガーへのポインタ。\n- `mtx_`: タスクキューへのアクセスを同期するために使用されるミューテックス。\n- `closed_`: スレッドプールが閉じているかどうかを示すフラグ。\n- `thread_count_`: スレッドプールで使用するワーカースレッドの数。\n- `cond_`: タスクキューにタスクが追加されたことを待つための条件変数。\n- `tasks_`: 実行待ちのタスクを保持するリスト。\n- `threads_`: ワーカースレッドを保持するリスト。\n\n## 処理手順\n1. **コンストラクタ**:\n   - ロガーが指定されていない場合は、グローバルルートロガーを使用します。\n   - スレッド数がゼロまたは未指定の場合、ハードウェアの並列スレッド数を使用します。\n\n2. **デストラクタ**:\n   - スレッドプールを閉じます。\n   - すべてのワーカースレッドが終了するまで待ちます。\n\n3. **Start()**:\n   - `closed_`フラグをfalseに設定し、指定された数のワーカースレッドを作成します。各ワーカースレッドは`ExecProc()`メソッドを実行します。\n\n4. **Push(Task task)**:\n   - タスクキューにタスクを追加し、条件変数を使用して待機中のワーカースレッドを通知します。\n\n5. **Close()**:\n   - `closed_`フラグをtrueに設定し、すべてのワーカースレッドが終了するまで待ちます。\n\n6. **ExecProc()**:\n   - タスクキューからタスクを取り出し実行します。\n   - 例外が発生した場合はロガーに記録します。\n   - `closed_`フラグがtrueになったらワーカースレッドを終了します。\n\n## 例外・失敗条件\n- `Push(Task task)`メソッドはタスクキューへのアクセスを同期するためにミューテックスを使用します。ただし、タスクの実行中に例外が発生した場合はロガーに記録されますが再スローされません。\n- スレッドプールが閉じている場合、`Push(Task task)`メソッドはアサートで失敗します。\n\n## 依存関係\n- `log::Logger`: ロギング機能を提供するクラス。\n- `<condition_variable>`, `<functional>`, `<list>`, `<mutex>`, `<optional>`, `<thread>`: C++標準ライブラリのヘッダファイル。\n\n## 重要な不変条件\n- スレッドプールが閉じている場合、タスクキューに新しいタスクを追加することはできません。\n- ワーカースレッドはタスクキューからタスクを取り出して実行し、タスクキューが空でないか、またはスレッドプールが閉じているまで待機します。\n\n# 固定インターフェース・スキャフォールド\n===== FILE: include/containers/thread_pool.h =====\n/**\n * @file thread_pool.h\n * @brief The thread pool.\n *\n * @author Zhenshuo Chen (chenzs108@outlook.com)\n * @author Liu Guowen (liu.guowen@outlook.com)\n * @par GitHub\n * https://github.com/Zhuagenborn\n * @version 1.0\n * @date 2022-06-04\n *\n * @example tests/containers/thread_pool_test.cpp\n */\n\n#pragma once\n\n#include \"log.h\"\n\n#include <condition_variable>\n#include <functional>\n#include <list>\n#include <mutex>\n#include <optional>\n#include <thread>\n\n\nnamespace ws {\n\n//! The thread pool.\nclass ThreadPool {\npublic:\n    using Task = std::function<void()>;\n\n    /**\n     * @brief Create a thread pool.\n     *\n     * @param thread_count\n     * The number of working threads.\n     * If it is @p std::nullopt or zero, the thread pool will use the number of concurrent threads supported by hardware.\n     * @param logger\n     * A logger. If it is @p nullptr, the thread pool will use the global root logger.\n     */\n    explicit ThreadPool(std::optional<std::size_t> thread_count = std::nullopt,\n                        log::Logger::Ptr logger = log::RootLogger()) noexcept;\n\n    ~ThreadPool() noexcept;\n\n    ThreadPool(const ThreadPool&) = delete;\n\n    ThreadPool(ThreadPool&&) = delete;\n\n    ThreadPool& operator=(const ThreadPool&) = delete;\n\n    ThreadPool& operator=(ThreadPool&&) = delete;\n\n    //! Run the thread pool.\n    void Start() noexcept;\n\n    //! Push a task into the thread pool.\n    void Push(Task task) noexcept;\n\n    /**\n     * @brief Close the thread pool.\n     *\n     * @details\n     * The remaining tasks will not be executed.\n     */\n    void Close() noexcept;\n\nprivate:\n    /**\n     * @brief Continually pop and execute tasks.\n     *\n     * @warning\n     * Any exceptions raised in callbacks will not be rethrown.\n     * Exception messages will be recorded in the logger.\n     */\n    void ExecProc() noexcept;\n\n    log::Logger::Ptr logger_;\n\n    mutable std::mutex mtx_;\n    std::atomic_bool closed_ {true};\n    std::size_t thread_count_;\n    std::condition_variable cond_;\n\n    std::list<Task> tasks_;\n    std::list<std::thread> threads_;\n};\n\n}  // namespace ws\n\n\n# 依存情報\n#include \"log.h\"\n#include <condition_variable>\n#include <functional>\n#include <list>\n#include <mutex>\n#include <optional>\n#include <thread>\n#include \"thread_pool.h\"\n#include \"util.h\"\n#include <cassert>\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  },
+  "format": {
+    "type": "object",
+    "properties": {
+      "files": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "enum": [
+                "include/containers/thread_pool.h",
+                "src/containers/thread_pool/thread_pool.cpp"
+              ]
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "files"
+    ],
+    "additionalProperties": false
+  }
+}

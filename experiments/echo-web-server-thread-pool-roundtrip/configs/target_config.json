@@ -1,6 +1,6 @@
 {
   "schema_version": "3.0",
-  "enabled": false,
+  "enabled": true,
   "target_id": "echo-web-server-thread-pool",
   "experiment_id": "echo-web-server-thread-pool-roundtrip",
   "run_id": "echo-web-server-thread-pool-qwen25coder32b-001",
