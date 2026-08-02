@@ -2,4 +2,4 @@
 
 | repository | target | status | reasons |
 |---|---|---|---|
-| Echo-Web-Server | echo-web-server-thread-pool | ready | - |
+| Echo-Web-Server | echo-web-server-util | ready | - |
