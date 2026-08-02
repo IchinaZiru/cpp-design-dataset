@@ -6,13 +6,19 @@
   "repository_id": "RISCV-Simulator",
   "target_name": "Register",
   "adoption_status": "条件付き採用",
-  "granularity": "",
-  "source_files": [],
-  "test_files": [],
+  "granularity": "class_span",
+  "source_files": [
+    "src/Common/Register.hpp"
+  ],
+  "test_files": [
+    "src/Common/Register_test.cpp"
+  ],
   "source_descriptor_from_report": "`Register.hpp` header-only template",
   "locator": {},
   "design_input": {
-    "source_files": [],
+    "source_files": [
+      "src/Common/Register.hpp"
+    ],
     "extra_context_files": []
   },
   "regeneration_input": {
@@ -21,9 +27,12 @@
     "output_mode": "single_code"
   },
   "evaluation": {
-    "direct_test_filter": "",
-    "direct_test_names": [],
-    "expected_direct_tests": null,
+    "direct_test_filter": "Register.ReadWrite:Register.ReadWriteOperator",
+    "direct_test_names": [
+      "Register.ReadWrite",
+      "Register.ReadWriteOperator"
+    ],
+    "expected_direct_tests": 2,
     "expected_full_tests": 18,
     "docker_image": "",
     "configure_command": "",
@@ -36,8 +45,8 @@
     "name": "qwen2.5-coder:32b",
     "temperature": 0,
     "seed": 42,
-    "num_ctx": 8192,
-    "num_predict": 2048,
+    "num_ctx": 16384,
+    "num_predict": 8192,
     "top_k": 40,
     "top_p": 0.9,
     "repeat_penalty": 1.1,
@@ -48,19 +57,10 @@
   },
   "stage_commands": {},
   "readiness": {
-    "metadata_complete": false,
-    "metadata_missing": [
-      "granularity",
-      "source_files",
-      "direct_test_filter",
-      "expected_direct_tests"
-    ],
+    "metadata_complete": true,
+    "metadata_missing": [],
     "execution_ready": false,
     "execution_missing": [
-      "granularity",
-      "source_files",
-      "direct_test_filter",
-      "expected_direct_tests",
       "verified replacement locator",
       "fixed scaffold/dependency context",
       "verified Docker image",

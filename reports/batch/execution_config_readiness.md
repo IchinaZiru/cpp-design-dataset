@@ -2,4 +2,4 @@
 
 | repository | target | status | reasons |
 |---|---|---|---|
-| ini-cpp | ini-cpp-inireader | ready | - |
+| RISCV-Simulator | riscv-simulator-register | ready | - |

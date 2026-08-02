@@ -60,17 +60,15 @@ REPOSITORIES = {
     },
     "RISCV-Simulator": {
         "path": "repos/RISCV-Simulator",
-        "image": "cpp-roundtrip-env:ubuntu22.04",
+        "image": "cpp-roundtrip-env:riscv-simulator-v1",
         "configure": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
         "build": "cmake --build build --parallel",
-        "full": "ctest --test-dir build --output-on-failure",
-        "full_kind": "ctest",
+        "full": "./build/RISCV_Simulator_Test --gtest_color=no",
+        "full_kind": "gtest",
         "expected_full": 18,
         "direct_template": (
-            "exe=''; while IFS= read -r candidate; do "
-            "if \"$candidate\" --gtest_list_tests 2>/dev/null | grep -q '^{suite}\\.'; "
-            "then exe=\"$candidate\"; break; fi; done < <(find build -type f -perm -111); "
-            "test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='{filter}'"
+            "./build/RISCV_Simulator_Test --gtest_color=no "
+            "--gtest_filter='{filter}'"
         ),
     },
 }
