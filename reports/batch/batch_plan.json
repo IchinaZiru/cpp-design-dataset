@@ -53,5 +53,10 @@
     "target_id": "ini-cpp-inireader",
     "status": "disabled",
     "config": "configs/roundtrip/targets/ini-cpp-inireader.json"
+  },
+  {
+    "target_id": "riscv-simulator-register",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/riscv-simulator-register.json"
   }
 ]

@@ -1,6 +1,6 @@
 # Round-trip batch plan
 
-- generated_at: `2026-08-02T07:10:18.175611+00:00`
+- generated_at: `2026-08-02T08:41:00.000859+00:00`
 
 | target | status | config |
 |---|---|---|
@@ -15,3 +15,4 @@
 | echo-web-server-thread-pool | disabled | `configs/roundtrip/targets/echo-web-server-thread-pool.json` |
 | echo-web-server-util | disabled | `configs/roundtrip/targets/echo-web-server-util.json` |
 | ini-cpp-inireader | disabled | `configs/roundtrip/targets/ini-cpp-inireader.json` |
+| riscv-simulator-register | disabled | `configs/roundtrip/targets/riscv-simulator-register.json` |

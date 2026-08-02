@@ -9,3 +9,5 @@ Echo-Web-Server,echo-web-server-heap-timer,heap-timer,module_files,include/conta
 Echo-Web-Server,echo-web-server-http,http,module_files,include/http.h;src/http/http.cpp;src/http/request.h;src/http/request.cpp;src/http/response.h;src/http/response.cpp,採用,Registered by generic round-trip harness.
 Echo-Web-Server,echo-web-server-thread-pool,thread-pool,module_files,include/containers/thread_pool.h;src/containers/thread_pool/thread_pool.cpp,採用,Registered by generic round-trip harness.
 Echo-Web-Server,echo-web-server-util,util,module_files,include/util.h;src/util/util.cpp,採用,Registered by generic round-trip harness.
+ini-cpp,ini-cpp-inireader,INIReader,class_span,ini/ini.h,採用,Registered by generic round-trip harness.
+RISCV-Simulator,riscv-simulator-register,Register,class_span,src/Common/Register.hpp,条件付き採用,Registered by generic round-trip harness.

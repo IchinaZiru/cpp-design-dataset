@@ -51,10 +51,15 @@
   },
   {
     "target_id": "ini-cpp-inireader",
-    "status": "failed",
-    "exit_code": 1,
-    "stdout": "",
-    "stderr": "ERROR: Class regeneration output contains Markdown fences\n",
+    "status": "disabled",
     "config": "configs/roundtrip/targets/ini-cpp-inireader.json"
+  },
+  {
+    "target_id": "riscv-simulator-register",
+    "status": "passed",
+    "exit_code": 0,
+    "stdout": "Target:  riscv-simulator-register\nResult:  PASS\nReport:  experiments/riscv-simulator-register-roundtrip/report/experiment_overview.md\n",
+    "stderr": "",
+    "config": "configs/roundtrip/targets/riscv-simulator-register.json"
   }
 ]

@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++ソフトウェアのリバースエンジニアリング担当者です。与えられたコードだけを根拠として、再実装に必要な設計文書を日本語で作成してください。推測で存在しない機能を追加しないでください。",
+  "prompt": "# 対象\n- target: Register\n- granularity: class_span\n\n# 記載項目\n責務、公開インターフェース、入力、出力、状態、処理手順、例外・失敗条件、依存関係、重要な不変条件を記載してください。\n\n# 元コード\nclass Register { // : public Tickable {\npublic:\n    T prev, next;\n\n    bool _stall;\n\n    Register() : prev((T) 0), next((T) 0), _stall(false) {}\n\n    Register(T d) : prev(d), next(d), _stall(false) {}\n\n    T read() { return prev; }\n\n    T current() { return next; }\n\n    void write(const T &t) { next = t; }\n\n    void tick() { if (!_stall) prev = next; }\n\n    void stall(bool stall) { _stall = stall; }\n\n    operator T() { return read(); }\n\n    void operator=(T next) { write(next); }\n};\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}

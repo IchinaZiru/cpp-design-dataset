@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "target_id": "ini-cpp-inireader",
+  "run_id": "ini-cpp-inireader-qwen25coder32b-001",
+  "completed_at_utc": "2026-08-02T08:34:48.389497+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-02T08:34:36.255984+00:00",
+      "completed_at_utc": "2026-08-02T08:34:40.849027+00:00",
+      "elapsed_seconds": 4.591458800015971,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip/ini-cpp-inireader-qwen25coder32b-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip/ini-cpp-inireader-qwen25coder32b-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-02T08:34:40.849196+00:00",
+      "completed_at_utc": "2026-08-02T08:34:48.311592+00:00",
+      "elapsed_seconds": 7.460920499870554,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip/ini-cpp-inireader-qwen25coder32b-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip/ini-cpp-inireader-qwen25coder32b-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "original_hashes": {
+      "ini/ini.h": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+    },
+    "restored_hashes": {
+      "ini/ini.h": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+    },
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-02T08:34:36.175017+00:00",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "fence_language": "cpp",
+    "strict_format_pass": false,
+    "raw_sha256": "d42d674e0ca4aea9f21f1dd1a1e66eaf48303ff99e18a782ae1b6b8bfb6c30d8",
+    "normalized_sha256": "b29e538d9bb336dec12f0787c3d1d04745ae215c63e7811b32e0d6a1d9ac30a0",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip/ini-cpp-inireader-qwen25coder32b-001",
+  "reprocessing": {
+    "mode": "saved_response_reprocessing",
+    "reprocessed_at_utc": "2026-08-02T08:34:48.399295+00:00",
+    "llm_called": false,
+    "design_generation_reused": true,
+    "code_regeneration_response_reused": true,
+    "run_id_preserved": true
+  }
+}
