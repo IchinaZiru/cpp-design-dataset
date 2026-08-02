@@ -1,0 +1,23 @@
+{
+  "target_id": "riscv-simulator-memory",
+  "target_name": "Memory",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "granularity": "class_span",
+  "source_files": [
+    "src/Common/Memory.hpp"
+  ],
+  "prepared_at_utc": "2026-08-02T09:28:22.659992+00:00",
+  "original_files": [
+    {
+      "path": "src/Common/Memory.hpp",
+      "sha256": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec"
+    }
+  ],
+  "locator": {
+    "symbol": "Memory",
+    "start_offset": 230,
+    "end_offset": 1534,
+    "original_span_sha256": "dc209000fb252e55a398cdc1fec1aff19cc445b21fe8152e0468d779b0ff1197"
+  }
+}

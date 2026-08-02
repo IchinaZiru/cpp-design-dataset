@@ -1,0 +1,23 @@
+{
+  "target_id": "riscv-simulator-registerfile",
+  "target_name": "RegisterFile",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "granularity": "class_span",
+  "source_files": [
+    "src/Common/RegisterFile.hpp"
+  ],
+  "prepared_at_utc": "2026-08-02T09:30:40.408129+00:00",
+  "original_files": [
+    {
+      "path": "src/Common/RegisterFile.hpp",
+      "sha256": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110"
+    }
+  ],
+  "locator": {
+    "symbol": "RegisterFile",
+    "start_offset": 250,
+    "end_offset": 1592,
+    "original_span_sha256": "97ed5875d00bd8f82110ef960ed9e0b7336811004ae9d8f5f3049ba5c69487a0"
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "target_id": "riscv-simulator-instruction",
+  "run_id": "riscv-simulator-instruction-qwen25coder32b-001",
+  "completed_at_utc": "2026-08-02T09:28:22.389075+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-02T09:28:17.686199+00:00",
+      "completed_at_utc": "2026-08-02T09:28:21.096464+00:00",
+      "elapsed_seconds": 3.4086189998779446,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip/riscv-simulator-instruction-qwen25coder32b-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip/riscv-simulator-instruction-qwen25coder32b-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-02T09:28:21.096595+00:00",
+      "completed_at_utc": "2026-08-02T09:28:22.331947+00:00",
+      "elapsed_seconds": 1.2336369999684393,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip/riscv-simulator-instruction-qwen25coder32b-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip/riscv-simulator-instruction-qwen25coder32b-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "original_hashes": {
+      "src/Common/Instruction.hpp": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9"
+    },
+    "restored_hashes": {
+      "src/Common/Instruction.hpp": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9"
+    },
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-02T09:28:17.592509+00:00",
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "fence_language": null,
+    "strict_format_pass": true,
+    "raw_sha256": "5892593f6a195841b9c420206e507b053c1cced40102ea247b599f90655a744f",
+    "normalized_sha256": "5892593f6a195841b9c420206e507b053c1cced40102ea247b599f90655a744f",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip/riscv-simulator-instruction-qwen25coder32b-001"
+}

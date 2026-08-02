@@ -1,0 +1,23 @@
+{
+  "target_id": "riscv-simulator-parser",
+  "target_name": "Parser",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "granularity": "class_span",
+  "source_files": [
+    "src/Common/Parser.hpp"
+  ],
+  "prepared_at_utc": "2026-08-02T09:29:33.294542+00:00",
+  "original_files": [
+    {
+      "path": "src/Common/Parser.hpp",
+      "sha256": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0"
+    }
+  ],
+  "locator": {
+    "symbol": "Parser",
+    "start_offset": 215,
+    "end_offset": 1339,
+    "original_span_sha256": "5c1de587cd8ee8276439813e0c3a8a6a50bdfe0ba6934829c63a6b7ee7785106"
+  }
+}

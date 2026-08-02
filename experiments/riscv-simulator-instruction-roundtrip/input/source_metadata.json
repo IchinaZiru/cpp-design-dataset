@@ -1,0 +1,17 @@
+{
+  "target_id": "riscv-simulator-instruction",
+  "target_name": "Instruction",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "granularity": "module_files",
+  "source_files": [
+    "src/Common/Instruction.hpp"
+  ],
+  "prepared_at_utc": "2026-08-02T09:26:12.449249+00:00",
+  "original_files": [
+    {
+      "path": "src/Common/Instruction.hpp",
+      "sha256": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9"
+    }
+  ]
+}

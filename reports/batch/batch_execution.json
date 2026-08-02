@@ -55,11 +55,40 @@
     "config": "configs/roundtrip/targets/ini-cpp-inireader.json"
   },
   {
-    "target_id": "riscv-simulator-register",
+    "target_id": "riscv-simulator-instruction",
+    "status": "failed",
+    "exit_code": 1,
+    "stdout": "Target:  riscv-simulator-instruction\nResult:  FAIL\nReport:  C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset\\experiments\\riscv-simulator-instruction-roundtrip\\report\\experiment_overview.md\n",
+    "stderr": "",
+    "config": "configs/roundtrip/targets/riscv-simulator-instruction.json"
+  },
+  {
+    "target_id": "riscv-simulator-memory",
     "status": "passed",
     "exit_code": 0,
-    "stdout": "Target:  riscv-simulator-register\nResult:  PASS\nReport:  experiments/riscv-simulator-register-roundtrip/report/experiment_overview.md\n",
+    "stdout": "Target:  riscv-simulator-memory\nResult:  PASS\nReport:  C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset\\experiments\\riscv-simulator-memory-roundtrip\\report\\experiment_overview.md\n",
     "stderr": "",
+    "config": "configs/roundtrip/targets/riscv-simulator-memory.json"
+  },
+  {
+    "target_id": "riscv-simulator-parser",
+    "status": "passed",
+    "exit_code": 0,
+    "stdout": "Target:  riscv-simulator-parser\nResult:  PASS\nReport:  C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset\\experiments\\riscv-simulator-parser-roundtrip\\report\\experiment_overview.md\n",
+    "stderr": "",
+    "config": "configs/roundtrip/targets/riscv-simulator-parser.json"
+  },
+  {
+    "target_id": "riscv-simulator-register",
+    "status": "disabled",
     "config": "configs/roundtrip/targets/riscv-simulator-register.json"
+  },
+  {
+    "target_id": "riscv-simulator-registerfile",
+    "status": "passed",
+    "exit_code": 0,
+    "stdout": "Target:  riscv-simulator-registerfile\nResult:  PASS\nReport:  C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset\\experiments\\riscv-simulator-registerfile-roundtrip\\report\\experiment_overview.md\n",
+    "stderr": "",
+    "config": "configs/roundtrip/targets/riscv-simulator-registerfile.json"
   }
 ]

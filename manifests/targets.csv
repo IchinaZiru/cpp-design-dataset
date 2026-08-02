@@ -11,3 +11,7 @@ Echo-Web-Server,echo-web-server-thread-pool,thread-pool,module_files,include/con
 Echo-Web-Server,echo-web-server-util,util,module_files,include/util.h;src/util/util.cpp,採用,Registered by generic round-trip harness.
 ini-cpp,ini-cpp-inireader,INIReader,class_span,ini/ini.h,採用,Registered by generic round-trip harness.
 RISCV-Simulator,riscv-simulator-register,Register,class_span,src/Common/Register.hpp,条件付き採用,Registered by generic round-trip harness.
+RISCV-Simulator,riscv-simulator-instruction,Instruction,module_files,src/Common/Instruction.hpp,条件付き採用,Registered by generic round-trip harness.
+RISCV-Simulator,riscv-simulator-memory,Memory,class_span,src/Common/Memory.hpp,条件付き採用,Registered by generic round-trip harness.
+RISCV-Simulator,riscv-simulator-parser,Parser,class_span,src/Common/Parser.hpp,条件付き採用,Registered by generic round-trip harness.
+RISCV-Simulator,riscv-simulator-registerfile,RegisterFile,class_span,src/Common/RegisterFile.hpp,条件付き採用,Registered by generic round-trip harness.

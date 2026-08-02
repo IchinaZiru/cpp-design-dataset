@@ -1,6 +1,6 @@
 # Round-trip batch plan
 
-- generated_at: `2026-08-02T09:24:26.350499+00:00`
+- generated_at: `2026-08-02T11:03:10.237471+00:00`
 
 | target | status | config |
 |---|---|---|
@@ -15,8 +15,8 @@
 | echo-web-server-thread-pool | disabled | `configs/roundtrip/targets/echo-web-server-thread-pool.json` |
 | echo-web-server-util | disabled | `configs/roundtrip/targets/echo-web-server-util.json` |
 | ini-cpp-inireader | disabled | `configs/roundtrip/targets/ini-cpp-inireader.json` |
-| riscv-simulator-instruction | ready | `configs/roundtrip/targets/riscv-simulator-instruction.json` |
-| riscv-simulator-memory | ready | `configs/roundtrip/targets/riscv-simulator-memory.json` |
-| riscv-simulator-parser | ready | `configs/roundtrip/targets/riscv-simulator-parser.json` |
+| riscv-simulator-instruction | disabled | `configs/roundtrip/targets/riscv-simulator-instruction.json` |
+| riscv-simulator-memory | disabled | `configs/roundtrip/targets/riscv-simulator-memory.json` |
+| riscv-simulator-parser | disabled | `configs/roundtrip/targets/riscv-simulator-parser.json` |
 | riscv-simulator-register | disabled | `configs/roundtrip/targets/riscv-simulator-register.json` |
-| riscv-simulator-registerfile | ready | `configs/roundtrip/targets/riscv-simulator-registerfile.json` |
+| riscv-simulator-registerfile | disabled | `configs/roundtrip/targets/riscv-simulator-registerfile.json` |

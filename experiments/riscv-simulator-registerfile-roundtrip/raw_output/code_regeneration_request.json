@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: RegisterFile\n- granularity: class_span\n- source_files: [\"src/Common/RegisterFile.hpp\"]\n\n# 出力規則\n対象クラス定義全体だけをC++コードとして返してください。Markdownコードフェンス、説明文、JSONは出力しないでください。\n\n# JSON Schema\nN/A\n\n# 設計文書\n# デザイン文書: RegisterFile クラス\n\n## 責務\nRegisterFileクラスは、32個のレジスタを管理し、各レジスタへの読み書き操作を提供します。また、レジスタの状態を1サイクル分進める機能とデバッグ用の出力機能も備えています。\n\n## 公開インターフェース\n- `RegisterFile()`: コンストラクタで全てのレジスタを初期化します。\n- `void tick()`: レジスタの状態を1サイクル分進めます。`next`配列の値が`prev`配列にコピーされます。\n- `Immediate read(int id)`: 指定されたIDのレジスタの現在の値（`prev`配列）を返します。ただし、IDが0の場合は常に0を返します。\n- `void write(int id, Immediate val)`: 指定されたIDのレジスタに次のサイクルでの値（`next`配列）を設定します。\n- `void debug()`: レジスタの現在の状態（`next`配列）をデバッグ用に出力します。\n\n## 入力\n- `int id`: 読み書き対象のレジスタID。範囲は0から31までです。\n- `Immediate val`: 書き込む値。\n\n## 出力\n- `Immediate read(int id)`: 指定されたレジスタの現在の値を返します。\n\n## 状態\n- `Immediate prev[REG_NUM]`: 前回のサイクルでの各レジスタの値。\n- `Immediate next[REG_NUM]`: 次回のサイクルでの各レジスタの値。\n\n## 処理手順\n1. **初期化**:\n   - コンストラクタが呼び出されると、`prev`と`next`配列がゼロクリアされます。\n2. **書き込み**:\n   - `write(int id, Immediate val)`メソッドが呼び出されると、指定されたIDのレジスタに次のサイクルでの値が設定されます。\n3. **読み出し**:\n   - `read(int id)`メソッドが呼び出されると、指定されたIDのレジスタの現在の値が返されます。ただし、IDが0の場合は常に0を返します。\n4. **状態更新**:\n   - `tick()`メソッドが呼び出されると、`next`配列の値が`prev`配列にコピーされ、レジスタの状態が1サイクル分進められます。\n5. **デバッグ出力**:\n   - `debug()`メソッドが呼び出されると、各レジスタの現在の値（`next`配列）がフォーマットされた形式で標準出力に表示されます。\n\n## 例外・失敗条件\n- レジスタIDが範囲外（0から31以外）の場合、未定義動作となるため、呼び出し元で適切なチェックが必要です。\n- `Immediate`型の定義や`debug_immediate()`関数の実装が存在しない場合、コンパイルエラーが発生します。\n\n## 依存関係\n- `Immediate`: このクラスは`Immediate`型を使用しています。この型の定義が必要です。\n- `std::vector`, `std::string`, `std::cout`, `std::setw`: C++標準ライブラリに依存しています。\n- `sprintf()`: C標準ライブラリに依存しています。\n\n## 重要な不変条件\n- レジスタIDは0から31の範囲内である。\n- `prev`と`next`配列は常にREG_NUM（32）個の要素を持つ。\n\n# 固定インターフェース・スキャフォールド\nclass RegisterFile { // : public Tickable {\n    static const int REG_NUM = 32;\npublic:\n    Immediate prev[REG_NUM];\n    Immediate next[REG_NUM];\n\n    RegisterFile() ;\n\n    void tick() ;\n\n    Immediate read(int id) ;\n\n    void write(int id, Immediate val) ;\n\n    void debug() ;\n};\n\n\n# 依存情報\n#include \"Common.h\"\n#include \"Register.hpp\"\n#include <iostream>\n#include <iomanip>\n#include <vector>\n#include \"utils.h\"\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}
