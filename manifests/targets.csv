@@ -6,3 +6,4 @@ Echo-Web-Server,echo-web-server-config,config,module_files,include/config.h;src/
 Echo-Web-Server,echo-web-server-block-deque,block-deque,module_files,include/containers/block_deque.h,採用,Registered by generic round-trip harness.
 Echo-Web-Server,echo-web-server-buffer,buffer,module_files,include/containers/buffer.h;src/containers/buffer/buffer.cpp,採用,Registered by generic round-trip harness.
 Echo-Web-Server,echo-web-server-heap-timer,heap-timer,module_files,include/containers/heap_timer.h,採用,Registered by generic round-trip harness.
+Echo-Web-Server,echo-web-server-http,http,module_files,include/http.h;src/http/http.cpp;src/http/request.h;src/http/request.cpp;src/http/response.h;src/http/response.cpp,採用,Registered by generic round-trip harness.

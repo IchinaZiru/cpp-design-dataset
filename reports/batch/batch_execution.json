@@ -16,11 +16,16 @@
   },
   {
     "target_id": "echo-web-server-heap-timer",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/echo-web-server-heap-timer.json"
+  },
+  {
+    "target_id": "echo-web-server-http",
     "status": "failed",
     "exit_code": 1,
-    "stdout": "Target:  echo-web-server-heap-timer\nResult:  FAIL\nReport:  C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset\\experiments\\echo-web-server-heap-timer-roundtrip\\report\\experiment_overview.md\n",
+    "stdout": "Target:  echo-web-server-http\nResult:  FAIL\nReport:  C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset\\experiments\\echo-web-server-http-roundtrip\\report\\experiment_overview.md\n",
     "stderr": "",
-    "config": "configs/roundtrip/targets/echo-web-server-heap-timer.json"
+    "config": "configs/roundtrip/targets/echo-web-server-http.json"
   },
   {
     "target_id": "echo-web-server-io",

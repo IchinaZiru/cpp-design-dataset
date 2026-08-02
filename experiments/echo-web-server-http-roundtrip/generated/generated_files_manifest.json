@@ -1,0 +1,10 @@
+{
+  "files": [
+    "include/http.h",
+    "src/http/http.cpp",
+    "src/http/request.cpp",
+    "src/http/request.h",
+    "src/http/response.cpp",
+    "src/http/response.h"
+  ]
+}
