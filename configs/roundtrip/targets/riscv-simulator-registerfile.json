@@ -1,0 +1,64 @@
+{
+  "schema_version": "3.0",
+  "enabled": false,
+  "target_id": "riscv-simulator-registerfile",
+  "experiment_id": "riscv-simulator-registerfile-roundtrip",
+  "run_id": "riscv-simulator-registerfile-qwen25coder32b-001",
+  "repository_id": "RISCV-Simulator",
+  "repository_path": "repos/RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "target_name": "RegisterFile",
+  "adoption_status": "条件付き採用",
+  "granularity": "class_span",
+  "source_files": [
+    "src/Common/RegisterFile.hpp"
+  ],
+  "locator": {
+    "kind": "class",
+    "symbol": "RegisterFile"
+  },
+  "test_files": [
+    "src/Common/RegisterFile_test.cpp"
+  ],
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:riscv-simulator-v1",
+    "docker_image_id": "sha256:81e23cc94a387697d7979c847d81bf557543fece913065fbdbd329bf194f62cd",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='RegisterFile.ReadWrite'",
+    "full_test_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+    "full_test_kind": "gtest",
+    "direct_test_filter": "RegisterFile.ReadWrite",
+    "direct_test_names": [
+      "RegisterFile.ReadWrite"
+    ],
+    "expected_direct_tests": 1,
+    "expected_full_tests": 18,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "readiness": {
+    "configured": true,
+    "reasons": [],
+    "baseline_probed": true,
+    "baseline_passed": true
+  }
+}

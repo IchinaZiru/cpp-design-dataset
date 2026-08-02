@@ -1,0 +1,66 @@
+{
+  "schema_version": "3.0",
+  "enabled": false,
+  "target_id": "riscv-simulator-parser",
+  "experiment_id": "riscv-simulator-parser-roundtrip",
+  "run_id": "riscv-simulator-parser-qwen25coder32b-001",
+  "repository_id": "RISCV-Simulator",
+  "repository_path": "repos/RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "target_name": "Parser",
+  "adoption_status": "条件付き採用",
+  "granularity": "class_span",
+  "source_files": [
+    "src/Common/Parser.hpp"
+  ],
+  "locator": {
+    "kind": "class",
+    "symbol": "Parser"
+  },
+  "test_files": [
+    "src/Common/Parser_test.cpp"
+  ],
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:riscv-simulator-v1",
+    "docker_image_id": "sha256:81e23cc94a387697d7979c847d81bf557543fece913065fbdbd329bf194f62cd",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Parser.Hex:Parser.Parse:Parser.ParseHex'",
+    "full_test_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+    "full_test_kind": "gtest",
+    "direct_test_filter": "Parser.Hex:Parser.Parse:Parser.ParseHex",
+    "direct_test_names": [
+      "Parser.Hex",
+      "Parser.Parse",
+      "Parser.ParseHex"
+    ],
+    "expected_direct_tests": 3,
+    "expected_full_tests": 18,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "readiness": {
+    "configured": true,
+    "reasons": [],
+    "baseline_probed": true,
+    "baseline_passed": true
+  }
+}

@@ -55,8 +55,28 @@
     "config": "configs/roundtrip/targets/ini-cpp-inireader.json"
   },
   {
+    "target_id": "riscv-simulator-instruction",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/riscv-simulator-instruction.json"
+  },
+  {
+    "target_id": "riscv-simulator-memory",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/riscv-simulator-memory.json"
+  },
+  {
+    "target_id": "riscv-simulator-parser",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/riscv-simulator-parser.json"
+  },
+  {
     "target_id": "riscv-simulator-register",
     "status": "disabled",
     "config": "configs/roundtrip/targets/riscv-simulator-register.json"
+  },
+  {
+    "target_id": "riscv-simulator-registerfile",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/riscv-simulator-registerfile.json"
   }
 ]
