@@ -207,9 +207,155 @@ def module_output_schema(expected_paths: list[str]) -> dict[str, Any]:
     }
 
 
+def normalize_outer_markdown_fence(
+    text: str,
+    allowed_languages: set[str],
+) -> tuple[str, dict[str, Any]]:
+    """Remove one outer Markdown fence without changing the code body."""
+
+    raw_sha256 = sha256_bytes(text.encode("utf-8"))
+
+    match = re.fullmatch(
+        r"\s*```([A-Za-z0-9_+\-]*)[ \t]*\r?\n"
+        r"(.*)"
+        r"\r?\n```[ \t]*\s*",
+        text,
+        flags=re.DOTALL,
+    )
+
+    if match is None:
+        bare_fence = re.search(
+            r"(?m)^[ \t]*```[A-Za-z0-9_+\-]*[ \t]*$",
+            text,
+        )
+
+        if bare_fence is not None:
+            raise RuntimeError(
+                "Code regeneration output contains an unmatched "
+                "or non-outer Markdown fence"
+            )
+
+        normalized = text
+        applied = False
+        language: str | None = None
+
+    else:
+        language = match.group(1).lower()
+
+        if language not in allowed_languages:
+            raise RuntimeError(
+                "Unexpected outer Markdown fence language: "
+                f"{language!r}"
+            )
+
+        normalized = match.group(2)
+
+        if not normalized.strip():
+            raise RuntimeError(
+                "Code regeneration became empty after "
+                "Markdown fence normalization"
+            )
+
+        nested_fence = re.search(
+            r"(?m)^[ \t]*```[A-Za-z0-9_+\-]*[ \t]*$",
+            normalized,
+        )
+
+        if nested_fence is not None:
+            raise RuntimeError(
+                "Code regeneration output contains an additional "
+                "bare Markdown fence inside the outer fence"
+            )
+
+        applied = True
+
+    metadata = {
+        "schema_version": "1.0",
+        "normalized_at_utc": utc_now(),
+        "normalization_applied": applied,
+        "normalization_type": (
+            "outer_markdown_fence"
+            if applied
+            else "none"
+        ),
+        "fence_language": language,
+        "strict_format_pass": not applied,
+        "raw_sha256": raw_sha256,
+        "normalized_sha256": sha256_bytes(
+            normalized.encode("utf-8")
+        ),
+        "code_body_modified": False,
+        "retry_performed": False,
+        "automatic_repair_performed": False,
+    }
+
+    return normalized, metadata
+
+
+def materialize_regeneration_output(
+    config: dict[str, Any],
+    experiment_root: Path,
+    text: str,
+) -> dict[str, Any]:
+    """Normalize and save the already generated implementation."""
+
+    if config["granularity"] == "module_files":
+        allowed_languages = {"", "json"}
+    else:
+        allowed_languages = {
+            "",
+            "cpp",
+            "c++",
+            "cc",
+            "cxx",
+        }
+
+    normalized, normalization = (
+        normalize_outer_markdown_fence(
+            text,
+            allowed_languages,
+        )
+    )
+
+    raw_dir = experiment_root / "raw_output"
+
+    write_json(
+        raw_dir / "code_regeneration_normalization.json",
+        normalization,
+    )
+
+    generated_dir = experiment_root / "generated"
+
+    if config["granularity"] == "module_files":
+        files = parse_module_output(
+            normalized,
+            [
+                str(item)
+                for item in config["source_files"]
+            ],
+        )
+
+        for relative, content in files.items():
+            write_text(
+                generated_dir / "files" / relative,
+                content,
+            )
+
+        write_json(
+            generated_dir / "generated_files_manifest.json",
+            {"files": sorted(files)},
+        )
+
+    else:
+        write_text(
+            generated_dir / "regenerated_target.cpp",
+            normalized,
+        )
+
+    return normalization
+
+
 def parse_module_output(text: str, expected_paths: list[str]) -> dict[str, str]:
-    if "```" in text:
-        raise RuntimeError("Code regeneration output contains Markdown fences")
     try:
         value = json.loads(text)
     except json.JSONDecodeError as error:
@@ -311,16 +457,12 @@ def regenerate(config: dict[str, Any], experiment_root: Path) -> dict[str, Any]:
     if not isinstance(text, str) or not text.strip():
         raise RuntimeError("Code regeneration returned an empty response")
 
-    generated_dir = experiment_root / "generated"
-    if config["granularity"] == "module_files":
-        files = parse_module_output(text, [str(item) for item in config["source_files"]])
-        for relative, content in files.items():
-            write_text(generated_dir / "files" / relative, content)
-        write_json(generated_dir / "generated_files_manifest.json", {"files": sorted(files)})
-    else:
-        if "```" in text:
-            raise RuntimeError("Class regeneration output contains Markdown fences")
-        write_text(generated_dir / "regenerated_target.cpp", text)
+    materialize_regeneration_output(
+        config,
+        experiment_root,
+        text,
+    )
+
     return metadata
 
 
@@ -444,6 +586,11 @@ def evaluate(config: dict[str, Any], project_root: Path, experiment_root: Path) 
             "repository_clean": repository_clean,
             "tracked_status": tracked_status,
         },
+        "code_regeneration_normalization": load_json(
+            experiment_root
+            / "raw_output"
+            / "code_regeneration_normalization.json"
+        ),
         "local_raw_log_directory": log_root.relative_to(project_root).as_posix(),
     }
     write_json(evaluation_dir / "evaluation_manifest.json", result)
@@ -608,51 +755,325 @@ def record_pipeline_failure(
     )
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run one configured round-trip target end to end.")
-    parser.add_argument("--config", type=Path, required=True)
-    parser.add_argument("--project-root", type=Path, default=Path.cwd())
-    parser.add_argument("--force", action="store_true")
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run one configured round-trip target "
+            "end to end."
+        )
+    )
+
+    parser.add_argument(
+        "--config",
+        type=Path,
+        required=True,
+    )
+
+    parser.add_argument(
+        "--project-root",
+        type=Path,
+        default=Path.cwd(),
+    )
+
+    parser.add_argument(
+        "--force",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--reprocess-existing",
+        action="store_true",
+        help=(
+            "Reuse the saved LLM response and overwrite "
+            "the existing evaluation result without "
+            "calling the LLM again."
+        ),
+    )
+
     args = parser.parse_args()
 
-    project_root = args.project_root.resolve()
-    config_path = args.config if args.config.is_absolute() else project_root / args.config
-    config = load_json(config_path)
-    if config.get("enabled") is not True:
-        raise RuntimeError("Target config is not enabled")
-    experiment_root = project_root / "experiments" / config["experiment_id"]
-    if experiment_root.exists() and any(experiment_root.iterdir()):
-        if not args.force:
-            raise FileExistsError(f"Experiment output already exists: {experiment_root}")
-        shutil.rmtree(experiment_root)
-
-    stage = "prepare"
-    try:
-        prepare(config, project_root, experiment_root)
-        stage = "generate_design"
-        generate_design(config, experiment_root)
-        stage = "regenerate_code"
-        regenerate(config, experiment_root)
-        stage = "evaluate"
-        evaluation = evaluate(config, project_root, experiment_root)
-        stage = "generate_report"
-        report = build_report(config, experiment_root, evaluation)
-        write_text(experiment_root / "report" / "experiment_overview.md", report)
-        write_json(experiment_root / "report" / "experiment_overview.json", evaluation)
-        stage = "register_run"
-        register(config, project_root, evaluation, experiment_root)
-    except Exception as error:
-        record_pipeline_failure(
-            config=config,
-            project_root=project_root,
-            experiment_root=experiment_root,
-            stage=stage,
-            error=error,
+    if args.force and args.reprocess_existing:
+        raise RuntimeError(
+            "--force and --reprocess-existing "
+            "cannot be used together"
         )
-        raise
+
+    project_root = args.project_root.resolve()
+
+    config_path = (
+        args.config
+        if args.config.is_absolute()
+        else project_root / args.config
+    )
+
+    config = load_json(config_path)
+
+    experiment_root = (
+        project_root
+        / "experiments"
+        / config["experiment_id"]
+    )
+
+    if args.reprocess_existing:
+        if (
+            not experiment_root.exists()
+            or not any(experiment_root.iterdir())
+        ):
+            raise FileNotFoundError(
+                "Existing experiment output was not found: "
+                f"{experiment_root}"
+            )
+
+        requested_config = config
+
+        saved_config_path = (
+            experiment_root
+            / "configs"
+            / "target_config.json"
+        )
+
+        if not saved_config_path.exists():
+            raise FileNotFoundError(
+                "Saved target configuration was not found: "
+                f"{saved_config_path}"
+            )
+
+        saved_config = load_json(saved_config_path)
+
+        for identity_key in (
+            "target_id",
+            "run_id",
+            "experiment_id",
+        ):
+            if (
+                requested_config.get(identity_key)
+                != saved_config.get(identity_key)
+            ):
+                raise RuntimeError(
+                    "Current and saved configurations differ "
+                    f"for {identity_key}: "
+                    f"current={requested_config.get(identity_key)!r}, "
+                    f"saved={saved_config.get(identity_key)!r}"
+                )
+
+        # Reuse the exact configuration captured during
+        # the original LLM generation.
+        config = saved_config
+
+        stage = "reprocess_regeneration_output"
+
+        try:
+            response_path = (
+                experiment_root
+                / "raw_output"
+                / "code_regeneration_response.json"
+            )
+
+            response = load_json(response_path)
+            response_text = response.get("response")
+
+            if (
+                not isinstance(response_text, str)
+                or not response_text.strip()
+            ):
+                raise RuntimeError(
+                    "Saved code regeneration response "
+                    "is empty"
+                )
+
+            materialize_regeneration_output(
+                config,
+                experiment_root,
+                response_text,
+            )
+
+            # The new result overwrites the previous
+            # execution logs for the same run ID.
+            existing_log_root = (
+                project_root
+                / "logs"
+                / "roundtrip"
+                / config["run_id"]
+            )
+
+            if existing_log_root.exists():
+                shutil.rmtree(existing_log_root)
+
+            stage = "evaluate"
+
+            evaluation = evaluate(
+                config,
+                project_root,
+                experiment_root,
+            )
+
+            reprocessing = {
+                "mode": "saved_response_reprocessing",
+                "reprocessed_at_utc": utc_now(),
+                "llm_called": False,
+                "design_generation_reused": True,
+                "code_regeneration_response_reused": True,
+                "run_id_preserved": True,
+            }
+
+            evaluation["reprocessing"] = reprocessing
+
+            write_json(
+                experiment_root
+                / "evaluation"
+                / "evaluation_manifest.json",
+                evaluation,
+            )
+
+            stage = "generate_report"
+
+            report = build_report(
+                config,
+                experiment_root,
+                evaluation,
+            )
+
+            write_text(
+                experiment_root
+                / "report"
+                / "experiment_overview.md",
+                report,
+            )
+
+            write_json(
+                experiment_root
+                / "report"
+                / "experiment_overview.json",
+                evaluation,
+            )
+
+            stage = "register_run"
+
+            register(
+                config,
+                project_root,
+                evaluation,
+                experiment_root,
+            )
+
+            pipeline_failure = (
+                experiment_root
+                / "evaluation"
+                / "pipeline_failure.json"
+            )
+
+            if pipeline_failure.exists():
+                pipeline_failure.unlink()
+
+        except Exception as error:
+            record_pipeline_failure(
+                config=config,
+                project_root=project_root,
+                experiment_root=experiment_root,
+                stage=stage,
+                error=error,
+            )
+            raise
+
+    else:
+        if config.get("enabled") is not True:
+            raise RuntimeError(
+                "Target config is not enabled"
+            )
+
+        if (
+            experiment_root.exists()
+            and any(experiment_root.iterdir())
+        ):
+            if not args.force:
+                raise FileExistsError(
+                    "Experiment output already exists: "
+                    f"{experiment_root}"
+                )
+
+            shutil.rmtree(experiment_root)
+
+        stage = "prepare"
+
+        try:
+            prepare(
+                config,
+                project_root,
+                experiment_root,
+            )
+
+            stage = "generate_design"
+
+            generate_design(
+                config,
+                experiment_root,
+            )
+
+            stage = "regenerate_code"
+
+            regenerate(
+                config,
+                experiment_root,
+            )
+
+            stage = "evaluate"
+
+            evaluation = evaluate(
+                config,
+                project_root,
+                experiment_root,
+            )
+
+            stage = "generate_report"
+
+            report = build_report(
+                config,
+                experiment_root,
+                evaluation,
+            )
+
+            write_text(
+                experiment_root
+                / "report"
+                / "experiment_overview.md",
+                report,
+            )
+
+            write_json(
+                experiment_root
+                / "report"
+                / "experiment_overview.json",
+                evaluation,
+            )
+
+            stage = "register_run"
+
+            register(
+                config,
+                project_root,
+                evaluation,
+                experiment_root,
+            )
+
+        except Exception as error:
+            record_pipeline_failure(
+                config=config,
+                project_root=project_root,
+                experiment_root=experiment_root,
+                stage=stage,
+                error=error,
+            )
+            raise
 
     print(f"Target:  {config['target_id']}")
-    print(f"Result:  {'PASS' if evaluation['overall_pass'] else 'FAIL'}")
-    print(f"Report:  {experiment_root / 'report' / 'experiment_overview.md'}")
+    print(
+        "Result:  "
+        f"{'PASS' if evaluation['overall_pass'] else 'FAIL'}"
+    )
+    print(
+        "Report:  "
+        f"{experiment_root / 'report' / 'experiment_overview.md'}"
+    )
+
     return 0 if evaluation["overall_pass"] else 1
 
 
