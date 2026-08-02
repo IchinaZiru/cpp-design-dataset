@@ -1,5 +1,10 @@
 [
   {
+    "target_id": "echo-web-server-block-deque",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/echo-web-server-block-deque.json"
+  },
+  {
     "target_id": "echo-web-server-config",
     "status": "disabled",
     "config": "configs/roundtrip/targets/echo-web-server-config.json"

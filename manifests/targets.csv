@@ -3,3 +3,4 @@ ini-cpp,ini-cpp-iniwriter-write,INIWriter::write,function_body,ini/ini.h,adopted
 Echo-Web-Server,echo-web-server-io,io,module_files,include/io.h;src/io/io.cpp,採用,Registered by generic round-trip harness.
 Echo-Web-Server,echo-web-server-ip,ip,module_files,include/ip.h;src/ip/ip.cpp,採用,Registered by generic round-trip harness.
 Echo-Web-Server,echo-web-server-config,config,module_files,include/config.h;src/config/config.cpp,採用,Registered by generic round-trip harness.
+Echo-Web-Server,echo-web-server-block-deque,block-deque,module_files,include/containers/block_deque.h,採用,Registered by generic round-trip harness.

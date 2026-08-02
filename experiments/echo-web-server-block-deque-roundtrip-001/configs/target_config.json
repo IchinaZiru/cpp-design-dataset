@@ -1,0 +1,59 @@
+{
+  "schema_version": "3.0",
+  "enabled": true,
+  "target_id": "echo-web-server-block-deque",
+  "experiment_id": "echo-web-server-block-deque-roundtrip-001",
+  "run_id": "echo-web-server-block-deque-qwen25coder32b-001",
+  "repository_id": "Echo-Web-Server",
+  "repository_path": "repos/Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "target_name": "block-deque",
+  "adoption_status": "採用",
+  "granularity": "module_files",
+  "source_files": [
+    "include/containers/block_deque.h"
+  ],
+  "locator": {},
+  "test_files": [
+    "tests/containers/block_deque_test.cpp"
+  ],
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:echo-web-server-v2",
+    "docker_image_id": "sha256:f4983b70f6c2400cec7c8869810a8ec3e87f6966e2cc86e09598bdbbc4773c5c",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='BlockDequeTest.Construction:BlockDequeTest.SingleThreadPushPop:BlockDequeTest.MultiThreadPushPop:BlockDequeTest.Close'",
+    "full_test_command": "ctest --test-dir build --output-on-failure",
+    "full_test_kind": "ctest",
+    "direct_test_filter": "BlockDequeTest.Construction:BlockDequeTest.SingleThreadPushPop:BlockDequeTest.MultiThreadPushPop:BlockDequeTest.Close",
+    "direct_test_names": [
+      "BlockDequeTest.Construction",
+      "BlockDequeTest.SingleThreadPushPop",
+      "BlockDequeTest.MultiThreadPushPop",
+      "BlockDequeTest.Close"
+    ],
+    "expected_direct_tests": 4,
+    "expected_full_tests": 63
+  },
+  "readiness": {
+    "configured": true,
+    "reasons": [],
+    "baseline_probed": true,
+    "baseline_passed": true
+  },
+  "notes": "The complete block_deque.h file is evaluated as module_files because class_span would exclude the out-of-class template member definitions. The revised fixed generation budget uses num_ctx=16384 and num_predict=8192."
+}
