@@ -33,5 +33,10 @@
     "target_id": "echo-web-server-ip",
     "status": "disabled",
     "config": "configs/roundtrip/targets/echo-web-server-ip.json"
+  },
+  {
+    "target_id": "echo-web-server-log",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/echo-web-server-log.json"
   }
 ]

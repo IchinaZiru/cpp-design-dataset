@@ -1,6 +1,6 @@
 # Round-trip batch plan
 
-- generated_at: `2026-08-02T04:44:44.698521+00:00`
+- generated_at: `2026-08-02T05:16:30.926004+00:00`
 
 | target | status | config |
 |---|---|---|
@@ -11,3 +11,4 @@
 | echo-web-server-http | disabled | `configs/roundtrip/targets/echo-web-server-http.json` |
 | echo-web-server-io | disabled | `configs/roundtrip/targets/echo-web-server-io.json` |
 | echo-web-server-ip | disabled | `configs/roundtrip/targets/echo-web-server-ip.json` |
+| echo-web-server-log | disabled | `configs/roundtrip/targets/echo-web-server-log.json` |

@@ -1,6 +1,6 @@
 # Round-trip batch execution
 
-- generated_at: `2026-08-02T03:12:52.900111+00:00`
+- generated_at: `2026-08-02T05:05:02.657923+00:00`
 
 | target | status | config |
 |---|---|---|
@@ -8,6 +8,7 @@
 | echo-web-server-buffer | disabled | `configs/roundtrip/targets/echo-web-server-buffer.json` |
 | echo-web-server-config | disabled | `configs/roundtrip/targets/echo-web-server-config.json` |
 | echo-web-server-heap-timer | disabled | `configs/roundtrip/targets/echo-web-server-heap-timer.json` |
-| echo-web-server-http | failed | `configs/roundtrip/targets/echo-web-server-http.json` |
+| echo-web-server-http | disabled | `configs/roundtrip/targets/echo-web-server-http.json` |
 | echo-web-server-io | disabled | `configs/roundtrip/targets/echo-web-server-io.json` |
 | echo-web-server-ip | disabled | `configs/roundtrip/targets/echo-web-server-ip.json` |
+| echo-web-server-log | failed | `configs/roundtrip/targets/echo-web-server-log.json` |

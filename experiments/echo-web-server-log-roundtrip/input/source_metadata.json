@@ -1,0 +1,47 @@
+{
+  "target_id": "echo-web-server-log",
+  "target_name": "log",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "source_files": [
+    "include/log.h",
+    "src/log/log.cpp",
+    "src/log/appender.cpp",
+    "src/log/field.h",
+    "src/log/field.cpp",
+    "src/log/config_init.h",
+    "src/log/config_init.cpp"
+  ],
+  "prepared_at_utc": "2026-08-02T04:53:38.665850+00:00",
+  "original_files": [
+    {
+      "path": "include/log.h",
+      "sha256": "3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252"
+    },
+    {
+      "path": "src/log/log.cpp",
+      "sha256": "54510f48ccd408758165fb76e6a524c7ff6768b42c5f3a078e549aa10ccdb530"
+    },
+    {
+      "path": "src/log/appender.cpp",
+      "sha256": "9d0e67f123b05b34389be66dcc4c8b763ab1da000655363ca51cb73944ca9854"
+    },
+    {
+      "path": "src/log/field.h",
+      "sha256": "618df402e2d9d192a792255076b8fb3061619e4d5b1c11d944039dcccf08c73e"
+    },
+    {
+      "path": "src/log/field.cpp",
+      "sha256": "6d5e70b9528d625b378d63980209b4bc33cdb602502ca7d7ddf9b21a8b0ecac1"
+    },
+    {
+      "path": "src/log/config_init.h",
+      "sha256": "f5a38c8d7461b5711d11500234e2749bc0558448d251b05becddcc5fbaa1f2b7"
+    },
+    {
+      "path": "src/log/config_init.cpp",
+      "sha256": "9da465bee8e5c1c315242122a14794005138db7254c793a0eeb6576823905355"
+    }
+  ]
+}
