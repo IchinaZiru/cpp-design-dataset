@@ -2,4 +2,4 @@
 
 | repository | target | status | reasons |
 |---|---|---|---|
-| Echo-Web-Server | echo-web-server-block-deque | ready | - |
+| Echo-Web-Server | echo-web-server-buffer | ready | - |
