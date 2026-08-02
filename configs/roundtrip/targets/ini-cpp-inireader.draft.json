@@ -10,7 +10,9 @@
   "source_files": [
     "ini/ini.h"
   ],
-  "test_files": [],
+  "test_files": [
+    "test/tests.cpp"
+  ],
   "source_descriptor_from_report": "ini/ini.h",
   "locator": {},
   "design_input": {
@@ -25,8 +27,33 @@
     "output_mode": "single_code"
   },
   "evaluation": {
-    "direct_test_filter": "INIReader.*` (24)",
-    "direct_test_names": [],
+    "direct_test_filter": "INIReader.get_sections:INIReader.get_keys:INIReader.get_single_value:INIReader.get_vector:INIReader.get_single_value_with_default:INIReader.get_vector_with_default:INIReader.exception:INIReader.read_big_file:INIReader.dulicate_keys:INIReader.InsertEntry:INIReader.UpdateEntry:INIReader.from_file_pointer:INIReader.utf8_bom:INIReader.crlf_line_endings:INIReader.comments:INIReader.whitespace_and_empty_values:INIReader.section_quirks:INIReader.empty_file:INIReader.long_lines_and_section_names:INIReader.numeric_conversions:INIReader.bool_conversions:INIReader.default_on_parse_failure:INIReader.error_messages:INIReader.insert_and_update_errors",
+    "direct_test_names": [
+      "INIReader.get_sections",
+      "INIReader.get_keys",
+      "INIReader.get_single_value",
+      "INIReader.get_vector",
+      "INIReader.get_single_value_with_default",
+      "INIReader.get_vector_with_default",
+      "INIReader.exception",
+      "INIReader.read_big_file",
+      "INIReader.dulicate_keys",
+      "INIReader.InsertEntry",
+      "INIReader.UpdateEntry",
+      "INIReader.from_file_pointer",
+      "INIReader.utf8_bom",
+      "INIReader.crlf_line_endings",
+      "INIReader.comments",
+      "INIReader.whitespace_and_empty_values",
+      "INIReader.section_quirks",
+      "INIReader.empty_file",
+      "INIReader.long_lines_and_section_names",
+      "INIReader.numeric_conversions",
+      "INIReader.bool_conversions",
+      "INIReader.default_on_parse_failure",
+      "INIReader.error_messages",
+      "INIReader.insert_and_update_errors"
+    ],
     "expected_direct_tests": 24,
     "expected_full_tests": 27,
     "docker_image": "",
@@ -40,8 +67,8 @@
     "name": "qwen2.5-coder:32b",
     "temperature": 0,
     "seed": 42,
-    "num_ctx": 8192,
-    "num_predict": 2048,
+    "num_ctx": 16384,
+    "num_predict": 8192,
     "top_k": 40,
     "top_p": 0.9,
     "repeat_penalty": 1.1,

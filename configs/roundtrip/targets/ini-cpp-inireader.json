@@ -1,0 +1,87 @@
+{
+  "schema_version": "3.0",
+  "enabled": true,
+  "target_id": "ini-cpp-inireader",
+  "experiment_id": "ini-cpp-inireader-roundtrip",
+  "run_id": "ini-cpp-inireader-qwen25coder32b-001",
+  "repository_id": "ini-cpp",
+  "repository_path": "repos/ini-cpp",
+  "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+  "target_name": "INIReader",
+  "adoption_status": "採用",
+  "granularity": "class_span",
+  "source_files": [
+    "ini/ini.h"
+  ],
+  "locator": {
+    "kind": "class",
+    "symbol": "INIReader"
+  },
+  "test_files": [
+    "test/tests.cpp"
+  ],
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:ini-cpp-v2",
+    "docker_image_id": "sha256:68500729fc7fc0ba42377dc0737dea8bc2930d2be6e0d20b307490713c97c802",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && cd build/test && ./all_test --gtest_color=no --gtest_filter='INIReader.get_sections:INIReader.get_keys:INIReader.get_single_value:INIReader.get_vector:INIReader.get_single_value_with_default:INIReader.get_vector_with_default:INIReader.exception:INIReader.read_big_file:INIReader.dulicate_keys:INIReader.InsertEntry:INIReader.UpdateEntry:INIReader.from_file_pointer:INIReader.utf8_bom:INIReader.crlf_line_endings:INIReader.comments:INIReader.whitespace_and_empty_values:INIReader.section_quirks:INIReader.empty_file:INIReader.long_lines_and_section_names:INIReader.numeric_conversions:INIReader.bool_conversions:INIReader.default_on_parse_failure:INIReader.error_messages:INIReader.insert_and_update_errors'",
+    "full_test_command": "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && cd build/test && ./all_test --gtest_color=no",
+    "full_test_kind": "gtest",
+    "direct_test_filter": "INIReader.get_sections:INIReader.get_keys:INIReader.get_single_value:INIReader.get_vector:INIReader.get_single_value_with_default:INIReader.get_vector_with_default:INIReader.exception:INIReader.read_big_file:INIReader.dulicate_keys:INIReader.InsertEntry:INIReader.UpdateEntry:INIReader.from_file_pointer:INIReader.utf8_bom:INIReader.crlf_line_endings:INIReader.comments:INIReader.whitespace_and_empty_values:INIReader.section_quirks:INIReader.empty_file:INIReader.long_lines_and_section_names:INIReader.numeric_conversions:INIReader.bool_conversions:INIReader.default_on_parse_failure:INIReader.error_messages:INIReader.insert_and_update_errors",
+    "direct_test_names": [
+      "INIReader.get_sections",
+      "INIReader.get_keys",
+      "INIReader.get_single_value",
+      "INIReader.get_vector",
+      "INIReader.get_single_value_with_default",
+      "INIReader.get_vector_with_default",
+      "INIReader.exception",
+      "INIReader.read_big_file",
+      "INIReader.dulicate_keys",
+      "INIReader.InsertEntry",
+      "INIReader.UpdateEntry",
+      "INIReader.from_file_pointer",
+      "INIReader.utf8_bom",
+      "INIReader.crlf_line_endings",
+      "INIReader.comments",
+      "INIReader.whitespace_and_empty_values",
+      "INIReader.section_quirks",
+      "INIReader.empty_file",
+      "INIReader.long_lines_and_section_names",
+      "INIReader.numeric_conversions",
+      "INIReader.bool_conversions",
+      "INIReader.default_on_parse_failure",
+      "INIReader.error_messages",
+      "INIReader.insert_and_update_errors"
+    ],
+    "expected_direct_tests": 24,
+    "expected_full_tests": 27,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "readiness": {
+    "configured": true,
+    "reasons": [],
+    "baseline_probed": true,
+    "baseline_passed": true
+  }
+}

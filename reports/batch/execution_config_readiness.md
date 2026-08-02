@@ -2,4 +2,4 @@
 
 | repository | target | status | reasons |
 |---|---|---|---|
-| Echo-Web-Server | echo-web-server-util | ready | - |
+| ini-cpp | ini-cpp-inireader | ready | - |
