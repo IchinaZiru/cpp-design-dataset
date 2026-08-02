@@ -1,0 +1,17 @@
+{
+  "target_id": "echo-web-server-heap-timer",
+  "target_name": "heap-timer",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "source_files": [
+    "include/containers/heap_timer.h"
+  ],
+  "prepared_at_utc": "2026-08-02T02:43:06.153104+00:00",
+  "original_files": [
+    {
+      "path": "include/containers/heap_timer.h",
+      "sha256": "d89dcc16bafd792ea0d76ac99ae2fdea68374391f952f85caf6c8dcfb88cf56a"
+    }
+  ]
+}

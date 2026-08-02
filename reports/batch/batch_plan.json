@@ -15,6 +15,11 @@
     "config": "configs/roundtrip/targets/echo-web-server-config.json"
   },
   {
+    "target_id": "echo-web-server-heap-timer",
+    "status": "disabled",
+    "config": "configs/roundtrip/targets/echo-web-server-heap-timer.json"
+  },
+  {
     "target_id": "echo-web-server-io",
     "status": "disabled",
     "config": "configs/roundtrip/targets/echo-web-server-io.json"
