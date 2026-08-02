@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "script_version": "1.3.0",
+  "project_root": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset",
+  "generated_at_utc": "2026-08-02T11:44:48.022874+00:00",
+  "main_target_count": 17,
+  "output_files": [
+    {
+      "path": "reports/analysis/main_results.csv",
+      "sha256": "2b0a8905ecd8bf943aedec7e57299c75fa28a49834fa5ead1b7a3c5c913f4e90"
+    },
+    {
+      "path": "reports/analysis/main_results.json",
+      "sha256": "2fef118521cc3eef6cf75da1e3371f7a274d50ad4943cdb651ea0c539b2ddef3"
+    },
+    {
+      "path": "reports/analysis/summary.json",
+      "sha256": "8f421be86c1dead2caaf2931ea03a861562cbf6e9431fce93746872595812660"
+    },
+    {
+      "path": "reports/analysis/summary.md",
+      "sha256": "9f61a47af08a2fd6795ca54220cdf06deedee46819372e39529d50560585991a"
+    },
+    {
+      "path": "reports/analysis/thesis_tables.md",
+      "sha256": "9f24e9961b7f508d1d4cffb9bae554f0c9a8b10a1c9f763522ed6fb776ca7cc8"
+    },
+    {
+      "path": "reports/analysis/failure_analysis.csv",
+      "sha256": "0f8e795e6a510525e738125ef22556dc961b7ca8b54f9f4fbceb61e6b6d84d95"
+    },
+    {
+      "path": "reports/analysis/group_statistics.csv",
+      "sha256": "933e79885a4e0d79dc9d51a4e59631955db759b3da6670d9219e8f3a29316760"
+    },
+    {
+      "path": "reports/analysis/stage_funnel.csv",
+      "sha256": "e8c865ea5cd91945686c52b294937d53eb8fec18ee2c977e7e8b033e82f958da"
+    },
+    {
+      "path": "reports/analysis/figures/overall_result.svg",
+      "sha256": "46411bec1403fdefb1d5189fe0fb854a6d0bd7defbf597dbc7e3047623eb6937"
+    },
+    {
+      "path": "reports/analysis/figures/repository_pass_rate.svg",
+      "sha256": "ac475d499075927917b25090ffe302474ede066884ef1e50afd045109eb5fa04"
+    },
+    {
+      "path": "reports/analysis/figures/failure_categories.svg",
+      "sha256": "3976e7dd808ec9df30c05e56f27a684c52a86522dc57bf4e830989e4963ae2be"
+    }
+  ],
+  "read_only_analysis": true,
+  "external_commands_executed": false,
+  "llm_called": false,
+  "docker_called": false,
+  "tests_called": false
+}

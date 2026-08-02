@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="264" viewBox="0 0 960 264">
+<rect width="100%" height="100%" fill="white"/>
+<text x="480.0" y="42" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="bold">Main-study results</text>
+<text x="228" y="112" text-anchor="end" font-family="sans-serif" font-size="16">PASS</text>
+<rect x="240" y="90" width="349.09" height="28" fill="#4c78a8"/>
+<text x="597.09" y="112" font-family="sans-serif" font-size="16">6</text>
+<text x="228" y="164" text-anchor="end" font-family="sans-serif" font-size="16">FAIL</text>
+<rect x="240" y="142" width="640.00" height="28" fill="#4c78a8"/>
+<text x="888.00" y="164" font-family="sans-serif" font-size="16">11</text>
+</svg>

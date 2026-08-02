@@ -1,0 +1,7 @@
+stage,reached,passed,failed,skipped,not_recorded_or_unknown
+design_generation,16,16,0,0,1
+code_regeneration,16,15,1,0,1
+configure,16,16,0,0,1
+build,16,7,9,0,1
+direct_test,7,6,1,9,1
+full_test,6,6,0,10,1

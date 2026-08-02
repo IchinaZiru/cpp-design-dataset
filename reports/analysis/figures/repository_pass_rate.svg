@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="316" viewBox="0 0 960 316">
+<rect width="100%" height="100%" fill="white"/>
+<text x="480.0" y="42" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="bold">Pass rate by repository</text>
+<text x="228" y="112" text-anchor="end" font-family="sans-serif" font-size="16">Echo-Web-Server</text>
+<rect x="240" y="90" width="80.00" height="28" fill="#4c78a8"/>
+<text x="328.00" y="112" font-family="sans-serif" font-size="16">10%</text>
+<text x="228" y="164" text-anchor="end" font-family="sans-serif" font-size="16">RISCV-Simulator</text>
+<rect x="240" y="142" width="640.00" height="28" fill="#4c78a8"/>
+<text x="888.00" y="164" font-family="sans-serif" font-size="16">80%</text>
+<text x="228" y="216" text-anchor="end" font-family="sans-serif" font-size="16">ini-cpp</text>
+<rect x="240" y="194" width="400.00" height="28" fill="#4c78a8"/>
+<text x="648.00" y="216" font-family="sans-serif" font-size="16">50%</text>
+</svg>
