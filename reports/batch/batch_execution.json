@@ -6,7 +6,10 @@
   },
   {
     "target_id": "echo-web-server-buffer",
-    "status": "disabled",
+    "status": "failed",
+    "exit_code": 1,
+    "stdout": "Target:  echo-web-server-buffer\nResult:  FAIL\nReport:  C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset\\experiments\\echo-web-server-buffer-roundtrip\\report\\experiment_overview.md\n",
+    "stderr": "",
     "config": "configs/roundtrip/targets/echo-web-server-buffer.json"
   },
   {

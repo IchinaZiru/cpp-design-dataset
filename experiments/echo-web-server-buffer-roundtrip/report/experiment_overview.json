@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0",
+  "target_id": "echo-web-server-buffer",
+  "run_id": "echo-web-server-buffer-qwen25coder32b-001",
+  "completed_at_utc": "2026-08-02T01:55:35.587016+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "started_at_utc": "2026-08-02T01:55:17.985706+00:00",
+      "completed_at_utc": "2026-08-02T01:55:23.286928+00:00",
+      "elapsed_seconds": 5.299052200047299,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip/echo-web-server-buffer-qwen25coder32b-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip/echo-web-server-buffer-qwen25coder32b-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-02T01:55:23.287060+00:00",
+      "completed_at_utc": "2026-08-02T01:55:35.545551+00:00",
+      "elapsed_seconds": 12.25651380000636,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip/echo-web-server-buffer-qwen25coder32b-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip/echo-web-server-buffer-qwen25coder32b-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "original_hashes": {
+      "include/containers/buffer.h": "94807866681c70598b716d810ffd2bfe0d9cf3406f459b51f2d33013c37b9a09",
+      "src/containers/buffer/buffer.cpp": "0d3f0824f3c63439d05e34d2e22dd1bc1c45c4bb0e3bd4c842ffc4ca1d56bc2b"
+    },
+    "restored_hashes": {
+      "include/containers/buffer.h": "94807866681c70598b716d810ffd2bfe0d9cf3406f459b51f2d33013c37b9a09",
+      "src/containers/buffer/buffer.cpp": "0d3f0824f3c63439d05e34d2e22dd1bc1c45c4bb0e3bd4c842ffc4ca1d56bc2b"
+    },
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "local_raw_log_directory": "logs/roundtrip/echo-web-server-buffer-qwen25coder32b-001"
+}

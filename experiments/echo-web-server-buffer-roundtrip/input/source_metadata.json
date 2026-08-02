@@ -1,0 +1,22 @@
+{
+  "target_id": "echo-web-server-buffer",
+  "target_name": "buffer",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "source_files": [
+    "include/containers/buffer.h",
+    "src/containers/buffer/buffer.cpp"
+  ],
+  "prepared_at_utc": "2026-08-02T01:51:20.589113+00:00",
+  "original_files": [
+    {
+      "path": "include/containers/buffer.h",
+      "sha256": "94807866681c70598b716d810ffd2bfe0d9cf3406f459b51f2d33013c37b9a09"
+    },
+    {
+      "path": "src/containers/buffer/buffer.cpp",
+      "sha256": "0d3f0824f3c63439d05e34d2e22dd1bc1c45c4bb0e3bd4c842ffc4ca1d56bc2b"
+    }
+  ]
+}
