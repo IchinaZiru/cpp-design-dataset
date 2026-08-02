@@ -249,6 +249,13 @@ def main() -> int:
             suite=suite or str(draft["target_name"]),
         )
 
+        stage_timeouts = {
+            "configure": 300,
+            "build": 600,
+            "direct_test": 300,
+            "full_test": 600,
+        }
+
         final_config = {
             "schema_version": "3.0",
             "enabled": False,
@@ -277,6 +284,7 @@ def main() -> int:
                 "direct_test_names": direct_names,
                 "expected_direct_tests": expected_direct,
                 "expected_full_tests": draft.get("evaluation", {}).get("expected_full_tests") or repo_cfg["expected_full"],
+                "stage_timeouts_seconds": stage_timeouts,
             },
             "readiness": {
                 "configured": not reasons,
@@ -298,6 +306,7 @@ def main() -> int:
                     shell_command=repo_cfg["configure"],
                     log_root=probe_root,
                     stage="configure",
+                    timeout_seconds=stage_timeouts["configure"],
                 )
                 build = docker_run(
                     project_root=project_root,
@@ -306,6 +315,7 @@ def main() -> int:
                     shell_command=repo_cfg["build"],
                     log_root=probe_root,
                     stage="build",
+                    timeout_seconds=stage_timeouts["build"],
                 ) if configure["passed"] else {"passed": False}
                 full = docker_run(
                     project_root=project_root,
@@ -314,6 +324,7 @@ def main() -> int:
                     shell_command=repo_cfg["full"],
                     log_root=probe_root,
                     stage="full",
+                    timeout_seconds=stage_timeouts["full_test"],
                 ) if build["passed"] else {"passed": False}
                 direct = docker_run(
                     project_root=project_root,
@@ -322,6 +333,7 @@ def main() -> int:
                     shell_command=direct_command,
                     log_root=probe_root,
                     stage="direct",
+                    timeout_seconds=stage_timeouts["direct_test"],
                 ) if build["passed"] else {"passed": False}
                 baseline_ok = all(item.get("passed") is True for item in (configure, build, full, direct))
                 final_config["readiness"]["baseline_probed"] = True

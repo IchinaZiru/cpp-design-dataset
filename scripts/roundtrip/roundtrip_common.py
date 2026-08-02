@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 import time
+import uuid
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -82,6 +83,14 @@ def docker_image_id(image: str) -> str:
     return result.stdout.strip()
 
 
+def _timeout_output(value: str | bytes | None) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value
+
+
 def docker_run(
     *,
     project_root: Path,
@@ -90,10 +99,17 @@ def docker_run(
     shell_command: str,
     log_root: Path,
     stage: str,
+    timeout_seconds: int | None = None,
 ) -> dict[str, Any]:
+    container_name = (
+        f"cpp-roundtrip-{stage}-{uuid.uuid4().hex[:12]}"
+    )
+
     command = [
         "docker",
         "run",
+        "--name",
+        container_name,
         "--rm",
         "--mount",
         f"type=bind,source={project_root},target=/workspace",
@@ -104,18 +120,77 @@ def docker_run(
         "-lc",
         shell_command,
     ]
+
     recorded_command = command.copy()
-    recorded_command[4] = "type=bind,source=<PROJECT_ROOT>,target=/workspace"
+    recorded_command[recorded_command.index("--name") + 1] = "<CONTAINER_NAME>"
+
+    for index, item in enumerate(recorded_command):
+        if (
+            item.startswith("type=bind,source=")
+            and item.endswith(",target=/workspace")
+        ):
+            recorded_command[index] = (
+                "type=bind,source=<PROJECT_ROOT>,target=/workspace"
+            )
 
     started_at = utc_now()
     started = time.perf_counter()
-    result = run_process(command)
+    timed_out = False
+
+    try:
+        result = run_process(command, timeout=timeout_seconds)
+        stdout = result.stdout
+        stderr = result.stderr
+        exit_code = result.returncode
+    except subprocess.TimeoutExpired as error:
+        timed_out = True
+        stdout = _timeout_output(error.stdout)
+        stderr = _timeout_output(error.stderr)
+        exit_code = 124
+
+        cleanup_error = ""
+        try:
+            cleanup = run_process(
+                ["docker", "rm", "-f", container_name],
+                timeout=30,
+            )
+            cleanup_output = (
+                cleanup.stdout + "\n" + cleanup.stderr
+            ).strip()
+
+            if (
+                cleanup.returncode != 0
+                and "No such container" not in cleanup_output
+            ):
+                cleanup_error = (
+                    "Docker cleanup failed: " + cleanup_output
+                )
+        except subprocess.TimeoutExpired:
+            cleanup_error = (
+                "Docker cleanup timed out after 30 seconds."
+            )
+
+        timeout_note = (
+            f"Process timed out after {timeout_seconds} seconds."
+        )
+
+        stderr_parts = [
+            part
+            for part in (
+                stderr.rstrip(),
+                timeout_note,
+                cleanup_error,
+            )
+            if part
+        ]
+        stderr = "\n".join(stderr_parts) + "\n"
+
     elapsed = time.perf_counter() - started
 
     stdout_path = log_root / f"{stage}.stdout.txt"
     stderr_path = log_root / f"{stage}.stderr.txt"
-    write_text(stdout_path, result.stdout)
-    write_text(stderr_path, result.stderr)
+    write_text(stdout_path, stdout)
+    write_text(stderr_path, stderr)
 
     return {
         "stage": stage,
@@ -124,14 +199,15 @@ def docker_run(
         "started_at_utc": started_at,
         "completed_at_utc": utc_now(),
         "elapsed_seconds": elapsed,
-        "exit_code": result.returncode,
-        "passed": result.returncode == 0,
+        "timeout_seconds": timeout_seconds,
+        "timed_out": timed_out,
+        "exit_code": exit_code,
+        "passed": exit_code == 0 and not timed_out,
         "stdout_log": stdout_path.relative_to(project_root).as_posix(),
         "stderr_log": stderr_path.relative_to(project_root).as_posix(),
-        "stdout": result.stdout,
-        "stderr": result.stderr,
+        "stdout": stdout,
+        "stderr": stderr,
     }
-
 
 def parse_gtest_counts(output: str) -> dict[str, int | None]:
     ran = re.findall(r"\[==========\]\s+(\d+)\s+tests?\s+from", output)

@@ -352,6 +352,16 @@ def evaluate(config: dict[str, Any], project_root: Path, experiment_root: Path) 
             source_path.write_text(modified, encoding="utf-8", newline="")
 
         evaluation = config["evaluation"]
+        stage_timeouts = {
+            "configure": 300,
+            "build": 600,
+            "direct_test": 300,
+            "full_test": 600,
+        }
+        stage_timeouts.update(
+            evaluation.get("stage_timeouts_seconds", {}) or {}
+        )
+
         actual_image_id = docker_image_id(evaluation["docker_image"])
         if actual_image_id != evaluation["docker_image_id"]:
             raise RuntimeError("Docker image ID changed after configuration")
@@ -372,6 +382,7 @@ def evaluate(config: dict[str, Any], project_root: Path, experiment_root: Path) 
                 shell_command=command,
                 log_root=log_root,
                 stage=stage,
+                timeout_seconds=int(stage_timeouts[stage]),
             )
             output = record["stdout"] + "\n" + record["stderr"]
             if stage == "direct_test":
@@ -467,12 +478,30 @@ def build_report(config: dict[str, Any], experiment_root: Path, evaluation: dict
     for stage in ("configure", "build", "direct_test", "full_test"):
         record = evaluation["stages"].get(stage, {})
         counts = record.get("counts")
-        detail = (
-            f"{counts.get('passed')}/{counts.get('ran')} passed"
-            if isinstance(counts, dict)
-            else f"exit={record.get('exit_code', 'N/A')}"
+
+        if record.get("skipped"):
+            result_label = "SKIPPED"
+            detail = "not executed because a previous stage failed"
+        elif record.get("timed_out"):
+            result_label = "FAIL"
+            detail = (
+                "TIMEOUT after "
+                f"{record.get('timeout_seconds', 'N/A')} seconds; "
+                f"exit={record.get('exit_code', 124)}"
+            )
+        else:
+            result_label = (
+                "PASS" if record.get("passed") else "FAIL"
+            )
+            detail = (
+                f"{counts.get('passed')}/{counts.get('ran')} passed"
+                if isinstance(counts, dict)
+                else f"exit={record.get('exit_code', 'N/A')}"
+            )
+
+        lines.append(
+            f"| {stage} | {result_label} | {detail} |"
         )
-        lines.append(f"| {stage} | {'PASS' if record.get('passed') else 'FAIL'} | {detail} |")
     lines.extend(
         [
             "",
