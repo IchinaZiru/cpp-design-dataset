@@ -1,0 +1,52 @@
+{
+  "doxygen_symbol": "fixture::documented",
+  "macro_chunk_method": "line-fallback-macro-v1",
+  "minimum_overload_count": 2,
+  "oversized_symbol": "oversized_fixture",
+  "required_symbols": [
+    {
+      "canonical_name": "CPP_RAG_DOUBLE",
+      "kind": "macro_definition"
+    },
+    {
+      "canonical_name": "CPP_RAG_LIMIT",
+      "kind": "macro_definition"
+    },
+    {
+      "canonical_name": "fixture::Base",
+      "kind": "struct_interface"
+    },
+    {
+      "canonical_name": "fixture::CrlfType",
+      "kind": "alias_definition"
+    },
+    {
+      "canonical_name": "fixture::LegacyId",
+      "kind": "typedef_definition"
+    },
+    {
+      "canonical_name": "fixture::Size",
+      "kind": "alias_definition"
+    },
+    {
+      "canonical_name": "fixture::State",
+      "kind": "enum_definition"
+    },
+    {
+      "canonical_name": "fixture::Widget",
+      "kind": "class_interface"
+    },
+    {
+      "canonical_name": "fixture::Widget::Nested",
+      "kind": "struct_interface"
+    },
+    {
+      "canonical_name": "fixture::documented",
+      "kind": "function_definition"
+    },
+    {
+      "canonical_name": "fixture::overloaded",
+      "kind": "function_definition"
+    }
+  ]
+}
