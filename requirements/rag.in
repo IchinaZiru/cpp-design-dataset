@@ -1,0 +1,4 @@
+# Repository-Context RAG v1 Phase 1 runtime dependencies.
+# Keep this file limited to direct dependencies.
+tree-sitter==0.26.0
+tree-sitter-cpp==0.23.4

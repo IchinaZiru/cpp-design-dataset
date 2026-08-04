@@ -1,0 +1,25 @@
+{
+  "environment_name": ".venv-rag",
+  "environment_schema_version": "rag-environment-v1",
+  "implementation": "CPython",
+  "machine": "AMD64",
+  "os_family": "Windows",
+  "packages": [
+    {
+      "name": "tree-sitter",
+      "version": "0.26.0"
+    },
+    {
+      "name": "tree-sitter-cpp",
+      "version": "0.23.4"
+    }
+  ],
+  "parser": "Tree-sitter C++",
+  "python_version": "3.13.5",
+  "requirements_install_mode": "--require-hashes --only-binary=:all:",
+  "requirements_lock_path": "requirements/rag.lock.txt",
+  "requirements_lock_sha256": "4ff3e5a8224abd5c9e759baee08212183f74204df8f2a0de2bc1ca827208d9f0",
+  "retrieval_config_path": "configs/rag/retrieval_v1.json",
+  "retrieval_config_sha256": "f5cf3dfc0f14dddfd0c444689da3ccf6677c76bd173fb15ed6569565b7cdb25e",
+  "version_mismatch_action": "stop"
+}

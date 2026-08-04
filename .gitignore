@@ -43,6 +43,9 @@ __pycache__/
 *~
 *.swp
 
+# RAG Python environment
+.venv-rag/
+
 # Full source backups can be restored from fixed commits.
 **/backup/ini.h.original
 

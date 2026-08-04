@@ -1,0 +1,7 @@
+# Locked Windows x86-64 dependency set for Repository-Context RAG v1 Phase 1.
+# Install with: pip install --require-hashes --only-binary=:all: -r requirements/rag.lock.txt
+# Python is fixed separately in rag/environment/rag_environment_manifest.json.
+tree-sitter==0.26.0 \
+    --hash=sha256:93e220cab7e6a823efeb2046c49171427de92ef71c7c681c01820d14d8d3721f
+tree-sitter-cpp==0.23.4 \
+    --hash=sha256:68606a45bea92669d155399e1239f771a7767d8683cd8f8e30e7d813107030ca
