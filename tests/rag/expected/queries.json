@@ -1,0 +1,41 @@
+{
+  "excluded": {
+    "function_calls": [
+      "get"
+    ],
+    "user_defined_types": [
+      "std::vector<int>"
+    ]
+  },
+  "required": {
+    "base_classes": [
+      "Base"
+    ],
+    "constants_and_macros": [
+      "DefaultCount",
+      "Mode::Busy",
+      "Mode::Ready",
+      "PROJECT_LIMIT"
+    ],
+    "enums": [
+      "Mode"
+    ],
+    "function_calls": [
+      "Process",
+      "ProjectType",
+      "helper",
+      "qualified"
+    ],
+    "includes": [
+      "project/widget.hpp"
+    ],
+    "nested_types": [
+      "Alias",
+      "Nested",
+      "Outer::Nested"
+    ],
+    "user_defined_types": [
+      "ProjectType"
+    ]
+  }
+}
