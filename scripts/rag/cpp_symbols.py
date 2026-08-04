@@ -63,6 +63,8 @@ _CONDITIONAL_DIRECTIVE_PATTERN = re.compile(
     rb"^[ \t]*#[ \t]*(?:if|ifdef|ifndef|elif|else|endif)\b"
 )
 _PREPROCESSOR_NODE_PREFIX = "preproc_"
+_EMPTY_BRACED_DEFAULT_ARGUMENT_FALLBACK = "empty-braced-default-argument-v1"
+_PARAMETER_ANCESTOR_TYPES = {"optional_parameter_declaration", "parameter_list"}
 
 
 def _installed_version(distribution: str) -> str:
@@ -279,12 +281,57 @@ def _near_conditional_directive(data: bytes, start: int, end: int) -> bool:
     return False
 
 
+def _has_ancestor_type(node: Any, node_types: set[str]) -> bool:
+    current = getattr(node, "parent", None)
+    while current is not None:
+        if str(current.type) in node_types:
+            return True
+        current = getattr(current, "parent", None)
+    return False
+
+
+def _is_empty_braced_default_argument_missing(node: Any, data: bytes) -> bool:
+    """Recognize tree-sitter-cpp 0.23.4's recovery for `arg = {}`.
+
+    In an optional parameter declaration the fixed grammar requires the default
+    value to be an expression. An empty braced initializer is valid C++, but the
+    parser recovers by inserting a zero-width missing `type_identifier` between
+    `=` and `{}`. Keep the rule deliberately narrow so unrelated missing nodes
+    remain fatal.
+    """
+
+    if (
+        node.type != "type_identifier"
+        or not bool(getattr(node, "is_missing", False))
+        or node.start_byte != node.end_byte
+        or not _has_ancestor_type(node, _PARAMETER_ANCESTOR_TYPES)
+    ):
+        return False
+
+    offset = node.start_byte
+    line_start = data.rfind(b"\n", 0, offset) + 1
+    line_end = data.find(b"\n", offset)
+    if line_end < 0:
+        line_end = len(data)
+    before = data[line_start:offset]
+    after = data[offset:line_end].rstrip(b"\r")
+    before_stripped = before.rstrip(b" \t")
+    if not before_stripped.endswith(b"="):
+        return False
+    if len(before_stripped) >= 2 and before_stripped[-2] in b"=<>!+-*/%&|^":
+        return False
+    return (
+        re.match(rb"^[ \t]*\{[ \t]*\}[ \t]*(?:[,)]|$)", after)
+        is not None
+    )
+
+
 def _count_parse_errors(
     root: Any,
     path: str,
     data: bytes,
     *,
-    fallback_method: str,
+    preprocessor_fallback_method: str,
 ) -> list[ParseDiagnostic]:
     diagnostics: list[ParseDiagnostic] = []
     stack: list[tuple[Any, bool]] = [(root, False)]
@@ -295,9 +342,13 @@ def _count_parse_errors(
         is_error = node.type == "ERROR"
         is_missing = bool(getattr(node, "is_missing", False))
         if is_error or is_missing:
-            handled = current_inside_preprocessor or _near_conditional_directive(
+            diagnostic_fallback: str | None = None
+            if current_inside_preprocessor or _near_conditional_directive(
                 data, node.start_byte, node.end_byte
-            )
+            ):
+                diagnostic_fallback = preprocessor_fallback_method
+            elif _is_empty_braced_default_argument_missing(node, data):
+                diagnostic_fallback = _EMPTY_BRACED_DEFAULT_ARGUMENT_FALLBACK
             diagnostics.append(
                 ParseDiagnostic(
                     path=path,
@@ -307,8 +358,8 @@ def _count_parse_errors(
                     start_line=_line_for_offset(data, node.start_byte),
                     end_line=_inclusive_end_line(data, node.start_byte, node.end_byte),
                     reason="missing_node" if is_missing else "tree_sitter_error_node",
-                    handled=handled,
-                    fallback_method=fallback_method if handled else None,
+                    handled=diagnostic_fallback is not None,
+                    fallback_method=diagnostic_fallback,
                 )
             )
         stack.extend(
@@ -803,7 +854,7 @@ def extract_symbol_chunks(
         root,
         source.path,
         source.data,
-        fallback_method=chunking.preprocessor_error_fallback_version,
+        preprocessor_fallback_method=chunking.preprocessor_error_fallback_version,
     )
     extractor = _Extractor(repository_id, repository_commit, source, chunking)
     extractor.visit(root)

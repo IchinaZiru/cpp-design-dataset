@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from types import SimpleNamespace
 from unittest import mock
 from pathlib import Path
 
@@ -18,6 +19,7 @@ from scripts.rag.canonical import (
 )
 from scripts.rag.config import IndexConfig
 from scripts.rag.corpus import CorpusError, collect_production_corpus
+from scripts.rag.cpp_symbols import _is_empty_braced_default_argument_missing
 from scripts.rag.index_builder import BuildResult, IndexValidationError, build_repository_index
 from scripts.rag.verify_rebuild import verify_independent_rebuilds
 
@@ -77,6 +79,45 @@ def _write_fixture_config(path: Path, commit: str) -> None:
 
 def _read_jsonl(path: Path) -> list[dict[str, object]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+
+
+class ParserRecoveryHeuristicTests(unittest.TestCase):
+    @staticmethod
+    def _missing_node(
+        source: bytes,
+        offset: int,
+        *,
+        ancestor: str = "optional_parameter_declaration",
+    ):
+        parent = SimpleNamespace(type=ancestor, parent=None)
+        return SimpleNamespace(
+            type="type_identifier",
+            is_missing=True,
+            start_byte=offset,
+            end_byte=offset,
+            parent=parent,
+        )
+
+    def test_only_empty_braced_default_argument_is_handled(self) -> None:
+        valid = b"void f(std::initializer_list<int> values = {});\n"
+        valid_offset = valid.index(b"{") - 1
+        self.assertTrue(
+            _is_empty_braced_default_argument_missing(
+                self._missing_node(valid, valid_offset), valid
+            )
+        )
+
+        for source in (
+            b"void f(int values = {1});\n",
+            b"void f(int values == {});\n",
+            b"void f(int values += {});\n",
+        ):
+            offset = source.index(b"{") - 1
+            self.assertFalse(
+                _is_empty_braced_default_argument_missing(
+                    self._missing_node(source, offset), source
+                )
+            )
 
 
 class EnvironmentAndConfigTests(unittest.TestCase):
@@ -250,6 +291,7 @@ class SymbolIndexFixtureTests(unittest.TestCase):
                 "oversized.cpp",
                 "crlf.hpp",
                 "preprocessor.cpp",
+                "empty_braced_default.hpp",
             ],
         )
         self.config = self.root / "retrieval_fixture.json"
@@ -270,9 +312,19 @@ class SymbolIndexFixtureTests(unittest.TestCase):
         self.assertTrue(result.valid)
         self.assertGreater(len(result.diagnostics), 0)
         self.assertTrue(all(item.handled for item in result.diagnostics))
+        self.assertEqual(
+            {item.fallback_method for item in result.diagnostics},
+            {
+                "preprocessor-conditional-error-v1",
+                "empty-braced-default-argument-v1",
+            },
+        )
         self.assertTrue(
-            all(
-                item.fallback_method == "preprocessor-conditional-error-v1"
+            any(
+                item.path == "empty_braced_default.hpp"
+                and item.reason == "missing_node"
+                and item.node_type == "type_identifier"
+                and item.fallback_method == "empty-braced-default-argument-v1"
                 for item in result.diagnostics
             )
         )
