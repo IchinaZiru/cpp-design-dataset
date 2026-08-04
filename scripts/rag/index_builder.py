@@ -97,8 +97,9 @@ def _validate_chunks(
         if chunk["source_sha256"] != source.sha256:
             errors.append(f"source_hash_mismatch:{path}")
 
-    if strict_parse_errors and diagnostics:
-        errors.append(f"recorded_parser_errors:{len(diagnostics)}")
+    unhandled_diagnostics = [item for item in diagnostics if not item.handled]
+    if strict_parse_errors and unhandled_diagnostics:
+        errors.append(f"unhandled_parser_errors:{len(unhandled_diagnostics)}")
     return sorted(set(errors))
 
 
@@ -112,6 +113,12 @@ def _corpus_manifest(
 ) -> dict[str, Any]:
     chunk_counts = Counter(str(chunk["path"]) for chunk in chunks)
     diagnostic_counts = Counter(item.path for item in diagnostics)
+    handled_diagnostic_counts = Counter(
+        item.path for item in diagnostics if item.handled
+    )
+    unhandled_diagnostic_counts = Counter(
+        item.path for item in diagnostics if not item.handled
+    )
     excluded_counts = Counter(item.reason for item in corpus.excluded_files)
     return {
         "artifact_schema_version": config.artifact_schema_version,
@@ -133,25 +140,38 @@ def _corpus_manifest(
         "file_hashes": [
             {
                 "chunk_count": chunk_counts.get(source.path, 0),
+                "handled_parser_error_count": handled_diagnostic_counts.get(
+                    source.path, 0
+                ),
                 "parser_error_count": diagnostic_counts.get(source.path, 0),
                 "path": source.path,
                 "sha256": source.sha256,
                 "size_bytes": source.size_bytes,
+                "unhandled_parser_error_count": unhandled_diagnostic_counts.get(
+                    source.path, 0
+                ),
             }
             for source in corpus.files
         ],
         "grammar_package": config.parser.grammar_package,
         "grammar_version": _distribution_version(config.parser.grammar_package),
         "include_extensions": list(config.corpus.include_extensions),
+        "handled_parser_error_count": sum(item.handled for item in diagnostics),
         "macro_fallback_version": config.chunking.macro_fallback_version,
         "parser": "Tree-sitter C++",
         "parser_error_count": len(diagnostics),
+        "preprocessor_error_fallback_version": (
+            config.chunking.preprocessor_error_fallback_version
+        ),
         "parser_package": config.parser.package,
         "parser_version": _distribution_version(config.parser.package),
         "protocol_version": config.protocol_version,
         "repository": repository_id,
         "repository_commit": corpus.repository_commit,
         "tracked_files_only": config.corpus.tracked_files_only,
+        "unhandled_parser_error_count": sum(
+            not item.handled for item in diagnostics
+        ),
     }
 
 
@@ -245,6 +265,8 @@ def build_repository_index(
             {
                 "end_byte": item.end_byte,
                 "end_line": item.end_line,
+                "fallback_method": item.fallback_method,
+                "handled": item.handled,
                 "node_type": item.node_type,
                 "path": item.path,
                 "reason": item.reason,
@@ -256,11 +278,15 @@ def build_repository_index(
                 key=lambda item: (item.path, item.start_byte, item.end_byte, item.node_type),
             )
         ],
+        "handled_parser_error_count": sum(item.handled for item in diagnostics),
         "parser_error_count": len(diagnostics),
         "repository": repository_id,
         "repository_commit": corpus.repository_commit,
         "status": "pass" if not validation_errors else "fail",
         "symbol_count": len(symbol_index),
+        "unhandled_parser_error_count": sum(
+            not item.handled for item in diagnostics
+        ),
         "validation_errors": validation_errors,
         "validation_version": "rag-index-validation-v1",
     }

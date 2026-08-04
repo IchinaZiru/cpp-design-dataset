@@ -193,7 +193,7 @@ class RebuildEvidenceTests(unittest.TestCase):
                 chunk_count=1,
                 symbol_count=1,
                 diagnostics=(),
-                validation_errors=() if valid else ("recorded_parser_errors:1",),
+                validation_errors=() if valid else ("unhandled_parser_errors:1",),
                 artifact_hashes=hashes,
             )
 
@@ -244,7 +244,13 @@ class SymbolIndexFixtureTests(unittest.TestCase):
         self.repository = self.root / "repository"
         self.commit = _initialize_repository(
             self.repository,
-            ["symbols.hpp", "symbols.cpp", "oversized.cpp", "crlf.hpp"],
+            [
+                "symbols.hpp",
+                "symbols.cpp",
+                "oversized.cpp",
+                "crlf.hpp",
+                "preprocessor.cpp",
+            ],
         )
         self.config = self.root / "retrieval_fixture.json"
         _write_fixture_config(self.config, self.commit)
@@ -262,7 +268,24 @@ class SymbolIndexFixtureTests(unittest.TestCase):
             strict=True,
         )
         self.assertTrue(result.valid)
-        self.assertEqual(result.diagnostics, ())
+        self.assertGreater(len(result.diagnostics), 0)
+        self.assertTrue(all(item.handled for item in result.diagnostics))
+        self.assertTrue(
+            all(
+                item.fallback_method == "preprocessor-conditional-error-v1"
+                for item in result.diagnostics
+            )
+        )
+
+        validation = json.loads(
+            (output / "index_validation.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(validation["unhandled_parser_error_count"], 0)
+        self.assertEqual(
+            validation["handled_parser_error_count"],
+            validation["parser_error_count"],
+        )
+        self.assertEqual(validation["status"], "pass")
 
         chunks = _read_jsonl(output / "chunks.jsonl")
         symbols = _read_jsonl(output / "symbol_index.jsonl")
@@ -378,6 +401,11 @@ class SymbolIndexFixtureTests(unittest.TestCase):
         )
         self.assertTrue(verification["deterministic"])
         self.assertEqual(verification["independent_build_count"], 2)
+        self.assertEqual(verification["unhandled_parser_error_count"], 0)
+        self.assertEqual(
+            verification["handled_parser_error_count"],
+            verification["parser_error_count"],
+        )
         for comparison in verification["build_hash_comparison"].values():
             self.assertTrue(comparison["match"])
             self.assertEqual(
@@ -409,6 +437,8 @@ class ParseErrorFixtureTests(unittest.TestCase):
                 (diagnostic_output / "index_validation.json").read_text(encoding="utf-8")
             )
             self.assertGreater(validation["parser_error_count"], 0)
+            self.assertGreater(validation["unhandled_parser_error_count"], 0)
+            self.assertEqual(validation["handled_parser_error_count"], 0)
             self.assertEqual(validation["status"], "fail")
 
             with self.assertRaises(IndexValidationError):

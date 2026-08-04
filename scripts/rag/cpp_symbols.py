@@ -29,6 +29,8 @@ class ParseDiagnostic:
     start_line: int
     end_line: int
     reason: str
+    handled: bool
+    fallback_method: str | None
 
 
 @dataclass(frozen=True)
@@ -57,6 +59,10 @@ _DOXYGEN_PATTERN = re.compile(
 _MACRO_START_PATTERN = re.compile(
     rb"(?m)^[ \t]*#[ \t]*define[ \t]+([A-Za-z_][A-Za-z0-9_]*)"
 )
+_CONDITIONAL_DIRECTIVE_PATTERN = re.compile(
+    rb"^[ \t]*#[ \t]*(?:if|ifdef|ifndef|elif|else|endif)\b"
+)
+_PREPROCESSOR_NODE_PREFIX = "preproc_"
 
 
 def _installed_version(distribution: str) -> str:
@@ -241,14 +247,57 @@ def _preceding_doxygen_start(data: bytes, symbol_start: int) -> int | None:
     return match.start(1)
 
 
-def _count_parse_errors(root: Any, path: str, data: bytes) -> list[ParseDiagnostic]:
+def _line_ranges(data: bytes) -> list[tuple[int, int, bytes]]:
+    ranges: list[tuple[int, int, bytes]] = []
+    start = 0
+    for line in data.splitlines(keepends=True):
+        end = start + len(line)
+        ranges.append((start, end, line.rstrip(b"\r\n")))
+        start = end
+    if start < len(data) or not ranges:
+        ranges.append((start, len(data), data[start:]))
+    return ranges
+
+
+def _line_index_for_offset(
+    ranges: list[tuple[int, int, bytes]], offset: int
+) -> int:
+    bounded = max(0, offset)
+    for index, (start, end, _) in enumerate(ranges):
+        if start <= bounded < end:
+            return index
+    return max(0, len(ranges) - 1)
+
+
+def _near_conditional_directive(data: bytes, start: int, end: int) -> bool:
+    ranges = _line_ranges(data)
+    first = _line_index_for_offset(ranges, start)
+    last = _line_index_for_offset(ranges, max(start, end - 1))
+    for index in range(max(0, first - 1), min(len(ranges), last + 2)):
+        if _CONDITIONAL_DIRECTIVE_PATTERN.match(ranges[index][2]):
+            return True
+    return False
+
+
+def _count_parse_errors(
+    root: Any,
+    path: str,
+    data: bytes,
+    *,
+    fallback_method: str,
+) -> list[ParseDiagnostic]:
     diagnostics: list[ParseDiagnostic] = []
-    stack = [root]
+    stack: list[tuple[Any, bool]] = [(root, False)]
     while stack:
-        node = stack.pop()
+        node, inside_preprocessor = stack.pop()
+        node_is_preprocessor = str(node.type).startswith(_PREPROCESSOR_NODE_PREFIX)
+        current_inside_preprocessor = inside_preprocessor or node_is_preprocessor
         is_error = node.type == "ERROR"
         is_missing = bool(getattr(node, "is_missing", False))
         if is_error or is_missing:
+            handled = current_inside_preprocessor or _near_conditional_directive(
+                data, node.start_byte, node.end_byte
+            )
             diagnostics.append(
                 ParseDiagnostic(
                     path=path,
@@ -258,9 +307,14 @@ def _count_parse_errors(root: Any, path: str, data: bytes) -> list[ParseDiagnost
                     start_line=_line_for_offset(data, node.start_byte),
                     end_line=_inclusive_end_line(data, node.start_byte, node.end_byte),
                     reason="missing_node" if is_missing else "tree_sitter_error_node",
+                    handled=handled,
+                    fallback_method=fallback_method if handled else None,
                 )
             )
-        stack.extend(reversed(node.named_children))
+        stack.extend(
+            (child, current_inside_preprocessor)
+            for child in reversed(node.named_children)
+        )
     return diagnostics
 
 
@@ -745,7 +799,12 @@ def extract_symbol_chunks(
 ) -> ParsedSource:
     tree = parser.parse(source.data)
     root = tree.root_node
-    diagnostics = _count_parse_errors(root, source.path, source.data)
+    diagnostics = _count_parse_errors(
+        root,
+        source.path,
+        source.data,
+        fallback_method=chunking.preprocessor_error_fallback_version,
+    )
     extractor = _Extractor(repository_id, repository_commit, source, chunking)
     extractor.visit(root)
     extractor.add_macro_fallbacks()

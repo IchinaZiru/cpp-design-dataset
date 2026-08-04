@@ -120,12 +120,18 @@ def verify_independent_rebuilds(
         "chunk_count": first_result.chunk_count,
         "deterministic": True,
         "file_count": first_result.file_count,
+        "handled_parser_error_count": sum(
+            item.handled for item in first_result.diagnostics
+        ),
         "independent_build_count": 2,
         "parser_error_count": len(first_result.diagnostics),
         "repository": repository_id,
         "repository_commit": first_result.repository_commit,
         "status": "pass",
         "symbol_count": first_result.symbol_count,
+        "unhandled_parser_error_count": sum(
+            not item.handled for item in first_result.diagnostics
+        ),
         "validation_errors": [],
         "validation_version": "rag-index-validation-v1",
     }

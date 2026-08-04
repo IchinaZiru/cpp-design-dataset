@@ -35,6 +35,7 @@ class ParserSpec:
 class ChunkingSpec:
     version: str
     macro_fallback_version: str
+    preprocessor_error_fallback_version: str
     stable_chunk_id_version: str
     large_chunk_soft_limit_lines: int
     attach_preceding_doxygen: bool
@@ -183,6 +184,9 @@ class IndexConfig:
             chunking=ChunkingSpec(
                 version=str(chunking_raw["version"]),
                 macro_fallback_version=str(chunking_raw["macro_fallback_version"]),
+                preprocessor_error_fallback_version=str(
+                    chunking_raw["preprocessor_error_fallback_version"]
+                ),
                 stable_chunk_id_version=str(chunking_raw["stable_chunk_id_version"]),
                 large_chunk_soft_limit_lines=soft_limit,
                 attach_preceding_doxygen=bool(

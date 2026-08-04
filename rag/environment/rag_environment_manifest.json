@@ -20,6 +20,6 @@
   "requirements_lock_path": "requirements/rag.lock.txt",
   "requirements_lock_sha256": "4ff3e5a8224abd5c9e759baee08212183f74204df8f2a0de2bc1ca827208d9f0",
   "retrieval_config_path": "configs/rag/retrieval_v1.json",
-  "retrieval_config_sha256": "f5cf3dfc0f14dddfd0c444689da3ccf6677c76bd173fb15ed6569565b7cdb25e",
+  "retrieval_config_sha256": "6723c18d1239c2ba588cc016852d3fd16a1878425bfef04f331430ba1a807fa1",
   "version_mismatch_action": "stop"
 }

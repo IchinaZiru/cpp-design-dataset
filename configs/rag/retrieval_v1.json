@@ -18,7 +18,8 @@
     "macro_fallback_version": "line-fallback-macro-v1",
     "oversized_indivisible_action": "keep-and-mark",
     "stable_chunk_id_version": "sha256-commit-path-range-kind-content-v1",
-    "version": "tree-sitter-symbol-v1"
+    "version": "tree-sitter-symbol-v1",
+    "preprocessor_error_fallback_version": "preprocessor-conditional-error-v1"
   },
   "condition_id": "rag-design-context-v1",
   "corpus": {
