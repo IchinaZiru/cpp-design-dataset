@@ -203,6 +203,33 @@ def _parent_name(canonical_name: str) -> str | None:
     return canonical_name.rsplit("::", 1)[0]
 
 
+def _strip_template_arguments(name: str) -> str:
+    result: list[str] = []
+    depth = 0
+    for character in name:
+        if character == "<":
+            depth += 1
+            continue
+        if character == ">" and depth > 0:
+            depth -= 1
+            continue
+        if depth == 0:
+            result.append(character)
+    return "".join(result)
+
+
+def _resolved_function_parent(
+    source_name: str,
+    canonical_name: str,
+    parent_symbol: str | None,
+) -> str | None:
+    if parent_symbol is not None:
+        return parent_symbol
+    if "::" in source_name:
+        return _parent_name(canonical_name)
+    return None
+
+
 def _preceding_doxygen_start(data: bytes, symbol_start: int) -> int | None:
     prefix = data[:symbol_start]
     match = _DOXYGEN_PATTERN.search(prefix)
@@ -289,11 +316,14 @@ def _function_kind(
     short = _short_name(canonical_name)
     suffix = "definition" if is_definition else "declaration"
     parent_short = _short_name(parent_symbol) if parent_symbol else None
+    constructor_name = (
+        _strip_template_arguments(parent_short) if parent_short else None
+    )
     if short.startswith("operator"):
         return f"operator_{suffix}"
     if short.startswith("~"):
         return f"destructor_{suffix}"
-    if parent_short and short == parent_short:
+    if constructor_name and short == constructor_name:
         return f"constructor_{suffix}"
     if parent_symbol:
         return f"method_{suffix}"
@@ -536,7 +566,9 @@ class _Extractor:
                 return
             name = _node_text(name_node, self.source.data).strip()
             canonical = _qualified_name(name, namespace, parent_symbol)
-            resolved_parent = _parent_name(canonical) or parent_symbol
+            resolved_parent = _resolved_function_parent(
+                name, canonical, parent_symbol
+            )
             kind = _function_kind(canonical, resolved_parent, True)
             self.emit(
                 node,
@@ -555,7 +587,9 @@ class _Extractor:
                 if name_node is not None:
                     name = _node_text(name_node, self.source.data).strip()
                     canonical = _qualified_name(name, namespace, parent_symbol)
-                    resolved_parent = _parent_name(canonical) or parent_symbol
+                    resolved_parent = _resolved_function_parent(
+                        name, canonical, parent_symbol
+                    )
                     kind = _function_kind(canonical, resolved_parent, False)
                     self.emit(
                         node,

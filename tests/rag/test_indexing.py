@@ -295,6 +295,23 @@ class SymbolIndexFixtureTests(unittest.TestCase):
             ),
             EXPECTED["minimum_overload_count"],
         )
+        self.assertFalse(
+            any(
+                item["canonical_name"] in {
+                    "fixture::documented",
+                    "fixture::overloaded",
+                }
+                and item["kind"].startswith("method_")
+                for item in chunks
+            )
+        )
+        self.assertTrue(
+            any(
+                item["canonical_name"] == "fixture::Widget<T>::Widget"
+                and item["kind"] == "constructor_definition"
+                for item in chunks
+            )
+        )
         self.assertTrue(
             any(
                 item["canonical_name"] == EXPECTED["oversized_symbol"]

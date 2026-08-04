@@ -47,6 +47,18 @@
     {
       "canonical_name": "fixture::overloaded",
       "kind": "function_definition"
+    },
+    {
+      "canonical_name": "fixture::Widget<T>::Widget",
+      "kind": "constructor_definition"
+    },
+    {
+      "canonical_name": "fixture::documented",
+      "kind": "function_declaration"
+    },
+    {
+      "canonical_name": "fixture::overloaded",
+      "kind": "function_declaration"
     }
   ]
 }
