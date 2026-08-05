@@ -1,0 +1,557 @@
+{
+  "artifact_schema_version": "rag-formal-preparation-plan-v1",
+  "status": "plan_only_complete_with_pre_execution_blockers",
+  "repository": {
+    "name": "IchinaZiru/cpp-design-dataset",
+    "branch": "agent/rag-protocol-v0-9",
+    "before_head": "69b539921635d5051d9362ed3148fc1568c48d4c",
+    "expected_start_head": "69b539921635d5051d9362ed3148fc1568c48d4c",
+    "local_remote_heads_matched_at_start": true,
+    "worktree_clean_at_start": true
+  },
+  "scope": {
+    "mode": "plan-only",
+    "formal_target_count": 17,
+    "formal_execution_status": "not_started",
+    "all_targets_initially_disabled": true,
+    "enable_after_audit": "exactly_one_target_per_explicit_commit",
+    "llm_call_count": 0,
+    "generation_server_contacted": false,
+    "retrieval_executed": false,
+    "context_generated": false,
+    "formal_target_executed": false,
+    "source_replaced": false,
+    "docker_executed": false,
+    "build_or_test_executed": false
+  },
+  "frozen_evidence": [
+    {
+      "path": "docs/rag_experiment_protocol.md",
+      "sha256": "83f95da429f8d98b630a251fdee7d3c0d93d5de9cce235e75df3584b4feec69d",
+      "role": "current_protocol_and_tbd_inventory"
+    },
+    {
+      "path": "configs/rag/pilot/yaml_cpp_retrieval_pipeline_v2.json",
+      "sha256": "02a15ea95318c917e8763b32a40fdbc56396134d5388f81c96028037a0b5c028",
+      "role": "pilot_frozen_retrieval_values_and_versions"
+    },
+    {
+      "path": "rag/retrieval/external-pilot/yaml-cpp/retrieval-v2/yaml-cpp-yaml-node-d2929956c2cd/retrieval_manifest.json",
+      "sha256": "f924003cc66de2f5d29dd1c13c597aa6f889cbfa389f77e7178010b67dff2343",
+      "role": "successful_retrieval_context_and_leakage_evidence"
+    },
+    {
+      "path": "reports/rag/pilot/external/yaml-cpp/yaml-node-run01-postmortem.json",
+      "sha256": "28bd2db045c25e3f4790b2188315bb4ecf6ccc1e75b6118fae0cfca868b10274",
+      "role": "immutable_run01_limits_and_mechanics_gap"
+    },
+    {
+      "path": "experiments/rag/pilot/mechanics/yaml-cpp/rag-mechanics-v1-yaml-cpp-yaml-node-replacement-eval-run01/mechanics_result.json",
+      "sha256": "2deafc20bc66e74f419c92cebdf925530000eed6410729922c6e398d3a696f61",
+      "role": "mechanics_only_replacement_build_test_restoration_pass"
+    },
+    {
+      "path": "rag/environment/rag_environment_manifest.json",
+      "sha256": "46b52712802ff9b4b630a44ab7e47edf91f11fe12fe24cdb7caebb2a60e0b4f1",
+      "role": "python_and_tree_sitter_versions"
+    },
+    {
+      "path": "configs/rag/retrieval_v1.json",
+      "sha256": "6723c18d1239c2ba588cc016852d3fd16a1878425bfef04f331430ba1a807fa1",
+      "role": "parser_and_common_corpus_index_policy"
+    },
+    {
+      "path": "reports/rag/pilot/external/yaml-cpp/candidate-selection-v2/external_pilot_selection.json",
+      "sha256": "660eafc27072e4d04df321abe2c509ce063c61d154e625c214016cdbf3ef4170",
+      "role": "frozen_external_pilot_target_ids"
+    },
+    {
+      "path": "configs/rag/query_targets_v1.json",
+      "sha256": "0b7653ea956302bde236adc8d60c326ed8fa08aa81c6c678084b1fb153c6e1a5",
+      "role": "frozen_17_target_registry"
+    },
+    {
+      "path": "configs/rag/query_v1.json",
+      "sha256": "b2711084a80e13876c822a7b587520a14ba7cff262eba3e776c88072f5e4ade9",
+      "role": "deterministic_query_policy"
+    },
+    {
+      "path": "scripts/rag/external_retrieval.py",
+      "sha256": "f8bb1a42f232788aee72e785a713e74aeb78ddf93ff303901b485f36ac538545",
+      "role": "in_repository_bm25_and_retrieval_implementation"
+    }
+  ],
+  "formal_retrieval_freeze": {
+    "retrieval_top_k": 12,
+    "context_budget_tokens": 6000,
+    "category_quotas": {
+      "0": 4,
+      "1": 4,
+      "2": 3,
+      "3": 1
+    },
+    "token_counter_version": "cpp-lexical-token-count-v1",
+    "context_format": "combined-path-role-v1",
+    "per_target_override": "prohibited",
+    "target_specific_manual_query": "prohibited",
+    "formal_target_count": 17,
+    "same_retrieval_settings_for_all_targets": true,
+    "top_k_and_quotas_are_caps": true,
+    "shortfall_policy": "fewer than 12 selected chunks requires a deterministic recorded reason; target-specific compensation is prohibited"
+  },
+  "protocol_update_steps": [
+    {
+      "order": 1,
+      "action": "set protocol version to 1.0 and status to post-pilot formal freeze while formal execution remains not started"
+    },
+    {
+      "order": 2,
+      "action": "complete the 1.0 revision row with evidence-backed pilot IDs, retrieval values, context format, runtime/parser versions, and in-repository BM25 version"
+    },
+    {
+      "order": 3,
+      "action": "replace all four TBD_AFTER_PILOT occurrences with the common frozen values"
+    },
+    {
+      "order": 4,
+      "action": "replace resolvable TBD_IMPLEMENTATION occurrences with tree-sitter 0.26.0, tree-sitter-cpp 0.23.4, in-repository-bm25-okapi-v1, and CPython 3.13.5"
+    },
+    {
+      "order": 5,
+      "action": "resolve grammar provenance without guessing: freeze the distribution version or add separately verified upstream commit evidence"
+    },
+    {
+      "order": 6,
+      "action": "record immutable yaml-cpp run01 limits and separate mechanics-only PASS without treating either as formal effect evidence"
+    },
+    {
+      "order": 7,
+      "action": "verify repository-wide absence of TBD_AFTER_PILOT and TBD_IMPLEMENTATION before target enablement"
+    }
+  ],
+  "tbd_inventory": [
+    {
+      "marker": "TBD_IMPLEMENTATION",
+      "path": "docs/rag_experiment_protocol.md",
+      "line": 174,
+      "field": "tree_sitter_python_package_version",
+      "planned_value": "tree-sitter==0.26.0",
+      "source_artifacts": [
+        "rag/environment/rag_environment_manifest.json",
+        "configs/rag/retrieval_v1.json"
+      ],
+      "resolution_status": "resolved_by_existing_evidence"
+    },
+    {
+      "marker": "TBD_IMPLEMENTATION",
+      "path": "docs/rag_experiment_protocol.md",
+      "line": 175,
+      "field": "tree_sitter_cpp_grammar_version_or_commit",
+      "planned_value": "tree-sitter-cpp==0.23.4",
+      "source_artifacts": [
+        "rag/environment/rag_environment_manifest.json",
+        "configs/rag/retrieval_v1.json"
+      ],
+      "resolution_status": "package_version_resolved_upstream_commit_unrecorded",
+      "blocker": "If an upstream grammar commit remains mandatory, obtain verifiable distribution-to-commit provenance; do not infer it."
+    },
+    {
+      "marker": "TBD_IMPLEMENTATION",
+      "path": "docs/rag_experiment_protocol.md",
+      "line": 338,
+      "field": "bm25_library_or_implementation_version",
+      "planned_value": "in-repository-bm25-okapi-v1",
+      "implementation_sha256": "f8bb1a42f232788aee72e785a713e74aeb78ddf93ff303901b485f36ac538545",
+      "source_artifacts": [
+        "configs/rag/pilot/yaml_cpp_retrieval_pipeline_v2.json",
+        "rag/retrieval/external-pilot/yaml-cpp/retrieval-v2/yaml-cpp-yaml-node-d2929956c2cd/retrieval_manifest.json",
+        "scripts/rag/external_retrieval.py",
+        "requirements/rag.in"
+      ],
+      "resolution_status": "resolved_by_existing_evidence_no_external_bm25_package"
+    },
+    {
+      "marker": "TBD_AFTER_PILOT",
+      "path": "docs/rag_experiment_protocol.md",
+      "line": 430,
+      "field": "retrieval_top_k",
+      "planned_value": 12,
+      "source_artifacts": [
+        "configs/rag/pilot/yaml_cpp_retrieval_pipeline_v2.json",
+        "rag/retrieval/external-pilot/yaml-cpp/retrieval-v2/yaml-cpp-yaml-node-d2929956c2cd/retrieval_manifest.json"
+      ],
+      "resolution_status": "resolved_by_existing_evidence"
+    },
+    {
+      "marker": "TBD_AFTER_PILOT",
+      "path": "docs/rag_experiment_protocol.md",
+      "line": 431,
+      "field": "context_budget_tokens",
+      "planned_value": 6000,
+      "source_artifacts": [
+        "configs/rag/pilot/yaml_cpp_retrieval_pipeline_v2.json",
+        "rag/retrieval/external-pilot/yaml-cpp/retrieval-v2/yaml-cpp-yaml-node-d2929956c2cd/retrieval_manifest.json"
+      ],
+      "resolution_status": "resolved_by_existing_evidence"
+    },
+    {
+      "marker": "TBD_AFTER_PILOT",
+      "path": "docs/rag_experiment_protocol.md",
+      "line": 432,
+      "field": "category_quota",
+      "planned_value": {
+        "0": 4,
+        "1": 4,
+        "2": 3,
+        "3": 1
+      },
+      "source_artifacts": [
+        "configs/rag/pilot/yaml_cpp_retrieval_pipeline_v2.json",
+        "rag/retrieval/external-pilot/yaml-cpp/retrieval-v2/yaml-cpp-yaml-node-d2929956c2cd/retrieval_manifest.json"
+      ],
+      "resolution_status": "resolved_by_existing_evidence"
+    },
+    {
+      "marker": "TBD_AFTER_PILOT",
+      "path": "docs/rag_experiment_protocol.md",
+      "line": 433,
+      "field": "token_counter_version",
+      "planned_value": "cpp-lexical-token-count-v1",
+      "source_artifacts": [
+        "configs/rag/pilot/yaml_cpp_retrieval_pipeline_v2.json",
+        "rag/retrieval/external-pilot/yaml-cpp/retrieval-v2/yaml-cpp-yaml-node-d2929956c2cd/retrieval_manifest.json"
+      ],
+      "resolution_status": "resolved_by_existing_evidence"
+    },
+    {
+      "marker": "TBD_IMPLEMENTATION",
+      "path": "docs/rag_experiment_protocol.md",
+      "line": 789,
+      "field": "python_runtime",
+      "planned_value": "CPython 3.13.5",
+      "source_artifacts": [
+        "rag/environment/rag_environment_manifest.json"
+      ],
+      "resolution_status": "resolved_by_existing_evidence"
+    }
+  ],
+  "related_post_pilot_freeze": {
+    "context_format": {
+      "value": "combined-path-role-v1",
+      "source_artifacts": [
+        "configs/rag/pilot/yaml_cpp_retrieval_pipeline_v2.json",
+        "rag/retrieval/external-pilot/yaml-cpp/retrieval-v2/yaml-cpp-yaml-node-d2929956c2cd/retrieval_manifest.json"
+      ]
+    },
+    "pilot_target_ids": {
+      "source_artifact": "reports/rag/pilot/external/yaml-cpp/candidate-selection-v2/external_pilot_selection.json",
+      "values": [
+        "yaml-cpp-yaml-node-d2929956c2cd",
+        "yaml-cpp-yaml-detail-get-idx-key-typename-std-enable-if-s-50aa23319a5e",
+        "yaml-cpp-yaml-detail-remove-idx-key-typename-std-enable-i-b8aacd8b022d",
+        "yaml-cpp-yaml-convert-std-string-3825140d3f5f",
+        "yaml-cpp-yaml-decodebase64-625c9379f8bd"
+      ]
+    }
+  },
+  "planned_config_paths": {
+    "common": "configs/rag/formal_retrieval_pipeline_v1.json",
+    "targets": [
+      {
+        "target_id": "echo-web-server-block-deque",
+        "path": "configs/rag/targets/echo-web-server-block-deque.json",
+        "enabled": false
+      },
+      {
+        "target_id": "echo-web-server-buffer",
+        "path": "configs/rag/targets/echo-web-server-buffer.json",
+        "enabled": false
+      },
+      {
+        "target_id": "echo-web-server-config",
+        "path": "configs/rag/targets/echo-web-server-config.json",
+        "enabled": false
+      },
+      {
+        "target_id": "echo-web-server-heap-timer",
+        "path": "configs/rag/targets/echo-web-server-heap-timer.json",
+        "enabled": false
+      },
+      {
+        "target_id": "echo-web-server-http",
+        "path": "configs/rag/targets/echo-web-server-http.json",
+        "enabled": false
+      },
+      {
+        "target_id": "echo-web-server-io",
+        "path": "configs/rag/targets/echo-web-server-io.json",
+        "enabled": false
+      },
+      {
+        "target_id": "echo-web-server-ip",
+        "path": "configs/rag/targets/echo-web-server-ip.json",
+        "enabled": false
+      },
+      {
+        "target_id": "echo-web-server-log",
+        "path": "configs/rag/targets/echo-web-server-log.json",
+        "enabled": false
+      },
+      {
+        "target_id": "echo-web-server-thread-pool",
+        "path": "configs/rag/targets/echo-web-server-thread-pool.json",
+        "enabled": false
+      },
+      {
+        "target_id": "echo-web-server-util",
+        "path": "configs/rag/targets/echo-web-server-util.json",
+        "enabled": false
+      },
+      {
+        "target_id": "ini-cpp-ini-writer",
+        "path": "configs/rag/targets/ini-cpp-ini-writer.json",
+        "enabled": false
+      },
+      {
+        "target_id": "ini-cpp-inireader",
+        "path": "configs/rag/targets/ini-cpp-inireader.json",
+        "enabled": false
+      },
+      {
+        "target_id": "riscv-simulator-instruction",
+        "path": "configs/rag/targets/riscv-simulator-instruction.json",
+        "enabled": false
+      },
+      {
+        "target_id": "riscv-simulator-memory",
+        "path": "configs/rag/targets/riscv-simulator-memory.json",
+        "enabled": false
+      },
+      {
+        "target_id": "riscv-simulator-parser",
+        "path": "configs/rag/targets/riscv-simulator-parser.json",
+        "enabled": false
+      },
+      {
+        "target_id": "riscv-simulator-register",
+        "path": "configs/rag/targets/riscv-simulator-register.json",
+        "enabled": false
+      },
+      {
+        "target_id": "riscv-simulator-registerfile",
+        "path": "configs/rag/targets/riscv-simulator-registerfile.json",
+        "enabled": false
+      }
+    ]
+  },
+  "deterministic_context_generation": {
+    "executed_by_this_task": false,
+    "output_pattern": "rag/retrieval/formal/<target-id>/",
+    "steps": [
+      "verify protocol freeze, common config, target registry, query policy, environment, repository commits, clean worktrees, and frozen source hashes and ranges",
+      "validate each existing deterministic rag/query/<target-id>/query.json and query_validation.json without manual additions",
+      "apply the identical common retrieval settings to all 17 targets",
+      "filter forbidden paths, target overlap, previous LLM output, experiment/report/generated/test content, and duplicates before ranking",
+      "run exact-symbol, allowed one-hop, AST usage/call-site, and auxiliary in-repository BM25 stages in the frozen ordering",
+      "serialize candidate, selected, context, corpus, query, and manifest artifacts canonically",
+      "independently regenerate each target in a separate temporary output and compare all hashes and ordering",
+      "publish only byte-identical outputs and keep every target disabled through aggregate audit"
+    ],
+    "independent_build_count": 2,
+    "failure_action": "preserve mismatch evidence and stop the whole formal batch without target-specific tuning"
+  },
+  "per_context_validation": [
+    {
+      "check": "token_budget",
+      "requirement": "context_token_count <= 6000 using cpp-lexical-token-count-v1"
+    },
+    {
+      "check": "top_k",
+      "requirement": "selected_chunk_count <= 12 and every shortfall has a deterministic reason"
+    },
+    {
+      "check": "category_quota",
+      "requirement": "tier counts do not exceed 4,4,3,1 and common ordering is preserved"
+    },
+    {
+      "check": "target_source_overlap",
+      "requirement": "zero overlap with frozen half-open ranges; module_files exclude entire target files"
+    },
+    {
+      "check": "forbidden_path",
+      "requirement": "zero selected test, benchmark, build, generated, report, log, experiment, prior LLM, README, docs, vendor, third-party, or external content"
+    },
+    {
+      "check": "duplicate_content",
+      "requirement": "unique chunk IDs and content SHA-256 values, no equivalent overlap, and recorded reasons for retained declaration-definition pairs"
+    },
+    {
+      "check": "leakage",
+      "requirement": "no target source, test answer or expected output, prior generated output, report, or formal result leaks into context"
+    },
+    {
+      "check": "deterministic_regeneration",
+      "requirement": "two builds match in query, corpus/index, candidates, selected IDs/order, context bytes, and manifest content hashes"
+    },
+    {
+      "check": "sha256",
+      "requirement": "exact-byte hashes and cross-links reverify after publication with no absolute path or timestamp in content hashes"
+    }
+  ],
+  "generation_input_isolation": {
+    "design_generation_allowed_inputs": [
+      "frozen design instruction and output constraints",
+      "clearly delimited frozen target source",
+      "separately delimited frozen context.txt pinned by path and SHA-256"
+    ],
+    "code_regeneration_allowed_inputs": [
+      "single frozen design_document.md from the one-shot design call",
+      "fixed scaffold frozen and hashed before code generation"
+    ],
+    "code_regeneration_forbidden_inputs": [
+      "original target source body",
+      "retrieved context",
+      "selected chunks",
+      "candidate lists",
+      "query artifacts",
+      "repository source files",
+      "design generation prompt or request",
+      "design audit findings",
+      "previous generated outputs"
+    ],
+    "verification": "store exact direct-input paths, bytes, and SHA-256 cross-links in plan and request artifacts before enablement"
+  },
+  "commit_strategy": [
+    {
+      "order": 1,
+      "message": "docs(rag): freeze formal protocol after pilot",
+      "state_after_commit": "protocol 1.0 frozen; formal not started"
+    },
+    {
+      "order": 2,
+      "message": "feat(rag): add disabled formal target configs",
+      "state_after_commit": "common config plus 17 configs; enabled count zero"
+    },
+    {
+      "order": 3,
+      "message": "feat(rag): add formal preparation tooling",
+      "state_after_commit": "tooling and unit tests present; retrieval not executed"
+    },
+    {
+      "order": 4,
+      "message": "experiment(rag): freeze formal retrieval contexts",
+      "state_after_commit": "17 deterministic contexts and aggregate audit frozen; enabled count zero"
+    },
+    {
+      "order": 5,
+      "message_template": "experiment(rag): enable formal target <target-id>",
+      "state_after_commit": "exactly one audited target enabled"
+    },
+    {
+      "order": 6,
+      "message_template": "experiment(rag): record formal target <target-id>",
+      "state_after_commit": "one-shot immutable result recorded"
+    },
+    {
+      "order": 7,
+      "message_template": "experiment(rag): disable completed formal target <target-id>",
+      "state_after_commit": "all targets disabled before the next isolated enable commit"
+    }
+  ],
+  "formal_pre_execution_audit_checklist": [
+    "protocol is version 1.0 post-pilot formal freeze and contains no TBD markers",
+    "grammar provenance blocker is resolved without guessing",
+    "common config contains the exact frozen values and a stable SHA-256",
+    "exactly 17 target configs exist and enabled count is initially zero",
+    "all target identities, commits, source locators and hashes, tests, generation settings, Docker settings, and no-retry policies match frozen non-RAG evidence except permitted RAG fields",
+    "repositories and submodules are pinned and clean",
+    "environment and locked dependencies match",
+    "queries are deterministic, LLM-free, registry-linked, and contain no manual additions",
+    "all contexts pass token, top-k, quota, overlap, forbidden-path, duplicate, leakage, determinism, and SHA-256 checks",
+    "aggregate audit proves one common setting and zero per-target overrides",
+    "design source and context are separately delimited and hash-pinned",
+    "code regeneration inputs exclude source, context, query, retrieval, repository, and audit evidence",
+    "one-shot markers and no retry, repair, overwrite, or manual patch policies are present",
+    "backup, finally restoration, exact raw-byte/hash restoration, and clean-worktree checks match mechanics evidence",
+    "non-RAG results and immutable yaml-cpp run01 evidence are unchanged",
+    "no preparation-time LLM, Ollama, Docker, source replacement, build, or test occurred",
+    "enabled count is zero before and exactly one after an explicit enable commit"
+  ],
+  "expected_future_artifacts": {
+    "preparation": [
+      "docs/rag_experiment_protocol.md",
+      "configs/rag/formal_retrieval_pipeline_v1.json",
+      "configs/rag/targets/<17 target-id>.json",
+      "scripts/rag/<formal preparation tooling>",
+      "tests/rag/<formal preparation tests>",
+      "reports/rag/formal/preparation/formal-context-audit-v1.json",
+      "reports/rag/formal/preparation/formal-context-audit-v1.md"
+    ],
+    "per_target_retrieval_pattern": "rag/retrieval/formal/<target-id>/",
+    "per_target_retrieval_files": [
+      "corpus_manifest.json",
+      "query.json",
+      "candidates.jsonl",
+      "selected_chunks.jsonl",
+      "context.txt",
+      "retrieval_manifest.json"
+    ],
+    "per_target_execution_pattern": "experiments/rag/rag-v1-formal-<target-id>/",
+    "per_target_execution_categories": [
+      "frozen design prompt, request, markers, response, result, and design_document.md",
+      "frozen scaffold and code prompt, request, markers, response, and result",
+      "source backup, replacement, restoration, exact hashes, and cleanliness evidence",
+      "configure, build, direct, and full test stdout, stderr, exit code, timeout, and status",
+      "immutable target result manifest"
+    ],
+    "aggregate": [
+      "reports/rag/formal/formal-results-v1.json",
+      "reports/rag/formal/formal-results-v1.md",
+      "reports/rag/analysis/<paired-transition-and-seven-stage-diagnosis-artifacts>",
+      "manifests/rag_targets.csv",
+      "manifests/rag_runs.csv"
+    ]
+  },
+  "stop_conditions": [
+    "branch, local or remote HEAD, required ancestor, or clean-worktree check fails",
+    "referenced evidence, config, source, query, index, or context hash differs",
+    "upstream grammar commit remains mandatory but unverified",
+    "a TBD marker remains in the formal-freeze protocol",
+    "a common setting differs, an override exists, or a manual target query exists",
+    "target count is not 17 or target identity, commit, source, tests, or frozen non-RAG setting differs",
+    "repository or submodule is dirty or at the wrong commit",
+    "context budget, top-k, quota, overlap, forbidden path, duplicate, leakage, determinism, or SHA-256 audit fails",
+    "design and code input isolation cannot be proven from stored exact bytes and hashes",
+    "non-RAG results or immutable yaml-cpp run01 evidence changed",
+    "any target is enabled before aggregate audit or more than one target is enabled",
+    "attempt, failure, or result marker already exists for the proposed run ID",
+    "source restoration or clean-worktree verification fails",
+    "continuation would require retry, repair, overwrite, manual patch, or run-ID reuse"
+  ],
+  "current_formal_execution_blockers": [
+    "protocol 1.0 post-pilot formal freeze has not been edited",
+    "tree-sitter-cpp package version is known but upstream grammar commit provenance is not recorded",
+    "common and 17 formal target configs do not exist",
+    "formal contexts have not been generated or independently regenerated",
+    "aggregate formal context audit does not exist",
+    "all targets must remain disabled until every blocker and audit item is cleared"
+  ],
+  "prohibitions": [
+    "edit docs/rag_experiment_protocol.md in this task",
+    "create formal configs in this task",
+    "execute retrieval or generate context in this task",
+    "call an LLM or contact Ollama or another generation server",
+    "run Docker, configure, build, or tests",
+    "replace source code",
+    "enable a formal target",
+    "modify yaml-cpp run01 failure output",
+    "retry, repair, overwrite, or manually patch output",
+    "modify fixed non-RAG results",
+    "use git add dot, force push, rebase, reset, or rewrite history"
+  ],
+  "files_written_by_this_task": [
+    "reports/rag/formal/preparation/formal-preparation-plan-v1.json",
+    "reports/rag/formal/preparation/formal-preparation-plan-v1.md"
+  ],
+  "planned_commit_message": "experiment(rag): plan formal preparation"
+}
