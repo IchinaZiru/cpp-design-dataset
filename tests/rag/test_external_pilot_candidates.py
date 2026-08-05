@@ -28,6 +28,9 @@ CONFIG = ROOT / "configs" / "rag" / "pilot" / "tinyxml2_candidates_v1.json"
 YAML_CPP_CONFIG = (
     ROOT / "configs" / "rag" / "pilot" / "yaml_cpp_candidates_v1.json"
 )
+YAML_CPP_CONFIG_V2 = (
+    ROOT / "configs" / "rag" / "pilot" / "yaml_cpp_candidates_v2.json"
+)
 
 
 def _run(root: Path, *args: str) -> str:
@@ -166,6 +169,16 @@ class ExternalPilotPolicyTests(unittest.TestCase):
             {"class_span": 1, "function": 1},
         )
         self.assertEqual(len(policy["evidence_paths"]), 16)
+
+    def test_yaml_cpp_v2_changes_provenance_not_selection_policy(self) -> None:
+        first = CandidateConfig.load(YAML_CPP_CONFIG).raw
+        second = CandidateConfig.load(YAML_CPP_CONFIG_V2).raw
+        self.assertEqual(first["selection"], second["selection"])
+        self.assertEqual(first["filtering"], second["filtering"])
+        self.assertEqual(first["exact_retrieval"], second["exact_retrieval"])
+        self.assertEqual(first["stages"], second["stages"])
+        self.assertNotEqual(first["dependencies"], second["dependencies"])
+        self.assertNotEqual(first["pilot"]["version"], second["pilot"]["version"])
 
     def test_config_freezes_external_selection_rules(self) -> None:
         policy = external_policy(CandidateConfig.load(CONFIG))
