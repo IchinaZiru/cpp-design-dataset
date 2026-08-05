@@ -1,0 +1,385 @@
+Repository-Context RAG v1
+Repository: yaml-cpp
+Commit: 3eb39d5808c33aa93a113cb6c668fa2435ff3ecd
+Target: yaml-cpp-yaml-decodebase64-625c9379f8bd
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: include/yaml-cpp/binary.h:18-18
+Symbol: YAML::DecodeBase64
+Kind: function_declaration
+Tier: 0
+Relations: none
+```cpp
+std::vector<unsigned char> DecodeBase64(const std::string &input);
+```
+
+## Chunk 2
+Path: src/emitter.cpp:23-23
+Symbol: YAML::Emitter::size
+Kind: method_definition
+Tier: 0
+Relations: return_type
+```cpp
+std::size_t Emitter::size() const { return m_stream.pos(); }
+```
+
+## Chunk 3
+Path: src/memory.cpp:30-32
+Symbol: YAML::detail::memory::size
+Kind: method_definition
+Tier: 0
+Relations: return_type
+```cpp
+size_t memory::size() const {
+    return m_nodes.size();
+}
+```
+
+## Chunk 4
+Path: src/node_data.cpp:90-105
+Symbol: YAML::detail::node_data::size
+Kind: method_definition
+Tier: 0
+Relations: return_type
+```cpp
+std::size_t node_data::size() const {
+  if (!m_isDefined)
+    return 0;
+
+  switch (m_type) {
+    case NodeType::Sequence:
+      compute_seq_size();
+      return m_seqSize;
+    case NodeType::Map:
+      compute_map_size();
+      return m_map.size() - m_undefinedPairs.size();
+    default:
+      return 0;
+  }
+  return 0;
+}
+```
+
+## Chunk 5
+Path: src/scanner.h:25-186
+Symbol: YAML::Scanner
+Kind: class_interface
+Tier: 1
+Relations: return_type
+```cpp
+/**
+ * A scanner transforms a stream of characters into a stream of tokens.
+ */
+class Scanner {
+ public:
+  explicit Scanner(std::istream &in);
+  ~Scanner();
+
+  /** Returns true if there are no more tokens to be read. */
+  bool empty();
+
+  /** Removes the next token in the queue. */
+  void pop();
+
+  /** Returns, but does not remove, the next token in the queue. */
+  Token &peek();
+
+  /** Returns the current mark in the input stream. */
+  Mark mark() const;
+
+ private:
+  struct IndentMarker {
+    enum INDENT_TYPE { MAP, SEQ, NONE };
+    enum STATUS { VALID, INVALID, UNKNOWN };
+    IndentMarker(int column_, INDENT_TYPE type_)
+        : column(column_), type(type_), status(VALID), pStartToken(nullptr) {}
+
+    int column;
+    INDENT_TYPE type;
+    STATUS status;
+    Token *pStartToken;
+  };
+
+  enum FLOW_MARKER { FLOW_MAP, FLOW_SEQ };
+
+ private:
+  // scanning
+
+  /**
+   * Scans until there's a valid token at the front of the queue, or the queue
+   * is empty. The state can be checked by {@link #empty}, and the next token
+   * retrieved by {@link #peek}.
+   */
+  void EnsureTokensInQueue();
+
+  /**
+   * The main scanning function; this method branches out to scan whatever the
+   * next token should be.
+   */
+  void ScanNextToken();
+
+  /** Eats the input stream until it reaches the next token-like thing. */
+  void ScanToNextToken();
+
+  /** Sets the initial conditions for starting a stream. */
+  void StartStream();
+
+  /** Closes out the stream, finish up, etc. */
+  void EndStream();
+
+  Token *PushToken(Token::TYPE type);
+
+  bool InFlowContext() const { return !m_flows.empty(); }
+  bool InBlockContext() const { return m_flows.empty(); }
+  std::size_t GetFlowLevel() const { return m_flows.size(); }
+
+  Token::TYPE GetStartTokenFor(IndentMarker::INDENT_TYPE type) const;
+
+  /**
+   * Pushes an indentation onto the stack, and enqueues the proper token
+   * (sequence start or mapping start).
+   *
+   * @return the indent marker it generates (if any).
+   */
+  IndentMarker *PushIndentTo(int column, IndentMarker::INDENT_TYPE type);
+
+  /**
+   * Pops indentations off the stack until it reaches the current indentation
+   * level, and enqueues the proper token each time. Then pops all invalid
+   * indentations off.
+   */
+  void PopIndentToHere();
+
+  /**
+   * Pops all indentations (except for the base empty one) off the stack, and
+   * enqueues the proper token each time.
+   */
+  void PopAllIndents();
+
+  /** Pops a single indent, pushing the proper token. */
+  void PopIndent();
+  int GetTopIndent() const;
+
+  // checking input
+  bool CanInsertPotentialSimpleKey() const;
+  bool ExistsActiveSimpleKey() const;
+  void InsertPotentialSimpleKey();
+  void InvalidateSimpleKey();
+  bool VerifySimpleKey();
+  void PopAllSimpleKeys();
+
+  /**
+   * Throws a ParserException with the current token location (if available),
+   * and does not parse any more tokens.
+   */
+  void ThrowParserException(const std::string &msg) const;
+
+  bool IsWhitespaceToBeEaten(char ch);
+
+  /**
+   * Returns the appropriate regex to check if the next token is a value token.
+   */
+  const RegEx &GetValueRegex() const;
+
+  struct SimpleKey {
+    SimpleKey(const Mark &mark_, std::size_t flowLevel_);
+
+    void Validate();
+    void Invalidate();
+
+    Mark mark;
+    std::size_t flowLevel;
+    IndentMarker *pIndent;
+    Token *pMapStart, *pKey;
+  };
+
+  // and the tokens
+  void ScanDirective();
+  void ScanDocStart();
+  void ScanDocEnd();
+  void ScanBlockSeqStart();
+  void ScanBlockMapSTart();
+  void ScanBlockEnd();
+  void ScanBlockEntry();
+  void ScanFlowStart();
+  void ScanFlowEnd();
+  void ScanFlowEntry();
+  void ScanKey();
+  void ScanValue();
+  void ScanAnchorOrAlias();
+  void ScanTag();
+  void ScanPlainScalar();
+  void ScanQuotedScalar();
+  void ScanBlockScalar();
+
+ private:
+  // the stream
+  Stream INPUT;
+
+  // the output (tokens)
+  std::queue<Token> m_tokens;
+
+  // state info
+  bool m_startedStream, m_endedStream;
+  bool m_simpleKeyAllowed;
+  bool m_scalarValueAllowed;
+  bool m_canBeJSONFlow;
+  std::stack<SimpleKey> m_simpleKeys;
+  std::stack<IndentMarker *> m_indents;
+  ptr_vector<IndentMarker> m_indentRefs;  // for "garbage collection"
+  std::stack<FLOW_MARKER> m_flows;
+}
+```
+
+## Chunk 6
+Path: src/emitter.cpp:14-14
+Symbol: YAML::Emitter::Emitter
+Kind: constructor_definition
+Tier: 1
+Relations: return_type
+```cpp
+Emitter::Emitter() : m_pState(new EmitterState), m_stream{} {}
+```
+
+## Chunk 7
+Path: src/emitter.cpp:16-17
+Symbol: YAML::Emitter::Emitter
+Kind: constructor_definition
+Tier: 1
+Relations: return_type
+```cpp
+Emitter::Emitter(std::ostream& stream)
+    : m_pState(new EmitterState), m_stream(stream) {}
+```
+
+## Chunk 8
+Path: src/scanner.cpp:10-21
+Symbol: YAML::Scanner::Scanner
+Kind: constructor_definition
+Tier: 1
+Relations: return_type
+```cpp
+Scanner::Scanner(std::istream& in)
+    : INPUT(in),
+      m_tokens{},
+      m_startedStream(false),
+      m_endedStream(false),
+      m_simpleKeyAllowed(false),
+      m_scalarValueAllowed(false),
+      m_canBeJSONFlow(false),
+      m_simpleKeys{},
+      m_indents{},
+      m_indentRefs{},
+      m_flows{} {}
+```
+
+## Chunk 9
+Path: src/binary.cpp:9-45
+Symbol: YAML::EncodeBase64
+Kind: function_definition
+Tier: 2
+Relations: none
+```cpp
+std::string EncodeBase64(const unsigned char *data, std::size_t size) {
+  const char PAD = '=';
+
+  std::string ret;
+  ret.resize(4 * size / 3 + 3);
+  char *out = &ret[0];
+
+  std::size_t chunks = size / 3;
+  std::size_t remainder = size % 3;
+
+  for (std::size_t i = 0; i < chunks; i++, data += 3) {
+    *out++ = encoding[data[0] >> 2];
+    *out++ = encoding[((data[0] & 0x3) << 4) | (data[1] >> 4)];
+    *out++ = encoding[((data[1] & 0xf) << 2) | (data[2] >> 6)];
+    *out++ = encoding[data[2] & 0x3f];
+  }
+
+  switch (remainder) {
+    case 0:
+      break;
+    case 1:
+      *out++ = encoding[data[0] >> 2];
+      *out++ = encoding[((data[0] & 0x3) << 4)];
+      *out++ = PAD;
+      *out++ = PAD;
+      break;
+    case 2:
+      *out++ = encoding[data[0] >> 2];
+      *out++ = encoding[((data[0] & 0x3) << 4) | (data[1] >> 4)];
+      *out++ = encoding[((data[1] & 0xf) << 2)];
+      *out++ = PAD;
+      break;
+  }
+
+  ret.resize(out - &ret[0]);
+  return ret;
+}
+```
+
+## Chunk 10
+Path: include/yaml-cpp/node/convert.h:488-505
+Symbol: YAML::convert<Binary>
+Kind: struct_interface
+Tier: 2
+Relations: none
+```cpp
+template <>
+struct convert<Binary> {
+  static Node encode(const Binary& rhs) {
+    return Node(EncodeBase64(rhs.data(), rhs.size()));
+  }
+
+  static bool decode(const Node& node, Binary& rhs) {
+    if (!node.IsScalar())
+      return false;
+
+    std::vector<unsigned char> data = DecodeBase64(node.Scalar());
+    if (data.empty() && !node.Scalar().empty())
+      return false;
+
+    rhs.swap(data);
+    return true;
+  }
+};
+```
+
+## Chunk 11
+Path: include/yaml-cpp/node/convert.h:494-504
+Symbol: YAML::convert<Binary>::decode
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+static bool decode(const Node& node, Binary& rhs) {
+    if (!node.IsScalar())
+      return false;
+
+    std::vector<unsigned char> data = DecodeBase64(node.Scalar());
+    if (data.empty() && !node.Scalar().empty())
+      return false;
+
+    rhs.swap(data);
+    return true;
+  }
+```
+
+## Chunk 12
+Path: src/regex_yaml.cpp:23-28
+Symbol: YAML::operator|
+Kind: operator_definition
+Tier: 3
+Relations: none
+```cpp
+RegEx operator|(const RegEx& ex1, const RegEx& ex2) {
+  RegEx ret(REGEX_OR);
+  ret.m_params.push_back(ex1);
+  ret.m_params.push_back(ex2);
+  return ret;
+}
+```
+
