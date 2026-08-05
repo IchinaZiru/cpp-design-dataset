@@ -1,0 +1,13 @@
+{
+  "include_resolved": [
+    "ns::Widget"
+  ],
+  "qualified_method": [
+    "ns::Widget::run"
+  ],
+  "substring_factory": [],
+  "unqualified_ambiguous": [
+    "ns::Widget",
+    "other::Widget"
+  ]
+}
