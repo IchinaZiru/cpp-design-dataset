@@ -1,0 +1,810 @@
+Note: Google Test filter = CloneNodeTest.*:ConvertPartialSpecializationTest.*:EmitterErrorTest.*:EmitterTest.*:ErrorMessageTest.*:LoadNodeTest.*:NodeEmitterTest.*:NodeSpecTest.*:NodeTest.*
+[==========] Running 385 tests from 9 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from CloneNodeTest
+[ RUN      ] CloneNodeTest.PreserveMark
+[       OK ] CloneNodeTest.PreserveMark (2 ms)
+[----------] 1 test from CloneNodeTest (2 ms total)
+
+[----------] 4 tests from ConvertPartialSpecializationTest
+[ RUN      ] ConvertPartialSpecializationTest.EncodeBaseClass
+[       OK ] ConvertPartialSpecializationTest.EncodeBaseClass (0 ms)
+[ RUN      ] ConvertPartialSpecializationTest.EncodeDerivedClass
+[       OK ] ConvertPartialSpecializationTest.EncodeDerivedClass (0 ms)
+[ RUN      ] ConvertPartialSpecializationTest.DecodeBaseClass
+[       OK ] ConvertPartialSpecializationTest.DecodeBaseClass (0 ms)
+[ RUN      ] ConvertPartialSpecializationTest.DecodeDerivedClass
+[       OK ] ConvertPartialSpecializationTest.DecodeDerivedClass (0 ms)
+[----------] 4 tests from ConvertPartialSpecializationTest (0 ms total)
+
+[----------] 143 tests from EmitterTest
+[ RUN      ] EmitterTest.SimpleScalar
+[       OK ] EmitterTest.SimpleScalar (0 ms)
+[ RUN      ] EmitterTest.SimpleStdStringScalar
+[       OK ] EmitterTest.SimpleStdStringScalar (0 ms)
+[ RUN      ] EmitterTest.SimpleQuotedScalar
+[       OK ] EmitterTest.SimpleQuotedScalar (0 ms)
+[ RUN      ] EmitterTest.DumpAndSize
+[       OK ] EmitterTest.DumpAndSize (0 ms)
+[ RUN      ] EmitterTest.NullScalar
+[       OK ] EmitterTest.NullScalar (0 ms)
+[ RUN      ] EmitterTest.AliasScalar
+[       OK ] EmitterTest.AliasScalar (0 ms)
+[ RUN      ] EmitterTest.StringFormat
+[       OK ] EmitterTest.StringFormat (0 ms)
+[ RUN      ] EmitterTest.IntBase
+[       OK ] EmitterTest.IntBase (0 ms)
+[ RUN      ] EmitterTest.UnsignedEightBitInteger
+[       OK ] EmitterTest.UnsignedEightBitInteger (0 ms)
+[ RUN      ] EmitterTest.NumberPrecision
+[       OK ] EmitterTest.NumberPrecision (0 ms)
+[ RUN      ] EmitterTest.SimpleSeq
+[       OK ] EmitterTest.SimpleSeq (0 ms)
+[ RUN      ] EmitterTest.SimpleFlowSeq
+[       OK ] EmitterTest.SimpleFlowSeq (0 ms)
+[ RUN      ] EmitterTest.EmptyFlowSeq
+[       OK ] EmitterTest.EmptyFlowSeq (0 ms)
+[ RUN      ] EmitterTest.EmptyBlockSeqWithBegunContent
+[       OK ] EmitterTest.EmptyBlockSeqWithBegunContent (0 ms)
+[ RUN      ] EmitterTest.EmptyBlockMapWithBegunContent
+[       OK ] EmitterTest.EmptyBlockMapWithBegunContent (0 ms)
+[ RUN      ] EmitterTest.EmptyFlowSeqWithBegunContent
+[       OK ] EmitterTest.EmptyFlowSeqWithBegunContent (0 ms)
+[ RUN      ] EmitterTest.EmptyFlowSeqInMap
+[       OK ] EmitterTest.EmptyFlowSeqInMap (0 ms)
+[ RUN      ] EmitterTest.EmptyFlowMapWithBegunContent
+[       OK ] EmitterTest.EmptyFlowMapWithBegunContent (0 ms)
+[ RUN      ] EmitterTest.NestedBlockSeq
+[       OK ] EmitterTest.NestedBlockSeq (0 ms)
+[ RUN      ] EmitterTest.NestedFlowSeq
+[       OK ] EmitterTest.NestedFlowSeq (0 ms)
+[ RUN      ] EmitterTest.SimpleMap
+[       OK ] EmitterTest.SimpleMap (0 ms)
+[ RUN      ] EmitterTest.SimpleFlowMap
+[       OK ] EmitterTest.SimpleFlowMap (0 ms)
+[ RUN      ] EmitterTest.MapAndList
+[       OK ] EmitterTest.MapAndList (0 ms)
+[ RUN      ] EmitterTest.ListAndMap
+[       OK ] EmitterTest.ListAndMap (0 ms)
+[ RUN      ] EmitterTest.NestedBlockMap
+[       OK ] EmitterTest.NestedBlockMap (0 ms)
+[ RUN      ] EmitterTest.NestedFlowMap
+[       OK ] EmitterTest.NestedFlowMap (0 ms)
+[ RUN      ] EmitterTest.MapListMix
+[       OK ] EmitterTest.MapListMix (0 ms)
+[ RUN      ] EmitterTest.SimpleLongKey
+[       OK ] EmitterTest.SimpleLongKey (0 ms)
+[ RUN      ] EmitterTest.SingleLongKey
+[       OK ] EmitterTest.SingleLongKey (0 ms)
+[ RUN      ] EmitterTest.ComplexLongKey
+[       OK ] EmitterTest.ComplexLongKey (0 ms)
+[ RUN      ] EmitterTest.AutoLongKey
+[       OK ] EmitterTest.AutoLongKey (0 ms)
+[ RUN      ] EmitterTest.ScalarFormat
+[       OK ] EmitterTest.ScalarFormat (0 ms)
+[ RUN      ] EmitterTest.LiteralWithoutTrailingSpaces
+[       OK ] EmitterTest.LiteralWithoutTrailingSpaces (0 ms)
+[ RUN      ] EmitterTest.LiteralWithAndWithoutTrailingEmptyLines
+[       OK ] EmitterTest.LiteralWithAndWithoutTrailingEmptyLines (0 ms)
+[ RUN      ] EmitterTest.AutoLongKeyScalar
+[       OK ] EmitterTest.AutoLongKeyScalar (0 ms)
+[ RUN      ] EmitterTest.LongKeyFlowMap
+[       OK ] EmitterTest.LongKeyFlowMap (0 ms)
+[ RUN      ] EmitterTest.BlockMapAsKey
+[       OK ] EmitterTest.BlockMapAsKey (0 ms)
+[ RUN      ] EmitterTest.TaggedBlockMapAsKey
+[       OK ] EmitterTest.TaggedBlockMapAsKey (0 ms)
+[ RUN      ] EmitterTest.TaggedBlockListAsKey
+[       OK ] EmitterTest.TaggedBlockListAsKey (0 ms)
+[ RUN      ] EmitterTest.AliasAndAnchor
+[       OK ] EmitterTest.AliasAndAnchor (0 ms)
+[ RUN      ] EmitterTest.AnchorWithTilde
+[       OK ] EmitterTest.AnchorWithTilde (0 ms)
+[ RUN      ] EmitterTest.AliasOnKey
+[       OK ] EmitterTest.AliasOnKey (0 ms)
+[ RUN      ] EmitterTest.AliasAndAnchorWithNull
+[       OK ] EmitterTest.AliasAndAnchorWithNull (0 ms)
+[ RUN      ] EmitterTest.AliasAndAnchorInFlow
+[       OK ] EmitterTest.AliasAndAnchorInFlow (0 ms)
+[ RUN      ] EmitterTest.SimpleVerbatimTag
+[       OK ] EmitterTest.SimpleVerbatimTag (0 ms)
+[ RUN      ] EmitterTest.VerbatimTagInBlockSeq
+[       OK ] EmitterTest.VerbatimTagInBlockSeq (0 ms)
+[ RUN      ] EmitterTest.VerbatimTagInFlowSeq
+[       OK ] EmitterTest.VerbatimTagInFlowSeq (0 ms)
+[ RUN      ] EmitterTest.VerbatimTagInFlowSeqWithNull
+[       OK ] EmitterTest.VerbatimTagInFlowSeqWithNull (0 ms)
+[ RUN      ] EmitterTest.VerbatimTagInBlockMap
+[       OK ] EmitterTest.VerbatimTagInBlockMap (0 ms)
+[ RUN      ] EmitterTest.VerbatimTagInFlowMap
+[       OK ] EmitterTest.VerbatimTagInFlowMap (0 ms)
+[ RUN      ] EmitterTest.VerbatimTagInFlowMapWithNull
+[       OK ] EmitterTest.VerbatimTagInFlowMapWithNull (0 ms)
+[ RUN      ] EmitterTest.VerbatimTagWithEmptySeq
+[       OK ] EmitterTest.VerbatimTagWithEmptySeq (0 ms)
+[ RUN      ] EmitterTest.VerbatimTagWithEmptyMap
+[       OK ] EmitterTest.VerbatimTagWithEmptyMap (0 ms)
+[ RUN      ] EmitterTest.VerbatimTagWithEmptySeqAndMap
+[       OK ] EmitterTest.VerbatimTagWithEmptySeqAndMap (0 ms)
+[ RUN      ] EmitterTest.ByKindTagWithScalar
+[       OK ] EmitterTest.ByKindTagWithScalar (0 ms)
+[ RUN      ] EmitterTest.LocalTagInNameHandle
+[       OK ] EmitterTest.LocalTagInNameHandle (0 ms)
+[ RUN      ] EmitterTest.LocalTagWithScalar
+[       OK ] EmitterTest.LocalTagWithScalar (0 ms)
+[ RUN      ] EmitterTest.LocalTagRetainedAfterLoadingNode
+[       OK ] EmitterTest.LocalTagRetainedAfterLoadingNode (0 ms)
+[ RUN      ] EmitterTest.ComplexDoc
+[       OK ] EmitterTest.ComplexDoc (0 ms)
+[ RUN      ] EmitterTest.STLContainers
+[       OK ] EmitterTest.STLContainers (0 ms)
+[ RUN      ] EmitterTest.CommentStyle
+[       OK ] EmitterTest.CommentStyle (0 ms)
+[ RUN      ] EmitterTest.SimpleComment
+[       OK ] EmitterTest.SimpleComment (0 ms)
+[ RUN      ] EmitterTest.MultiLineComment
+[       OK ] EmitterTest.MultiLineComment (0 ms)
+[ RUN      ] EmitterTest.ComplexComments
+[       OK ] EmitterTest.ComplexComments (0 ms)
+[ RUN      ] EmitterTest.InitialComment
+[       OK ] EmitterTest.InitialComment (0 ms)
+[ RUN      ] EmitterTest.InitialCommentWithDocIndicator
+[       OK ] EmitterTest.InitialCommentWithDocIndicator (0 ms)
+[ RUN      ] EmitterTest.CommentInFlowSeq
+[       OK ] EmitterTest.CommentInFlowSeq (0 ms)
+[ RUN      ] EmitterTest.CommentInFlowMap
+[       OK ] EmitterTest.CommentInFlowMap (0 ms)
+[ RUN      ] EmitterTest.Indentation
+[       OK ] EmitterTest.Indentation (0 ms)
+[ RUN      ] EmitterTest.SimpleGlobalSettings
+[       OK ] EmitterTest.SimpleGlobalSettings (0 ms)
+[ RUN      ] EmitterTest.GlobalLongKeyOnSeq
+[       OK ] EmitterTest.GlobalLongKeyOnSeq (0 ms)
+[ RUN      ] EmitterTest.GlobalLongKeyOnMap
+[       OK ] EmitterTest.GlobalLongKeyOnMap (0 ms)
+[ RUN      ] EmitterTest.GlobalSettingStyleOnSeqNode
+[       OK ] EmitterTest.GlobalSettingStyleOnSeqNode (0 ms)
+[ RUN      ] EmitterTest.GlobalSettingStyleOnMapNode
+[       OK ] EmitterTest.GlobalSettingStyleOnMapNode (0 ms)
+[ RUN      ] EmitterTest.ComplexGlobalSettings
+[       OK ] EmitterTest.ComplexGlobalSettings (0 ms)
+[ RUN      ] EmitterTest.Null
+[       OK ] EmitterTest.Null (0 ms)
+[ RUN      ] EmitterTest.OutputCharset
+[       OK ] EmitterTest.OutputCharset (0 ms)
+[ RUN      ] EmitterTest.EscapedUnicode
+[       OK ] EmitterTest.EscapedUnicode (0 ms)
+[ RUN      ] EmitterTest.Unicode
+[       OK ] EmitterTest.Unicode (0 ms)
+[ RUN      ] EmitterTest.DoubleQuotedUnicode
+[       OK ] EmitterTest.DoubleQuotedUnicode (0 ms)
+[ RUN      ] EmitterTest.EscapedJsonString
+[       OK ] EmitterTest.EscapedJsonString (0 ms)
+[ RUN      ] EmitterTest.EscapedCharacters
+[       OK ] EmitterTest.EscapedCharacters (0 ms)
+[ RUN      ] EmitterTest.CharactersEscapedAsJson
+[       OK ] EmitterTest.CharactersEscapedAsJson (0 ms)
+[ RUN      ] EmitterTest.DoubleQuotedString
+[       OK ] EmitterTest.DoubleQuotedString (0 ms)
+[ RUN      ] EmitterTest.UserType
+[       OK ] EmitterTest.UserType (0 ms)
+[ RUN      ] EmitterTest.UserType2
+[       OK ] EmitterTest.UserType2 (0 ms)
+[ RUN      ] EmitterTest.UserTypeInContainer
+[       OK ] EmitterTest.UserTypeInContainer (0 ms)
+[ RUN      ] EmitterTest.PointerToInt
+[       OK ] EmitterTest.PointerToInt (0 ms)
+[ RUN      ] EmitterTest.PointerToUserType
+[       OK ] EmitterTest.PointerToUserType (0 ms)
+[ RUN      ] EmitterTest.NewlineAtEnd
+[       OK ] EmitterTest.NewlineAtEnd (0 ms)
+[ RUN      ] EmitterTest.NewlineInBlockSequence
+[       OK ] EmitterTest.NewlineInBlockSequence (0 ms)
+[ RUN      ] EmitterTest.NewlineInFlowSequence
+[       OK ] EmitterTest.NewlineInFlowSequence (0 ms)
+[ RUN      ] EmitterTest.NewlineInBlockMap
+[       OK ] EmitterTest.NewlineInBlockMap (0 ms)
+[ RUN      ] EmitterTest.NewlineInFlowMap
+[       OK ] EmitterTest.NewlineInFlowMap (0 ms)
+[ RUN      ] EmitterTest.LotsOfNewlines
+[       OK ] EmitterTest.LotsOfNewlines (0 ms)
+[ RUN      ] EmitterTest.Binary
+[       OK ] EmitterTest.Binary (0 ms)
+[ RUN      ] EmitterTest.LongBinary
+[       OK ] EmitterTest.LongBinary (0 ms)
+[ RUN      ] EmitterTest.EmptyBinary
+[       OK ] EmitterTest.EmptyBinary (0 ms)
+[ RUN      ] EmitterTest.BinaryStyles
+[       OK ] EmitterTest.BinaryStyles (0 ms)
+[ RUN      ] EmitterTest.BinaryWrap
+[       OK ] EmitterTest.BinaryWrap (0 ms)
+[ RUN      ] EmitterTest.ColonAtEndOfScalar
+[       OK ] EmitterTest.ColonAtEndOfScalar (0 ms)
+[ RUN      ] EmitterTest.ColonAsScalar
+[       OK ] EmitterTest.ColonAsScalar (0 ms)
+[ RUN      ] EmitterTest.ColonAtEndOfScalarInFlow
+[       OK ] EmitterTest.ColonAtEndOfScalarInFlow (0 ms)
+[ RUN      ] EmitterTest.GlobalBoolFormatting
+[       OK ] EmitterTest.GlobalBoolFormatting (0 ms)
+[ RUN      ] EmitterTest.BoolFormatting
+[       OK ] EmitterTest.BoolFormatting (0 ms)
+[ RUN      ] EmitterTest.GlobalNullFormatting
+[       OK ] EmitterTest.GlobalNullFormatting (0 ms)
+[ RUN      ] EmitterTest.NullFormatting
+[       OK ] EmitterTest.NullFormatting (0 ms)
+[ RUN      ] EmitterTest.NullFormattingOnNode
+[       OK ] EmitterTest.NullFormattingOnNode (0 ms)
+[ RUN      ] EmitterTest.ImplicitDocStart
+[       OK ] EmitterTest.ImplicitDocStart (0 ms)
+[ RUN      ] EmitterTest.EmptyString
+[       OK ] EmitterTest.EmptyString (0 ms)
+[ RUN      ] EmitterTest.SingleChar
+[       OK ] EmitterTest.SingleChar (0 ms)
+[ RUN      ] EmitterTest.DefaultPrecision
+[       OK ] EmitterTest.DefaultPrecision (0 ms)
+[ RUN      ] EmitterTest.SetPrecision
+[       OK ] EmitterTest.SetPrecision (0 ms)
+[ RUN      ] EmitterTest.DashInBlockContext
+[       OK ] EmitterTest.DashInBlockContext (0 ms)
+[ RUN      ] EmitterTest.HexAndOct
+[       OK ] EmitterTest.HexAndOct (0 ms)
+[ RUN      ] EmitterTest.CompactMapWithNewline
+[       OK ] EmitterTest.CompactMapWithNewline (0 ms)
+[ RUN      ] EmitterTest.ForceSingleQuotedToDouble
+[       OK ] EmitterTest.ForceSingleQuotedToDouble (0 ms)
+[ RUN      ] EmitterTest.QuoteNull
+[       OK ] EmitterTest.QuoteNull (0 ms)
+[ RUN      ] EmitterTest.ValueOfDoubleQuote
+[       OK ] EmitterTest.ValueOfDoubleQuote (0 ms)
+[ RUN      ] EmitterTest.ValueOfBackslash
+[       OK ] EmitterTest.ValueOfBackslash (0 ms)
+[ RUN      ] EmitterTest.Infinity
+[       OK ] EmitterTest.Infinity (0 ms)
+[ RUN      ] EmitterTest.NegInfinity
+[       OK ] EmitterTest.NegInfinity (0 ms)
+[ RUN      ] EmitterTest.NaN
+[       OK ] EmitterTest.NaN (0 ms)
+[ RUN      ] EmitterTest.ComplexFlowSeqEmbeddingAMapWithNewLine
+[       OK ] EmitterTest.ComplexFlowSeqEmbeddingAMapWithNewLine (0 ms)
+[ RUN      ] EmitterTest.ComplexFlowSeqEmbeddingAMapWithNewLineUsingAliases
+[       OK ] EmitterTest.ComplexFlowSeqEmbeddingAMapWithNewLineUsingAliases (0 ms)
+[ RUN      ] EmitterTest.ComplexFlowSeqEmbeddingAMapUsingAliases
+[       OK ] EmitterTest.ComplexFlowSeqEmbeddingAMapUsingAliases (0 ms)
+[ RUN      ] EmitterTest.ComplexFlowSeqEmbeddingAMapWithNewLineUsingAliases2
+[       OK ] EmitterTest.ComplexFlowSeqEmbeddingAMapWithNewLineUsingAliases2 (0 ms)
+[ RUN      ] EmitterTest.ComplexFlowSeqEmbeddingAMapUsingAliases2
+[       OK ] EmitterTest.ComplexFlowSeqEmbeddingAMapUsingAliases2 (0 ms)
+[ RUN      ] EmitterTest.ComplexFlowSeqEmbeddingAMapWithNewLineUsingAliases3
+[       OK ] EmitterTest.ComplexFlowSeqEmbeddingAMapWithNewLineUsingAliases3 (0 ms)
+[ RUN      ] EmitterTest.ComplexFlowSeqEmbeddingAMapUsingAliases3a
+[       OK ] EmitterTest.ComplexFlowSeqEmbeddingAMapUsingAliases3a (0 ms)
+[ RUN      ] EmitterTest.ComplexFlowSeqEmbeddingAMapUsingAliases3b
+[       OK ] EmitterTest.ComplexFlowSeqEmbeddingAMapUsingAliases3b (0 ms)
+[ RUN      ] EmitterTest.AnchorEncoding
+[       OK ] EmitterTest.AnchorEncoding (0 ms)
+[ RUN      ] EmitterTest.ShowTrailingZero
+[       OK ] EmitterTest.ShowTrailingZero (0 ms)
+[ RUN      ] EmitterTest.CommentInsideMapValueIsIndented
+[       OK ] EmitterTest.CommentInsideMapValueIsIndented (0 ms)
+[ RUN      ] EmitterTest.CommentInsideDoubleNestedMapIsIndented
+[       OK ] EmitterTest.CommentInsideDoubleNestedMapIsIndented (0 ms)
+[ RUN      ] EmitterTest.CommentAtEndOfDoubleNestedMapIsIndented
+[       OK ] EmitterTest.CommentAtEndOfDoubleNestedMapIsIndented (0 ms)
+[ RUN      ] EmitterTest.CommentAfterNestedMapUsesParentIndentation
+[       OK ] EmitterTest.CommentAfterNestedMapUsesParentIndentation (0 ms)
+[ RUN      ] EmitterTest.CommentInsideFlowMapIsUnaffected
+[       OK ] EmitterTest.CommentInsideFlowMapIsUnaffected (0 ms)
+[ RUN      ] EmitterTest.EmitEmptyNode
+[       OK ] EmitterTest.EmitEmptyNode (0 ms)
+[ RUN      ] EmitterTest.EmitSetVerbatimTag
+[       OK ] EmitterTest.EmitSetVerbatimTag (0 ms)
+[ RUN      ] EmitterTest.EmitSetTagSecondaryHandle
+[       OK ] EmitterTest.EmitSetTagSecondaryHandle (0 ms)
+[ RUN      ] EmitterTest.EmitSetTagPrimaryHandle
+[       OK ] EmitterTest.EmitSetTagPrimaryHandle (0 ms)
+[ RUN      ] EmitterTest.EmitSetLocalTagInNameHandle
+[       OK ] EmitterTest.EmitSetLocalTagInNameHandle (0 ms)
+[----------] 143 tests from EmitterTest (1 ms total)
+
+[----------] 9 tests from EmitterErrorTest
+[ RUN      ] EmitterErrorTest.BadLocalTag
+[       OK ] EmitterErrorTest.BadLocalTag (0 ms)
+[ RUN      ] EmitterErrorTest.BadTagAndTag
+[       OK ] EmitterErrorTest.BadTagAndTag (0 ms)
+[ RUN      ] EmitterErrorTest.BadAnchorAndAnchor
+[       OK ] EmitterErrorTest.BadAnchorAndAnchor (0 ms)
+[ RUN      ] EmitterErrorTest.BadEmptyAnchorOnGroup
+[       OK ] EmitterErrorTest.BadEmptyAnchorOnGroup (0 ms)
+[ RUN      ] EmitterErrorTest.BadEmptyTagOnGroup
+[       OK ] EmitterErrorTest.BadEmptyTagOnGroup (0 ms)
+[ RUN      ] EmitterErrorTest.ExtraEndSeq
+[       OK ] EmitterErrorTest.ExtraEndSeq (0 ms)
+[ RUN      ] EmitterErrorTest.ExtraEndMap
+[       OK ] EmitterErrorTest.ExtraEndMap (0 ms)
+[ RUN      ] EmitterErrorTest.InvalidAnchor
+[       OK ] EmitterErrorTest.InvalidAnchor (0 ms)
+[ RUN      ] EmitterErrorTest.InvalidAlias
+[       OK ] EmitterErrorTest.InvalidAlias (0 ms)
+[----------] 9 tests from EmitterErrorTest (0 ms total)
+
+[----------] 2 tests from ErrorMessageTest
+[ RUN      ] ErrorMessageTest.BadSubscriptErrorMessage
+[       OK ] ErrorMessageTest.BadSubscriptErrorMessage (2 ms)
+[ RUN      ] ErrorMessageTest.Ex9_1_InvalidNodeErrorMessage
+[       OK ] ErrorMessageTest.Ex9_1_InvalidNodeErrorMessage (0 ms)
+[----------] 2 tests from ErrorMessageTest (2 ms total)
+
+[----------] 19 tests from LoadNodeTest
+[ RUN      ] LoadNodeTest.Reassign
+[       OK ] LoadNodeTest.Reassign (0 ms)
+[ RUN      ] LoadNodeTest.FallbackValues
+[       OK ] LoadNodeTest.FallbackValues (0 ms)
+[ RUN      ] LoadNodeTest.NumericConversion
+[       OK ] LoadNodeTest.NumericConversion (1 ms)
+[ RUN      ] LoadNodeTest.Binary
+[       OK ] LoadNodeTest.Binary (0 ms)
+[ RUN      ] LoadNodeTest.BinaryWithWhitespaces
+[       OK ] LoadNodeTest.BinaryWithWhitespaces (0 ms)
+[ RUN      ] LoadNodeTest.IterateSequence
+[       OK ] LoadNodeTest.IterateSequence (0 ms)
+[ RUN      ] LoadNodeTest.IterateMap
+[       OK ] LoadNodeTest.IterateMap (0 ms)
+[ RUN      ] LoadNodeTest.CloneScalar
+[       OK ] LoadNodeTest.CloneScalar (0 ms)
+[ RUN      ] LoadNodeTest.CloneSeq
+[       OK ] LoadNodeTest.CloneSeq (0 ms)
+[ RUN      ] LoadNodeTest.CloneMap
+[       OK ] LoadNodeTest.CloneMap (0 ms)
+[ RUN      ] LoadNodeTest.CloneAlias
+[       OK ] LoadNodeTest.CloneAlias (0 ms)
+[ RUN      ] LoadNodeTest.ForceInsertIntoMap
+[       OK ] LoadNodeTest.ForceInsertIntoMap (0 ms)
+[ RUN      ] LoadNodeTest.ResetNode
+[       OK ] LoadNodeTest.ResetNode (0 ms)
+[ RUN      ] LoadNodeTest.EmptyString
+[       OK ] LoadNodeTest.EmptyString (0 ms)
+[ RUN      ] LoadNodeTest.DereferenceIteratorError
+[       OK ] LoadNodeTest.DereferenceIteratorError (0 ms)
+[ RUN      ] LoadNodeTest.BlockCRNLEncoded
+[       OK ] LoadNodeTest.BlockCRNLEncoded (0 ms)
+[ RUN      ] LoadNodeTest.BlockCREncoded
+[       OK ] LoadNodeTest.BlockCREncoded (0 ms)
+[ RUN      ] LoadNodeTest.IncorrectSeqEnd
+[       OK ] LoadNodeTest.IncorrectSeqEnd (0 ms)
+[ RUN      ] LoadNodeTest.NonUniqueMapKey
+[       OK ] LoadNodeTest.NonUniqueMapKey (0 ms)
+[----------] 19 tests from LoadNodeTest (2 ms total)
+
+[----------] 90 tests from NodeTest
+[ RUN      ] NodeTest.ParseNodeStyle
+[       OK ] NodeTest.ParseNodeStyle (0 ms)
+[ RUN      ] NodeTest.IncompleteJson
+[       OK ] NodeTest.IncompleteJson (0 ms)
+[ RUN      ] NodeTest.SpecialFlow
+[       OK ] NodeTest.SpecialFlow (0 ms)
+[ RUN      ] NodeTest.IncorrectFlow
+[       OK ] NodeTest.IncorrectFlow (0 ms)
+[ RUN      ] NodeTest.LoadTildeAsNull
+[       OK ] NodeTest.LoadTildeAsNull (0 ms)
+[ RUN      ] NodeTest.LoadNullWithStrTag
+[       OK ] NodeTest.LoadNullWithStrTag (0 ms)
+[ RUN      ] NodeTest.LoadQuotedNull
+[       OK ] NodeTest.LoadQuotedNull (0 ms)
+[ RUN      ] NodeTest.LoadNonClosedQuotedString
+[       OK ] NodeTest.LoadNonClosedQuotedString (0 ms)
+[ RUN      ] NodeTest.LoadWrongQuotedString
+[       OK ] NodeTest.LoadWrongQuotedString (0 ms)
+[ RUN      ] NodeTest.LoadUnquotedQuotedStrings
+[       OK ] NodeTest.LoadUnquotedQuotedStrings (0 ms)
+[ RUN      ] NodeTest.LoadCommaSeparatedStrings
+[       OK ] NodeTest.LoadCommaSeparatedStrings (0 ms)
+[ RUN      ] NodeTest.InfiniteLoopNodes
+[       OK ] NodeTest.InfiniteLoopNodes (0 ms)
+[ RUN      ] NodeTest.MultipleDocumentsBeginning
+[       OK ] NodeTest.MultipleDocumentsBeginning (0 ms)
+[ RUN      ] NodeTest.MultipleDocumentsEnds
+[       OK ] NodeTest.MultipleDocumentsEnds (0 ms)
+[ RUN      ] NodeTest.MultipleDocumentsEndsWithEmptyDocs
+[       OK ] NodeTest.MultipleDocumentsEndsWithEmptyDocs (0 ms)
+[ RUN      ] NodeTest.LoadNewLineStrings
+[       OK ] NodeTest.LoadNewLineStrings (0 ms)
+[ RUN      ] NodeTest.LoadSameLineStrings
+[       OK ] NodeTest.LoadSameLineStrings (0 ms)
+[ RUN      ] NodeTest.LoadTagWithParenthesis
+[       OK ] NodeTest.LoadTagWithParenthesis (0 ms)
+[ RUN      ] NodeTest.LoadTagWithNullScalar
+[       OK ] NodeTest.LoadTagWithNullScalar (0 ms)
+[ RUN      ] NodeTest.SimpleScalar
+[       OK ] NodeTest.SimpleScalar (0 ms)
+[ RUN      ] NodeTest.IntScalar
+[       OK ] NodeTest.IntScalar (0 ms)
+[ RUN      ] NodeTest.OctalScalar
+[       OK ] NodeTest.OctalScalar (0 ms)
+[ RUN      ] NodeTest.SimpleAppendSequence
+[       OK ] NodeTest.SimpleAppendSequence (0 ms)
+[ RUN      ] NodeTest.SequenceElementRemoval
+[       OK ] NodeTest.SequenceElementRemoval (0 ms)
+[ RUN      ] NodeTest.SequenceElementRemovalSizeCheck
+[       OK ] NodeTest.SequenceElementRemovalSizeCheck (0 ms)
+[ RUN      ] NodeTest.SequenceFirstElementRemoval
+[       OK ] NodeTest.SequenceFirstElementRemoval (0 ms)
+[ RUN      ] NodeTest.SequenceFirstElementRemovalSizeCheck
+[       OK ] NodeTest.SequenceFirstElementRemovalSizeCheck (0 ms)
+[ RUN      ] NodeTest.SequenceLastElementRemoval
+[       OK ] NodeTest.SequenceLastElementRemoval (0 ms)
+[ RUN      ] NodeTest.SequenceLastElementRemovalSizeCheck
+[       OK ] NodeTest.SequenceLastElementRemovalSizeCheck (0 ms)
+[ RUN      ] NodeTest.NodeAssignment
+[       OK ] NodeTest.NodeAssignment (0 ms)
+[ RUN      ] NodeTest.EqualRepresentationAfterMoveAssignment
+[       OK ] NodeTest.EqualRepresentationAfterMoveAssignment (0 ms)
+[ RUN      ] NodeTest.MapElementRemoval
+[       OK ] NodeTest.MapElementRemoval (0 ms)
+[ RUN      ] NodeTest.MissingKey
+[       OK ] NodeTest.MissingKey (0 ms)
+[ RUN      ] NodeTest.MapContains
+[       OK ] NodeTest.MapContains (0 ms)
+[ RUN      ] NodeTest.MapIntegerElementRemoval
+[       OK ] NodeTest.MapIntegerElementRemoval (0 ms)
+[ RUN      ] NodeTest.SimpleAssignSequence
+[       OK ] NodeTest.SimpleAssignSequence (0 ms)
+[ RUN      ] NodeTest.SimpleMap
+[       OK ] NodeTest.SimpleMap (0 ms)
+[ RUN      ] NodeTest.MapWithUndefinedValues
+[       OK ] NodeTest.MapWithUndefinedValues (0 ms)
+[ RUN      ] NodeTest.SeqIntoMap
+[       OK ] NodeTest.SeqIntoMap (0 ms)
+[ RUN      ] NodeTest.RemoveUnassignedNode
+[       OK ] NodeTest.RemoveUnassignedNode (0 ms)
+[ RUN      ] NodeTest.RemoveUnassignedNodeFromMap
+[       OK ] NodeTest.RemoveUnassignedNodeFromMap (0 ms)
+[ RUN      ] NodeTest.MapForceInsert
+[       OK ] NodeTest.MapForceInsert (0 ms)
+[ RUN      ] NodeTest.UndefinedConstNodeWithFallback
+[       OK ] NodeTest.UndefinedConstNodeWithFallback (0 ms)
+[ RUN      ] NodeTest.MapIteratorWithUndefinedValues
+[       OK ] NodeTest.MapIteratorWithUndefinedValues (0 ms)
+[ RUN      ] NodeTest.MapIteratorWithUndefinedValuesBackward
+[       OK ] NodeTest.MapIteratorWithUndefinedValuesBackward (0 ms)
+[ RUN      ] NodeTest.DestroyedMapIterator
+[       OK ] NodeTest.DestroyedMapIterator (0 ms)
+[ RUN      ] NodeTest.ConstIteratorOnConstUndefinedNode
+[       OK ] NodeTest.ConstIteratorOnConstUndefinedNode (0 ms)
+[ RUN      ] NodeTest.IteratorOnConstUndefinedNode
+[       OK ] NodeTest.IteratorOnConstUndefinedNode (0 ms)
+[ RUN      ] NodeTest.InteratorOnSequence
+[       OK ] NodeTest.InteratorOnSequence (0 ms)
+[ RUN      ] NodeTest.InteratorOnSequenceBackward
+[       OK ] NodeTest.InteratorOnSequenceBackward (0 ms)
+[ RUN      ] NodeTest.ConstInteratorOnSequence
+[       OK ] NodeTest.ConstInteratorOnSequence (0 ms)
+[ RUN      ] NodeTest.SimpleSubkeys
+[       OK ] NodeTest.SimpleSubkeys (0 ms)
+[ RUN      ] NodeTest.StdArray
+[       OK ] NodeTest.StdArray (0 ms)
+[ RUN      ] NodeTest.StdArrayWrongSize
+[       OK ] NodeTest.StdArrayWrongSize (0 ms)
+[ RUN      ] NodeTest.StdValrray
+[       OK ] NodeTest.StdValrray (0 ms)
+[ RUN      ] NodeTest.StdVector
+[       OK ] NodeTest.StdVector (0 ms)
+[ RUN      ] NodeTest.StdVectorWithCustomAllocator
+[       OK ] NodeTest.StdVectorWithCustomAllocator (0 ms)
+[ RUN      ] NodeTest.StdList
+[       OK ] NodeTest.StdList (0 ms)
+[ RUN      ] NodeTest.StdListWithCustomAllocator
+[       OK ] NodeTest.StdListWithCustomAllocator (0 ms)
+[ RUN      ] NodeTest.StdMap
+[       OK ] NodeTest.StdMap (0 ms)
+[ RUN      ] NodeTest.StdMapWithCustomAllocator
+[       OK ] NodeTest.StdMapWithCustomAllocator (0 ms)
+[ RUN      ] NodeTest.StdUnorderedMap
+[       OK ] NodeTest.StdUnorderedMap (0 ms)
+[ RUN      ] NodeTest.StdUnorderedMapWithCustomAllocator
+[       OK ] NodeTest.StdUnorderedMapWithCustomAllocator (0 ms)
+[ RUN      ] NodeTest.StdUnorderedSet
+[       OK ] NodeTest.StdUnorderedSet (0 ms)
+[ RUN      ] NodeTest.StdUnorderedSetWithCustomAllocator
+[       OK ] NodeTest.StdUnorderedSetWithCustomAllocator (0 ms)
+[ RUN      ] NodeTest.StdPair
+[       OK ] NodeTest.StdPair (0 ms)
+[ RUN      ] NodeTest.SimpleAlias
+[       OK ] NodeTest.SimpleAlias (0 ms)
+[ RUN      ] NodeTest.AliasAsKey
+[       OK ] NodeTest.AliasAsKey (0 ms)
+[ RUN      ] NodeTest.SelfReferenceSequence
+[       OK ] NodeTest.SelfReferenceSequence (0 ms)
+[ RUN      ] NodeTest.ValueSelfReferenceMap
+[       OK ] NodeTest.ValueSelfReferenceMap (0 ms)
+[ RUN      ] NodeTest.KeySelfReferenceMap
+[       OK ] NodeTest.KeySelfReferenceMap (0 ms)
+[ RUN      ] NodeTest.SelfReferenceMap
+[       OK ] NodeTest.SelfReferenceMap (0 ms)
+[ RUN      ] NodeTest.TempMapVariable
+[       OK ] NodeTest.TempMapVariable (0 ms)
+[ RUN      ] NodeTest.TempMapVariableAlias
+[       OK ] NodeTest.TempMapVariableAlias (0 ms)
+[ RUN      ] NodeTest.Bool
+[       OK ] NodeTest.Bool (0 ms)
+[ RUN      ] NodeTest.AutoBoolConversion
+[       OK ] NodeTest.AutoBoolConversion (0 ms)
+[ RUN      ] NodeTest.FloatingPrecisionFloat
+[       OK ] NodeTest.FloatingPrecisionFloat (0 ms)
+[ RUN      ] NodeTest.FloatingPrecisionPositiveInfinityFloat
+[       OK ] NodeTest.FloatingPrecisionPositiveInfinityFloat (0 ms)
+[ RUN      ] NodeTest.FloatingPrecisionNegativeInfinityFloat
+[       OK ] NodeTest.FloatingPrecisionNegativeInfinityFloat (0 ms)
+[ RUN      ] NodeTest.FloatingPrecisionNanFloat
+[       OK ] NodeTest.FloatingPrecisionNanFloat (0 ms)
+[ RUN      ] NodeTest.FloatingPrecisionDouble
+[       OK ] NodeTest.FloatingPrecisionDouble (0 ms)
+[ RUN      ] NodeTest.FloatingPrecisionPositiveInfinityDouble
+[       OK ] NodeTest.FloatingPrecisionPositiveInfinityDouble (0 ms)
+[ RUN      ] NodeTest.FloatingPrecisionNegativeInfinityDouble
+[       OK ] NodeTest.FloatingPrecisionNegativeInfinityDouble (0 ms)
+[ RUN      ] NodeTest.FloatingPrecisionNanDouble
+[       OK ] NodeTest.FloatingPrecisionNanDouble (0 ms)
+[ RUN      ] NodeTest.SpaceChar
+[       OK ] NodeTest.SpaceChar (0 ms)
+[ RUN      ] NodeTest.CloneNull
+[       OK ] NodeTest.CloneNull (0 ms)
+[ RUN      ] NodeTest.KeyNodeExitsScope
+[       OK ] NodeTest.KeyNodeExitsScope (0 ms)
+[ RUN      ] NodeTest.DefaultNodeStyle
+[       OK ] NodeTest.DefaultNodeStyle (0 ms)
+[ RUN      ] NodeTest.AccessNonexistentKeyOnConstNode
+[       OK ] NodeTest.AccessNonexistentKeyOnConstNode (0 ms)
+[ RUN      ] NodeTest.CreateMapWithFloatingPoint0Key
+[       OK ] NodeTest.CreateMapWithFloatingPoint0Key (0 ms)
+[----------] 90 tests from NodeTest (3 ms total)
+
+[----------] 109 tests from NodeSpecTest
+[ RUN      ] NodeSpecTest.Ex2_1_SeqScalars
+[       OK ] NodeSpecTest.Ex2_1_SeqScalars (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_2_MappingScalarsToScalars
+[       OK ] NodeSpecTest.Ex2_2_MappingScalarsToScalars (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_3_MappingScalarsToSequences
+[       OK ] NodeSpecTest.Ex2_3_MappingScalarsToSequences (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_4_SequenceOfMappings
+[       OK ] NodeSpecTest.Ex2_4_SequenceOfMappings (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_5_SequenceOfSequences
+[       OK ] NodeSpecTest.Ex2_5_SequenceOfSequences (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_6_MappingOfMappings
+[       OK ] NodeSpecTest.Ex2_6_MappingOfMappings (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_7_TwoDocumentsInAStream
+[       OK ] NodeSpecTest.Ex2_7_TwoDocumentsInAStream (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_8_PlayByPlayFeed
+[       OK ] NodeSpecTest.Ex2_8_PlayByPlayFeed (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_9_SingleDocumentWithTwoComments
+[       OK ] NodeSpecTest.Ex2_9_SingleDocumentWithTwoComments (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_10_SimpleAnchor
+[       OK ] NodeSpecTest.Ex2_10_SimpleAnchor (2 ms)
+[ RUN      ] NodeSpecTest.Ex2_11_MappingBetweenSequences
+[       OK ] NodeSpecTest.Ex2_11_MappingBetweenSequences (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_12_CompactNestedMapping
+[       OK ] NodeSpecTest.Ex2_12_CompactNestedMapping (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_13_InLiteralsNewlinesArePreserved
+[       OK ] NodeSpecTest.Ex2_13_InLiteralsNewlinesArePreserved (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_14_InFoldedScalarsNewlinesBecomeSpaces
+[       OK ] NodeSpecTest.Ex2_14_InFoldedScalarsNewlinesBecomeSpaces (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_15_FoldedNewlinesArePreservedForMoreIndentedAndBlankLines
+[       OK ] NodeSpecTest.Ex2_15_FoldedNewlinesArePreservedForMoreIndentedAndBlankLines (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_16_IndentationDeterminesScope
+[       OK ] NodeSpecTest.Ex2_16_IndentationDeterminesScope (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_17_QuotedScalars
+[       OK ] NodeSpecTest.Ex2_17_QuotedScalars (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_18_MultiLineFlowScalars
+[       OK ] NodeSpecTest.Ex2_18_MultiLineFlowScalars (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_23_VariousExplicitTags
+[       OK ] NodeSpecTest.Ex2_23_VariousExplicitTags (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_24_GlobalTags
+[       OK ] NodeSpecTest.Ex2_24_GlobalTags (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_25_UnorderedSets
+[       OK ] NodeSpecTest.Ex2_25_UnorderedSets (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_16_OrderedMappings
+[       OK ] NodeSpecTest.Ex2_16_OrderedMappings (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_27_Invoice
+[       OK ] NodeSpecTest.Ex2_27_Invoice (0 ms)
+[ RUN      ] NodeSpecTest.Ex2_28_LogFile
+[       OK ] NodeSpecTest.Ex2_28_LogFile (0 ms)
+[ RUN      ] NodeSpecTest.Ex5_3_BlockStructureIndicators
+[       OK ] NodeSpecTest.Ex5_3_BlockStructureIndicators (0 ms)
+[ RUN      ] NodeSpecTest.Ex5_4_FlowStructureIndicators
+[       OK ] NodeSpecTest.Ex5_4_FlowStructureIndicators (0 ms)
+[ RUN      ] NodeSpecTest.Ex5_5_CommentIndicator
+[       OK ] NodeSpecTest.Ex5_5_CommentIndicator (0 ms)
+[ RUN      ] NodeSpecTest.Ex5_6_NodePropertyIndicators
+[       OK ] NodeSpecTest.Ex5_6_NodePropertyIndicators (0 ms)
+[ RUN      ] NodeSpecTest.Ex5_7_BlockScalarIndicators
+[       OK ] NodeSpecTest.Ex5_7_BlockScalarIndicators (0 ms)
+[ RUN      ] NodeSpecTest.Ex5_8_QuotedScalarIndicators
+[       OK ] NodeSpecTest.Ex5_8_QuotedScalarIndicators (0 ms)
+[ RUN      ] NodeSpecTest.Ex5_11_LineBreakCharacters
+[       OK ] NodeSpecTest.Ex5_11_LineBreakCharacters (0 ms)
+[ RUN      ] NodeSpecTest.Ex5_12_TabsAndSpaces
+[       OK ] NodeSpecTest.Ex5_12_TabsAndSpaces (0 ms)
+[ RUN      ] NodeSpecTest.Ex5_13_EscapedCharacters
+[       OK ] NodeSpecTest.Ex5_13_EscapedCharacters (0 ms)
+[ RUN      ] NodeSpecTest.Ex5_14_InvalidEscapedCharacters
+[       OK ] NodeSpecTest.Ex5_14_InvalidEscapedCharacters (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_1_IndentationSpaces
+[       OK ] NodeSpecTest.Ex6_1_IndentationSpaces (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_2_IndentationIndicators
+[       OK ] NodeSpecTest.Ex6_2_IndentationIndicators (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_3_SeparationSpaces
+[       OK ] NodeSpecTest.Ex6_3_SeparationSpaces (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_4_LinePrefixes
+[       OK ] NodeSpecTest.Ex6_4_LinePrefixes (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_5_EmptyLines
+[       OK ] NodeSpecTest.Ex6_5_EmptyLines (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_6_LineFolding
+[       OK ] NodeSpecTest.Ex6_6_LineFolding (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_7_BlockFolding
+[       OK ] NodeSpecTest.Ex6_7_BlockFolding (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_8_FlowFolding
+[       OK ] NodeSpecTest.Ex6_8_FlowFolding (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_9_SeparatedComment
+[       OK ] NodeSpecTest.Ex6_9_SeparatedComment (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_10_CommentLines
+[       OK ] NodeSpecTest.Ex6_10_CommentLines (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_11_MultiLineComments
+[       OK ] NodeSpecTest.Ex6_11_MultiLineComments (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_12_SeparationSpacesII
+[       OK ] NodeSpecTest.Ex6_12_SeparationSpacesII (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_13_ReservedDirectives
+[       OK ] NodeSpecTest.Ex6_13_ReservedDirectives (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_14_YAMLDirective
+[       OK ] NodeSpecTest.Ex6_14_YAMLDirective (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_15_InvalidRepeatedYAMLDirective
+[       OK ] NodeSpecTest.Ex6_15_InvalidRepeatedYAMLDirective (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_16_TagDirective
+[       OK ] NodeSpecTest.Ex6_16_TagDirective (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_17_InvalidRepeatedTagDirective
+[       OK ] NodeSpecTest.Ex6_17_InvalidRepeatedTagDirective (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_18_PrimaryTagHandle
+[       OK ] NodeSpecTest.Ex6_18_PrimaryTagHandle (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_19_SecondaryTagHandle
+[       OK ] NodeSpecTest.Ex6_19_SecondaryTagHandle (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_20_TagHandles
+[       OK ] NodeSpecTest.Ex6_20_TagHandles (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_21_LocalTagPrefix
+[       OK ] NodeSpecTest.Ex6_21_LocalTagPrefix (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_22_GlobalTagPrefix
+[       OK ] NodeSpecTest.Ex6_22_GlobalTagPrefix (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_23_NodeProperties
+[       OK ] NodeSpecTest.Ex6_23_NodeProperties (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_24_VerbatimTags
+[       OK ] NodeSpecTest.Ex6_24_VerbatimTags (0 ms)
+[ DISABLED ] NodeSpecTest.DISABLED_Ex6_25_InvalidVerbatimTags
+[ RUN      ] NodeSpecTest.Ex6_26_TagShorthands
+[       OK ] NodeSpecTest.Ex6_26_TagShorthands (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_27a_InvalidTagShorthands
+[       OK ] NodeSpecTest.Ex6_27a_InvalidTagShorthands (0 ms)
+[ DISABLED ] NodeSpecTest.DISABLED_Ex6_27b_InvalidTagShorthands
+[ RUN      ] NodeSpecTest.Ex6_28_NonSpecificTags
+[       OK ] NodeSpecTest.Ex6_28_NonSpecificTags (0 ms)
+[ RUN      ] NodeSpecTest.Ex6_29_NodeAnchors
+[       OK ] NodeSpecTest.Ex6_29_NodeAnchors (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_1_AliasNodes
+[       OK ] NodeSpecTest.Ex7_1_AliasNodes (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_2_EmptyNodes
+[       OK ] NodeSpecTest.Ex7_2_EmptyNodes (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_3_CompletelyEmptyNodes
+[       OK ] NodeSpecTest.Ex7_3_CompletelyEmptyNodes (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_4_DoubleQuotedImplicitKeys
+[       OK ] NodeSpecTest.Ex7_4_DoubleQuotedImplicitKeys (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_5_DoubleQuotedLineBreaks
+[       OK ] NodeSpecTest.Ex7_5_DoubleQuotedLineBreaks (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_6_DoubleQuotedLines
+[       OK ] NodeSpecTest.Ex7_6_DoubleQuotedLines (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_7_SingleQuotedCharacters
+[       OK ] NodeSpecTest.Ex7_7_SingleQuotedCharacters (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_8_SingleQuotedImplicitKeys
+[       OK ] NodeSpecTest.Ex7_8_SingleQuotedImplicitKeys (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_9_SingleQuotedLines
+[       OK ] NodeSpecTest.Ex7_9_SingleQuotedLines (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_10_PlainCharacters
+[       OK ] NodeSpecTest.Ex7_10_PlainCharacters (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_11_PlainImplicitKeys
+[       OK ] NodeSpecTest.Ex7_11_PlainImplicitKeys (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_12_PlainLines
+[       OK ] NodeSpecTest.Ex7_12_PlainLines (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_13_FlowSequence
+[       OK ] NodeSpecTest.Ex7_13_FlowSequence (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_14_FlowSequenceEntries
+[       OK ] NodeSpecTest.Ex7_14_FlowSequenceEntries (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_15_FlowMappings
+[       OK ] NodeSpecTest.Ex7_15_FlowMappings (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_16_FlowMappingEntries
+[       OK ] NodeSpecTest.Ex7_16_FlowMappingEntries (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_17_FlowMappingSeparateValues
+[       OK ] NodeSpecTest.Ex7_17_FlowMappingSeparateValues (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_18_FlowMappingAdjacentValues
+[       OK ] NodeSpecTest.Ex7_18_FlowMappingAdjacentValues (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_19_SinglePairFlowMappings
+[       OK ] NodeSpecTest.Ex7_19_SinglePairFlowMappings (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_20_SinglePairExplicitEntry
+[       OK ] NodeSpecTest.Ex7_20_SinglePairExplicitEntry (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_21_SinglePairImplicitEntries
+[       OK ] NodeSpecTest.Ex7_21_SinglePairImplicitEntries (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_22_InvalidImplicitKeys
+[       OK ] NodeSpecTest.Ex7_22_InvalidImplicitKeys (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_23_FlowContent
+[       OK ] NodeSpecTest.Ex7_23_FlowContent (0 ms)
+[ RUN      ] NodeSpecTest.Ex7_24_FlowNodes
+[       OK ] NodeSpecTest.Ex7_24_FlowNodes (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_1_BlockScalarHeader
+[       OK ] NodeSpecTest.Ex8_1_BlockScalarHeader (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_2_BlockIndentationHeader
+[       OK ] NodeSpecTest.Ex8_2_BlockIndentationHeader (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_3a_InvalidBlockScalarIndentationIndicators
+[       OK ] NodeSpecTest.Ex8_3a_InvalidBlockScalarIndentationIndicators (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_3b_InvalidBlockScalarIndentationIndicators
+[       OK ] NodeSpecTest.Ex8_3b_InvalidBlockScalarIndentationIndicators (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_3c_InvalidBlockScalarIndentationIndicators
+[       OK ] NodeSpecTest.Ex8_3c_InvalidBlockScalarIndentationIndicators (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_4_ChompingFinalLineBreak
+[       OK ] NodeSpecTest.Ex8_4_ChompingFinalLineBreak (0 ms)
+[ DISABLED ] NodeSpecTest.DISABLED_Ex8_5_ChompingTrailingLines
+[ RUN      ] NodeSpecTest.Ex8_6_EmptyScalarChomping
+[       OK ] NodeSpecTest.Ex8_6_EmptyScalarChomping (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_7_LiteralScalar
+[       OK ] NodeSpecTest.Ex8_7_LiteralScalar (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_8_LiteralContent
+[       OK ] NodeSpecTest.Ex8_8_LiteralContent (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_9_FoldedScalar
+[       OK ] NodeSpecTest.Ex8_9_FoldedScalar (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_10_FoldedLines
+[       OK ] NodeSpecTest.Ex8_10_FoldedLines (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_11_MoreIndentedLines
+[       OK ] NodeSpecTest.Ex8_11_MoreIndentedLines (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_12_EmptySeparationLines
+[       OK ] NodeSpecTest.Ex8_12_EmptySeparationLines (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_13_FinalEmptyLines
+[       OK ] NodeSpecTest.Ex8_13_FinalEmptyLines (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_14_BlockSequence
+[       OK ] NodeSpecTest.Ex8_14_BlockSequence (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_15_BlockSequenceEntryTypes
+[       OK ] NodeSpecTest.Ex8_15_BlockSequenceEntryTypes (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_16_BlockMappings
+[       OK ] NodeSpecTest.Ex8_16_BlockMappings (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_17_ExplicitBlockMappingEntries
+[       OK ] NodeSpecTest.Ex8_17_ExplicitBlockMappingEntries (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_18_ImplicitBlockMappingEntries
+[       OK ] NodeSpecTest.Ex8_18_ImplicitBlockMappingEntries (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_19_CompactBlockMappings
+[       OK ] NodeSpecTest.Ex8_19_CompactBlockMappings (0 ms)
+[ RUN      ] NodeSpecTest.Ex8_20_BlockNodeTypes
+[       OK ] NodeSpecTest.Ex8_20_BlockNodeTypes (0 ms)
+[ DISABLED ] NodeSpecTest.DISABLED_Ex8_21_BlockScalarNodes
+[ RUN      ] NodeSpecTest.Ex8_22_BlockCollectionNodes
+[       OK ] NodeSpecTest.Ex8_22_BlockCollectionNodes (0 ms)
+[ RUN      ] NodeSpecTest.FlowMapNotClosed
+[       OK ] NodeSpecTest.FlowMapNotClosed (0 ms)
+[----------] 109 tests from NodeSpecTest (5 ms total)
+
+[----------] 8 tests from NodeEmitterTest
+[ RUN      ] NodeEmitterTest.SimpleFlowSeqNode
+[       OK ] NodeEmitterTest.SimpleFlowSeqNode (0 ms)
+[ RUN      ] NodeEmitterTest.NestFlowSeqNode
+[       OK ] NodeEmitterTest.NestFlowSeqNode (0 ms)
+[ RUN      ] NodeEmitterTest.MixBlockFlowSeqNode
+[       OK ] NodeEmitterTest.MixBlockFlowSeqNode (0 ms)
+[ RUN      ] NodeEmitterTest.NestBlockFlowMapListNode
+[       OK ] NodeEmitterTest.NestBlockFlowMapListNode (0 ms)
+[ RUN      ] NodeEmitterTest.NestBlockMixMapListNode
+[       OK ] NodeEmitterTest.NestBlockMixMapListNode (0 ms)
+[ RUN      ] NodeEmitterTest.NestBlockMapListNode
+[       OK ] NodeEmitterTest.NestBlockMapListNode (0 ms)
+[ RUN      ] NodeEmitterTest.NestFlowMapListNode
+[       OK ] NodeEmitterTest.NestFlowMapListNode (0 ms)
+[ RUN      ] NodeEmitterTest.RobustAgainstLocale
+[       OK ] NodeEmitterTest.RobustAgainstLocale (0 ms)
+[----------] 8 tests from NodeEmitterTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 385 tests from 9 test suites ran. (19 ms total)
+[  PASSED  ] 385 tests.
+
+  YOU HAVE 4 DISABLED TESTS
+

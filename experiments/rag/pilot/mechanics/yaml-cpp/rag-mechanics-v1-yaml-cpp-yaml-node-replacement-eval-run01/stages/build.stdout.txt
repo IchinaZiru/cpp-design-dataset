@@ -1,0 +1,65 @@
+[  1%] Building CXX object test/prefix/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[  3%] Building CXX object CMakeFiles/yaml-cpp.dir/src/contrib/graphbuilder.cpp.o
+[  5%] Building CXX object CMakeFiles/yaml-cpp.dir/src/contrib/graphbuilderadapter.cpp.o
+[  8%] Building CXX object CMakeFiles/yaml-cpp.dir/src/binary.cpp.o
+[  8%] Building CXX object CMakeFiles/yaml-cpp.dir/src/convert.cpp.o
+[ 13%] Building CXX object CMakeFiles/yaml-cpp.dir/src/depthguard.cpp.o
+[ 13%] Building CXX object CMakeFiles/yaml-cpp.dir/src/emit.cpp.o
+[ 13%] Building CXX object CMakeFiles/yaml-cpp.dir/src/directives.cpp.o
+[ 18%] Building CXX object CMakeFiles/yaml-cpp.dir/src/emitter.cpp.o
+[ 18%] Building CXX object CMakeFiles/yaml-cpp.dir/src/emitterstate.cpp.o
+[ 18%] Building CXX object CMakeFiles/yaml-cpp.dir/src/emitfromevents.cpp.o
+[ 25%] Building CXX object CMakeFiles/yaml-cpp.dir/src/exp.cpp.o
+[ 25%] Building CXX object CMakeFiles/yaml-cpp.dir/src/emitterutils.cpp.o
+[ 25%] Building CXX object CMakeFiles/yaml-cpp.dir/src/exceptions.cpp.o
+[ 27%] Building CXX object CMakeFiles/yaml-cpp.dir/src/fptostring.cpp.o
+[ 28%] Building CXX object CMakeFiles/yaml-cpp.dir/src/memory.cpp.o
+[ 28%] Building CXX object CMakeFiles/yaml-cpp.dir/src/node.cpp.o
+[ 33%] Building CXX object CMakeFiles/yaml-cpp.dir/src/node_data.cpp.o
+[ 33%] Building CXX object CMakeFiles/yaml-cpp.dir/src/nodeevents.cpp.o
+[ 33%] Building CXX object CMakeFiles/yaml-cpp.dir/src/nodebuilder.cpp.o
+[ 35%] Building CXX object CMakeFiles/yaml-cpp.dir/src/null.cpp.o
+[ 38%] Building CXX object CMakeFiles/yaml-cpp.dir/src/ostream_wrapper.cpp.o
+[ 42%] Building CXX object CMakeFiles/yaml-cpp.dir/src/parse.cpp.o
+[ 42%] Building CXX object CMakeFiles/yaml-cpp.dir/src/regex_yaml.cpp.o
+[ 42%] Building CXX object CMakeFiles/yaml-cpp.dir/src/parser.cpp.o
+[ 45%] Building CXX object CMakeFiles/yaml-cpp.dir/src/scanner.cpp.o
+[ 45%] Building CXX object CMakeFiles/yaml-cpp.dir/src/scanscalar.cpp.o
+[ 50%] Building CXX object CMakeFiles/yaml-cpp.dir/src/scantoken.cpp.o
+[ 50%] Building CXX object CMakeFiles/yaml-cpp.dir/src/scantag.cpp.o
+[ 50%] Building CXX object CMakeFiles/yaml-cpp.dir/src/simplekey.cpp.o
+[ 55%] Building CXX object CMakeFiles/yaml-cpp.dir/src/singledocparser.cpp.o
+[ 55%] Building CXX object CMakeFiles/yaml-cpp.dir/src/stream.cpp.o
+[ 55%] Building CXX object CMakeFiles/yaml-cpp.dir/src/tag.cpp.o
+[ 57%] Linking CXX static library libyaml-cpp.a
+[ 57%] Built target yaml-cpp
+[ 59%] Linking CXX static library ../../../lib/libgtest.a
+[ 59%] Built target gtest
+[ 62%] Building CXX object test/prefix/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[ 62%] Building CXX object test/prefix/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
+[ 64%] Linking CXX static library ../../../lib/libgtest_main.a
+[ 64%] Built target gtest_main
+[ 66%] Linking CXX static library ../../../lib/libgmock.a
+[ 66%] Built target gmock
+[ 69%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/binary_test.cpp.o
+[ 69%] Building CXX object test/prefix/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
+[ 71%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/fptostring_test.cpp.o
+[ 72%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/integration/clone_node_test.cpp.o
+[ 76%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/integration/convert_partial_specialization_test.cpp.o
+[ 76%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/integration/emitter_test.cpp.o
+[ 77%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/integration/encoding_test.cpp.o
+[ 81%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/integration/error_messages_test.cpp.o
+[ 81%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/integration/gen_emitter_test.cpp.o
+[ 84%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/integration/handler_spec_test.cpp.o
+[ 84%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/integration/handler_test.cpp.o
+[ 88%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/integration/load_node_test.cpp.o
+[ 88%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/integration/node_spec_test.cpp.o
+[ 89%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/main.cpp.o
+[ 96%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/parser_test.cpp.o
+[ 96%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/ostream_wrapper_test.cpp.o
+[ 96%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/node/node_test.cpp.o
+[ 96%] Building CXX object test/CMakeFiles/yaml-cpp-tests.dir/regex_test.cpp.o
+[ 98%] Linking CXX static library ../../../lib/libgmock_main.a
+[ 98%] Built target gmock_main
+[100%] Linking CXX executable yaml-cpp-tests
+[100%] Built target yaml-cpp-tests
