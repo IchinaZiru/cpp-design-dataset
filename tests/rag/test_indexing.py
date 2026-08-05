@@ -39,6 +39,9 @@ BASE_CONFIG = PROJECT_ROOT / "configs" / "rag" / "retrieval_v1.json"
 PILOT_TINYXML2_CONFIG = (
     PROJECT_ROOT / "configs" / "rag" / "pilot" / "tinyxml2_retrieval_v1.json"
 )
+PILOT_YAML_CPP_CONFIG = (
+    PROJECT_ROOT / "configs" / "rag" / "pilot" / "yaml_cpp_retrieval_v1.json"
+)
 
 
 def _run(root: Path, *args: str) -> str:
@@ -160,6 +163,28 @@ class EnvironmentAndConfigTests(unittest.TestCase):
         )
         self.assertIsNone(config.corpus.classify_path("tinyxml2.cpp"))
         self.assertIsNone(config.corpus.classify_path("tinyxml2.h"))
+
+    def test_yaml_cpp_pilot_includes_only_production_sources(self) -> None:
+        config = IndexConfig.load(PILOT_YAML_CPP_CONFIG)
+        self.assertEqual(
+            config.version,
+            "retrieval-v1-phase1-external-pilot-yaml-cpp",
+        )
+        self.assertEqual(
+            config.repositories["yaml-cpp"].expected_commit,
+            "3eb39d5808c33aa93a113cb6c668fa2435ff3ecd",
+        )
+        self.assertEqual(
+            config.corpus.classify_path("test/parser_test.cpp"),
+            "forbidden_path",
+        )
+        self.assertEqual(
+            config.corpus.classify_path("util/parse.cpp"),
+            "forbidden_path",
+        )
+        self.assertIsNone(config.corpus.classify_path("src/parser.cpp"))
+        self.assertIsNone(config.corpus.classify_path("include/yaml-cpp/parser.h"))
+        self.assertIsNone(config.corpus.classify_path("src/contrib/graphbuilder.cpp"))
 
     def test_lockfile_uses_hashes_and_binary_only_setup(self) -> None:
         lock = (PROJECT_ROOT / "requirements" / "rag.lock.txt").read_text(
