@@ -743,9 +743,14 @@ def _type_context(node: Any) -> bool:
         if current is None:
             return False
         node_type = str(current.type)
+        if node_type == "field_declaration":
+            declarator = _child_by_field(current, "declarator")
+            if declarator is None:
+                return True
+            return int(node.end_byte) <= int(declarator.start_byte)
         if node_type in _TYPE_CONTEXTS:
             return True
-        if node_type in {"call_expression", "argument_list", "compound_statement"}:
+        if node_type in {"call_expression", "argument_list", "compound_statement", "init_declarator"}:
             return False
         current = getattr(current, "parent", None)
     return False
