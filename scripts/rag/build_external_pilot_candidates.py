@@ -1,4 +1,4 @@
-"""Build and independently verify external tinyxml2 pilot candidate selection."""
+"""Build and independently verify external pilot candidate selection."""
 
 from __future__ import annotations
 
@@ -137,7 +137,7 @@ def build_and_verify_external_pilot_selection(
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Generate deterministic external tinyxml2 pilot candidates."
+        description="Generate deterministic external pilot candidates."
     )
     parser.add_argument("--index-dir", required=True)
     parser.add_argument("--repository-root", required=True)

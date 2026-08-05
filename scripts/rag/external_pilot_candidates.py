@@ -1,4 +1,4 @@
-"""Deterministic candidate discovery and selection for the external tinyxml2 pilot."""
+"""Deterministic candidate discovery and selection for an external C++ pilot."""
 
 from __future__ import annotations
 
@@ -188,10 +188,13 @@ def _candidate_rank_key(item: Mapping[str, Any]) -> tuple[Any, ...]:
 
 
 def _target_id(candidate: Mapping[str, Any]) -> str:
+    repository = _SLUG_RE.sub(
+        "-", str(candidate["repository_id"]).lower()
+    ).strip("-") or "repository"
     raw = str(candidate["target_symbol"]).lower()
     slug = _SLUG_RE.sub("-", raw).strip("-") or "symbol"
     slug = slug[:48].rstrip("-") or "symbol"
-    return f"tinyxml2-{slug}-{str(candidate['candidate_id'])[:12]}"
+    return f"{repository}-{slug}-{str(candidate['candidate_id'])[:12]}"
 
 
 def discover_external_pilot_candidates(

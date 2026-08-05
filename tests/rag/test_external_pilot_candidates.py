@@ -14,6 +14,7 @@ from scripts.rag.build_external_pilot_candidates import (
 )
 from scripts.rag.canonical import canonical_json_bytes
 from scripts.rag.external_pilot_candidates import (
+    _target_id,
     discover_external_pilot_candidates,
     external_candidate_documents,
     external_policy,
@@ -24,6 +25,9 @@ from tests.rag.fixture_factory import COMMIT, make_chunk, write_index
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / "configs" / "rag" / "pilot" / "tinyxml2_candidates_v1.json"
+YAML_CPP_CONFIG = (
+    ROOT / "configs" / "rag" / "pilot" / "yaml_cpp_candidates_v1.json"
+)
 
 
 def _run(root: Path, *args: str) -> str:
@@ -138,6 +142,31 @@ def _write_evidence(root: Path) -> Path:
 
 
 class ExternalPilotPolicyTests(unittest.TestCase):
+    def test_target_id_uses_repository_identity(self) -> None:
+        target_id = _target_id(
+            {
+                "candidate_id": "a" * 64,
+                "repository_id": "yaml-cpp",
+                "target_symbol": "YAML::LoadFile",
+            }
+        )
+        self.assertEqual(target_id, "yaml-cpp-yaml-loadfile-aaaaaaaaaaaa")
+
+    def test_yaml_cpp_config_keeps_the_frozen_selection_rules(self) -> None:
+        policy = external_policy(CandidateConfig.load(YAML_CPP_CONFIG))
+        self.assertEqual(policy["repository_id"], "yaml-cpp")
+        self.assertEqual(
+            policy["repository_commit"],
+            "3eb39d5808c33aa93a113cb6c668fa2435ff3ecd",
+        )
+        self.assertEqual(policy["required_count"], 5)
+        self.assertEqual(policy["minimum_distinct_source_files"], 2)
+        self.assertEqual(
+            policy["minimum_per_granularity"],
+            {"class_span": 1, "function": 1},
+        )
+        self.assertEqual(len(policy["evidence_paths"]), 16)
+
     def test_config_freezes_external_selection_rules(self) -> None:
         policy = external_policy(CandidateConfig.load(CONFIG))
         self.assertEqual(policy["repository_id"], "tinyxml2")
