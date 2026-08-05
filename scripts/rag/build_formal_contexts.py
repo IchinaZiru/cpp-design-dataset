@@ -18,8 +18,11 @@ from scripts.rag.audit_formal_contexts import (
     FormalAuditError,
     audit_formal_context_set,
     compare_artifact_trees,
+    render_audit_markdown,
+    write_audit_report,
 )
 from scripts.rag.canonical import (
+    canonical_json_bytes,
     posix_relative_path,
     sha256_bytes,
     sha256_file,
@@ -44,6 +47,10 @@ from scripts.rag.formal_preparation import (
 
 class FormalContextBuildError(RuntimeError):
     """Raised when a formal context build cannot safely continue."""
+
+
+AUDIT_JSON_PATH = "reports/rag/formal/preparation/formal-context-audit-v1.json"
+AUDIT_MARKDOWN_PATH = "reports/rag/formal/preparation/formal-context-audit-v1.md"
 
 
 def _write_context(path: Path, value: str) -> str:
@@ -106,7 +113,12 @@ def build_formal_target_artifacts(
         config=config,
     )
 
-    corpus_bytes = (target.index.root / "corpus_manifest.json").read_bytes()
+    corpus_bytes = canonical_json_bytes(target.index.corpus_manifest)
+    corpus_sha256 = sha256_bytes(corpus_bytes)
+    if corpus_sha256 != target.index.artifact_hashes["corpus_manifest.json"]:
+        raise FormalContextBuildError(
+            f"canonical corpus manifest differs from frozen index: {target.target_id}"
+        )
     (output_directory / "corpus_manifest.json").write_bytes(corpus_bytes)
     query_bytes = target.query.path.read_bytes()
     (output_directory / "query.json").write_bytes(query_bytes)
@@ -133,7 +145,7 @@ def build_formal_target_artifacts(
         "artifact_hashes": {
             "candidates.jsonl": candidates_sha,
             "context.txt": context_sha,
-            "corpus_manifest.json": sha256_bytes(corpus_bytes),
+            "corpus_manifest.json": corpus_sha256,
             "query.json": sha256_bytes(query_bytes),
             "selected_chunks.jsonl": selected_sha,
         },
@@ -203,17 +215,46 @@ def build_formal_artifact_set(
     }
 
 
-def _write_mismatch_evidence(work: Path, message: str) -> None:
+def _write_mismatch_evidence(
+    work: Path,
+    message: str,
+    *,
+    canonical_output_exists: bool,
+    partial_state: Mapping[str, Any],
+    rollback: Mapping[str, Any],
+) -> None:
     write_canonical_json(
         work / "mismatch_evidence.json",
         {
-            "artifact_schema_version": "rag-formal-context-mismatch-v1",
-            "canonical_output_published": False,
+            "artifact_schema_version": "rag-formal-context-transaction-failure-v1",
+            "canonical_output_published": canonical_output_exists,
+            "canonical_success_artifact": False,
             "error": message,
+            "partial_state": dict(partial_state),
             "retry_permitted": False,
-            "status": "failed_determinism_or_audit",
+            "rollback": dict(rollback),
+            "status": "failed_transaction",
         },
     )
+
+
+def _backup_target_configs(preparation: FormalPreparation, work: Path) -> Path:
+    backups = work / "target-config-backups"
+    backups.mkdir()
+    for target in preparation.targets:
+        shutil.copy2(target.path, backups / target.path.name)
+    return backups
+
+
+def _restore_target_configs(preparation: FormalPreparation, work: Path) -> int:
+    backups = work / "target-config-backups"
+    restored = 0
+    for target in preparation.targets:
+        backup = backups / target.path.name
+        if backup.is_file():
+            shutil.copy2(backup, target.path)
+            restored += 1
+    return restored
 
 
 def _update_target_configs_after_audit(
@@ -224,24 +265,33 @@ def _update_target_configs_after_audit(
     staged = work / "staged-target-configs"
     backups = work / "target-config-backups"
     staged.mkdir()
-    backups.mkdir()
+    if not backups.is_dir():
+        _backup_target_configs(preparation, work)
     for target in preparation.targets:
         raw = json.loads(target.path.read_text(encoding="utf-8"))
         context_path = canonical_output / target.target_id / "context.txt"
         raw["context_status"] = "generated_and_audited"
         raw["context_sha256"] = sha256_file(context_path)
         write_canonical_json(staged / target.path.name, raw)
-        shutil.copy2(target.path, backups / target.path.name)
 
-    replaced: list[FormalTarget] = []
-    try:
-        for target in preparation.targets:
-            (staged / target.path.name).replace(target.path)
-            replaced.append(target)
-    except Exception:
-        for target in replaced:
-            shutil.copy2(backups / target.path.name, target.path)
-        raise
+    for target in preparation.targets:
+        (staged / target.path.name).replace(target.path)
+
+
+def _resolve_project_output(root: Path, value: str | Path) -> Path:
+    path = Path(value)
+    if path.is_absolute():
+        return path
+    return root.joinpath(*posix_relative_path(path).split("/"))
+
+
+def _preserve_partial_file(path: Path, work: Path, name: str) -> bool:
+    if not path.exists():
+        return False
+    partial = work / "partial-canonical-artifacts"
+    partial.mkdir(exist_ok=True)
+    path.replace(partial / name)
+    return True
 
 
 def execute_formal_contexts(
@@ -249,19 +299,24 @@ def execute_formal_contexts(
     project_root: str | Path,
     output_root: str | Path = "rag/retrieval/formal",
     work_root: str | Path | None = None,
+    audit_json_path: str | Path = AUDIT_JSON_PATH,
+    audit_markdown_path: str | Path = AUDIT_MARKDOWN_PATH,
     preparation: FormalPreparation | None = None,
     build_fn: Callable[[FormalPreparation, Path], Mapping[str, Any]] = build_formal_artifact_set,
     audit_fn: Callable[[FormalPreparation, Path], Mapping[str, Any]] = audit_formal_context_set,
     update_fn: Callable[[FormalPreparation, Path, Path], None] = _update_target_configs_after_audit,
+    report_writer: Callable[..., Mapping[str, str]] = write_audit_report,
 ) -> dict[str, Any]:
     root = Path(project_root).resolve()
-    prepared = preparation or prepare_formal_contexts(root)
-    output = Path(output_root)
-    if not output.is_absolute():
-        output = root.joinpath(*posix_relative_path(output).split("/"))
+    prepared = preparation or prepare_formal_contexts(
+        root, context_state="pre_generation"
+    )
+    output = _resolve_project_output(root, output_root)
     work = Path(work_root) if work_root is not None else output.with_name(output.name + ".rebuild-work")
     if not work.is_absolute():
         work = root.joinpath(*posix_relative_path(work).split("/"))
+    audit_json = _resolve_project_output(root, audit_json_path)
+    audit_markdown = _resolve_project_output(root, audit_markdown_path)
     if output.exists():
         raise FormalContextBuildError(
             f"canonical formal output exists; overwrite prohibited: {output}"
@@ -270,16 +325,31 @@ def execute_formal_contexts(
         raise FormalContextBuildError(
             f"stale formal work evidence exists; retry prohibited: {work}"
         )
+    if audit_json.exists() or audit_markdown.exists():
+        raise FormalContextBuildError(
+            "aggregate audit report exists; overwrite prohibited"
+        )
     if len(prepared.targets) != 17 or any(
-        target.raw.get("enabled") is not False for target in prepared.targets
+        target.raw.get("enabled") is not False
+        or target.raw.get("context_status") != "not_generated"
+        or target.raw.get("context_sha256") is not None
+        for target in prepared.targets
     ):
-        raise FormalContextBuildError("execution requires exactly 17 disabled targets")
+        raise FormalContextBuildError(
+            "execution requires exactly 17 disabled pre-generation targets"
+        )
 
     output.parent.mkdir(parents=True, exist_ok=True)
     work.mkdir(parents=True)
     build_a = work / "build-a"
     build_b = work / "build-b"
     publish = work / "publish"
+    partial_state = {
+        "aggregate_audit_reports_written": False,
+        "canonical_context_published": False,
+        "target_config_update_started": False,
+        "post_generation_revalidation_completed": False,
+    }
     try:
         first = build_fn(prepared, build_a)
         second = build_fn(prepared, build_b)
@@ -290,12 +360,51 @@ def execute_formal_contexts(
         audit_b = audit_fn(prepared, build_b)
         if audit_a.get("status") != "pass" or audit_b.get("status") != "pass":
             raise FormalContextBuildError("aggregate audit did not pass twice")
+        if canonical_json_bytes(audit_a) != canonical_json_bytes(audit_b):
+            raise FormalContextBuildError("independent aggregate audit reports differ")
+        _backup_target_configs(prepared, work)
         shutil.copytree(build_a, publish)
         publish.replace(output)
+        partial_state["canonical_context_published"] = True
+        reported_audit_hashes = report_writer(
+            audit_a,
+            json_path=audit_json,
+            markdown_path=audit_markdown,
+        )
+        partial_state["aggregate_audit_reports_written"] = True
+        if not audit_json.is_file() or not audit_markdown.is_file():
+            raise FormalContextBuildError("aggregate audit report was not persisted")
+        if audit_json.read_bytes() != canonical_json_bytes(audit_a):
+            raise FormalContextBuildError("aggregate audit JSON content differs")
+        expected_markdown = render_audit_markdown(audit_a).encode("utf-8")
+        if audit_markdown.read_bytes() != expected_markdown:
+            raise FormalContextBuildError("aggregate audit Markdown content differs")
+        audit_hashes = {
+            "json_sha256": sha256_file(audit_json),
+            "markdown_sha256": sha256_file(audit_markdown),
+        }
+        if reported_audit_hashes.get("json_sha256") != audit_hashes["json_sha256"]:
+            raise FormalContextBuildError("aggregate audit JSON hash differs after persistence")
+        if reported_audit_hashes.get("markdown_sha256") != audit_hashes["markdown_sha256"]:
+            raise FormalContextBuildError("aggregate audit Markdown hash differs after persistence")
+        partial_state["target_config_update_started"] = True
         update_fn(prepared, output, work)
+        post_preparation = prepare_formal_contexts(
+            root, context_state="post_generation"
+        )
+        post_audit = audit_fn(post_preparation, output)
+        if post_audit.get("status") != "pass":
+            raise FormalContextBuildError("post-generation aggregate audit did not pass")
+        if canonical_json_bytes(post_audit) != canonical_json_bytes(audit_a):
+            raise FormalContextBuildError("post-generation aggregate audit differs")
+        partial_state["post_generation_revalidation_completed"] = True
         shutil.rmtree(work)
         return {
             "artifact_comparison": comparisons,
+            "audit_json": audit_json,
+            "audit_json_sha256": audit_hashes["json_sha256"],
+            "audit_markdown": audit_markdown,
+            "audit_markdown_sha256": audit_hashes["markdown_sha256"],
             "canonical_output": output,
             "deterministic": True,
             "status": "pass",
@@ -303,7 +412,45 @@ def execute_formal_contexts(
         }
     except Exception as exc:
         if work.exists():
-            _write_mismatch_evidence(work, str(exc))
+            rollback: dict[str, Any] = {
+                "audit_json_preserved": False,
+                "audit_markdown_preserved": False,
+                "canonical_context_preserved": False,
+                "target_configs_restored": 0,
+            }
+            rollback_errors: list[str] = []
+            try:
+                rollback["target_configs_restored"] = _restore_target_configs(
+                    prepared, work
+                )
+            except Exception as rollback_exc:
+                rollback_errors.append(f"target_config_restore:{rollback_exc}")
+            try:
+                rollback["audit_json_preserved"] = _preserve_partial_file(
+                    audit_json, work, "formal-context-audit-v1.json"
+                )
+            except Exception as rollback_exc:
+                rollback_errors.append(f"audit_json_preserve:{rollback_exc}")
+            try:
+                rollback["audit_markdown_preserved"] = _preserve_partial_file(
+                    audit_markdown, work, "formal-context-audit-v1.md"
+                )
+            except Exception as rollback_exc:
+                rollback_errors.append(f"audit_markdown_preserve:{rollback_exc}")
+            try:
+                if output.exists():
+                    output.replace(work / "partial-canonical-output")
+                    rollback["canonical_context_preserved"] = True
+            except Exception as rollback_exc:
+                rollback_errors.append(f"canonical_context_preserve:{rollback_exc}")
+            rollback["errors"] = rollback_errors
+            _write_mismatch_evidence(
+                work,
+                str(exc),
+                canonical_output_exists=output.exists(),
+                partial_state=partial_state,
+                rollback=rollback,
+            )
         raise
 
 
@@ -340,7 +487,9 @@ def run_plan_only(
     plan_json: str | Path,
     plan_markdown: str | Path,
 ) -> dict[str, Any]:
-    preparation = prepare_formal_contexts(project_root)
+    preparation = prepare_formal_contexts(
+        project_root, context_state="pre_generation"
+    )
     plan = build_plan(preparation)
     root = preparation.project_root
     json_path = Path(plan_json)

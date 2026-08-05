@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 from dataclasses import replace
 from pathlib import Path
 
@@ -8,21 +9,29 @@ import pytest
 
 from scripts.rag.audit_formal_contexts import (
     FormalAuditError,
+    audit_formal_context_set,
     audit_selection,
     audit_target_directory,
+    main as audit_main,
     render_context,
 )
-from scripts.rag.build_formal_contexts import build_formal_target_artifacts
-from scripts.rag.canonical import sha256_bytes
+from scripts.rag.build_formal_contexts import (
+    build_formal_artifact_set,
+    build_formal_target_artifacts,
+)
+from scripts.rag.canonical import sha256_bytes, sha256_file, write_canonical_json
 from scripts.rag.external_retrieval import lexical_token_count
 from scripts.rag.formal_preparation import FormalCommonConfig, prepare_formal_contexts
-from tests.rag.test_formal_preparation import make_formal_project
+from tests.rag.test_formal_preparation import (
+    make_formal_project,
+    mark_context_configs_generated,
+)
 
 
 @pytest.fixture
 def audit_fixture(tmp_path: Path):
     root = make_formal_project(tmp_path)
-    preparation = prepare_formal_contexts(root)
+    preparation = prepare_formal_contexts(root, context_state="pre_generation")
     return preparation, preparation.targets[0]
 
 
@@ -122,6 +131,64 @@ def test_synthetic_target_build_passes_full_artifact_audit(audit_fixture, tmp_pa
     result = audit_target_directory(preparation, target, output)
     assert result["status"] == "pass"
     assert result["selected_chunk_count"] <= 12
+
+
+def test_corpus_manifest_must_cross_link_to_frozen_index_hash(
+    audit_fixture, tmp_path: Path
+) -> None:
+    preparation, target = audit_fixture
+    output = tmp_path / "target-output"
+    build_formal_target_artifacts(preparation, target, output)
+    corpus_path = output / "corpus_manifest.json"
+    corpus = json.loads(corpus_path.read_text(encoding="utf-8"))
+    corpus["tampered"] = True
+    write_canonical_json(corpus_path, corpus)
+    manifest_path = output / "retrieval_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["artifact_hashes"]["corpus_manifest.json"] = sha256_file(corpus_path)
+    write_canonical_json(manifest_path, manifest)
+    with pytest.raises(FormalAuditError, match="frozen index hash differs"):
+        audit_target_directory(preparation, target, output)
+
+
+def test_post_generation_read_only_aggregate_reaudit_passes(tmp_path: Path) -> None:
+    root = make_formal_project(tmp_path / "project")
+    pre = prepare_formal_contexts(root, context_state="pre_generation")
+    output = root / "rag" / "retrieval" / "formal"
+    build_formal_artifact_set(pre, output)
+    first = audit_formal_context_set(pre, output)
+    assert first["status"] == "pass"
+    mark_context_configs_generated(root)
+    post = prepare_formal_contexts(root, context_state="post_generation")
+    before = {
+        path.relative_to(root).as_posix(): sha256_file(path)
+        for path in root.rglob("*")
+        if path.is_file()
+    }
+    second = audit_formal_context_set(post, output)
+    after = {
+        path.relative_to(root).as_posix(): sha256_file(path)
+        for path in root.rglob("*")
+        if path.is_file()
+    }
+    assert second == first
+    assert after == before
+    audit_json = tmp_path / "reaudit" / "audit.json"
+    audit_markdown = tmp_path / "reaudit" / "audit.md"
+    assert audit_main(
+        [
+            "--project-root",
+            str(root),
+            "--output-root",
+            str(output),
+            "--audit-json",
+            str(audit_json),
+            "--audit-md",
+            str(audit_markdown),
+        ]
+    ) == 0
+    assert audit_json.is_file()
+    assert audit_markdown.is_file()
 
 
 def test_budget_excess_is_detected(audit_fixture) -> None:

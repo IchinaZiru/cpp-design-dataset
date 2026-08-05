@@ -360,36 +360,87 @@ def _target_path(root: Path, number: int = 0) -> Path:
     return root / "configs" / "rag" / "targets" / f"{TARGET_IDS[number]}.json"
 
 
+def mark_context_configs_generated(root: Path) -> None:
+    for target_id in TARGET_IDS:
+        target_path = root / "configs" / "rag" / "targets" / f"{target_id}.json"
+        target = _read(target_path)
+        context_path = root / target["context_path"]
+        if not context_path.is_file():
+            context_path.parent.mkdir(parents=True, exist_ok=True)
+            context_path.write_text(
+                f"frozen context for {target_id}\n", encoding="utf-8", newline="\n"
+            )
+        target["context_status"] = "generated_and_audited"
+        target["context_sha256"] = sha256_file(context_path)
+        write_canonical_json(target_path, target)
+
+
 def test_valid_17_target_preparation(formal_project: Path) -> None:
-    preparation = prepare_formal_contexts(formal_project)
+    preparation = prepare_formal_contexts(
+        formal_project, context_state="pre_generation"
+    )
     assert len(preparation.targets) == 17
     assert preparation.branch == "agent/rag-protocol-v0-9"
     assert preparation.project_head == COMMIT
 
 
+def test_post_generation_accepts_17_generated_and_audited_configs(
+    formal_project: Path,
+) -> None:
+    mark_context_configs_generated(formal_project)
+    preparation = prepare_formal_contexts(
+        formal_project, context_state="post_generation"
+    )
+    assert len(preparation.targets) == 17
+    assert all(
+        target.raw["context_status"] == "generated_and_audited"
+        for target in preparation.targets
+    )
+
+
+def test_post_generation_rejects_context_sha256_mismatch(
+    formal_project: Path,
+) -> None:
+    mark_context_configs_generated(formal_project)
+    context_path = formal_project / _read(_target_path(formal_project))["context_path"]
+    context_path.write_text("changed context\n", encoding="utf-8", newline="\n")
+    with pytest.raises(FormalPreparationError, match="context SHA-256 mismatch"):
+        prepare_formal_contexts(formal_project, context_state="post_generation")
+
+
+def test_pre_and_post_generation_states_are_not_ambiguous(
+    formal_project: Path,
+) -> None:
+    with pytest.raises(FormalPreparationError, match="not post-generation"):
+        prepare_formal_contexts(formal_project, context_state="post_generation")
+    mark_context_configs_generated(formal_project)
+    with pytest.raises(FormalPreparationError, match="not pre-generation"):
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
+
+
 def test_target_count_mismatch_is_rejected(formal_project: Path) -> None:
     _target_path(formal_project).unlink()
     with pytest.raises(FormalPreparationError, match="target config count mismatch"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 def test_duplicate_target_id_is_rejected(formal_project: Path) -> None:
     _rewrite(_target_path(formal_project, 1), lambda value: value.update(target_id=TARGET_IDS[0]))
     with pytest.raises(FormalPreparationError, match="duplicate target ID"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 def test_duplicate_run_id_is_rejected(formal_project: Path) -> None:
     first = _read(_target_path(formal_project))["run_id"]
     _rewrite(_target_path(formal_project, 1), lambda value: value.update(run_id=first))
     with pytest.raises(FormalPreparationError, match="duplicate or empty formal run ID"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 def test_enabled_target_is_rejected(formal_project: Path) -> None:
     _rewrite(_target_path(formal_project), lambda value: value.update(enabled=True))
     with pytest.raises(FormalPreparationError, match="formal target is enabled"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 def test_common_config_hash_mismatch_is_rejected(formal_project: Path) -> None:
@@ -398,7 +449,7 @@ def test_common_config_hash_mismatch_is_rejected(formal_project: Path) -> None:
         lambda value: value["common_formal_config"].update(sha256="0" * 64),
     )
     with pytest.raises(FormalPreparationError, match="common config hash mismatch"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 def test_query_hash_mismatch_is_rejected(formal_project: Path) -> None:
@@ -407,7 +458,7 @@ def test_query_hash_mismatch_is_rejected(formal_project: Path) -> None:
         lambda value: value["frozen_query"].update(sha256="0" * 64),
     )
     with pytest.raises(FormalPreparationError, match="frozen query.*hash mismatch"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 def test_non_rag_evidence_hash_mismatch_is_rejected(formal_project: Path) -> None:
@@ -416,7 +467,7 @@ def test_non_rag_evidence_hash_mismatch_is_rejected(formal_project: Path) -> Non
         lambda value: value["non_rag_evidence"].update(config_sha256="0" * 64),
     )
     with pytest.raises(FormalPreparationError, match="non-RAG config.*hash mismatch"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 @pytest.mark.parametrize(
@@ -434,13 +485,13 @@ def test_target_specific_retrieval_changes_are_rejected(
         lambda value: value["retrieval_settings"].update({field: True}),
     )
     with pytest.raises(FormalPreparationError, match=message):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 def test_context_sha256_prepopulation_is_rejected(formal_project: Path) -> None:
     _rewrite(_target_path(formal_project), lambda value: value.update(context_sha256="0" * 64))
     with pytest.raises(FormalPreparationError, match="context SHA-256 is pre-populated"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 @pytest.mark.parametrize("kind", ["context", "output", "marker"])
@@ -458,13 +509,13 @@ def test_preexisting_context_output_or_marker_is_rejected(
         if kind == "marker":
             (directory / "attempt.json").write_text("{}\n", encoding="utf-8")
     with pytest.raises(FormalPreparationError, match="formal context already exists|formal output directory already exists|formal marker already exists"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 def test_protected_field_change_is_rejected(formal_project: Path) -> None:
     _rewrite(_target_path(formal_project), lambda value: value.update(target_name="changed"))
     with pytest.raises(FormalPreparationError, match="protected field changed"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 def test_generation_and_retrieval_top_k_conflation_is_rejected(
@@ -478,7 +529,7 @@ def test_generation_and_retrieval_top_k_conflation_is_rejected(
     target["non_rag_evidence"]["config_sha256"] = sha256_file(evidence_path)
     write_canonical_json(target_path, target)
     with pytest.raises(FormalPreparationError, match="model.top_k and retrieval_top_k are conflated"):
-        prepare_formal_contexts(formal_project)
+        prepare_formal_contexts(formal_project, context_state="pre_generation")
 
 
 def test_plan_construction_is_read_only_and_uses_no_subprocess(
@@ -490,7 +541,9 @@ def test_plan_construction_is_read_only_and_uses_no_subprocess(
         if path.is_file()
     }
     with mock.patch.object(subprocess, "run", side_effect=AssertionError("subprocess called")):
-        plan = build_plan(prepare_formal_contexts(formal_project))
+        plan = build_plan(
+            prepare_formal_contexts(formal_project, context_state="pre_generation")
+        )
     after = {
         path.relative_to(formal_project).as_posix(): sha256_file(path)
         for path in formal_project.rglob("*")
@@ -507,7 +560,9 @@ def test_index_hashes_use_canonical_lf_bytes_on_windows(formal_project: Path) ->
     for name in ("chunks.jsonl", "symbol_index.jsonl"):
         path = index / name
         path.write_bytes(path.read_bytes().replace(b"\n", b"\r\n"))
-    preparation = prepare_formal_contexts(formal_project)
+    preparation = prepare_formal_contexts(
+        formal_project, context_state="pre_generation"
+    )
     assert len(preparation.targets) == 17
 
 

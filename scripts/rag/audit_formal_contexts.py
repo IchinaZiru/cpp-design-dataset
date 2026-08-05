@@ -281,6 +281,14 @@ def audit_target_directory(
         actual = sha256_file(directory / name)
         if hashes.get(name) != actual:
             raise FormalAuditError(f"artifact hash differs: {target.target_id}/{name}")
+    corpus_manifest_sha256 = sha256_file(directory / "corpus_manifest.json")
+    frozen_corpus_manifest_sha256 = target.index.artifact_hashes[
+        "corpus_manifest.json"
+    ]
+    if corpus_manifest_sha256 != frozen_corpus_manifest_sha256:
+        raise FormalAuditError(
+            f"corpus manifest frozen index hash differs: {target.target_id}"
+        )
     if (directory / "query.json").read_bytes() != target.query.path.read_bytes():
         raise FormalAuditError(f"frozen query bytes changed: {target.target_id}")
     query = load_query_artifact(directory / "query.json")
@@ -404,12 +412,16 @@ def write_audit_report(
     *,
     json_path: Path,
     markdown_path: Path,
-) -> None:
+) -> dict[str, str]:
     if json_path.exists() or markdown_path.exists():
         raise FormalAuditError("audit report already exists; refusing overwrite")
-    write_canonical_json(json_path, report)
+    json_sha256 = write_canonical_json(json_path, report)
     markdown_path.parent.mkdir(parents=True, exist_ok=True)
     markdown_path.write_text(render_audit_markdown(report), encoding="utf-8", newline="\n")
+    return {
+        "json_sha256": json_sha256,
+        "markdown_sha256": sha256_file(markdown_path),
+    }
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -427,18 +439,25 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> int:
-    args = _parser().parse_args()
+def _resolve_report_path(root: Path, value: str | Path) -> Path:
+    path = Path(value)
+    if path.is_absolute():
+        return path
+    return root.joinpath(*posix_relative_path(path).split("/"))
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _parser().parse_args(argv)
     try:
         preparation = prepare_formal_contexts(
-            args.project_root, require_absent_outputs=False
+            args.project_root, context_state="post_generation"
         )
         report = audit_formal_context_set(preparation, args.output_root)
         root = preparation.project_root
         write_audit_report(
             report,
-            json_path=root / posix_relative_path(args.audit_json),
-            markdown_path=root / posix_relative_path(args.audit_md),
+            json_path=_resolve_report_path(root, args.audit_json),
+            markdown_path=_resolve_report_path(root, args.audit_md),
         )
     except (FormalAuditError, FormalPreparationError, OSError, ValueError) as exc:
         print(str(exc), file=sys.stderr)

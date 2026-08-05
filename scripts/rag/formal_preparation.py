@@ -13,7 +13,7 @@ import re
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Literal, Mapping
 
 from .artifacts import CandidateConfig, LoadedIndex, LoadedQuery, load_query_artifact
 from .canonical import (
@@ -36,6 +36,7 @@ COMMON_CONFIG_PATH = "configs/rag/formal_retrieval_pipeline_v1.json"
 TARGET_REGISTRY_PATH = "configs/rag/query_targets_v1.json"
 CANDIDATE_CONFIG_PATH = "configs/rag/candidates_v1.json"
 TARGET_CONFIG_DIRECTORY = "configs/rag/targets"
+FormalContextState = Literal["pre_generation", "post_generation"]
 
 EXPECTED_ALLOWED_RELATIONS = [
     "alias_target",
@@ -746,7 +747,7 @@ def load_target_configs(
     registry_path: str | Path = TARGET_REGISTRY_PATH,
     target_directory: str | Path = TARGET_CONFIG_DIRECTORY,
     expected_target_count: int = 17,
-    require_absent_outputs: bool = True,
+    context_state: FormalContextState,
 ) -> tuple[Path, str, tuple[FormalTarget, ...]]:
     root = Path(project_root).resolve()
     registry_source = _resolve(root, registry_path, field="target registry path")
@@ -791,8 +792,6 @@ def load_target_configs(
         expected_output = f"experiments/rag/{expected_run_id}"
         _require(raw.get("output_directory") == expected_output, f"output path differs: {target_id}")
         _require(raw.get("formal_output_directory") == expected_output, f"formal output path differs: {target_id}")
-        _require(raw.get("context_status") == "not_generated", f"context status is pre-populated: {target_id}")
-        _require(raw.get("context_sha256") is None, f"context SHA-256 is pre-populated: {target_id}")
         expected_context = f"rag/retrieval/formal/{target_id}/context.txt"
         _require(raw.get("context_path") == expected_context, f"context path differs: {target_id}")
         _require(raw.get("common_formal_config", {}).get("path") == common.relative_path, f"common config path differs: {target_id}")
@@ -813,11 +812,25 @@ def load_target_configs(
 
         context_path = _resolve(root, expected_context, field="planned context path")
         output_path = _resolve(root, expected_output, field="formal output path")
-        if require_absent_outputs:
+        if context_state == "pre_generation":
+            _require(raw.get("context_status") == "not_generated", f"context status is not pre-generation: {target_id}")
+            _require(raw.get("context_sha256") is None, f"context SHA-256 is pre-populated: {target_id}")
             _require(not context_path.exists(), f"formal context already exists: {target_id}")
-            _require(not output_path.exists(), f"formal output directory already exists: {target_id}")
-            for marker_name in ("attempt.json", "attempt.marker", "result.json", "failure.json", "failed.json"):
-                _require(not (output_path / marker_name).exists(), f"formal marker already exists: {target_id}/{marker_name}")
+        elif context_state == "post_generation":
+            _require(raw.get("context_status") == "generated_and_audited", f"context status is not post-generation: {target_id}")
+            context_sha256 = _full_sha256(
+                raw.get("context_sha256"), field=f"context SHA-256 {target_id}"
+            )
+            _require(context_path.is_file(), f"formal context is missing: {target_id}")
+            _require(
+                sha256_file(context_path) == context_sha256,
+                f"context SHA-256 mismatch: {target_id}",
+            )
+        else:
+            raise FormalPreparationError(f"unsupported formal context state: {context_state}")
+        _require(not output_path.exists(), f"formal output directory already exists: {target_id}")
+        for marker_name in ("attempt.json", "attempt.marker", "result.json", "failure.json", "failed.json"):
+            _require(not (output_path / marker_name).exists(), f"formal marker already exists: {target_id}/{marker_name}")
 
         evidence = raw.get("non_rag_evidence", {})
         evidence_path = _resolve(root, evidence.get("config_path"), field=f"non-RAG config {target_id}")
@@ -920,11 +933,11 @@ def load_target_configs(
 def prepare_formal_contexts(
     project_root: str | Path,
     *,
+    context_state: FormalContextState,
     common_config_path: str | Path = COMMON_CONFIG_PATH,
     registry_path: str | Path = TARGET_REGISTRY_PATH,
     target_directory: str | Path = TARGET_CONFIG_DIRECTORY,
     expected_target_count: int = 17,
-    require_absent_outputs: bool = True,
 ) -> FormalPreparation:
     root = Path(project_root).resolve()
     branch, head = read_git_identity(root)
@@ -935,7 +948,7 @@ def prepare_formal_contexts(
         registry_path=registry_path,
         target_directory=target_directory,
         expected_target_count=expected_target_count,
-        require_absent_outputs=require_absent_outputs,
+        context_state=context_state,
     )
     candidate_path = _resolve(root, CANDIDATE_CONFIG_PATH, field="candidate config path")
     try:
