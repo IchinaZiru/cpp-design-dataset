@@ -11,6 +11,7 @@ import pytest
 from scripts.rag.audit_formal_contexts import FormalAuditError
 from scripts.rag.build_formal_contexts import (
     FormalContextBuildError,
+    _deduplicate_overlapping_candidates,
     execute_formal_contexts,
     main,
     run_plan_only,
@@ -302,3 +303,50 @@ def test_existing_aggregate_audit_report_is_rejected(prepared_project) -> None:
             build_fn=_stable_build,
             audit_fn=_passing_audit,
         )
+
+
+
+def test_overlapping_candidate_dedup_keeps_highest_ranked_range() -> None:
+    def candidate(
+        chunk_id: str,
+        *,
+        path: str,
+        start: int,
+        end: int,
+        rank: int,
+    ) -> dict:
+        return {
+            "candidate_rank": rank,
+            "chunk_id": chunk_id,
+            "deduplicated_to_chunk_id": None,
+            "eligible": True,
+            "eligible_rank": rank,
+            "end_byte": end,
+            "exclusion_reasons": [],
+            "path": path,
+            "selection_status": "not_selected",
+            "source_sha256": "a" * 64,
+            "start_byte": start,
+        }
+
+    candidates = [
+        candidate("parent", path="include/value.h", start=0, end=100, rank=1),
+        candidate("child", path="include/value.h", start=20, end=30, rank=2),
+        candidate("adjacent", path="include/value.h", start=100, end=120, rank=3),
+        candidate("other-path", path="src/value.cpp", start=20, end=30, rank=4),
+    ]
+
+    result = _deduplicate_overlapping_candidates(candidates)
+
+    assert result is candidates
+    assert candidates[0]["eligible"] is True
+    assert candidates[1]["eligible"] is False
+    assert candidates[1]["selection_status"] == "filtered"
+    assert candidates[1]["eligible_rank"] is None
+    assert candidates[1]["deduplicated_to_chunk_id"] == "parent"
+    assert candidates[1]["exclusion_reasons"] == ["overlapping_source_range"]
+    assert candidates[2]["eligible"] is True
+    assert candidates[3]["eligible"] is True
+    assert [
+        item["eligible_rank"] for item in candidates
+    ] == [1, None, 2, 3]

@@ -63,6 +63,73 @@ def _write_context(path: Path, value: str) -> str:
     return sha256_bytes(data)
 
 
+
+def _ranges_overlap(
+    left: Mapping[str, Any],
+    right: Mapping[str, Any],
+) -> bool:
+    """Return whether two chunks overlap in the same committed source file."""
+
+    if str(left.get("path", "")) != str(right.get("path", "")):
+        return False
+    if str(left.get("source_sha256", "")) != str(
+        right.get("source_sha256", "")
+    ):
+        return False
+
+    left_start = int(left["start_byte"])
+    left_end = int(left["end_byte"])
+    right_start = int(right["start_byte"])
+    right_end = int(right["end_byte"])
+
+    return left_start < right_end and right_start < left_end
+
+
+def _deduplicate_overlapping_candidates(
+    candidates: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Keep the highest-ranked candidate from every overlapping source range."""
+
+    retained: list[dict[str, Any]] = []
+
+    for candidate in candidates:
+        if not bool(candidate.get("eligible")):
+            continue
+
+        retained_candidate = next(
+            (
+                item
+                for item in retained
+                if _ranges_overlap(candidate, item)
+            ),
+            None,
+        )
+
+        if retained_candidate is None:
+            retained.append(candidate)
+            continue
+
+        candidate["eligible"] = False
+        candidate["eligible_rank"] = None
+        candidate["selection_status"] = "filtered"
+        candidate["exclusion_reasons"] = sorted(
+            set(candidate.get("exclusion_reasons", []))
+            | {"overlapping_source_range"}
+        )
+        candidate["deduplicated_to_chunk_id"] = str(
+            retained_candidate["chunk_id"]
+        )
+
+    eligible_rank = 0
+    for candidate in candidates:
+        if bool(candidate.get("eligible")):
+            eligible_rank += 1
+            candidate["eligible_rank"] = eligible_rank
+        else:
+            candidate["eligible_rank"] = None
+
+    return candidates
+
 def _shortfall_reason(
     *,
     candidates: list[dict[str, Any]],
@@ -106,6 +173,7 @@ def build_formal_target_artifacts(
         exact_config=preparation.candidate_config,
     )
     candidates = build_candidates(inputs=inputs, query=target.query)
+    _deduplicate_overlapping_candidates(candidates)
     selected, context, context_tokens = select_context_candidates(
         candidates=candidates,
         chunks_by_id=target.index.chunks_by_id,
