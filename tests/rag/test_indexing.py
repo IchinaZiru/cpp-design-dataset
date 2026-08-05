@@ -180,7 +180,7 @@ class EnvironmentAndConfigTests(unittest.TestCase):
         config = IndexConfig.load(PILOT_YAML_CPP_CONFIG)
         self.assertEqual(
             config.version,
-            "retrieval-v1-phase1-external-pilot-yaml-cpp-v2",
+            "retrieval-v1-phase1-external-pilot-yaml-cpp-v3",
         )
         self.assertEqual(
             config.repositories["yaml-cpp"].expected_commit,
@@ -358,6 +358,7 @@ class SymbolIndexFixtureTests(unittest.TestCase):
                 "oversized.cpp",
                 "crlf.hpp",
                 "preprocessor.cpp",
+                "guarded_header.hpp",
                 "empty_braced_default.hpp",
             ],
         )
@@ -432,6 +433,8 @@ class SymbolIndexFixtureTests(unittest.TestCase):
                 (expected["canonical_name"], expected["kind"]),
                 by_pair,
             )
+        self.assertIn(("fixture::Guarded", "class_interface"), by_pair)
+        self.assertIn(("fixture::Guarded::run", "method_declaration"), by_pair)
 
         self.assertTrue(
             any(

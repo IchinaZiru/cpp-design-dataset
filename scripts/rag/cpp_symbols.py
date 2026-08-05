@@ -64,6 +64,12 @@ _CONDITIONAL_DIRECTIVE_PATTERN = re.compile(
     rb"^[ \t]*#[ \t]*(?:if|ifdef|ifndef|elif|else|endif)\b"
 )
 _PREPROCESSOR_NODE_PREFIX = "preproc_"
+_PREPROCESSOR_CONDITIONAL_TYPES = {
+    "preproc_if",
+    "preproc_ifdef",
+    "preproc_else",
+    "preproc_elif",
+}
 _EMPTY_BRACED_DEFAULT_ARGUMENT_FALLBACK = "empty-braced-default-argument-v1"
 _PARAMETER_ANCESTOR_TYPES = {"optional_parameter_declaration", "parameter_list"}
 
@@ -699,7 +705,7 @@ class _Extractor:
             )
             return
 
-        if node_type == "declaration":
+        if node_type in {"declaration", "field_declaration"}:
             function_declarator = _find_descendant(node, {"function_declarator"})
             if function_declarator is not None:
                 name_node = _find_name_node(function_declarator)
@@ -804,9 +810,14 @@ class _Extractor:
                 )
             return
 
-        # Preprocessor definitions are intentionally handled by the deterministic
-        # line fallback below, not by grammar-specific AST node shapes.
-        if node_type.startswith("preproc_"):
+        # Conditional nodes contain ordinary C++ declarations and definitions;
+        # recurse through them so header guards do not erase the production API.
+        # Other preprocessor forms are handled by the deterministic line fallback.
+        if node_type in _PREPROCESSOR_CONDITIONAL_TYPES:
+            for child in node.named_children:
+                self.visit(child, namespace, parent_symbol)
+            return
+        if node_type.startswith(_PREPROCESSOR_NODE_PREFIX):
             return
 
         for child in node.named_children:
