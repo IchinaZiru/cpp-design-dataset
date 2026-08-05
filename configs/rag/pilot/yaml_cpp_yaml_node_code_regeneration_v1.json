@@ -1,0 +1,245 @@
+{
+  "artifact_schema_version": "rag-yaml-cpp-code-regeneration-config-v1",
+  "condition_id": "rag-design-context-v1",
+  "run_id": "rag-v1-external-pilot-yaml-cpp-yaml-node-code-run01",
+  "output_path": "experiments/rag/pilot/external/yaml-cpp/rag-v1-external-pilot-yaml-cpp-yaml-node-code-run01",
+  "project_repository": {
+    "required_branch": "agent/rag-protocol-v0-9",
+    "required_baseline_ancestor": "eb4e6a439c928a7be8ea2e5bde65cbaaab95fcd8"
+  },
+  "pilot_repository": {
+    "repository_id": "yaml-cpp",
+    "required_commit": "3eb39d5808c33aa93a113cb6c668fa2435ff3ecd"
+  },
+  "target": {
+    "target_id": "yaml-cpp-yaml-node-d2929956c2cd",
+    "target_symbol": "YAML::Node",
+    "class_declaration": "class YAML_CPP_API Node",
+    "granularity": "class_span",
+    "path": "include/yaml-cpp/node/node.h",
+    "selection_rank": 1,
+    "candidate_id": "d2929956c2cdbd6484497b0dd2ef558f0b81a927f928140ed1626879ad29ed8c",
+    "chunk_id": "0ead74e6fe0eea2477c21b72938433f14422dd475a6fed2b189d4528ef9d7302",
+    "start_byte": 738,
+    "end_byte": 3803,
+    "start_line": 29,
+    "end_line": 143,
+    "raw_source_sha256": "47acc9084223ff553faa09cb57165b31561224872ea923363d37d236e73ca998",
+    "normalized_source_sha256": "4a70f9a232da4bd55faf19ea3123b8ae434dad46b1212e3066870e6d6862118c",
+    "source_range_sha256": "7c6a9b661f18ef3ccfcb1b4c357112b1a3ade1371ab31fe23781678f5e60ded4",
+    "source_normalization": "crlf-to-lf-before-utf8-byte-range-v1"
+  },
+  "frozen_selection": {
+    "path": "reports/rag/pilot/external/yaml-cpp/candidate-selection-v2/external_pilot_selection.json",
+    "sha256": "660eafc27072e4d04df321abe2c509ce063c61d154e625c214016cdbf3ef4170"
+  },
+  "design_evidence": {
+    "run_id": "rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01",
+    "root_path": "experiments/rag/pilot/external/yaml-cpp/rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01",
+    "design_document_path": "experiments/rag/pilot/external/yaml-cpp/rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01/design_document.md",
+    "design_document_sha256": "692d4328639916f425137b9254b8ee21db2a9d00b34d7f95cffbf330f1e3f796",
+    "design_request_path": "experiments/rag/pilot/external/yaml-cpp/rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01/plan/ollama_request.json",
+    "design_request_sha256": "0ed13ad3fd440dce9dbb7c62af4d91b82f1427e7e7857347dfcb586cc77fd050",
+    "design_result_path": "experiments/rag/pilot/external/yaml-cpp/rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01/design_generation_result.json",
+    "design_result_sha256": "175e1aba05f97be3eff5dd3af16ddd0955ff3badd89b582986f55c4425f9617b",
+    "design_attempt_path": "experiments/rag/pilot/external/yaml-cpp/rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01/design_generation_attempt.json",
+    "design_attempt_sha256": "c7f51e21ba94bfbb1d7d2aae40b8fa83f7380cbbf8659dce473154f97940c256",
+    "design_contact_path": "experiments/rag/pilot/external/yaml-cpp/rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01/generation_server_contact.json",
+    "design_contact_sha256": "39df1fa8268fe80279f5a3153cfbad2ef4ffbabac2cce23499acfe9417e4e26c",
+    "expected_llm_call_count": 1,
+    "expected_retry_performed": false,
+    "expected_repair_performed": false
+  },
+  "scaffold": {
+    "algorithm": "roundtrip-common-strip-inline-callable-bodies-v1",
+    "implementation_path": "scripts/roundtrip/roundtrip_common.py",
+    "implementation_sha256": "69ad642b7fe03679719cec13647ee08174c5581ce4a5c71fcdcc8b8131b54c80",
+    "expected_sha256": "78dc57fb4f8b5a6d909236426d0a61ac2811aec12759836640d557f33af2759c",
+    "final_newline_count": 1
+  },
+  "prompt": {
+    "version": "yaml-cpp-external-pilot-code-regeneration-prompt-v1",
+    "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構造を変更しないでください。",
+    "output_instruction": "対象クラスの凍結範囲全体をC++コードとして返してください。class YAML_CPP_API Node から対応する閉じ波括弧までを出力し、その直後にあるセミコロンは出力しないでください。Markdownコードフェンス、説明文、JSONは出力しないでください。",
+    "isolation_instruction": "入力として許可される実験証拠は、以下にそのまま掲載する生成済み設計文書と固定クラススキャフォールドだけです。元の対象ソース本体、凍結RAGコンテキスト、選択済み取得チャンク、設計生成prompt、設計生成request、設計文書の監査所見、node/impl.hなどのyaml-cpp実装ファイルを参照・推測・要求しないでください。",
+    "design_heading": "===== GENERATED DESIGN DOCUMENT (VERBATIM) =====",
+    "scaffold_heading": "===== FIXED CLASS SCAFFOLD ====="
+  },
+  "ollama": {
+    "endpoint": "http://localhost:11434/api/generate",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "model": "qwen2.5-coder:32b",
+    "stream": false,
+    "options": {
+      "temperature": 0,
+      "seed": 42,
+      "num_ctx": 16384,
+      "num_predict": 8192,
+      "top_k": 40,
+      "top_p": 0.9,
+      "repeat_penalty": 1.1
+    },
+    "timeout_seconds": 1800
+  },
+  "normalization": {
+    "policy": "existing-roundtrip-outer-markdown-fence-only-v1",
+    "allowed_outer_fence_languages": [
+      "",
+      "cpp",
+      "c++",
+      "cc",
+      "cxx"
+    ],
+    "automatic_repair_allowed": false,
+    "manual_patch_allowed": false
+  },
+  "one_shot_policy": {
+    "code_regeneration_requests": 1,
+    "retry_allowed": false,
+    "repair_allowed": false,
+    "overwrite_allowed": false,
+    "manual_patch_allowed": false,
+    "second_call_allowed": false,
+    "attempt_marker": "code_regeneration_attempt.json",
+    "failure_marker": "code_regeneration_failure.json",
+    "result_marker": "code_regeneration_result.json"
+  },
+  "prompt_input_policy": {
+    "allowed_verbatim_inputs": [
+      "design_document.md",
+      "fixed_scaffold.txt"
+    ],
+    "forbidden_inputs": [
+      "original_target_source_body",
+      "frozen_rag_context",
+      "selected_retrieval_chunks",
+      "design_generation_prompt",
+      "design_generation_request",
+      "design_document_audit_findings",
+      "yaml_cpp_implementation_files_including_node_impl_h"
+    ]
+  },
+  "evaluation": {
+    "baseline_report_path": "reports/rag/pilot/external/yaml-cpp/baseline-v1/repository_baseline.json",
+    "baseline_report_sha256": "a93e4c0b283f715a3a0180cdec6967064f9439664c0656317cb8ac8999ce7ab1",
+    "docker_image": "cpp-rag-pilot-env:yaml-cpp-v1",
+    "docker_image_id": "sha256:cf9ac1211043f2c6e6563628eddb48a7783e0a6109baa78be31b196ba2645cad",
+    "source_mount": "read_only",
+    "build_type": "Release",
+    "configure_options": [
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DYAML_CPP_BUILD_TESTS=ON",
+      "-DYAML_CPP_BUILD_TOOLS=OFF",
+      "-DYAML_CPP_BUILD_CONTRIB=ON"
+    ],
+    "direct_test_evidence_paths": [
+      "test/integration/clone_node_test.cpp",
+      "test/integration/convert_partial_specialization_test.cpp",
+      "test/integration/emitter_test.cpp",
+      "test/integration/error_messages_test.cpp",
+      "test/integration/load_node_test.cpp",
+      "test/integration/node_spec_test.cpp",
+      "test/node/node_test.cpp"
+    ],
+    "direct_test_suites": [
+      "CloneNodeTest",
+      "ConvertPartialSpecializationTest",
+      "EmitterErrorTest",
+      "EmitterTest",
+      "ErrorMessageTest",
+      "LoadNodeTest",
+      "NodeEmitterTest",
+      "NodeSpecTest",
+      "NodeTest"
+    ],
+    "direct_test_filter": "CloneNodeTest.*:ConvertPartialSpecializationTest.*:EmitterErrorTest.*:EmitterTest.*:ErrorMessageTest.*:LoadNodeTest.*:NodeEmitterTest.*:NodeSpecTest.*:NodeTest.*",
+    "full_test_names": [
+      "yaml-cpp::test",
+      "yaml-cpp::source-list"
+    ],
+    "expected_full_test_count": 2,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 300,
+      "restoration": 30
+    },
+    "commands": {
+      "configure": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<YAML_CPP_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "cmake",
+        "-S",
+        "/source",
+        "-B",
+        "/evaluation/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DYAML_CPP_BUILD_TESTS=ON",
+        "-DYAML_CPP_BUILD_TOOLS=OFF",
+        "-DYAML_CPP_BUILD_CONTRIB=ON"
+      ],
+      "build": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<YAML_CPP_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "cmake",
+        "--build",
+        "/evaluation/build",
+        "--parallel"
+      ],
+      "direct_test": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<YAML_CPP_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "-w",
+        "/evaluation/build/test",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "./yaml-cpp-tests",
+        "--gtest_filter=CloneNodeTest.*:ConvertPartialSpecializationTest.*:EmitterErrorTest.*:EmitterTest.*:ErrorMessageTest.*:LoadNodeTest.*:NodeEmitterTest.*:NodeSpecTest.*:NodeTest.*"
+      ],
+      "full_test": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<YAML_CPP_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "ctest",
+        "--test-dir",
+        "/evaluation/build",
+        "--output-on-failure"
+      ]
+    }
+  },
+  "replacement_and_restoration": {
+    "backup_original_bytes_before_replacement": true,
+    "replacement_scope": "normalized-frozen-half-open-class-span-only",
+    "replace_only_start_byte": 738,
+    "replace_only_end_byte": 3803,
+    "restore_in_finally": true,
+    "verify_restored_raw_sha256": "47acc9084223ff553faa09cb57165b31561224872ea923363d37d236e73ca998",
+    "verify_clean_yaml_cpp_worktree": true,
+    "manual_patch_allowed": false
+  }
+}
