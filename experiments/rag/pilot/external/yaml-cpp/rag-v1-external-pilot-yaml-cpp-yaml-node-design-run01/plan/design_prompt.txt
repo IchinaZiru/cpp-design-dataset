@@ -1,0 +1,474 @@
+# Target
+- target_id: yaml-cpp-yaml-node-d2929956c2cd
+- target_symbol: YAML::Node
+- granularity: class_span
+
+# Design-document task
+責務、公開インターフェース、入力、出力、状態、処理手順、例外・失敗条件、依存関係、重要な不変条件を記載してください。以下の凍結済み対象ソースと凍結済み取得文脈だけを根拠にし、設計文書だけを出力してください。
+
+# ===== FROZEN TARGET SOURCE =====
+class YAML_CPP_API Node {
+ public:
+  friend class NodeBuilder;
+  friend class NodeEvents;
+  friend struct detail::iterator_value;
+  friend class detail::node;
+  friend class detail::node_data;
+  template <typename>
+  friend class detail::iterator_base;
+  template <typename T, typename S>
+  friend struct as_if;
+
+  using iterator = YAML::iterator;
+  using const_iterator = YAML::const_iterator;
+
+  Node();
+  explicit Node(NodeType::value type);
+  template <typename T>
+  explicit Node(const T& rhs);
+  explicit Node(const detail::iterator_value& rhs);
+  Node(const Node& rhs);
+  ~Node();
+
+  YAML::Mark Mark() const;
+  NodeType::value Type() const;
+  bool IsDefined() const;
+  bool IsNull() const { return Type() == NodeType::Null; }
+  bool IsScalar() const { return Type() == NodeType::Scalar; }
+  bool IsSequence() const { return Type() == NodeType::Sequence; }
+  bool IsMap() const { return Type() == NodeType::Map; }
+
+  // bool conversions
+  explicit operator bool() const { return IsDefined(); }
+  bool operator!() const { return !IsDefined(); }
+
+  // access
+  template <typename T>
+  T as() const;
+  template <typename T, typename S>
+  T as(const S& fallback) const;
+  const std::string& Scalar() const;
+  const std::string& UninstrumentedScalarForTesting() const;
+
+  const std::string& Tag() const;
+  void SetTag(const std::string& tag);
+
+  // style
+  // WARNING: This API might change in future releases.
+  EmitterStyle::value Style() const;
+  void SetStyle(EmitterStyle::value style);
+
+  // assignment
+  bool is(const Node& rhs) const;
+  template <typename T>
+  Node& operator=(const T& rhs);
+  Node& operator=(const Node& rhs);
+  void reset(const Node& rhs = Node());
+
+  // size/iterator
+  std::size_t size() const;
+
+  const_iterator begin() const;
+  iterator begin();
+
+  const_iterator end() const;
+  iterator end();
+
+  // sequence
+  template <typename T>
+  void push_back(const T& rhs);
+  void push_back(const Node& rhs);
+
+  // indexing
+  template <typename Key>
+  const Node operator[](const Key& key) const;
+  template <typename Key>
+  Node operator[](const Key& key);
+  template <typename Key>
+  bool remove(const Key& key);
+
+  const Node operator[](const Node& key) const;
+  Node operator[](const Node& key);
+  bool remove(const Node& key);
+
+  // map
+  template <typename Key, typename Value>
+  void force_insert(const Key& key, const Value& value);
+
+  template <typename Key>
+  bool contains(const Key& key) const;
+
+ private:
+  enum Zombie { ZombieNode };
+  explicit Node(Zombie);
+  explicit Node(Zombie, const std::string&);
+  explicit Node(detail::node& node, detail::shared_memory_holder pMemory);
+
+  void EnsureNodeExists() const;
+  void Invalidate();
+
+  template <typename T>
+  void Assign(const T& rhs);
+  void Assign(const char* rhs);
+  void Assign(char* rhs);
+
+  void AssignData(const Node& rhs);
+  void AssignNode(const Node& rhs);
+
+ private:
+  bool m_isValid;
+  // String representation of invalid key, if the node is invalid.
+  std::string m_invalidKey;
+  mutable detail::shared_memory_holder m_pMemory;
+  mutable detail::node* m_pNode;
+}
+# END ===== FROZEN TARGET SOURCE =====
+
+# ===== FROZEN RETRIEVED REPOSITORY CONTEXT =====
+Repository-Context RAG v1
+Repository: yaml-cpp
+Commit: 3eb39d5808c33aa93a113cb6c668fa2435ff3ecd
+Target: yaml-cpp-yaml-node-d2929956c2cd
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: include/yaml-cpp/node/emit.h:17-17
+Symbol: YAML::Node
+Kind: class_declaration
+Tier: 0
+Relations: base_type
+```cpp
+class Node
+```
+
+## Chunk 2
+Path: include/yaml-cpp/node/detail/iterator_fwd.h:23-23
+Symbol: YAML::iterator
+Kind: alias_definition
+Tier: 0
+Relations: parameter_type
+```cpp
+using iterator = detail::iterator_base<detail::iterator_value>;
+```
+
+## Chunk 3
+Path: include/yaml-cpp/emitfromevents.h:17-17
+Symbol: YAML::Mark
+Kind: struct_declaration
+Tier: 0
+Relations: none
+```cpp
+struct Mark
+```
+
+## Chunk 4
+Path: include/yaml-cpp/mark.h:13-26
+Symbol: YAML::Mark
+Kind: struct_interface
+Tier: 0
+Relations: none
+```cpp
+struct YAML_CPP_API Mark {
+  Mark() : pos(0), line(0), column(0) {}
+
+  static const Mark null_mark() { return Mark(-1, -1, -1); }
+
+  bool is_null() const { return pos == -1 && line == -1 && column == -1; }
+
+  int pos;
+  int line, column;
+
+ private:
+  Mark(int pos_, int line_, int column_)
+      : pos(pos_), line(line_), column(column_) {}
+}
+```
+
+## Chunk 5
+Path: include/yaml-cpp/node/detail/node_ref.h:17-94
+Symbol: YAML::detail::node_ref
+Kind: class_interface
+Tier: 1
+Relations: parameter_type
+```cpp
+class node_ref {
+ public:
+  node_ref() : m_pData(std::make_shared<node_data>()) {}
+  node_ref(const node_ref&) = delete;
+  node_ref& operator=(const node_ref&) = delete;
+
+  bool is_defined() const { return m_pData->is_defined(); }
+  const Mark& mark() const { return m_pData->mark(); }
+  NodeType::value type() const { return m_pData->type(); }
+  const std::string& scalar() const { return m_pData->scalar(); }
+  const std::string& tag() const { return m_pData->tag(); }
+  EmitterStyle::value style() const { return m_pData->style(); }
+
+  void mark_defined() { m_pData->mark_defined(); }
+  void set_data(const node_ref& rhs) { m_pData = rhs.m_pData; }
+
+  void set_mark(const Mark& mark) { m_pData->set_mark(mark); }
+  void set_type(NodeType::value type) { m_pData->set_type(type); }
+  void set_tag(const std::string& tag) { m_pData->set_tag(tag); }
+  void set_null() { m_pData->set_null(); }
+  void set_scalar(const std::string& scalar) { m_pData->set_scalar(scalar); }
+  void set_style(EmitterStyle::value style) { m_pData->set_style(style); }
+
+  // size/iterator
+  std::size_t size() const { return m_pData->size(); }
+
+  const_node_iterator begin() const {
+    return static_cast<const node_data&>(*m_pData).begin();
+  }
+  node_iterator begin() { return m_pData->begin(); }
+
+  const_node_iterator end() const {
+    return static_cast<const node_data&>(*m_pData).end();
+  }
+  node_iterator end() { return m_pData->end(); }
+
+  // sequence
+  void push_back(node& node, shared_memory_holder pMemory) {
+    m_pData->push_back(node, pMemory);
+  }
+  void insert(node& key, node& value, shared_memory_holder pMemory) {
+    m_pData->insert(key, value, pMemory);
+  }
+
+  // indexing
+  template <typename Key>
+  node* get(const Key& key, shared_memory_holder pMemory) const {
+    return static_cast<const node_data&>(*m_pData).get(key, pMemory);
+  }
+  template <typename Key>
+  node& get(const Key& key, shared_memory_holder pMemory) {
+    return m_pData->get(key, pMemory);
+  }
+  template <typename Key>
+  bool remove(const Key& key, shared_memory_holder pMemory) {
+    return m_pData->remove(key, pMemory);
+  }
+
+  node* get(node& key, shared_memory_holder pMemory) const {
+    return static_cast<const node_data&>(*m_pData).get(key, pMemory);
+  }
+  node& get(node& key, shared_memory_holder pMemory) {
+    return m_pData->get(key, pMemory);
+  }
+  bool remove(node& key, shared_memory_holder pMemory) {
+    return m_pData->remove(key, pMemory);
+  }
+
+  // map
+  template <typename Key, typename Value>
+  void force_insert(const Key& key, const Value& value,
+                    shared_memory_holder pMemory) {
+    m_pData->force_insert(key, value, pMemory);
+  }
+
+ private:
+  shared_node_data m_pData;
+}
+```
+
+## Chunk 6
+Path: include/yaml-cpp/node/detail/node_data.h:46-48
+Symbol: YAML::detail::node_data::type
+Kind: method_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+NodeType::value type() const {
+    return m_isDefined ? m_type : NodeType::Undefined;
+  }
+```
+
+## Chunk 7
+Path: include/yaml-cpp/node/detail/node_ref.h:25-25
+Symbol: YAML::detail::node_ref::type
+Kind: method_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+NodeType::value type() const { return m_pData->type(); }
+```
+
+## Chunk 8
+Path: include/yaml-cpp/node/detail/node.h:36-36
+Symbol: YAML::detail::node::type
+Kind: method_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+NodeType::value type() const { return m_pRef->type(); }
+```
+
+## Chunk 9
+Path: src/nodeevents.cpp:54-92
+Symbol: YAML::NodeEvents::Emit
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void NodeEvents::Emit(const detail::node& node, EventHandler& handler,
+                      AliasManager& am) const {
+  anchor_t anchor = NullAnchor;
+  if (IsAliased(node)) {
+    anchor = am.LookupAnchor(node);
+    if (anchor) {
+      handler.OnAlias(Mark(), anchor);
+      return;
+    }
+
+    am.RegisterReference(node);
+    anchor = am.LookupAnchor(node);
+  }
+
+  switch (node.type()) {
+    case NodeType::Undefined:
+      break;
+    case NodeType::Null:
+      handler.OnNull(node.mark(), anchor);
+      break;
+    case NodeType::Scalar:
+      handler.OnScalar(node.mark(), node.tag(), anchor, node.scalar());
+      break;
+    case NodeType::Sequence:
+      handler.OnSequenceStart(node.mark(), node.tag(), anchor, node.style());
+      for (auto element : node)
+        Emit(*element, handler, am);
+      handler.OnSequenceEnd();
+      break;
+    case NodeType::Map:
+      handler.OnMapStart(node.mark(), node.tag(), anchor, node.style());
+      for (auto element : node) {
+        Emit(*element.first, handler, am);
+        Emit(*element.second, handler, am);
+      }
+      handler.OnMapEnd();
+      break;
+  }
+}
+```
+
+## Chunk 10
+Path: include/yaml-cpp/node/detail/iterator.h:93-100
+Symbol: YAML::detail::iterator_base::YAML_ATTRIBUTE_LIFETIME_BOUND
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+value_type operator*() const YAML_ATTRIBUTE_LIFETIME_BOUND {
+    const typename base_type::value_type& v = *m_iterator;
+    if (v.pNode)
+      return value_type(Node(*v, m_pMemory));
+    if (v.first && v.second)
+      return value_type(Node(*v.first, m_pMemory), Node(*v.second, m_pMemory));
+    return value_type();
+  }
+```
+
+## Chunk 11
+Path: include/yaml-cpp/node/detail/node_data.h:30-123
+Symbol: YAML::detail::node_data
+Kind: class_interface
+Tier: 2
+Relations: none
+```cpp
+class YAML_CPP_API node_data {
+ public:
+  node_data();
+  node_data(const node_data&) = delete;
+  node_data& operator=(const node_data&) = delete;
+
+  void mark_defined();
+  void set_mark(const Mark& mark);
+  void set_type(NodeType::value type);
+  void set_tag(const std::string& tag);
+  void set_null();
+  void set_scalar(const std::string& scalar);
+  void set_style(EmitterStyle::value style);
+
+  bool is_defined() const { return m_isDefined; }
+  const Mark& mark() const { return m_mark; }
+  NodeType::value type() const {
+    return m_isDefined ? m_type : NodeType::Undefined;
+  }
+  const std::string& scalar() const { return m_scalar; }
+  const std::string& tag() const { return m_tag; }
+  EmitterStyle::value style() const { return m_style; }
+
+  // size/iterator
+  std::size_t size() const;
+
+  const_node_iterator begin() const;
+  node_iterator begin();
+
+  const_node_iterator end() const;
+  node_iterator end();
+
+  // sequence
+  void push_back(node& node, const shared_memory_holder& pMemory);
+  void insert(node& key, node& value, const shared_memory_holder& pMemory);
+
+  // indexing
+  template <typename Key>
+  node* get(const Key& key, shared_memory_holder pMemory) const;
+  template <typename Key>
+  node& get(const Key& key, shared_memory_holder pMemory);
+  template <typename Key>
+  bool remove(const Key& key, shared_memory_holder pMemory);
+
+  node* get(node& key, const shared_memory_holder& pMemory) const;
+  node& get(node& key, const shared_memory_holder& pMemory);
+  bool remove(node& key, const shared_memory_holder& pMemory);
+
+  // map
+  template <typename Key, typename Value>
+  void force_insert(const Key& key, const Value& value,
+                    shared_memory_holder pMemory);
+
+ public:
+  static const std::string& empty_scalar();
+
+ private:
+  void compute_seq_size() const;
+  void compute_map_size() const;
+
+  void reset_sequence();
+  void reset_map();
+
+  void insert_map_pair(node& key, node& value, bool force = false);
+  void convert_to_map(const shared_memory_holder& pMemory);
+  void convert_sequence_to_map(const shared_memory_holder& pMemory);
+
+  template <typename T>
+  static node& convert_to_node(const T& rhs, shared_memory_holder pMemory);
+
+ private:
+  bool m_isDefined;
+  Mark m_mark;
+  NodeType::value m_type;
+  std::string m_tag;
+  EmitterStyle::value m_style;
+
+  // scalar
+  std::string m_scalar;
+
+  // sequence
+  using node_seq = std::vector<node *>;
+  node_seq m_sequence;
+
+  mutable std::size_t m_seqSize;
+
+  // map
+  using node_map = std::vector<std::pair<node*, node*>>;
+  node_map m_map;
+
+  using kv_pair = std::pair<node*, node*>;
+  using kv_pairs = std::list<kv_pair>;
+  mutable kv_pairs m_undefinedPairs;
+}
+```
+# END ===== FROZEN RETRIEVED REPOSITORY CONTEXT =====
