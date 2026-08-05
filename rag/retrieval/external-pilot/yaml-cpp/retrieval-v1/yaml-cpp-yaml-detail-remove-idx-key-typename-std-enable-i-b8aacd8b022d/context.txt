@@ -1,0 +1,444 @@
+Repository-Context RAG v1
+Repository: yaml-cpp
+Commit: 3eb39d5808c33aa93a113cb6c668fa2435ff3ecd
+Target: yaml-cpp-yaml-detail-remove-idx-key-typename-std-enable-i-b8aacd8b022d
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: include/yaml-cpp/node/detail/impl.h:61-66
+Symbol: YAML::detail::remove_idx
+Kind: struct_interface
+Tier: 0
+Relations: none
+```cpp
+template <typename Key, typename Enable = void>
+struct remove_idx {
+  static bool remove(std::vector<node*>&, const Key&, std::size_t&) {
+    return false;
+  }
+};
+```
+
+## Chunk 2
+Path: include/yaml-cpp/node/detail/node.h:20-173
+Symbol: YAML::detail::node
+Kind: class_interface
+Tier: 0
+Relations: parameter_type,return_type
+```cpp
+class node {
+ private:
+  struct less {
+    bool operator ()(const node* l, const node* r) const {return l->m_index < r->m_index;}
+  };
+
+ public:
+  node() : m_pRef(std::make_shared<node_ref>()), m_dependencies{}, m_index{} {}
+  node(const node&) = delete;
+  node& operator=(const node&) = delete;
+
+  bool is(const node& rhs) const { return m_pRef == rhs.m_pRef; }
+  const node_ref* ref() const { return m_pRef.get(); }
+
+  bool is_defined() const { return m_pRef->is_defined(); }
+  const Mark& mark() const { return m_pRef->mark(); }
+  NodeType::value type() const { return m_pRef->type(); }
+
+  const std::string& scalar() const { return m_pRef->scalar(); }
+  const std::string& tag() const { return m_pRef->tag(); }
+  EmitterStyle::value style() const { return m_pRef->style(); }
+
+  template <typename T>
+  bool equals(const T& rhs, shared_memory_holder pMemory);
+  bool equals(const char* rhs, shared_memory_holder pMemory);
+
+  void mark_defined() {
+    if (is_defined())
+      return;
+
+    m_pRef->mark_defined();
+    for (node* dependency : m_dependencies)
+      dependency->mark_defined();
+    m_dependencies.clear();
+  }
+
+  void add_dependency(node& rhs) {
+    if (is_defined())
+      rhs.mark_defined();
+    else
+      m_dependencies.insert(&rhs);
+  }
+
+  void set_ref(const node& rhs) {
+    if (rhs.is_defined())
+      mark_defined();
+    m_pRef = rhs.m_pRef;
+  }
+  void set_data(const node& rhs) {
+    if (rhs.is_defined())
+      mark_defined();
+    m_pRef->set_data(*rhs.m_pRef);
+  }
+
+  void set_mark(const Mark& mark) { m_pRef->set_mark(mark); }
+
+  void set_type(NodeType::value type) {
+    if (type != NodeType::Undefined)
+      mark_defined();
+    m_pRef->set_type(type);
+  }
+  void set_null() {
+    mark_defined();
+    m_pRef->set_null();
+  }
+  void set_scalar(const std::string& scalar) {
+    mark_defined();
+    m_pRef->set_scalar(scalar);
+  }
+  void set_tag(const std::string& tag) {
+    mark_defined();
+    m_pRef->set_tag(tag);
+  }
+
+  // style
+  void set_style(EmitterStyle::value style) {
+    mark_defined();
+    m_pRef->set_style(style);
+  }
+
+  // size/iterator
+  std::size_t size() const { return m_pRef->size(); }
+
+  const_node_iterator begin() const {
+    return static_cast<const node_ref&>(*m_pRef).begin();
+  }
+  node_iterator begin() { return m_pRef->begin(); }
+
+  const_node_iterator end() const {
+    return static_cast<const node_ref&>(*m_pRef).end();
+  }
+  node_iterator end() { return m_pRef->end(); }
+
+  // sequence
+  void push_back(node& input, shared_memory_holder pMemory) {
+    m_pRef->push_back(input, pMemory);
+    input.add_dependency(*this);
+    m_index = m_amount.fetch_add(1);
+  }
+  void insert(node& key, node& value, shared_memory_holder pMemory) {
+    m_pRef->insert(key, value, pMemory);
+    key.add_dependency(*this);
+    value.add_dependency(*this);
+  }
+
+  // indexing
+  template <typename Key>
+  node* get(const Key& key, shared_memory_holder pMemory) const {
+    // NOTE: this returns a non-const node so that the top-level Node can wrap
+    // it, and returns a pointer so that it can be nullptr (if there is no such
+    // key).
+    return static_cast<const node_ref&>(*m_pRef).get(key, pMemory);
+  }
+  template <typename Key>
+  node& get(const Key& key, shared_memory_holder pMemory) {
+    node& value = m_pRef->get(key, pMemory);
+    value.add_dependency(*this);
+    return value;
+  }
+  template <typename Key>
+  bool remove(const Key& key, shared_memory_holder pMemory) {
+    return m_pRef->remove(key, pMemory);
+  }
+
+  node* get(node& key, shared_memory_holder pMemory) const {
+    // NOTE: this returns a non-const node so that the top-level Node can wrap
+    // it, and returns a pointer so that it can be nullptr (if there is no such
+    // key).
+    return static_cast<const node_ref&>(*m_pRef).get(key, pMemory);
+  }
+  node& get(node& key, shared_memory_holder pMemory) {
+    node& value = m_pRef->get(key, pMemory);
+    key.add_dependency(*this);
+    value.add_dependency(*this);
+    return value;
+  }
+  bool remove(node& key, shared_memory_holder pMemory) {
+    return m_pRef->remove(key, pMemory);
+  }
+
+  // map
+  template <typename Key, typename Value>
+  void force_insert(const Key& key, const Value& value,
+                    shared_memory_holder pMemory) {
+    m_pRef->force_insert(key, value, pMemory);
+  }
+
+ private:
+  shared_node_ref m_pRef;
+  using nodes = std::set<node*, less>;
+  nodes m_dependencies;
+  size_t m_index;
+  static YAML_CPP_API std::atomic<size_t> m_amount;
+}
+```
+
+## Chunk 3
+Path: include/yaml-cpp/node/detail/memory.h:17-17
+Symbol: YAML::detail::node
+Kind: class_declaration
+Tier: 0
+Relations: parameter_type,return_type
+```cpp
+class node
+```
+
+## Chunk 4
+Path: include/yaml-cpp/node/detail/memory.h:28-28
+Symbol: YAML::detail::memory::size
+Kind: method_declaration
+Tier: 0
+Relations: return_type
+```cpp
+size_t size() const;
+```
+
+## Chunk 5
+Path: include/yaml-cpp/emitter.h:39-144
+Symbol: YAML::Emitter
+Kind: class_interface
+Tier: 1
+Relations: return_type
+```cpp
+class YAML_CPP_API Emitter {
+ public:
+  Emitter();
+  explicit Emitter(std::ostream& stream);
+  Emitter(const Emitter&) = delete;
+  Emitter& operator=(const Emitter&) = delete;
+  ~Emitter();
+
+  // output
+  const char* c_str() const;
+  std::size_t size() const;
+
+  // state checking
+  bool good() const;
+  const std::string GetLastError() const;
+
+  // global setters
+  bool SetOutputCharset(EMITTER_MANIP value);
+  bool SetStringFormat(EMITTER_MANIP value);
+  bool SetBoolFormat(EMITTER_MANIP value);
+  bool SetNullFormat(EMITTER_MANIP value);
+  bool SetIntBase(EMITTER_MANIP value);
+  bool SetSeqFormat(EMITTER_MANIP value);
+  bool SetMapFormat(EMITTER_MANIP value);
+  bool SetIndent(std::size_t n);
+  bool SetPreCommentIndent(std::size_t n);
+  bool SetPostCommentIndent(std::size_t n);
+  bool SetFloatPrecision(std::size_t n);
+  bool SetDoublePrecision(std::size_t n);
+  bool SetShowTrailingZero(bool value);
+  void RestoreGlobalModifiedSettings();
+
+  // local setters
+  Emitter& SetLocalValue(EMITTER_MANIP value);
+  Emitter& SetLocalIndent(const _Indent& indent);
+  Emitter& SetLocalWrap(const _Wrap& wrap);
+  Emitter& SetLocalPrecision(const _Precision& precision);
+
+  // overloads of write
+  Emitter& Write(const char* str, std::size_t size);
+  Emitter& Write(const std::string& str);
+  Emitter& Write(bool b);
+  Emitter& Write(char ch);
+  Emitter& Write(const _Alias& alias);
+  Emitter& Write(const _Anchor& anchor);
+  Emitter& Write(const _Tag& tag);
+  Emitter& Write(const _Comment& comment);
+  Emitter& Write(const _Null& n);
+  Emitter& Write(const Binary& binary);
+
+  template <typename T>
+  Emitter& WriteIntegralType(T value);
+
+  template <typename T>
+  Emitter& WriteStreamable(T value);
+
+ private:
+  template <typename T>
+  void SetStreamablePrecision(std::stringstream&) {}
+  std::size_t GetFloatPrecision() const;
+  std::size_t GetDoublePrecision() const;
+  bool GetShowTrailingZero() const;
+
+  void PrepareIntegralStream(std::stringstream& stream) const;
+  void StartedScalar();
+
+ private:
+  void EmitBeginDoc();
+  void EmitEndDoc();
+  void EmitBeginSeq();
+  void EmitEndSeq();
+  void EmitBeginMap();
+  void EmitEndMap();
+  void EmitNewline();
+  void EmitKindTag();
+  void EmitTag(bool verbatim, const _Tag& tag);
+
+  void PrepareNode(EmitterNodeType::value child);
+  void PrepareTopNode(EmitterNodeType::value child);
+  void FlowSeqPrepareNode(EmitterNodeType::value child);
+  void BlockSeqPrepareNode(EmitterNodeType::value child);
+
+  void FlowMapPrepareNode(EmitterNodeType::value child);
+
+  void FlowMapPrepareLongKey(EmitterNodeType::value child);
+  void FlowMapPrepareLongKeyValue(EmitterNodeType::value child);
+  void FlowMapPrepareSimpleKey(EmitterNodeType::value child);
+  void FlowMapPrepareSimpleKeyValue(EmitterNodeType::value child);
+
+  void BlockMapPrepareNode(EmitterNodeType::value child);
+
+  void BlockMapPrepareLongKey(EmitterNodeType::value child);
+  void BlockMapPrepareLongKeyValue(EmitterNodeType::value child);
+  void BlockMapPrepareSimpleKey(EmitterNodeType::value child);
+  void BlockMapPrepareSimpleKeyValue(EmitterNodeType::value child);
+
+  void SpaceOrIndentTo(bool requireSpace, std::size_t indent);
+
+  const char* ComputeFullBoolName(bool b) const;
+  const char* ComputeNullName() const;
+  bool CanEmitNewline() const;
+
+ private:
+  std::unique_ptr<EmitterState> m_pState;
+  ostream_wrapper m_stream;
+}
+```
+
+## Chunk 6
+Path: include/yaml-cpp/node/detail/iterator_fwd.h:24-24
+Symbol: YAML::const_iterator
+Kind: alias_definition
+Tier: 1
+Relations: return_type
+```cpp
+using const_iterator = detail::iterator_base<const detail::iterator_value>;
+```
+
+## Chunk 7
+Path: include/yaml-cpp/node/detail/memory.h:23-33
+Symbol: YAML::detail::memory
+Kind: class_interface
+Tier: 1
+Relations: return_type
+```cpp
+class YAML_CPP_API memory {
+ public:
+  memory() : m_nodes{} {}
+  node& create_node();
+  void merge(const memory& rhs);
+  size_t size() const;
+
+ private:
+  using Nodes = std::set<shared_node>;
+  Nodes m_nodes;
+}
+```
+
+## Chunk 8
+Path: include/yaml-cpp/node/detail/memory.h:25-25
+Symbol: YAML::detail::memory::memory
+Kind: constructor_definition
+Tier: 1
+Relations: return_type
+```cpp
+memory() : m_nodes{} {}
+```
+
+## Chunk 9
+Path: src/node_data.cpp:247-270
+Symbol: YAML::detail::node_data::remove
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+bool node_data::remove(node& key, const shared_memory_holder& /* pMemory */) {
+  if (m_type != NodeType::Map)
+    return false;
+
+  for (auto it = m_undefinedPairs.begin(); it != m_undefinedPairs.end();) {
+    auto jt = std::next(it);
+    if (it->first->is(key))
+      m_undefinedPairs.erase(it);
+    it = jt;
+  }
+
+  auto it =
+      std::find_if(m_map.begin(), m_map.end(),
+                   [&](std::pair<YAML::detail::node*, YAML::detail::node*> j) {
+                     return (j.first->is(key));
+                   });
+
+  if (it != m_map.end()) {
+    m_map.erase(it);
+    return true;
+  }
+
+  return false;
+}
+```
+
+## Chunk 10
+Path: include/yaml-cpp/node/detail/impl.h:30-33
+Symbol: YAML::detail::get_idx<Key,
+               typename std::enable_if<std::is_unsigned<Key>::value &&
+                                       !std::is_same<Key, bool>::value>::type>::get
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+static node* get(const std::vector<node*>& sequence, const Key& key,
+                   shared_memory_holder /* pMemory */) {
+    return key < sequence.size() ? sequence[key] : nullptr;
+  }
+```
+
+## Chunk 11
+Path: include/yaml-cpp/node/detail/impl.h:35-42
+Symbol: YAML::detail::get_idx<Key,
+               typename std::enable_if<std::is_unsigned<Key>::value &&
+                                       !std::is_same<Key, bool>::value>::type>::get
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+static node* get(std::vector<node*>& sequence, const Key& key,
+                   shared_memory_holder pMemory) {
+    if (key > sequence.size() || (key > 0 && !sequence[key - 1]->is_defined()))
+      return nullptr;
+    if (key == sequence.size())
+      sequence.push_back(&pMemory->create_node());
+    return sequence[key];
+  }
+```
+
+## Chunk 12
+Path: src/regeximpl.h:28-35
+Symbol: YAML::RegEx::Matches
+Kind: method_definition
+Tier: 3
+Relations: none
+```cpp
+template <typename Source>
+inline bool RegEx::Matches(const Source& source) const {
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201103L) || __cplusplus >= 201103L)
+  static_assert(!std::is_same<Source, const char*>::value,
+#endif
+    "Must use StringCharSource instead of plain C-string");
+  return Match(source) >= 0;
+}
+```
+

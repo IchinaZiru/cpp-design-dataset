@@ -1,0 +1,277 @@
+Repository-Context RAG v1
+Repository: yaml-cpp
+Commit: 3eb39d5808c33aa93a113cb6c668fa2435ff3ecd
+Target: yaml-cpp-yaml-convert-std-string-3825140d3f5f
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: include/yaml-cpp/node/convert.h:38-39
+Symbol: YAML::convert
+Kind: struct_declaration
+Tier: 0
+Relations: none
+```cpp
+template <typename T, typename Enable>
+struct convert;
+```
+
+## Chunk 2
+Path: include/yaml-cpp/node/node.h:149-150
+Symbol: YAML::convert
+Kind: struct_declaration
+Tier: 0
+Relations: none
+```cpp
+template <typename T, typename Enable = void>
+struct convert;
+```
+
+## Chunk 3
+Path: include/yaml-cpp/node/node.h:29-143
+Symbol: YAML::Node
+Kind: class_interface
+Tier: 0
+Relations: parameter_type,return_type
+```cpp
+class YAML_CPP_API Node {
+ public:
+  friend class NodeBuilder;
+  friend class NodeEvents;
+  friend struct detail::iterator_value;
+  friend class detail::node;
+  friend class detail::node_data;
+  template <typename>
+  friend class detail::iterator_base;
+  template <typename T, typename S>
+  friend struct as_if;
+
+  using iterator = YAML::iterator;
+  using const_iterator = YAML::const_iterator;
+
+  Node();
+  explicit Node(NodeType::value type);
+  template <typename T>
+  explicit Node(const T& rhs);
+  explicit Node(const detail::iterator_value& rhs);
+  Node(const Node& rhs);
+  ~Node();
+
+  YAML::Mark Mark() const;
+  NodeType::value Type() const;
+  bool IsDefined() const;
+  bool IsNull() const { return Type() == NodeType::Null; }
+  bool IsScalar() const { return Type() == NodeType::Scalar; }
+  bool IsSequence() const { return Type() == NodeType::Sequence; }
+  bool IsMap() const { return Type() == NodeType::Map; }
+
+  // bool conversions
+  explicit operator bool() const { return IsDefined(); }
+  bool operator!() const { return !IsDefined(); }
+
+  // access
+  template <typename T>
+  T as() const;
+  template <typename T, typename S>
+  T as(const S& fallback) const;
+  const std::string& Scalar() const;
+  const std::string& UninstrumentedScalarForTesting() const;
+
+  const std::string& Tag() const;
+  void SetTag(const std::string& tag);
+
+  // style
+  // WARNING: This API might change in future releases.
+  EmitterStyle::value Style() const;
+  void SetStyle(EmitterStyle::value style);
+
+  // assignment
+  bool is(const Node& rhs) const;
+  template <typename T>
+  Node& operator=(const T& rhs);
+  Node& operator=(const Node& rhs);
+  void reset(const Node& rhs = Node());
+
+  // size/iterator
+  std::size_t size() const;
+
+  const_iterator begin() const;
+  iterator begin();
+
+  const_iterator end() const;
+  iterator end();
+
+  // sequence
+  template <typename T>
+  void push_back(const T& rhs);
+  void push_back(const Node& rhs);
+
+  // indexing
+  template <typename Key>
+  const Node operator[](const Key& key) const;
+  template <typename Key>
+  Node operator[](const Key& key);
+  template <typename Key>
+  bool remove(const Key& key);
+
+  const Node operator[](const Node& key) const;
+  Node operator[](const Node& key);
+  bool remove(const Node& key);
+
+  // map
+  template <typename Key, typename Value>
+  void force_insert(const Key& key, const Value& value);
+
+  template <typename Key>
+  bool contains(const Key& key) const;
+
+ private:
+  enum Zombie { ZombieNode };
+  explicit Node(Zombie);
+  explicit Node(Zombie, const std::string&);
+  explicit Node(detail::node& node, detail::shared_memory_holder pMemory);
+
+  void EnsureNodeExists() const;
+  void Invalidate();
+
+  template <typename T>
+  void Assign(const T& rhs);
+  void Assign(const char* rhs);
+  void Assign(char* rhs);
+
+  void AssignData(const Node& rhs);
+  void AssignNode(const Node& rhs);
+
+ private:
+  bool m_isValid;
+  // String representation of invalid key, if the node is invalid.
+  std::string m_invalidKey;
+  mutable detail::shared_memory_holder m_pMemory;
+  mutable detail::node* m_pNode;
+}
+```
+
+## Chunk 4
+Path: include/yaml-cpp/node/node.h:56-56
+Symbol: YAML::Node::IsScalar
+Kind: method_definition
+Tier: 0
+Relations: none
+```cpp
+bool IsScalar() const { return Type() == NodeType::Scalar; }
+```
+
+## Chunk 5
+Path: include/yaml-cpp/node/type.h:12-12
+Symbol: YAML::NodeType::value
+Kind: enum_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+enum value { Undefined, Null, Scalar, Sequence, Map }
+```
+
+## Chunk 6
+Path: include/yaml-cpp/emitterdef.h:12-12
+Symbol: YAML::EmitterNodeType::value
+Kind: enum_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+enum value { NoType, Property, Scalar, FlowSeq, BlockSeq, FlowMap, BlockMap }
+```
+
+## Chunk 7
+Path: include/yaml-cpp/node/impl.h:100-100
+Symbol: YAML::as_if::node
+Kind: constant_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+const Node& node;
+```
+
+## Chunk 8
+Path: include/yaml-cpp/node/iterator.h:23-35
+Symbol: YAML::detail::iterator_value
+Kind: struct_interface
+Tier: 1
+Relations: parameter_type
+```cpp
+struct iterator_value : public Node, std::pair<Node, Node> {
+  iterator_value() = default;
+  explicit iterator_value(const Node& rhs)
+      : Node(rhs),
+        std::pair<Node, Node>(Node(Node::ZombieNode), Node(Node::ZombieNode)) {}
+  explicit iterator_value(const Node& key, const Node& value)
+      : Node(Node::ZombieNode), std::pair<Node, Node>(key, value) {}
+  ~iterator_value() noexcept {
+    this->Node::Invalidate();
+    first.Invalidate();
+    second.Invalidate();
+  }
+}
+```
+
+## Chunk 9
+Path: include/yaml-cpp/node/convert.h:99-109
+Symbol: YAML::convert<std::string_view>
+Kind: struct_interface
+Tier: 2
+Relations: none
+```cpp
+template <>
+struct convert<std::string_view> {
+  static Node encode(std::string_view rhs) { return Node(std::string(rhs)); }
+
+  static bool decode(const Node& node, std::string_view& rhs) {
+    if (!node.IsScalar())
+      return false;
+    rhs = node.Scalar();
+    return true;
+  }
+};
+```
+
+## Chunk 10
+Path: include/yaml-cpp/node/convert.h:103-108
+Symbol: YAML::convert<std::string_view>::decode
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+static bool decode(const Node& node, std::string_view& rhs) {
+    if (!node.IsScalar())
+      return false;
+    rhs = node.Scalar();
+    return true;
+  }
+```
+
+## Chunk 11
+Path: include/yaml-cpp/node/convert.h:488-505
+Symbol: YAML::convert<Binary>
+Kind: struct_interface
+Tier: 2
+Relations: none
+```cpp
+template <>
+struct convert<Binary> {
+  static Node encode(const Binary& rhs) {
+    return Node(EncodeBase64(rhs.data(), rhs.size()));
+  }
+
+  static bool decode(const Node& node, Binary& rhs) {
+    if (!node.IsScalar())
+      return false;
+
+    std::vector<unsigned char> data = DecodeBase64(node.Scalar());
+    if (data.empty() && !node.Scalar().empty())
+      return false;
+
+    rhs.swap(data);
+    return true;
+  }
+};
+```
+
