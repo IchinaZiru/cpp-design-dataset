@@ -560,21 +560,17 @@ def _location_for_span(data: bytes, path: str, start: int, end: int) -> dict[str
     }
 
 
-def _location_for_node(node: Any, path: str) -> dict[str, Any]:
-    start_row, start_column = _point(node.start_point)
-    end_row, end_column = _point(node.end_point)
-    end_line = end_row + 1
-    if int(node.end_byte) > int(node.start_byte) and end_column == 0:
-        end_line = max(start_row + 1, end_row)
-    return {
-        "end_byte": int(node.end_byte),
-        "end_column": end_column,
-        "end_line": end_line,
-        "path": path,
-        "start_byte": int(node.start_byte),
-        "start_column": start_column,
-        "start_line": start_row + 1,
-    }
+def _location_for_node(
+    node: Any,
+    path: str,
+    data: bytes,
+) -> dict[str, Any]:
+    return _location_for_span(
+        data,
+        path,
+        int(node.start_byte),
+        int(node.end_byte),
+    )
 
 
 def _canonical_text(text: str) -> str:
@@ -924,7 +920,7 @@ class _AstExtractor:
             priority = "medium"
         self.emit(
             "function_calls", text=name, kind=kind, priority=priority,
-            relation="call_target", location=_location_for_node(function, self.source_range.path),
+            relation="call_target", location=_location_for_node(function, self.source_range.path, self.source_range.data),
             qualified=qualified,
             evidence_node_type=str(function.type),
             details={"call_expression": expression, "call_form": call_form},
@@ -952,7 +948,7 @@ class _AstExtractor:
             "function_calls", text=text, kind="constructor_candidate",
             priority="high" if qualified else "medium",
             relation="constructor_call",
-            location=_location_for_node(top, self.source_range.path),
+            location=_location_for_node(top, self.source_range.path, self.source_range.data),
             qualified=qualified, evidence_node_type=str(node.type),
             details={"call_form": "new_expression"},
         )
@@ -970,7 +966,7 @@ class _AstExtractor:
                     seen.add(key)
                     self.emit(
                         "base_classes", text=text, kind="base_class", priority="high",
-                        relation="base_type", location=_location_for_node(top, self.source_range.path),
+                        relation="base_type", location=_location_for_node(top, self.source_range.path, self.source_range.data),
                         qualified="::" in text, evidence_node_type=str(top.type),
                     )
             else:
@@ -993,7 +989,7 @@ class _AstExtractor:
         )
         self.emit(
             "nested_types", text=text, kind=f"nested_{str(node.type)}", priority="high",
-            relation="nested_type", location=_location_for_node(name_node, self.source_range.path),
+            relation="nested_type", location=_location_for_node(name_node, self.source_range.path, self.source_range.data),
             qualified=False, evidence_node_type=str(node.type), details={"owner": owner_text},
         )
 
@@ -1004,7 +1000,7 @@ class _AstExtractor:
             if _valid_identifier_candidate(text, self.config):
                 self.emit(
                     "enums", text=text, kind="enum_definition", priority="high",
-                    relation="enum_definition", location=_location_for_node(name_node, self.source_range.path),
+                    relation="enum_definition", location=_location_for_node(name_node, self.source_range.path, self.source_range.data),
                     qualified="::" in text, evidence_node_type=str(node.type),
                 )
         stack = list(_named_children(node))
@@ -1018,7 +1014,7 @@ class _AstExtractor:
                         self.emit(
                             "constants_and_macros", text=text, kind="enumerator",
                             priority="high", relation="enum_constant",
-                            location=_location_for_node(enum_name, self.source_range.path),
+                            location=_location_for_node(enum_name, self.source_range.path, self.source_range.data),
                             qualified=False, evidence_node_type="enumerator",
                         )
             else:
@@ -1039,7 +1035,7 @@ class _AstExtractor:
             return
         self.emit(
             "constants_and_macros", text=name, kind="constant_definition", priority="high",
-            relation="namespace_or_class_constant", location=_location_for_node(name_node, self.source_range.path),
+            relation="namespace_or_class_constant", location=_location_for_node(name_node, self.source_range.path, self.source_range.data),
             qualified="::" in name, evidence_node_type=str(node.type),
         )
 
@@ -1051,7 +1047,7 @@ class _AstExtractor:
         if not _valid_identifier_candidate(text, self.config):
             return
         qualified = "::" in text
-        location = _location_for_node(top, self.source_range.path)
+        location = _location_for_node(top, self.source_range.path, self.source_range.data)
         self.emit(
             "user_defined_types", text=text,
             kind="qualified_type" if qualified else "user_defined_type",
@@ -1087,7 +1083,7 @@ class _AstExtractor:
         owner = "::".join(parts[:-1])
         if not _valid_identifier_candidate(owner, self.config):
             return
-        location = _location_for_node(node, self.source_range.path)
+        location = _location_for_node(node, self.source_range.path, self.source_range.data)
         self.emit(
             "enums", text=owner, kind="enum_reference_candidate",
             priority="medium", relation="enum_reference", location=location,
@@ -1112,7 +1108,7 @@ class _AstExtractor:
         self.emit(
             "constants_and_macros", text=text, kind="constant_or_macro_reference",
             priority="medium", relation="constant_or_macro_reference",
-            location=_location_for_node(node, self.source_range.path), qualified=False,
+            location=_location_for_node(node, self.source_range.path, self.source_range.data), qualified=False,
             evidence_node_type=str(node.type),
         )
 

@@ -15,6 +15,7 @@ from scripts.rag.query_extractor import (
     SourceRange,
     _character_span_to_bytes,
     _deduplicate,
+    _location_for_node,
     _record,
     SymbolCatalog,
     TargetRegistry,
@@ -119,6 +120,36 @@ class QueryConfigTests(unittest.TestCase):
 
 
 class CanonicalQueryTests(unittest.TestCase):
+    def test_location_uses_byte_offsets_without_native_points(self) -> None:
+        class ByteOnlyNode:
+            start_byte = 2
+            end_byte = 5
+
+            @property
+            def start_point(self):
+                raise AssertionError("start_point must not be accessed")
+
+            @property
+            def end_point(self):
+                raise AssertionError("end_point must not be accessed")
+
+        self.assertEqual(
+            _location_for_node(
+                ByteOnlyNode(),
+                "fixture.cpp",
+                b"a\nxyz\n",
+            ),
+            {
+                "end_byte": 5,
+                "end_column": 2,
+                "end_line": 2,
+                "path": "fixture.cpp",
+                "start_byte": 2,
+                "start_column": 0,
+                "start_line": 2,
+            },
+        )
+
     def test_source_normalization_matches_frozen_design_input_rules(self) -> None:
         raw = b"\xef\xbb\xbfline1\r\nline2\rline3\n"
         self.assertEqual(normalize_source_bytes(raw), b"line1\nline2\nline3\n")
