@@ -8,7 +8,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .canonical import sha256_bytes, write_canonical_json, write_canonical_jsonl
+from .canonical import (
+    posix_relative_path,
+    sha256_bytes,
+    write_canonical_json,
+    write_canonical_jsonl,
+)
 from .config import IndexConfig
 from .corpus import CorpusCollection, collect_production_corpus
 from .cpp_symbols import (
@@ -42,6 +47,18 @@ class BuildResult:
     @property
     def valid(self) -> bool:
         return not self.validation_errors
+
+
+def _artifact_config_path(path: Path) -> str:
+    """Return a machine-independent config path for index artifacts."""
+
+    candidate = path
+    if candidate.is_absolute():
+        try:
+            candidate = candidate.resolve().relative_to(Path.cwd().resolve())
+        except ValueError:
+            candidate = Path(candidate.name)
+    return posix_relative_path(candidate)
 
 
 def _distribution_version(name: str) -> str:
@@ -124,7 +141,7 @@ def _corpus_manifest(
         "artifact_schema_version": config.artifact_schema_version,
         "chunk_count": len(chunks),
         "chunking_version": config.chunking.version,
-        "config_path": "configs/rag/retrieval_v1.json",
+        "config_path": _artifact_config_path(config.path),
         "config_sha256": config.sha256,
         "corpus_version": config.corpus.version,
         "exclude_filename_patterns": list(config.corpus.exclude_filename_patterns),

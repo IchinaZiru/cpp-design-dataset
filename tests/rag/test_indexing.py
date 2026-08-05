@@ -342,6 +342,11 @@ class SymbolIndexFixtureTests(unittest.TestCase):
             )
         )
 
+        manifest = json.loads(
+            (output / "corpus_manifest.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(manifest["config_path"], self.config.name)
+
         validation = json.loads(
             (output / "index_validation.json").read_text(encoding="utf-8")
         )
