@@ -1,0 +1,209 @@
+{
+  "artifact_schema_version": "rag-yaml-cpp-mechanics-config-v1",
+  "condition_id": "rag-pipeline-mechanics-v1",
+  "run_id": "rag-mechanics-v1-yaml-cpp-yaml-node-replacement-eval-run01",
+  "output_path": "experiments/rag/pilot/mechanics/yaml-cpp/rag-mechanics-v1-yaml-cpp-yaml-node-replacement-eval-run01",
+  "classification": {
+    "rag_treatment_run": false,
+    "code_regeneration_run": false,
+    "retry_of_yaml_node_run01": false,
+    "formal_experimental_result": false,
+    "evidence_of_rag_improvement": false
+  },
+  "project_repository": {
+    "required_branch": "agent/rag-protocol-v0-9",
+    "required_baseline_ancestor": "df830c4ab03008bcdd9d936f2b348a8773226932"
+  },
+  "pilot_repository": {
+    "repository_id": "yaml-cpp",
+    "required_commit": "3eb39d5808c33aa93a113cb6c668fa2435ff3ecd"
+  },
+  "protected_immutable_run_paths": [
+    "experiments/rag/pilot/external/yaml-cpp/rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01",
+    "experiments/rag/pilot/external/yaml-cpp/rag-v1-external-pilot-yaml-cpp-yaml-node-code-run01"
+  ],
+  "target": {
+    "target_id": "yaml-cpp-yaml-node-d2929956c2cd",
+    "target_symbol": "YAML::Node",
+    "class_declaration": "class YAML_CPP_API Node",
+    "granularity": "class_span",
+    "path": "include/yaml-cpp/node/node.h",
+    "selection_rank": 1,
+    "candidate_id": "d2929956c2cdbd6484497b0dd2ef558f0b81a927f928140ed1626879ad29ed8c",
+    "chunk_id": "0ead74e6fe0eea2477c21b72938433f14422dd475a6fed2b189d4528ef9d7302",
+    "start_byte": 738,
+    "end_byte": 3803,
+    "start_line": 29,
+    "end_line": 143,
+    "raw_source_sha256": "47acc9084223ff553faa09cb57165b31561224872ea923363d37d236e73ca998",
+    "normalized_source_sha256": "4a70f9a232da4bd55faf19ea3123b8ae434dad46b1212e3066870e6d6862118c",
+    "source_range_sha256": "7c6a9b661f18ef3ccfcb1b4c357112b1a3ade1371ab31fe23781678f5e60ded4",
+    "source_normalization": "crlf-to-lf-before-utf8-byte-range-v1"
+  },
+  "frozen_selection": {
+    "path": "reports/rag/pilot/external/yaml-cpp/candidate-selection-v2/external_pilot_selection.json",
+    "sha256": "660eafc27072e4d04df321abe2c509ce063c61d154e625c214016cdbf3ef4170"
+  },
+  "fixture": {
+    "algorithm": "insert-one-fixed-comment-after-class-opening-brace-v1",
+    "comment": "  // Mechanics-only fixture: source replacement pipeline validation.\n",
+    "insertion_anchor": "class YAML_CPP_API Node {\n",
+    "insertion_position": "immediately_after_class_opening_brace_newline",
+    "preserve_complete_original_class_span": true,
+    "interface_changes": false,
+    "declaration_changes": false,
+    "type_changes": false,
+    "behavior_changes": false,
+    "expected_sha256": "27f2f2aa671c0e8834e9b7b9819b09b1988975afcdc142da8b5ce9371b82190c"
+  },
+  "llm_policy": {
+    "llm_allowed": false,
+    "generation_server_contact_allowed": false,
+    "llm_called": false,
+    "llm_call_count": 0,
+    "generation_server_contacted": false
+  },
+  "one_shot_policy": {
+    "execution_count": 1,
+    "retry_allowed": false,
+    "repair_allowed": false,
+    "overwrite_allowed": false,
+    "manual_runtime_patch_allowed": false,
+    "second_execution_allowed": false,
+    "attempt_marker": "mechanics_attempt.json",
+    "failure_marker": "mechanics_failure.json",
+    "result_marker": "mechanics_result.json"
+  },
+  "evaluation": {
+    "baseline_report_path": "reports/rag/pilot/external/yaml-cpp/baseline-v1/repository_baseline.json",
+    "baseline_report_sha256": "a93e4c0b283f715a3a0180cdec6967064f9439664c0656317cb8ac8999ce7ab1",
+    "docker_image": "cpp-rag-pilot-env:yaml-cpp-v1",
+    "docker_image_id": "sha256:cf9ac1211043f2c6e6563628eddb48a7783e0a6109baa78be31b196ba2645cad",
+    "source_mount": "read_only",
+    "build_type": "Release",
+    "configure_options": [
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DYAML_CPP_BUILD_TESTS=ON",
+      "-DYAML_CPP_BUILD_TOOLS=OFF",
+      "-DYAML_CPP_BUILD_CONTRIB=ON"
+    ],
+    "direct_test_evidence_paths": [
+      "test/integration/clone_node_test.cpp",
+      "test/integration/convert_partial_specialization_test.cpp",
+      "test/integration/emitter_test.cpp",
+      "test/integration/error_messages_test.cpp",
+      "test/integration/load_node_test.cpp",
+      "test/integration/node_spec_test.cpp",
+      "test/node/node_test.cpp"
+    ],
+    "direct_test_suites": [
+      "CloneNodeTest",
+      "ConvertPartialSpecializationTest",
+      "EmitterErrorTest",
+      "EmitterTest",
+      "ErrorMessageTest",
+      "LoadNodeTest",
+      "NodeEmitterTest",
+      "NodeSpecTest",
+      "NodeTest"
+    ],
+    "direct_test_filter": "CloneNodeTest.*:ConvertPartialSpecializationTest.*:EmitterErrorTest.*:EmitterTest.*:ErrorMessageTest.*:LoadNodeTest.*:NodeEmitterTest.*:NodeSpecTest.*:NodeTest.*",
+    "full_test_names": [
+      "yaml-cpp::test",
+      "yaml-cpp::source-list"
+    ],
+    "expected_full_test_count": 2,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 300,
+      "restoration": 30
+    },
+    "commands": {
+      "configure": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<YAML_CPP_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "cmake",
+        "-S",
+        "/source",
+        "-B",
+        "/evaluation/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DYAML_CPP_BUILD_TESTS=ON",
+        "-DYAML_CPP_BUILD_TOOLS=OFF",
+        "-DYAML_CPP_BUILD_CONTRIB=ON"
+      ],
+      "build": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<YAML_CPP_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "cmake",
+        "--build",
+        "/evaluation/build",
+        "--parallel"
+      ],
+      "direct_test": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<YAML_CPP_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "-w",
+        "/evaluation/build/test",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "./yaml-cpp-tests",
+        "--gtest_filter=CloneNodeTest.*:ConvertPartialSpecializationTest.*:EmitterErrorTest.*:EmitterTest.*:ErrorMessageTest.*:LoadNodeTest.*:NodeEmitterTest.*:NodeSpecTest.*:NodeTest.*"
+      ],
+      "full_test": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<YAML_CPP_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "ctest",
+        "--test-dir",
+        "/evaluation/build",
+        "--output-on-failure"
+      ]
+    }
+  },
+  "required_stage_records": [
+    "fixture_validation",
+    "source_backup",
+    "source_replacement",
+    "configure",
+    "build",
+    "direct_test",
+    "full_test",
+    "restoration"
+  ],
+  "replacement_and_restoration": {
+    "backup_original_complete_source_bytes": true,
+    "replacement_scope": "normalized-frozen-half-open-class-span-only",
+    "replace_only_start_byte": 738,
+    "replace_only_end_byte": 3803,
+    "verify_source_bytes_differ_after_replacement": true,
+    "restore_in_finally": true,
+    "verify_restored_bytes_equal_original": true,
+    "verify_restored_raw_sha256": "47acc9084223ff553faa09cb57165b31561224872ea923363d37d236e73ca998",
+    "verify_clean_yaml_cpp_worktree": true,
+    "manual_runtime_patch_allowed": false
+  }
+}
