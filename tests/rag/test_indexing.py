@@ -36,6 +36,9 @@ EXPECTED = json.loads(
     )
 )
 BASE_CONFIG = PROJECT_ROOT / "configs" / "rag" / "retrieval_v1.json"
+PILOT_TINYXML2_CONFIG = (
+    PROJECT_ROOT / "configs" / "rag" / "pilot" / "tinyxml2_retrieval_v1.json"
+)
 
 
 def _run(root: Path, *args: str) -> str:
@@ -138,6 +141,25 @@ class EnvironmentAndConfigTests(unittest.TestCase):
         self.assertTrue(config["out_of_scope"])
         self.assertFalse(any(config["out_of_scope"].values()))
         self.assertNotIn("bm25_index_metadata", config)
+
+
+    def test_tinyxml2_pilot_excludes_test_and_contrib_sources(self) -> None:
+        config = IndexConfig.load(PILOT_TINYXML2_CONFIG)
+        self.assertEqual(config.version, "retrieval-v1-phase1-external-pilot-tinyxml2-v2")
+        self.assertEqual(
+            config.corpus.version,
+            "production-cpp-corpus-v1-tinyxml2-v2",
+        )
+        self.assertEqual(
+            config.corpus.classify_path("xmltest.cpp"),
+            "forbidden_filename",
+        )
+        self.assertEqual(
+            config.corpus.classify_path("contrib/html5-printer.cpp"),
+            "forbidden_path",
+        )
+        self.assertIsNone(config.corpus.classify_path("tinyxml2.cpp"))
+        self.assertIsNone(config.corpus.classify_path("tinyxml2.h"))
 
     def test_lockfile_uses_hashes_and_binary_only_setup(self) -> None:
         lock = (PROJECT_ROOT / "requirements" / "rag.lock.txt").read_text(
