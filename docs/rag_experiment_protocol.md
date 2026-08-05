@@ -2,7 +2,7 @@
 
 ## 1. 文書管理
 
-- Protocol version: `0.9`
+- Protocol version: `0.9.1`
 - Condition ID: `rag-design-context-v1`
 - Condition name: `Repository-Context RAG v1`
 - Retrieval method name: `symbol-aware staged retrieval`（シンボル対応型の段階的検索）
@@ -23,6 +23,7 @@
 | Version | Status | Description |
 |---|---|---|
 | 0.9 | Pre-pilot freeze | RQ、対象、corpus、chunk、query、retrieval、公平性、評価、停止規則を固定する。pilotで決定する数値は未確定とする。 |
+| 0.9.1 | Pre-pilot amendment | 既存3リポジトリの厳格な候補探索が0件であったため、条件を緩和せず、固定commitとbaseline PASSを満たす外部pilot専用リポジトリの使用を事前規定する。 |
 | 1.0 | TBD after pilot | pilot対象、context format、retrieval top-k、context token budget、quota、実ライブラリversionを固定する。 |
 
 ### 1.2 未確定項目
@@ -600,6 +601,46 @@ retrieved candidate、rank、selected chunk、BM25 score、generated design/code
 - formal `module_files`対象のファイル全体を除外
 
 候補listをpilot結果を見る前に自動抽出する。alias/enum、cross-file relation、class/inheritance、call site、multiple dependencies、template/namespace、formalと近い規模を重視する。選定後は差し替えない。
+
+### 16.1.1 Pre-pilot amendment: external pilot-only repository
+
+既存3リポジトリについて、formal 17対象との重複除外とowner-awareな直接test evidenceを維持した厳格な決定的探索を独立に2回実行した。その結果、eligible candidateは0件であり、3リポジトリすべてが候補なしとなった。
+
+- Candidate report: `reports/rag/pilot/pilot_candidate_pool.json`
+- Validation report: `reports/rag/pilot/pilot_candidate_pool_validation.json`
+- Candidate count: `0`
+- Independent builds: `2`
+- Deterministic: `true`
+- Eligibility rule relaxation: prohibited
+
+したがって、16.1の「原則として各repositoryから最低1 target」は適用不能である。候補を得るためにmatcher、test evidenceまたはformal-overlap除外を緩和せず、formal対象とは独立した外部pilot専用リポジトリを使用する。
+
+外部pilot repositoryを次のとおり固定する。
+
+- Repository: `leethomason/tinyxml2`
+- Pinned commit: `8224e427b655b83dae5e2298f1e6919523a78737`
+- Role: pilot only
+- Formal target membership: false
+- Pilot target IDs: selection pending
+- Docker image: `cpp-rag-pilot-env:tinyxml2-v1`
+- Docker image ID: `sha256:cf9ac1211043f2c6e6563628eddb48a7783e0a6109baa78be31b196ba2645cad`
+- Baseline configure/build: PASS
+- Baseline CTest: `1/1` PASS (`xmltest`)
+- Compiler: GNU C/C++ `11.4.0`
+- Baseline log SHA-256: `df73d2a382b36199cf81d609799f7c8510df71061ba404c8feabc03939db3cbd`
+
+`xmltest`はsource treeの`resources/out`へ出力するため、baselineは固定sourceをread-only inputとしてmountし、container内の一時的な書き込み可能copyで実行する。最初のread-only source上のtest実行はこの要件を満たさない無効なprecheckであり、baseline判定へ使用しない。
+
+外部pilotに対して次を固定する。
+
+- formal 17 target set、formal repository commitおよび非RAG結果を変更しない。
+- external pilotのsource、index、query、run ID、artifactおよびreportをformal領域と分離する。
+- pilot結果をformal targetの追加、削除または置換に使用しない。
+- formal結果を見たtarget-specific query、matcher緩和、retryまたはrepairを行わない。
+- repository固定後に、結果を参照せず決定的規則で3～5 targetsを選定し、その後にpilot IDを凍結する。
+- external pilot artifactをformal resultとして再利用しない。
+
+Baseline evidenceは`reports/rag/pilot/external_pilot_repository_baseline.json`へ保存する。
 
 ### 16.2 Pilot rules
 
