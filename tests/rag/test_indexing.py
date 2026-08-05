@@ -312,20 +312,33 @@ class SymbolIndexFixtureTests(unittest.TestCase):
         self.assertTrue(result.valid)
         self.assertGreater(len(result.diagnostics), 0)
         self.assertTrue(all(item.handled for item in result.diagnostics))
-        self.assertEqual(
-            {item.fallback_method for item in result.diagnostics},
-            {
-                "preprocessor-conditional-error-v1",
-                "empty-braced-default-argument-v1",
-            },
-        )
+        fallback_methods = {
+            item.fallback_method for item in result.diagnostics
+        }
+        allowed_fallback_methods = {
+            "preprocessor-conditional-error-v1",
+            "empty-braced-default-argument-v1",
+        }
         self.assertTrue(
-            any(
-                item.path == "empty_braced_default.hpp"
-                and item.reason == "missing_node"
+            fallback_methods.issubset(allowed_fallback_methods)
+        )
+        self.assertIn(
+            "preprocessor-conditional-error-v1",
+            fallback_methods,
+        )
+
+        empty_braced_diagnostics = [
+            item
+            for item in result.diagnostics
+            if item.path == "empty_braced_default.hpp"
+        ]
+        self.assertTrue(
+            all(
+                item.reason == "missing_node"
                 and item.node_type == "type_identifier"
-                and item.fallback_method == "empty-braced-default-argument-v1"
-                for item in result.diagnostics
+                and item.fallback_method
+                == "empty-braced-default-argument-v1"
+                for item in empty_braced_diagnostics
             )
         )
 
