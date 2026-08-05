@@ -1,0 +1,94 @@
+{
+  "artifact_schema_version": "rag-candidate-config-v1",
+  "canonical_serialization": {
+    "encoding": "utf-8",
+    "final_newline_count": 1,
+    "json_key_order": "lexicographic",
+    "line_endings": "lf",
+    "path_format": "repository-relative-posix",
+    "timestamps_in_content_hash": false
+  },
+  "candidate_schema_version": "rag-external-pilot-candidate-v1",
+  "condition_id": "rag-design-context-v1",
+  "dependencies": {
+    "baseline_report_path": "reports/rag/pilot/external_pilot_repository_baseline.json",
+    "index_config_path": "configs/rag/pilot/tinyxml2_retrieval_v1.json",
+    "index_validation_report_path": "reports/rag/pilot/external_pilot_tinyxml2_index_validation_v2.json",
+    "leakage_report_path": "reports/rag/pilot/external_pilot_tinyxml2_index_leakage.json"
+  },
+  "exact_retrieval": {
+    "ambiguity_policy": "retain-all-best-exact-name-candidates",
+    "fuzzy_matching": false,
+    "match_type_order": [
+      "exact_qualified_name",
+      "exact_parent_symbol_and_method",
+      "resolved_include_path_and_short_name",
+      "exact_short_name"
+    ],
+    "substring_matching": false,
+    "version": "exact-symbol-retrieval-v1"
+  },
+  "filtering": {
+    "formal_overlap_policy": "not-applicable-external-repository",
+    "source_corpus_policy": "production-index-only",
+    "test_evidence_paths": [
+      "xmltest.cpp"
+    ],
+    "test_evidence_policy": "explicit-tracked-paths-owner-aware",
+    "version": "external-pilot-candidate-filter-v1"
+  },
+  "pilot": {
+    "baseline_execution_status": "pass",
+    "formal_target_member": false,
+    "repository_commit": "8224e427b655b83dae5e2298f1e6919523a78737",
+    "repository_id": "tinyxml2",
+    "selection_status": "automatic-frozen-if-sufficient",
+    "source_restoration_status": "not_run",
+    "version": "external-pilot-candidate-discovery-v1"
+  },
+  "selection": {
+    "eligible_granularities": [
+      "class_span",
+      "function"
+    ],
+    "feature_weights": {
+      "alias_or_enum_relation": 8,
+      "call_site": 4,
+      "cross_file_relation": 16,
+      "inheritance": 32,
+      "multiple_dependencies": 64,
+      "template_or_namespace": 2
+    },
+    "insufficient_policy": "stop-without-freezing",
+    "minimum_distinct_source_files": 2,
+    "minimum_per_granularity": {
+      "class_span": 1,
+      "function": 1
+    },
+    "ranking_tie_break": [
+      "structural_score_desc",
+      "structural_feature_count_desc",
+      "project_dependency_count_desc",
+      "static_test_reference_count_desc",
+      "line_count_desc",
+      "path_asc",
+      "start_byte_asc",
+      "chunk_id_asc"
+    ],
+    "required_count": 5,
+    "version": "external-pilot-selection-v1"
+  },
+  "stages": {
+    "bm25": false,
+    "build_test": false,
+    "candidate_filtering": true,
+    "context_selection": false,
+    "docker": false,
+    "exact_symbol_retrieval": true,
+    "formal_run": false,
+    "llm": false,
+    "one_hop_expansion": false
+  },
+  "target_specific_manual_query": false,
+  "version": "tinyxml2-external-pilot-candidates-v1"
+}
