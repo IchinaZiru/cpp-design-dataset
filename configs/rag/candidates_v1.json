@@ -1,0 +1,63 @@
+{
+  "artifact_schema_version": "rag-candidate-config-v1",
+  "canonical_serialization": {
+    "encoding": "utf-8",
+    "final_newline_count": 1,
+    "json_key_order": "lexicographic",
+    "line_endings": "lf",
+    "path_format": "repository-relative-posix",
+    "timestamps_in_content_hash": false
+  },
+  "candidate_schema_version": "rag-candidate-v1",
+  "condition_id": "rag-design-context-v1",
+  "dependencies": {
+    "phase1_config_path": "configs/rag/retrieval_v1.json",
+    "query_config_path": "configs/rag/query_v1.json",
+    "query_manifest_path": "rag/query/query_generation_manifest.json"
+  },
+  "exact_retrieval": {
+    "ambiguity_policy": "retain-all-best-exact-name-candidates",
+    "fuzzy_matching": false,
+    "match_type_order": [
+      "exact_qualified_name",
+      "exact_parent_symbol_and_method",
+      "resolved_include_path_and_short_name",
+      "exact_short_name"
+    ],
+    "substring_matching": false,
+    "version": "exact-symbol-retrieval-v1"
+  },
+  "filtering": {
+    "exclusion_reason_order": [
+      "forbidden_path",
+      "target_source_overlap",
+      "test_content_detected",
+      "previous_llm_output",
+      "experiment_artifact",
+      "generated_content",
+      "third_party"
+    ],
+    "target_overlap_method": "path_byte_overlap_v1",
+    "version": "candidate-filter-v1"
+  },
+  "pilot": {
+    "baseline_execution_status": "not_run",
+    "formal_overlap_policy": "exclude",
+    "selection_status": "provisional",
+    "source_restoration_status": "not_run",
+    "version": "pilot-candidate-discovery-v1"
+  },
+  "stages": {
+    "bm25": false,
+    "build_test": false,
+    "candidate_filtering": true,
+    "context_selection": false,
+    "docker": false,
+    "exact_symbol_retrieval": true,
+    "formal_run": false,
+    "llm": false,
+    "one_hop_expansion": false
+  },
+  "target_specific_manual_query": false,
+  "version": "candidates-v1-prepilot"
+}
