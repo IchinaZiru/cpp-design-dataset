@@ -96,6 +96,27 @@ class QueryConfigTests(unittest.TestCase):
         self.assertIn("echo-web-server-log", registry.entries)
         self.assertIn("riscv-simulator-registerfile", registry.entries)
 
+    def test_registry_references_existing_frozen_inputs(self) -> None:
+        registry = TargetRegistry.load(TARGET_REGISTRY)
+
+        for target_id, entry in registry.entries.items():
+            metadata = PROJECT_ROOT.joinpath(
+                *str(entry["source_metadata_path"]).split("/")
+            )
+            self.assertTrue(
+                metadata.is_file(),
+                f"missing source metadata for {target_id}: {metadata}",
+            )
+
+            if entry["target_kind"] == "standard":
+                frozen_config = PROJECT_ROOT.joinpath(
+                    *str(entry["frozen_target_config_path"]).split("/")
+                )
+                self.assertTrue(
+                    frozen_config.is_file(),
+                    f"missing frozen target config for {target_id}: {frozen_config}",
+                )
+
 
 class CanonicalQueryTests(unittest.TestCase):
     def test_source_normalization_matches_frozen_design_input_rules(self) -> None:
