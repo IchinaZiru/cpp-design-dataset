@@ -19,7 +19,10 @@ from scripts.rag.canonical import (
 )
 from scripts.rag.config import IndexConfig
 from scripts.rag.corpus import CorpusError, collect_production_corpus
-from scripts.rag.cpp_symbols import _is_empty_braced_default_argument_missing
+from scripts.rag.cpp_symbols import (
+    _is_empty_braced_default_argument_missing,
+    mask_parse_only_macros,
+)
 from scripts.rag.index_builder import BuildResult, IndexValidationError, build_repository_index
 from scripts.rag.verify_rebuild import verify_independent_rebuilds
 
@@ -125,6 +128,15 @@ class ParserRecoveryHeuristicTests(unittest.TestCase):
                 )
             )
 
+    def test_parse_only_macro_mask_preserves_byte_offsets(self) -> None:
+        source = b"class YAML_CPP_API Node {};\nYAML_CPP_API void load();\n"
+        masked, count = mask_parse_only_macros(source, ["YAML_CPP_API"])
+        self.assertEqual(count, 2)
+        self.assertEqual(len(masked), len(source))
+        self.assertEqual(masked.count(b"\n"), source.count(b"\n"))
+        self.assertNotIn(b"YAML_CPP_API", masked)
+        self.assertIn(b"YAML_CPP_API", source)
+
 
 class EnvironmentAndConfigTests(unittest.TestCase):
     def test_environment_manifest_hashes_match_files(self) -> None:
@@ -168,7 +180,7 @@ class EnvironmentAndConfigTests(unittest.TestCase):
         config = IndexConfig.load(PILOT_YAML_CPP_CONFIG)
         self.assertEqual(
             config.version,
-            "retrieval-v1-phase1-external-pilot-yaml-cpp",
+            "retrieval-v1-phase1-external-pilot-yaml-cpp-v2",
         )
         self.assertEqual(
             config.repositories["yaml-cpp"].expected_commit,
@@ -181,6 +193,14 @@ class EnvironmentAndConfigTests(unittest.TestCase):
         self.assertEqual(
             config.corpus.classify_path("util/parse.cpp"),
             "forbidden_path",
+        )
+        self.assertEqual(
+            config.corpus.classify_path("src/contrib/dragonbox.h"),
+            "forbidden_filename",
+        )
+        self.assertEqual(
+            config.parser.parse_only_macro_identifiers,
+            ("YAML_CPP_API",),
         )
         self.assertIsNone(config.corpus.classify_path("src/parser.cpp"))
         self.assertIsNone(config.corpus.classify_path("include/yaml-cpp/parser.h"))

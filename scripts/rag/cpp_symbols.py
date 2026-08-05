@@ -37,6 +37,7 @@ class ParseDiagnostic:
 class ParsedSource:
     chunks: tuple[dict[str, Any], ...]
     diagnostics: tuple[ParseDiagnostic, ...]
+    parse_only_macro_mask_count: int
 
 
 _CLASS_TYPES = {"class_specifier", "struct_specifier", "union_specifier"}
@@ -65,6 +66,19 @@ _CONDITIONAL_DIRECTIVE_PATTERN = re.compile(
 _PREPROCESSOR_NODE_PREFIX = "preproc_"
 _EMPTY_BRACED_DEFAULT_ARGUMENT_FALLBACK = "empty-braced-default-argument-v1"
 _PARAMETER_ANCESTOR_TYPES = {"optional_parameter_declaration", "parameter_list"}
+
+
+def mask_parse_only_macros(
+    data: bytes,
+    identifiers: Iterable[str],
+) -> tuple[bytes, int]:
+    """Mask configured annotation macros without changing source byte offsets."""
+
+    encoded = sorted({item.encode("ascii") for item in identifiers})
+    if not encoded:
+        return data, 0
+    pattern = re.compile(rb"\b(?:" + b"|".join(re.escape(item) for item in encoded) + rb")\b")
+    return pattern.subn(lambda match: b" " * len(match.group(0)), data)
 
 
 def _installed_version(distribution: str) -> str:
@@ -847,8 +861,13 @@ def extract_symbol_chunks(
     repository_commit: str,
     source: SourceFile,
     chunking: ChunkingSpec,
+    parse_only_macro_identifiers: Iterable[str] = (),
 ) -> ParsedSource:
-    tree = parser.parse(source.data)
+    parse_data, mask_count = mask_parse_only_macros(
+        source.data,
+        parse_only_macro_identifiers,
+    )
+    tree = parser.parse(parse_data)
     root = tree.root_node
     diagnostics = _count_parse_errors(
         root,
@@ -871,7 +890,11 @@ def extract_symbol_chunks(
             ),
         )
     )
-    return ParsedSource(chunks=chunks, diagnostics=tuple(diagnostics))
+    return ParsedSource(
+        chunks=chunks,
+        diagnostics=tuple(diagnostics),
+        parse_only_macro_mask_count=mask_count,
+    )
 
 
 def build_exact_symbol_index(

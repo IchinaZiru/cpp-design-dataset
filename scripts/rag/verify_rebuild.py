@@ -125,6 +125,7 @@ def verify_independent_rebuilds(
         ),
         "independent_build_count": 2,
         "parser_error_count": len(first_result.diagnostics),
+        "parse_only_macro_mask_count": first_result.parse_only_macro_mask_count,
         "repository": repository_id,
         "repository_commit": first_result.repository_commit,
         "status": "pass",

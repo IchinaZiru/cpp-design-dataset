@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import fnmatch
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -29,6 +30,8 @@ class ParserSpec:
     grammar_package: str
     grammar_version: str
     strict_unrecorded_errors: bool
+    parse_only_macro_identifiers: tuple[str, ...]
+    parse_only_macro_mask_version: str
 
 
 @dataclass(frozen=True)
@@ -127,6 +130,27 @@ class IndexConfig:
         chunking_raw = raw["chunking"]
         repositories_raw = raw["repositories"]
 
+        parse_only_macros = tuple(
+            sorted({str(item) for item in parser_raw.get("parse_only_macro_identifiers", [])})
+        )
+        invalid_parse_only_macros = [
+            item
+            for item in parse_only_macros
+            if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", item) is None
+        ]
+        if invalid_parse_only_macros:
+            raise ConfigError(
+                "invalid parse-only macro identifiers: "
+                + ", ".join(invalid_parse_only_macros)
+            )
+        parse_only_macro_mask_version = str(
+            parser_raw.get("parse_only_macro_mask_version", "none")
+        )
+        if parse_only_macros and parse_only_macro_mask_version != "fixed-width-space-mask-v1":
+            raise ConfigError(
+                "parse-only macro identifiers require fixed-width-space-mask-v1"
+            )
+
         include_extensions = tuple(
             sorted({str(item).lower() for item in corpus_raw["include_extensions"]})
         )
@@ -180,6 +204,8 @@ class IndexConfig:
                 grammar_package=str(parser_raw["grammar_package"]),
                 grammar_version=str(parser_raw["grammar_version"]),
                 strict_unrecorded_errors=bool(parser_raw["strict_unrecorded_errors"]),
+                parse_only_macro_identifiers=parse_only_macros,
+                parse_only_macro_mask_version=parse_only_macro_mask_version,
             ),
             chunking=ChunkingSpec(
                 version=str(chunking_raw["version"]),

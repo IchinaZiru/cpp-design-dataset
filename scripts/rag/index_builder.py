@@ -43,6 +43,7 @@ class BuildResult:
     diagnostics: tuple[ParseDiagnostic, ...]
     validation_errors: tuple[str, ...]
     artifact_hashes: dict[str, str]
+    parse_only_macro_mask_count: int = 0
 
     @property
     def valid(self) -> bool:
@@ -127,6 +128,7 @@ def _corpus_manifest(
     corpus: CorpusCollection,
     chunks: list[dict[str, Any]],
     diagnostics: list[ParseDiagnostic],
+    parse_only_macro_mask_counts: dict[str, int],
 ) -> dict[str, Any]:
     chunk_counts = Counter(str(chunk["path"]) for chunk in chunks)
     diagnostic_counts = Counter(item.path for item in diagnostics)
@@ -161,6 +163,9 @@ def _corpus_manifest(
                     source.path, 0
                 ),
                 "parser_error_count": diagnostic_counts.get(source.path, 0),
+                "parse_only_macro_mask_count": parse_only_macro_mask_counts.get(
+                    source.path, 0
+                ),
                 "path": source.path,
                 "sha256": source.sha256,
                 "size_bytes": source.size_bytes,
@@ -182,6 +187,11 @@ def _corpus_manifest(
         ),
         "parser_package": config.parser.package,
         "parser_version": _distribution_version(config.parser.package),
+        "parse_only_macro_identifiers": list(
+            config.parser.parse_only_macro_identifiers
+        ),
+        "parse_only_macro_mask_count": sum(parse_only_macro_mask_counts.values()),
+        "parse_only_macro_mask_version": config.parser.parse_only_macro_mask_version,
         "protocol_version": config.protocol_version,
         "repository": repository_id,
         "repository_commit": corpus.repository_commit,
@@ -220,6 +230,7 @@ def build_repository_index(
 
     all_chunks: list[dict[str, Any]] = []
     diagnostics: list[ParseDiagnostic] = []
+    parse_only_macro_mask_counts: dict[str, int] = {}
     for source in corpus.files:
         parsed = extract_symbol_chunks(
             parser=cpp_parser,
@@ -227,9 +238,11 @@ def build_repository_index(
             repository_commit=corpus.repository_commit,
             source=source,
             chunking=config.chunking,
+            parse_only_macro_identifiers=config.parser.parse_only_macro_identifiers,
         )
         all_chunks.extend(parsed.chunks)
         diagnostics.extend(parsed.diagnostics)
+        parse_only_macro_mask_counts[source.path] = parsed.parse_only_macro_mask_count
 
     all_chunks.sort(
         key=lambda item: (
@@ -259,6 +272,7 @@ def build_repository_index(
         corpus=corpus,
         chunks=all_chunks,
         diagnostics=diagnostics,
+        parse_only_macro_mask_counts=parse_only_macro_mask_counts,
     )
     artifact_hashes = {
         "corpus_manifest.json": write_canonical_json(
@@ -297,6 +311,7 @@ def build_repository_index(
         ],
         "handled_parser_error_count": sum(item.handled for item in diagnostics),
         "parser_error_count": len(diagnostics),
+        "parse_only_macro_mask_count": sum(parse_only_macro_mask_counts.values()),
         "repository": repository_id,
         "repository_commit": corpus.repository_commit,
         "status": "pass" if not validation_errors else "fail",
@@ -319,6 +334,7 @@ def build_repository_index(
         diagnostics=tuple(diagnostics),
         validation_errors=tuple(validation_errors),
         artifact_hashes=artifact_hashes,
+        parse_only_macro_mask_count=sum(parse_only_macro_mask_counts.values()),
     )
     if strict and not result.valid:
         raise IndexValidationError(
