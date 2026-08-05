@@ -386,14 +386,6 @@ def dependency_relation(
         return None
     if short in {str(item).rsplit("::", 1)[-1] for item in source_chunk.get("base_symbols", [])}:
         return "base_type"
-    if str(dependency_symbol.get("parent_symbol") or "") == source_name:
-        return "nested_type"
-    if str(source_chunk.get("kind", "")) == "alias_definition":
-        return "alias_target"
-    if str(source_chunk.get("kind", "")) == "enum_definition":
-        return "enum_type"
-    if "<" in signature and re.search(pattern, signature[signature.find("<") :]):
-        return "template_argument_type"
     if "(" in signature and ")" in signature:
         before, after = signature.split("(", 1)
         parameters = after.rsplit(")", 1)[0]
@@ -401,10 +393,40 @@ def dependency_relation(
             return "parameter_type"
         if re.search(pattern, before):
             return "return_type"
-    if str(source_chunk.get("kind", "")) in {"class_interface", "struct_interface"}:
+    kind = str(source_chunk.get("kind", ""))
+    if kind in {"class_interface", "struct_interface"}:
+        code = _NON_CODE_RE.sub(" ", content)
+        # A class chunk's own signature does not contain the types referenced by
+        # its method declarations. Inspect each declaration inside the interface
+        # so those direct parameter/return relations remain hop 1, rather than
+        # silently disappearing for class-span targets.
+        declarations = re.findall(
+            r"(?m)^[ \t]*([^\n;{}]*\([^;\n{}]*\)[^;\n{}]*)[;{]",
+            code,
+        )
+        for declaration in declarations:
+            before, after = declaration.split("(", 1)
+            parameters = after.rsplit(")", 1)[0]
+            if re.search(pattern, parameters):
+                return "parameter_type"
+        for declaration in declarations:
+            before = declaration.split("(", 1)[0]
+            if re.search(pattern, before):
+                return "return_type"
         field_pattern = pattern + r"\s*[*&]?\s+[A-Za-z_][A-Za-z0-9_]*\s*(?:[;={])"
-        if re.search(field_pattern, content):
+        if re.search(field_pattern, code):
             return "field_type"
+    if str(dependency_symbol.get("parent_symbol") or "") == source_name:
+        return "nested_type"
+    if "<" in signature and re.search(pattern, signature[signature.find("<") :]):
+        return "template_argument_type"
+    if kind == "alias_definition" or re.search(
+        r"\busing\s+[A-Za-z_][A-Za-z0-9_]*\s*=\s*[^;]*" + pattern,
+        content,
+    ):
+        return "alias_target"
+    if kind == "enum_definition":
+        return "enum_type"
     calls = re.findall(r"\b([A-Za-z_][A-Za-z0-9_:]*)\s*\(", _NON_CODE_RE.sub(" ", content))
     if len(calls) == 1 and calls[0].rsplit("::", 1)[-1] == short:
         return "wrapper_direct_call"

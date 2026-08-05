@@ -24,7 +24,7 @@ from scripts.rag.external_retrieval import (
 
 
 ROOT = Path(__file__).resolve().parents[2]
-CONFIG = ROOT / "configs" / "rag" / "pilot" / "yaml_cpp_retrieval_pipeline_v1.json"
+CONFIG = ROOT / "configs" / "rag" / "pilot" / "yaml_cpp_retrieval_pipeline_v2.json"
 
 
 def _query() -> LoadedQuery:
@@ -143,6 +143,34 @@ class RetrievalPrimitiveTests(unittest.TestCase):
             "signature": "Node Load(const Node& input)",
         }
         self.assertEqual(dependency_relation(source, dependency), "parameter_type")
+
+    def test_class_interface_method_types_are_direct_dependencies(self) -> None:
+        source = {
+            "base_symbols": [],
+            "canonical_name": "YAML::Node",
+            "content": (
+                "class Node {\n"
+                "  YAML::Mark Mark() const;\n"
+                "  void SetStyle(EmitterStyle::value style);\n"
+                "};"
+            ),
+            "kind": "class_interface",
+            "signature": "class Node",
+        }
+        mark = {
+            "canonical_name": "YAML::Mark",
+            "parent_symbol": None,
+            "short_name": "Mark",
+        }
+        emitter_style = {
+            "canonical_name": "YAML::EmitterStyle",
+            "parent_symbol": None,
+            "short_name": "EmitterStyle",
+        }
+        self.assertEqual(dependency_relation(source, mark), "return_type")
+        self.assertEqual(
+            dependency_relation(source, emitter_style), "parameter_type"
+        )
 
     def test_fixed_quotas_and_budget_are_applied_in_rank_order(self) -> None:
         candidates = [

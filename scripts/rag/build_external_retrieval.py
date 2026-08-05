@@ -167,12 +167,12 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--project-root", default=".")
     parser.add_argument(
         "--config",
-        default="configs/rag/pilot/yaml_cpp_retrieval_pipeline_v1.json",
+        default="configs/rag/pilot/yaml_cpp_retrieval_pipeline_v2.json",
     )
     parser.add_argument("--repository-root", required=True)
     parser.add_argument(
         "--output-root",
-        default="rag/retrieval/external-pilot/yaml-cpp/retrieval-v1",
+        default="rag/retrieval/external-pilot/yaml-cpp/retrieval-v2",
     )
     return parser
 
