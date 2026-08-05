@@ -1,0 +1,101 @@
+Repository-Context RAG v1
+Repository: RISCV-Simulator
+Commit: 8989a09c357a69b68612f653380d60816f5176c2
+Target: riscv-simulator-instruction
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: src/Pipeline/Issue.cpp:135-146
+Symbol: Issue::parse_inst
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+InstructionBase Issue::parse_inst(unsigned opcode, Immediate inst) {
+    if (opcode == 0b0110011) { return InstructionR(inst); } // ***
+    if (opcode == 0b0010011) { return InstructionI(inst); } // ***I
+    if (opcode == 0b0100011) { return InstructionS(inst); } // S*
+    if (opcode == 0b0000011) { return InstructionI(inst); } // L*
+    if (opcode == 0b1100011) { return InstructionB(inst); } // B**
+    if (opcode == 0b1100111) { return InstructionI(inst); } // JALR
+    if (opcode == 0b1101111) { return InstructionJ(inst); } // JAL
+    if (opcode == 0b0010111) { return InstructionU(inst); } // AUIPC
+    if (opcode == 0b0110111) { return InstructionU(inst); } // LUI
+    return InstructionBase::nop();
+}
+```
+
+## Chunk 2
+Path: src/Pipeline/Issue.cpp:105-129
+Symbol: Issue::issue
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+Immediate Issue::issue(const InstructionBase &inst) {
+    _debug_dispatched_inst = inst;
+    issue_cnt.prev = issue_cnt.next = pc;
+
+    if (inst.t == InstructionBase::J) { // JAL
+        return issue_jal(inst);
+    } else if (inst.t == InstructionBase::B) { // Branch
+        return issue_branch(inst);
+    } else if (inst.opcode == 0b1100111) { // JALR
+        return issue_jalr(inst);
+    } else if (inst.opcode == 0b0000011) { // Load
+        return issue_load(inst);
+    } else if (inst.opcode == 0b0100011) { // Store
+        return issue_store(inst);
+    } else if (inst.opcode == 0b0010011) { // Immediate Op
+        return issue_immediate_op(inst);
+    } else if (inst.opcode == 0b0110011) { // Op
+        return issue_op(inst);
+    } else if (inst.opcode == 0b0110111) { // LUI
+        return issue_lui(inst);
+    } else if (inst.opcode == 0b0110111) { // AUIPC
+        return issue_auipc(inst);
+    }
+    return pc;
+}
+```
+
+## Chunk 3
+Path: src/Pipeline/Issue.cpp:89-103
+Symbol: get_op_branch
+Kind: function_definition
+Tier: 2
+Relations: none
+```cpp
+ALUUnit::OP get_op_branch(InstructionBase inst) {
+    switch (inst.funct3) {
+        case 0b000: // BEQ
+        case 0b001: // BNE
+            return ALUUnit::OP::SUB;
+        case 0b100: // BLT
+        case 0b101: // BGE
+            return ALUUnit::OP::SLT;
+        case 0b110: // BLTU
+        case 0b111: // BGEU
+            return ALUUnit::OP::SLTU;
+    }
+    assert(false);
+    return ALUUnit::OP::NONE_OP;
+}
+```
+
+## Chunk 4
+Path: src/Common/ReorderBuffer.cpp:24-29
+Symbol: ROB::debug_header
+Kind: method_definition
+Tier: 3
+Relations: none
+```cpp
+void ROB::debug_header() {
+    char buffer[100];
+    sprintf(buffer, "%4s%8s%16s%24s%16s\n",
+            "ID", "Type", "Dest", "Val", "Tag");
+    std::cout << buffer;
+}
+```
+

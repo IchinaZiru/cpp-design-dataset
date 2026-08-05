@@ -1,0 +1,271 @@
+Repository-Context RAG v1
+Repository: ini-cpp
+Commit: e1779b837274de8be2051bef579c3b9ec3483522
+Target: ini-cpp-ini-writer
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: ini/ini.h:1-212
+Symbol: inih::INIReader::Get
+Kind: method_definition
+Tier: 0
+Relations: return_type
+```cpp
+/**
+ * Yet another .ini parser for modern c++ (made for cpp17),
+ * Project page: https://github.com/SSARCandy/ini-cpp
+ */
+
+#ifndef INI_CPP_INI_H_
+#define INI_CPP_INI_H_
+
+#include <cstddef>
+#include <cstdio>
+#include <fstream>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#if defined(__has_include)
+#if __has_include(<charconv>)
+#include <charconv>
+#define INI_CPP_HAS_CHARCONV 1
+#if defined(__cpp_lib_to_chars) && __cpp_lib_to_chars >= 201611L
+#define INI_CPP_HAS_FLOAT_CHARCONV 1
+#endif
+#endif
+#endif
+
+namespace inih {
+
+namespace detail {
+
+/* Locale-independent whitespace check (same set as C isspace). */
+inline constexpr bool is_space(char c) noexcept {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' ||
+           c == '\v';
+}
+
+inline std::string_view ltrim(std::string_view s) noexcept {
+    while (!s.empty() && is_space(s.front())) s.remove_prefix(1);
+    return s;
+}
+
+inline std::string_view rtrim(std::string_view s) noexcept {
+    while (!s.empty() && is_space(s.back())) s.remove_suffix(1);
+    return s;
+}
+
+inline std::string_view trim(std::string_view s) noexcept {
+    return ltrim(rtrim(s));
+}
+
+/* Return index of the first char of `chars` or of an inline comment (a ';'
+   preceded by whitespace) in `s`, or npos if neither is found. */
+inline std::size_t find_char_or_comment(std::string_view s,
+                                        std::string_view chars) noexcept {
+    bool was_space = false;
+    for (std::size_t i = 0; i < s.size(); ++i) {
+        const char c = s[i];
+        if (chars.find(c) != std::string_view::npos ||
+            (was_space && c == ';')) {
+            return i;
+        }
+        was_space = is_space(c);
+    }
+    return std::string_view::npos;
+}
+
+/* True for types that can be parsed with std::from_chars. Character types
+   are excluded so they keep stream semantics ("7" -> '7', not int 7). */
+template <typename T>
+inline constexpr bool use_charconv =
+#if defined(INI_CPP_HAS_FLOAT_CHARCONV)
+    std::is_floating_point_v<T> ||
+#endif
+    (std::is_integral_v<T> && !std::is_same_v<T, bool> &&
+     !std::is_same_v<T, char> && !std::is_same_v<T, signed char> &&
+     !std::is_same_v<T, unsigned char> && !std::is_same_v<T, wchar_t> &&
+     !std::is_same_v<T, char16_t> && !std::is_same_v<T, char32_t>);
+
+/* Parse `s` into `v`, return false on failure. Uses std::from_chars for
+   numbers when available, stream extraction otherwise. */
+template <typename T>
+inline bool parse_value(const std::string& s, T& v) {
+#if defined(INI_CPP_HAS_CHARCONV)
+    if constexpr (use_charconv<T>) {
+        const char* first = s.data();
+        const char* const last = s.data() + s.size();
+        while (first != last && is_space(*first)) ++first;
+        // istream compatibility: allow an explicit leading '+'
+        if (last - first > 1 && *first == '+' &&
+            ((first[1] >= '0' && first[1] <= '9') || first[1] == '.')) {
+            ++first;
+        }
+        return std::from_chars(first, last, v).ec == std::errc{};
+    } else
+#endif
+    {
+        std::istringstream in{s};
+        in >> v;
+        return !in.fail();
+    }
+}
+
+}  // namespace detail
+
+/**
+ * @brief Read an INI file into easy-to-access name/value pairs.
+ */
+class INIReader {
+   public:
+    // Empty Constructor
+    INIReader() = default;
+
+    /**
+     * @brief Construct an INIReader object from a file name
+     * @param filename The name of the INI file to parse
+     * @throws std::runtime_error if there is an error parsing the INI file
+     */
+    INIReader(const std::string& filename) {
+        std::ifstream in{filename, std::ios::in | std::ios::binary};
+        if (!in) {
+            _error = -1;
+            ParseError();
+            return;
+        }
+        std::string content;
+        in.seekg(0, std::ios::end);
+        const auto size = in.tellg();
+        if (size > 0) {
+            content.resize(static_cast<std::size_t>(size));
+            in.seekg(0, std::ios::beg);
+            in.read(&content[0], size);
+        }
+        Parse(content);
+        ParseError();
+    }
+
+    /**
+     * @brief Construct an INIReader object from a file pointer
+     * @param file A pointer to the INI file to parse
+     * @throws std::runtime_error if there is an error parsing the INI file
+     */
+    INIReader(std::FILE* file) {
+        std::string content;
+        char buf[1 << 15];
+        std::size_t n = 0;
+        while ((n = std::fread(buf, 1, sizeof(buf), file)) > 0) {
+            content.append(buf, n);
+        }
+        Parse(content);
+        ParseError();
+    }
+
+    /**
+     * @brief Return the result of the parse, i.e., 0 on success
+     * @throws std::runtime_error on file open or parse error
+     */
+    int ParseError() const {
+        switch (_error) {
+            case 0:
+                break;
+            case -1:
+                throw std::runtime_error("ini file not found.");
+            case -2:
+                throw std::runtime_error("memory alloc error");
+            default:
+                throw std::runtime_error("parse error on line no: " +
+                                         std::to_string(_error));
+        }
+        return 0;
+    }
+
+    /**
+     * @brief Return the list of sections found in ini file
+     * @return The list of sections found in ini file
+     */
+    std::set<std::string> Sections() const {
+        std::set<std::string> retval;
+        for (const auto& element : _values) {
+            retval.insert(element.first);
+        }
+        return retval;
+    }
+
+    /**
+     * @brief Return the list of keys in the given section
+     * @param section The section name
+     * @return The list of keys in the given section
+     */
+    std::set<std::string> Keys(const std::string& section) const {
+        const auto& sec = GetSection(section);
+        std::set<std::string> retval;
+        for (const auto& element : sec) {
+            retval.insert(element.first);
+        }
+        return retval;
+    }
+
+    /**
+     * @brief Get the map representing the values in a section of the INI file
+     * @param section The name of the section to retrieve
+     * @return The map representing the values in the given section
+     * @throws std::runtime_error if the section is not found
+     */
+    std::unordered_map<std::string, std::string> Get(
+        const std::string& section) const {
+        return GetSection(section);
+    }
+```
+
+## Chunk 2
+Path: example.cpp:11-44
+Symbol: main
+Kind: function_definition
+Tier: 2
+Relations: none
+```cpp
+int main() {
+    INIReader r{"./test/fixtures/config.ini"};
+
+    const auto& v1 = r.Get<std::string>("section1", "any");
+    const auto& v2 = r.Get<int>("section1", "any");
+    const auto& v3 = r.Get<double>("section1", "any");
+    const auto& v4 = r.GetVector<float>("section2", "any_vec");
+    const auto& v5{r.GetVector<std::string>("section2", "any_vec")};
+
+    /** output
+     * v1 = "1"             type: std::string
+     * v2 = 1               type: int
+     * v3 = 1.0             type: double
+     * v4 = [1, 2, 3]       type: std::vector<float>
+     * v5 = ["1", "2", "3"] type: std::vector<std::string>
+     */
+
+    std::cout << "v1 = " << v1 << ", which is type: " << bc::demangle(typeid(v1).name()) << std::endl;
+    std::cout << "v2 = " << v2 << ", which is type: " << bc::demangle(typeid(v2).name()) << std::endl;
+    std::cout << "v3 = " << v3 << ", which is type: " << bc::demangle(typeid(v3).name()) << std::endl;
+    std::cout << "v4 = "; for (auto& v : v4) std::cout << v << " "; std::cout << ", which is type: " << bc::demangle(typeid(v4).name()) << std::endl;
+    std::cout << "v5 = "; for (auto& v : v5) std::cout << v << " "; std::cout << ", which is type: " << bc::demangle(typeid(v5).name()) << std::endl;
+
+    // section exist, key not exist
+    r.InsertEntry("section1", "my_custom_key", "hello world");
+
+    // section&key not exist
+    r.InsertEntry("new_section", "key1", 5);
+
+    // Dump ini to file
+    INIWriter::write("output.ini", r);
+
+    return 0;
+}
+```
+

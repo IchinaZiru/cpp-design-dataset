@@ -1,0 +1,85 @@
+Repository-Context RAG v1
+Repository: RISCV-Simulator
+Commit: 8989a09c357a69b68612f653380d60816f5176c2
+Target: riscv-simulator-memory
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: src/Module/BranchPrediction.cpp:8-11
+Symbol: BranchPrediction::BranchPrediction
+Kind: constructor_definition
+Tier: 2
+Relations: none
+```cpp
+BranchPrediction::BranchPrediction() {
+    memset(two_bits, 0, sizeof(two_bits));
+    memset(mux, 0, sizeof(mux));
+}
+```
+
+## Chunk 2
+Path: src/Module/LoadStoreUnit.cpp:61-81
+Symbol: LoadStoreUnit::load_value
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void LoadStoreUnit::load_value(RS *rs, Register<Immediate> &load_buffer) {
+    switch (rs->Op) {
+        case 0b000: // LB
+            load_buffer = (char) e->session->memory[rs->A];
+            break;
+        case 0b001: // LH
+            load_buffer = (short) e->session->memory.read_ushort(rs->A);
+            break;
+        case 0b010: // LW
+            load_buffer = e->session->memory.read_word(rs->A);
+            break;
+        case 0b100: // LBU
+            load_buffer = e->session->memory[rs->A];
+            break;
+        case 0b101: // LHU
+            load_buffer = e->session->memory.read_ushort(rs->A);
+            break;
+        default:
+            assert(false);
+    }
+}
+```
+
+## Chunk 3
+Path: src/Module/ALUUnit.cpp:23-36
+Symbol: ALUUnit::get_result
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+Immediate ALUUnit::get_result(Immediate op, Immediate op1, Immediate op2) {
+    if (op == ADD) return op1 + op2;
+    if (op == SUB) return op1 - op2;
+    if (op == SLT) { if ((SImmediate) op1 < (SImmediate) op2) return 1; else return 0; }
+    if (op == SLTU) { if (op1 < op2) return 1; else return 0; }
+    if (op == XOR) return op1 ^ op2;
+    if (op == SRL) return op1 >> (op2 & (unsigned) 0x1f);
+    if (op == SLL) return op1 << (op2 & (unsigned) 0x1f);
+    if (op == SRA) return (SImmediate) op1 >> (op2 & (unsigned) 0x1f);
+    if (op == OR) return op1 | op2;
+    if (op == AND) return op1 & op2;
+    assert(false);
+    return 0;
+}
+```
+
+## Chunk 4
+Path: src/Common/Session.cpp:64-66
+Symbol: Session::load_memory
+Kind: method_definition
+Tier: 3
+Relations: none
+```cpp
+void Session::load_memory(std::istream &in) {
+    Parser::parse(in, memory);
+}
+```
+

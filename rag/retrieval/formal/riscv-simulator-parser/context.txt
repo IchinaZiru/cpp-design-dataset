@@ -1,0 +1,87 @@
+Repository-Context RAG v1
+Repository: RISCV-Simulator
+Commit: 8989a09c357a69b68612f653380d60816f5176c2
+Target: riscv-simulator-parser
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: src/Module/CommitUnit.cpp:104-121
+Symbol: CommitUnit::resolve_store
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void CommitUnit::resolve_store(ROB &rob_entry) {
+    InstructionBase inst = rob_entry.Inst;
+    switch (inst.funct3) {
+        case 0b000: // SB
+            e->session->memory[rob_entry.Dest] = rob_entry.Value;
+            break;
+        case 0b001: // SH
+            e->session->memory.write_ushort(rob_entry.Dest, rob_entry.Value);
+            break;
+        case 0b010: // SW
+            e->session->memory.write_word(rob_entry.Dest, rob_entry.Value);
+            break;
+        default:
+            assert(false);
+    }
+
+    flush_rob_entry(rob_entry);
+}
+```
+
+## Chunk 2
+Path: src/Common/Session.cpp:59-62
+Symbol: Session::load_hex
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void Session::load_hex(const char *path) {
+    std::fstream in(path);
+    Parser::parse_hex(in, memory);
+}
+```
+
+## Chunk 3
+Path: src/Common/Session.cpp:64-66
+Symbol: Session::load_memory
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void Session::load_memory(std::istream &in) {
+    Parser::parse(in, memory);
+}
+```
+
+## Chunk 4
+Path: src/main.cpp:7-25
+Symbol: run_session
+Kind: function_definition
+Tier: 3
+Relations: none
+```cpp
+void run_session(const char *path, unsigned ret_value, bool use_hex_parser = false) {
+    std::clock_t c_start = std::clock();
+    std::cout << "Running " << path << "... ";
+    Session *session = new Session(false);
+    if (use_hex_parser) session->load_hex(path); else session->load_memory(path);
+
+    while (true) {
+        session->tick();
+
+        if (session->memory[0x30004]) break;
+    }
+    auto ret_val = session->rf.read(10) & 0xff;
+    std::cout << "\t" << 1000.0 * (std::clock() - c_start) / CLOCKS_PER_SEC << "ms"
+              << std::endl;
+    std::cout << "\t" << ret_val << " == " << ret_value << std::endl;
+    session->report(std::cout);
+    assert(ret_val == ret_value);
+    delete session;
+}
+```
+

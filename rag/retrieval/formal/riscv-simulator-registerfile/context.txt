@@ -1,0 +1,91 @@
+Repository-Context RAG v1
+Repository: RISCV-Simulator
+Commit: 8989a09c357a69b68612f653380d60816f5176c2
+Target: riscv-simulator-registerfile
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: src/Common/utils.cpp:9-11
+Symbol: debug_immediate
+Kind: function_definition
+Tier: 0
+Relations: none
+```cpp
+void debug_immediate(Immediate v, unsigned width) {
+    std::cout << std::dec << std::setw(width) << (SImmediate) v << "(" << std::hex << std::setw(width) << v << ")";
+}
+```
+
+## Chunk 2
+Path: src/Common/ReservationStation.cpp:9-26
+Symbol: RS::debug
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void RS::debug() {
+    using std::cout;
+    using std::setw;
+    using std::endl;
+    cout << resolve(__debug_identifier) << (Busy.current() ? " (⚪busy)" : "       ") << "\t";
+    cout << setw(8) << ALUUnit::resolve((ALUUnit::OP) Op.current());
+    char buffer[100];
+    sprintf(buffer, "#%d", Qj.current());
+    cout << setw(8) << buffer;
+    sprintf(buffer, "#%d", Qk.current());
+    cout << setw(8) << buffer;
+    debug_immediate(Vj.current(), 11);
+    debug_immediate(Vk.current(), 11);
+    debug_immediate(A.current(), 7);
+    debug_immediate(Dest.current(), 7);
+    debug_immediate(Tag.current(), 7);
+    cout << endl;
+}
+```
+
+## Chunk 3
+Path: src/Common/ReorderBuffer.cpp:10-22
+Symbol: ROB::debug
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void ROB::debug() {
+    using std::cout;
+    using std::endl;
+    using std::setw;
+    std::cout << setw(4) << __debug_identifier
+              << setw(8) << resolve(Inst.current().opcode);
+    debug_immediate(Dest.current(), 7);
+    debug_immediate(Value.current(), 11);
+    debug_immediate(Tag.current(), 7);
+    std::cout << (Inst.current().is_nop() ? "  (⚪idle)" : "");
+    std::cout << (Ready.current() ? "  (⚪ready)" : "");
+    std::cout << std::endl;
+}
+```
+
+## Chunk 4
+Path: src/Module/BranchPrediction.cpp:8-11
+Symbol: BranchPrediction::BranchPrediction
+Kind: constructor_definition
+Tier: 2
+Relations: none
+```cpp
+BranchPrediction::BranchPrediction() {
+    memset(two_bits, 0, sizeof(two_bits));
+    memset(mux, 0, sizeof(mux));
+}
+```
+
+## Chunk 5
+Path: src/Common/RegisterFile.hpp:6-6
+Symbol: RISCV_SIMULATOR_REGISTERFILE_HPP
+Kind: macro_definition
+Tier: 3
+Relations: none
+```cpp
+#define RISCV_SIMULATOR_REGISTERFILE_HPP
+```
+

@@ -1,0 +1,290 @@
+Repository-Context RAG v1
+Repository: Echo-Web-Server
+Commit: fb2fadb7e7f4c340325b0a72847425f6e8b6367e
+Target: echo-web-server-heap-timer
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: include/log.h:84-143
+Symbol: ws::log::Event
+Kind: class_interface
+Tier: 0
+Relations: parameter_type
+```cpp
+class Event {
+public:
+    using Ptr = std::shared_ptr<Event>;
+
+    using Clock = std::chrono::system_clock;
+
+    /**
+     * @brief Create an event.
+     *
+     * @param level The event level.
+     * @param location The event location.
+     * @param thread_id The ID of the thread where the event occurred.
+     * @param time The event time.
+     *
+     * @todo Replace @p std::experimental::source_location with @p std::source_location.
+     */
+    static Ptr Create(log::Level level,
+                      std::experimental::source_location location =
+                          std::experimental::source_location::current(),
+                      std::uint32_t thread_id = CurrentThreadId(),
+                      Clock::time_point time = Clock::now()) noexcept;
+
+    Event(const Event&) = delete;
+
+    Event(Event&&) = delete;
+
+    Event& operator=(const Event&) = delete;
+
+    Event& operator=(Event&&) = delete;
+
+    log::Level Level() const noexcept;
+
+    std::string_view FileName() const noexcept;
+
+    std::size_t LineNum() const noexcept;
+
+    std::uint32_t ThreadId() const noexcept;
+
+    Clock::time_point Time() const noexcept;
+
+    //! Get the message written by the user.
+    std::string Message() const noexcept;
+
+    //! Get an output stream. The user can write messages into it.
+    std::ostringstream& MessageStream() noexcept;
+
+protected:
+    explicit Event(log::Level level,
+                   std::experimental::source_location location,
+                   std::uint32_t thread_id, Clock::time_point time) noexcept;
+
+private:
+    log::Level level_;
+    std::string_view file_name_;
+    std::size_t line_num_;
+    std::uint32_t thread_id_;
+    Clock::time_point time_;
+
+    std::ostringstream msg_;
+}
+```
+
+## Chunk 2
+Path: include/log.h:51-51
+Symbol: ws::log::Level
+Kind: enum_definition
+Tier: 0
+Relations: parameter_type
+```cpp
+enum class Level { Debug = 0, Info = 1, Warn = 2, Error = 3, Fatal = 4 }
+```
+
+## Chunk 3
+Path: include/log.h:150-150
+Symbol: ws::log::Formatter::Ptr
+Kind: alias_definition
+Tier: 0
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<Formatter>;
+```
+
+## Chunk 4
+Path: include/log.h:163-163
+Symbol: ws::log::Formatter::Field::Ptr
+Kind: alias_definition
+Tier: 0
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<Field>;
+```
+
+## Chunk 5
+Path: include/containers/block_deque.h:31-31
+Symbol: ws::BlockDeque::Clock
+Kind: alias_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+using Clock = std::chrono::steady_clock;
+```
+
+## Chunk 6
+Path: include/config.h:288-288
+Symbol: ws::cfg::VarBase::Ptr
+Kind: alias_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<VarBase>;
+```
+
+## Chunk 7
+Path: include/config.h:325-325
+Symbol: ws::cfg::Var::Ptr
+Kind: alias_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<Var>;
+```
+
+## Chunk 8
+Path: include/config.h:424-424
+Symbol: ws::cfg::Config::Ptr
+Kind: alias_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<Config>;
+```
+
+## Chunk 9
+Path: include/web_server.h:256-261
+Symbol: ws::WebServer::MarkClientAsToBeClosed
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void MarkClientAsToBeClosed(const FileDescriptor socket) noexcept {
+        assert(IsValidFileDescriptor(socket));
+        const std::lock_guard locker {mtx_};
+        assert(timer_.Contain(socket));
+        timer_.Adjust(socket, Clock::duration::zero());
+    }
+```
+
+## Chunk 10
+Path: src/http/request.h:25-95
+Symbol: ws::http::Request
+Kind: class_interface
+Tier: 2
+Relations: none
+```cpp
+class Request {
+public:
+    class State;
+
+    Request() noexcept;
+
+    /**
+     * @brief Create a parser and parse an HTTP request.
+     *
+     * @exception std::invalid_argument The HTTP request is invalid.
+     */
+    explicit Request(Buffer& buf);
+
+    ~Request() noexcept;
+
+    /**
+     * @brief Parse an HTTP request.
+     *
+     * @exception std::invalid_argument The HTTP request is invalid.
+     */
+    void Parse(Buffer& buf);
+
+    /**
+     * @brief Get an HTTP header by its key.
+     *
+     * @warning The query is case-sensitive.
+     */
+    std::optional<std::string_view> Header(std::string_view key) const noexcept;
+
+    /**
+     * @brief Get an HTTP @p POST variable by its key.
+     *
+     * @warning The query is case-sensitive.
+     */
+    std::optional<std::string_view> Post(std::string_view key) const noexcept;
+
+    //! Get the number of HTTP @p POST variables.
+    std::size_t PostSize() const noexcept;
+
+    //! Get the HTTP method.
+    http::Method Method() const noexcept;
+
+    //! Get the path.
+    std::string_view Path() const noexcept;
+
+    //! Get the HTTP version.
+    std::string_view Version() const noexcept;
+
+    //! Whether the request keeps alive.
+    bool KeepAlive() const noexcept;
+
+private:
+    friend class NotStarted;
+    friend class Header;
+    friend class Body;
+
+    //! Set a new parsing state.
+    void SetState(std::unique_ptr<State> state) noexcept;
+
+    //! Clear the cache.
+    void Clear() noexcept;
+
+    std::unique_ptr<State> state_;
+
+    http::Method method_ {Method::Get};
+    std::string version_;
+    std::string path_;
+
+    Parameters headers_;
+    Parameters post_;
+}
+```
+
+## Chunk 11
+Path: src/http/response.cpp:125-154
+Symbol: ws::http::Response::AddParamContent
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void Response::AddParamContent(Buffer& buf,
+                               const Parameters& params) const noexcept {
+    assert(file_.Data());
+
+    buf.Append(fmt::format("Content-type: {}",
+                           ContentTypeByFileName(file_path_.c_str())),
+               NewLine::CRLF);
+
+    std::string content {reinterpret_cast<const char*>(file_.Data()),
+                         file_.Size()};
+    for (const auto& [key, val] : params) {
+        content = ReplaceAllSubstring(content, HTMLPlaceholder(key), val);
+    }
+
+    const auto lines {SplitStringToLines(content)};
+    std::size_t length {new_line.length() * (lines.size() - 1)};
+    std::for_each(lines.cbegin(), lines.cend(),
+                  [&length](const auto& line) { length += line.size(); });
+
+    buf.Append(fmt::format("Content-length: {}", length), NewLine::CRLF);
+    buf.Append(new_line);
+
+    for (auto i {0}; i != lines.size(); ++i) {
+        if (i != lines.size() - 1) {
+            buf.Append(lines[i], NewLine::CRLF);
+        } else {
+            buf.Append(lines[i]);
+        }
+    }
+}
+```
+
+## Chunk 12
+Path: include/http.h:101-101
+Symbol: ws::http::HTMLPlaceholder
+Kind: function_declaration
+Tier: 3
+Relations: none
+```cpp
+std::string HTMLPlaceholder(std::string_view key) noexcept;
+```
+

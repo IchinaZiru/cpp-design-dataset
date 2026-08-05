@@ -1,0 +1,224 @@
+Repository-Context RAG v1
+Repository: Echo-Web-Server
+Commit: fb2fadb7e7f4c340325b0a72847425f6e8b6367e
+Target: echo-web-server-log
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: include/config.h:288-288
+Symbol: ws::cfg::VarBase::Ptr
+Kind: alias_definition
+Tier: 0
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<VarBase>;
+```
+
+## Chunk 2
+Path: include/config.h:325-325
+Symbol: ws::cfg::Var::Ptr
+Kind: alias_definition
+Tier: 0
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<Var>;
+```
+
+## Chunk 3
+Path: include/config.h:424-424
+Symbol: ws::cfg::Config::Ptr
+Kind: alias_definition
+Tier: 0
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<Config>;
+```
+
+## Chunk 4
+Path: include/containers/block_deque.h:31-31
+Symbol: ws::BlockDeque::Clock
+Kind: alias_definition
+Tier: 0
+Relations: parameter_type
+```cpp
+using Clock = std::chrono::steady_clock;
+```
+
+## Chunk 5
+Path: include/http.h:126-126
+Symbol: ws::http::ConnectionImpl::Ptr
+Kind: alias_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<ConnectionImpl>;
+```
+
+## Chunk 6
+Path: include/http.h:197-197
+Symbol: ws::http::Connection::Ptr
+Kind: alias_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<Connection>;
+```
+
+## Chunk 7
+Path: include/web_server.h:41-41
+Symbol: ws::WebServer::Ptr
+Kind: alias_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+using Ptr = std::shared_ptr<WebServer>;
+```
+
+## Chunk 8
+Path: include/containers/block_deque.h:180-183
+Symbol: ws::BlockDeque<T>::Flush
+Kind: method_definition
+Tier: 1
+Relations: parameter_type
+```cpp
+template <typename T>
+void BlockDeque<T>::Flush() noexcept {
+    consumer_cond_.notify_one();
+}
+```
+
+## Chunk 9
+Path: src/main.cpp:18-88
+Symbol: main
+Kind: function_definition
+Tier: 2
+Relations: none
+```cpp
+//! Initialize the default configuration.
+cfg::Config::Ptr InitDefaultConfig() noexcept {
+    static constexpr std::uint16_t default_port {10000};
+    static const std::string default_asset_folder {"assets"};
+    static constexpr std::size_t default_alive_time {60};
+
+    const auto config {cfg::RootConfig()};
+    config->Lookup<std::uint16_t>(port_tag, default_port, "The listening port");
+    config->Lookup<std::size_t>(alive_time_tag, default_alive_time,
+                                "The alive time of client (in seconds)");
+    config->Lookup<std::string>(asset_folder_tag, default_asset_folder,
+                                "The asset folder");
+    return config;
+}
+
+/**
+ * @brief Load a local configuration.
+ *
+ * @param config An existing configuration.
+ * @param file A configuration file.
+ */
+cfg::Config::Ptr LoadConfig(const cfg::Config::Ptr config,
+                            const std::string& file) {
+    config->LoadYaml(YAML::LoadFile(file));
+    return config;
+}
+
+}  // namespace
+
+int main() {
+    log::Manager::InitConfig();
+    auto config {InitDefaultConfig()};
+    const auto curr_dir {std::filesystem::current_path()};
+
+    try {
+        // Load the local configuration if it exists.
+        static constexpr std::string_view config_file {"config.yaml"};
+
+        if (const auto config_path {curr_dir / config_file};
+            std::filesystem::exists(config_path)) {
+            config = LoadConfig(config, config_path);
+        }
+    } catch (const std::exception& err) {
+        log::RootLogger()->Log(
+            log::Event::Create(log::Level::Warn) << fmt::format(
+                "Failed to load local configuration: {}", err.what()));
+    }
+
+    try {
+        const auto port {config->Lookup<std::uint16_t>(port_tag)->GetValue()};
+        const auto alive_time {
+            config->Lookup<std::size_t>(alive_time_tag)->GetValue()};
+        const auto asset_folder {
+            config->Lookup<std::string>(asset_folder_tag)->GetValue()};
+
+        WebServerBuilder<IPv4Addr> builder {};
+        builder.SetPort(port)
+            .SetAliveTime(std::chrono::seconds {alive_time})
+            .SetRootDirectory(curr_dir / asset_folder);
+
+        auto web_server {builder.Create()};
+        web_server.Start();
+        return EXIT_SUCCESS;
+
+    } catch (const std::exception& err) {
+        log::RootLogger()->Log(
+            log::Event::Create(log::Level::Error)
+            << fmt::format("Failed to run server: {}", err.what()));
+        return EXIT_FAILURE;
+    }
+}
+```
+
+## Chunk 10
+Path: include/web_server.h:331-350
+Symbol: ws::WebServer::SendTo
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void SendTo(typename http::Connection<IPAddr>::Ptr client) noexcept {
+        const auto ip_addr {client->IPAddress()};
+
+        try {
+            logger_->Log(log::Event::Create(log::Level::Info) << fmt::format(
+                             "Start to send data to client {}", ip_addr));
+            client->Send();
+            if (client->KeepAlive()) {
+                // Continue to receive data if the client keeps alive.
+                Process(std::move(client));
+                return;
+            }
+        } catch (const std::exception& err) {
+            logger_->Log(log::Event::Create(log::Level::Error)
+                         << fmt::format("Failed to send data to client {}: {}",
+                                        ip_addr, err.what()));
+        }
+
+        MarkClientAsToBeClosed(client->Socket());
+    }
+```
+
+## Chunk 11
+Path: include/web_server.h:313-328
+Symbol: ws::WebServer::ReceiveFrom
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+void ReceiveFrom(typename http::Connection<IPAddr>::Ptr client) noexcept {
+        const auto ip_addr {client->IPAddress()};
+
+        try {
+            logger_->Log(log::Event::Create(log::Level::Info) << fmt::format(
+                             "Start to receive data from client {}", ip_addr));
+            client->Receive();
+            Process(std::move(client));
+        } catch (const std::exception& err) {
+            logger_->Log(log::Event::Create(log::Level::Error) << fmt::format(
+                             "Failed to receive data from client {}: {}",
+                             ip_addr, err.what()));
+
+            MarkClientAsToBeClosed(client->Socket());
+        }
+    }
+```
+

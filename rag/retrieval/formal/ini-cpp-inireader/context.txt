@@ -1,0 +1,129 @@
+Repository-Context RAG v1
+Repository: ini-cpp
+Commit: e1779b837274de8be2051bef579c3b9ec3483522
+Target: ini-cpp-inireader
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: ini/ini.h:1-70
+Symbol: inih::detail::find_char_or_comment
+Kind: function_definition
+Tier: 0
+Relations: return_type
+```cpp
+/**
+ * Yet another .ini parser for modern c++ (made for cpp17),
+ * Project page: https://github.com/SSARCandy/ini-cpp
+ */
+
+#ifndef INI_CPP_INI_H_
+#define INI_CPP_INI_H_
+
+#include <cstddef>
+#include <cstdio>
+#include <fstream>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#if defined(__has_include)
+#if __has_include(<charconv>)
+#include <charconv>
+#define INI_CPP_HAS_CHARCONV 1
+#if defined(__cpp_lib_to_chars) && __cpp_lib_to_chars >= 201611L
+#define INI_CPP_HAS_FLOAT_CHARCONV 1
+#endif
+#endif
+#endif
+
+namespace inih {
+
+namespace detail {
+
+/* Locale-independent whitespace check (same set as C isspace). */
+inline constexpr bool is_space(char c) noexcept {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' ||
+           c == '\v';
+}
+
+inline std::string_view ltrim(std::string_view s) noexcept {
+    while (!s.empty() && is_space(s.front())) s.remove_prefix(1);
+    return s;
+}
+
+inline std::string_view rtrim(std::string_view s) noexcept {
+    while (!s.empty() && is_space(s.back())) s.remove_suffix(1);
+    return s;
+}
+
+inline std::string_view trim(std::string_view s) noexcept {
+    return ltrim(rtrim(s));
+}
+
+/* Return index of the first char of `chars` or of an inline comment (a ';'
+   preceded by whitespace) in `s`, or npos if neither is found. */
+inline std::size_t find_char_or_comment(std::string_view s,
+                                        std::string_view chars) noexcept {
+    bool was_space = false;
+    for (std::size_t i = 0; i < s.size(); ++i) {
+        const char c = s[i];
+        if (chars.find(c) != std::string_view::npos ||
+            (was_space && c == ';')) {
+            return i;
+        }
+        was_space = is_space(c);
+    }
+    return std::string_view::npos;
+}
+```
+
+## Chunk 2
+Path: example.cpp:11-44
+Symbol: main
+Kind: function_definition
+Tier: 2
+Relations: none
+```cpp
+int main() {
+    INIReader r{"./test/fixtures/config.ini"};
+
+    const auto& v1 = r.Get<std::string>("section1", "any");
+    const auto& v2 = r.Get<int>("section1", "any");
+    const auto& v3 = r.Get<double>("section1", "any");
+    const auto& v4 = r.GetVector<float>("section2", "any_vec");
+    const auto& v5{r.GetVector<std::string>("section2", "any_vec")};
+
+    /** output
+     * v1 = "1"             type: std::string
+     * v2 = 1               type: int
+     * v3 = 1.0             type: double
+     * v4 = [1, 2, 3]       type: std::vector<float>
+     * v5 = ["1", "2", "3"] type: std::vector<std::string>
+     */
+
+    std::cout << "v1 = " << v1 << ", which is type: " << bc::demangle(typeid(v1).name()) << std::endl;
+    std::cout << "v2 = " << v2 << ", which is type: " << bc::demangle(typeid(v2).name()) << std::endl;
+    std::cout << "v3 = " << v3 << ", which is type: " << bc::demangle(typeid(v3).name()) << std::endl;
+    std::cout << "v4 = "; for (auto& v : v4) std::cout << v << " "; std::cout << ", which is type: " << bc::demangle(typeid(v4).name()) << std::endl;
+    std::cout << "v5 = "; for (auto& v : v5) std::cout << v << " "; std::cout << ", which is type: " << bc::demangle(typeid(v5).name()) << std::endl;
+
+    // section exist, key not exist
+    r.InsertEntry("section1", "my_custom_key", "hello world");
+
+    // section&key not exist
+    r.InsertEntry("new_section", "key1", 5);
+
+    // Dump ini to file
+    INIWriter::write("output.ini", r);
+
+    return 0;
+}
+```
+

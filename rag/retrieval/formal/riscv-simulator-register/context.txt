@@ -1,0 +1,117 @@
+Repository-Context RAG v1
+Repository: RISCV-Simulator
+Commit: 8989a09c357a69b68612f653380d60816f5176c2
+Target: riscv-simulator-register
+Format: combined-path-role-v1
+Retrieved production context follows. Target source is excluded.
+
+## Chunk 1
+Path: src/Module/LoadStoreUnit.cpp:109-120
+Symbol: LoadStoreUnit::get_store_cnt_register
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+Register<int> &LoadStoreUnit::get_store_cnt_register(RSID r_id) {
+    switch (r_id) {
+        case STORE1:
+            return store_cnt[0];
+        case STORE2:
+            return store_cnt[1];
+        case STORE3:
+            return store_cnt[2];
+        default:
+            assert(false);
+    }
+}
+```
+
+## Chunk 2
+Path: src/Module/LoadStoreUnit.cpp:122-133
+Symbol: LoadStoreUnit::get_load_cnt_register
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+Register<int> &LoadStoreUnit::get_load_cnt_register(RSID r_id) {
+    switch (r_id) {
+        case LOAD1:
+            return load_cnt[0];
+        case LOAD2:
+            return load_cnt[1];
+        case LOAD3:
+            return load_cnt[2];
+        default:
+            assert(false);
+    }
+}
+```
+
+## Chunk 3
+Path: src/Module/LoadStoreUnit.cpp:135-146
+Symbol: LoadStoreUnit::get_load_buffer
+Kind: method_definition
+Tier: 2
+Relations: none
+```cpp
+Register<Immediate> &LoadStoreUnit::get_load_buffer(RSID r_id) {
+    switch (r_id) {
+        case LOAD1:
+            return load_buffer[0];
+        case LOAD2:
+            return load_buffer[1];
+        case LOAD3:
+            return load_buffer[2];
+        default:
+            assert(false);
+    }
+}
+```
+
+## Chunk 4
+Path: src/Pipeline/OoOExecute.cpp:117-154
+Symbol: OoOExecute::debug
+Kind: method_definition
+Tier: 3
+Relations: none
+```cpp
+void OoOExecute::debug() {
+    static const std::vector<std::string> rf_name = {
+            "0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
+            "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+            "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+            "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6",
+            "branch"};
+    std::cout << "Reservation Stations" << std::endl;
+    RS::debug_header();
+    for (int i = RS_BEGIN + 1; i < RS_END; i++) {
+        RS *rs = get_rs((RSID) i);
+        if (rs == nullptr) continue;
+        rs->debug();
+    }
+    std::cout << "Reorder Buffer" << std::endl;
+    std::cout << "front: " << std::dec << rob_front.current() << "\t";
+    std::cout << "rear: " << std::dec << rob_rear.current() << std::endl;
+    ROB::debug_header();
+    for (int i = 1; i <= ROB_SIZE; i++) {
+        rob[i].debug();
+    }
+    std::cout << "Register Rename" << std::endl;
+    for (int i = 0; i < 4; i++) {
+        for (int j = i * 8; j < i * 8 + 8; j++) std::cout << rf_name[j] << "\t";
+        std::cout << std::endl;
+        for (int j = i * 8; j < i * 8 + 8; j++) {
+            if (Busy[j].current()) {
+                std::cout << "⚪" << Reorder[j].current() << "   \t";
+            } else {
+                std::cout << "idle" << "\t";
+            }
+        }
+        std::cout << std::endl;
+    }
+    if (__rob_flush_flag) {
+        std::cout << "⭕" << "(rob flush in next cycle)" << std::endl;
+    }
+}
+```
+
