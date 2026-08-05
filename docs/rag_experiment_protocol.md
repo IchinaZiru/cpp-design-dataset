@@ -2,7 +2,7 @@
 
 ## 1. 文書管理
 
-- Protocol version: `0.9.1`
+- Protocol version: `1.0`
 - Condition ID: `rag-design-context-v1`
 - Condition name: `Repository-Context RAG v1`
 - Retrieval method name: `symbol-aware staged retrieval`（シンボル対応型の段階的検索）
@@ -15,7 +15,7 @@
   - `reports/analysis/main_results.csv`
   - `reports/analysis/summary.json`
   - `reports/analysis/summary.md`
-- Protocol status: pre-pilot freeze
+- Protocol status: post-pilot formal freeze
 - Formal execution status: not started
 
 ### 1.1 Revision history
@@ -24,20 +24,21 @@
 |---|---|---|
 | 0.9 | Pre-pilot freeze | RQ、対象、corpus、chunk、query、retrieval、公平性、評価、停止規則を固定する。pilotで決定する数値は未確定とする。 |
 | 0.9.1 | Pre-pilot amendment | 既存3リポジトリの厳格な候補探索が0件であったため、条件を緩和せず、固定commitとbaseline PASSを満たす外部pilot専用リポジトリの使用を事前規定する。 |
-| 1.0 | TBD after pilot | pilot対象、context format、retrieval top-k、context token budget、quota、実ライブラリversionを固定する。 |
+| 1.0 | Post-pilot formal freeze | 外部pilot候補5件と実行済み1件を区別し、context format、retrieval top-k、context token budget、quota、token counter、parser/runtimeおよびin-repository BM25実装versionを固定する。formal executionは開始しない。 |
 
-### 1.2 未確定項目
+### 1.2 Post-pilot fixed items
 
-以下はformal 17対象を確認して最適化せず、formal外pilotだけで決定する。
+以下はformal 17対象を確認して最適化せず、formal外pilotと固定implementation evidenceだけから決定した。
 
-- `pilot_target_ids`
-- `context_format`
-- `retrieval_top_k`
-- `context_budget_tokens`
-- category quota
-- token counter/version
-- parser/libraryの実version
-- BM25 libraryの実version
+- Frozen external-pilot candidate set: 5 targets（16.1.2）
+- Actually executed external RAG pilot target: 1 target（16.3.1）
+- `context_format`: `combined-path-role-v1`
+- `retrieval_top_k`: `12`
+- `context_budget_tokens`: `6000`
+- category quota: Tier 0/1/2/3 = `4/4/3/1`
+- token counter/version: `cpp-lexical-token-count-v1`
+- parser distributions: `tree-sitter==0.26.0`, `tree-sitter-cpp==0.23.4`
+- BM25 implementation version: `in-repository-bm25-okapi-v1`
 
 ---
 
@@ -171,9 +172,11 @@ RAG v1ではthird-party例外を設けない。
 ### 7.1 Parser
 
 - Parser: Tree-sitter C++
-- Python package version: `TBD_IMPLEMENTATION`
-- C++ grammar version/commit: `TBD_IMPLEMENTATION`
+- Python package version: `tree-sitter==0.26.0`
+- C++ grammar distribution version: `tree-sitter-cpp==0.23.4`
 - Chunking version: `tree-sitter-symbol-v1`
+
+再現性はインストール済みdistribution version、`requirements/rag.lock.txt`および`rag/environment/rag_environment_manifest.json`で固定する。上流grammar commitを推測して補完しない。
 
 Tree-sitterは完全なC++ semantic resolverとして扱わない。template instantiation、linker resolution、preprocessor branch、完全なoverload resolutionは保証しない。
 
@@ -334,9 +337,13 @@ fuzzy match、substring matchまたはLLM guessを使用しない。
 
 ### 9.2 Search stage: BM25
 
-- Implementation: `BM25Okapi`
-- Library/version: `TBD_IMPLEMENTATION`
+- Implementation: in-repository `BM25Okapi`
+- Implementation version: `in-repository-bm25-okapi-v1`
+- Implementation file: `scripts/rag/external_retrieval.py`
+- Implementation SHA-256: `f8bb1a42f232788aee72e785a713e74aeb78ddf93ff303901b485f36ac538545`
 - Parameters: `k1=1.2`, `b=0.75`
+
+外部BM25 packageは使用しない。
 
 1 symbol chunkを1 BM25 documentとして扱う。
 
@@ -427,21 +434,25 @@ filterをrankingより先に適用する。
 
 ## 10. Context count and token budget
 
-- Retrieval top-k: `TBD_AFTER_PILOT`
-- Total context token budget: `TBD_AFTER_PILOT`
-- Category quota: `TBD_AFTER_PILOT`
-- Token counter/version: `TBD_AFTER_PILOT`
+- Retrieval top-k: `12`
+- Total context token budget: `6000`
+- Category quota: Tier 0 = `4`, Tier 1 = `4`, Tier 2 = `3`, Tier 3 = `1`
+- Token counter/version: `cpp-lexical-token-count-v1`
+- Context format: `combined-path-role-v1`
 - Per-target override: prohibited
+- Target-specific manual query: prohibited
 - One common format/budget across all formal 17 targets
+
+`retrieval_top_k`と各Tier quotaは上限である。selected chunkが12件未満になる場合、決定論的なshortfall reasonをartifactへ記録し、target別の補填、quota変更、budget変更またはoverrideを行わない。
 
 `retrieval_top_k`とLLM生成側の`generation_top_k`を明確に区別する。
 
-### 10.1 Pilot comparison order
+### 10.1 Pilot comparison order (historical selection procedure)
 
 1. context formatを決定する
 2. format固定後にbudgetを決定する
 
-### 10.2 Context format candidates
+### 10.2 Context format candidates (historical)
 
 - A: file-structure format
 - B: role/category format
@@ -615,13 +626,13 @@ retrieved candidate、rank、selected chunk、BM25 score、generated design/code
 
 したがって、16.1の「原則として各repositoryから最低1 target」は適用不能である。候補を得るためにmatcher、test evidenceまたはformal-overlap除外を緩和せず、formal対象とは独立した外部pilot専用リポジトリを使用する。
 
-外部pilot repositoryを次のとおり固定する。
+pre-pilotの最初の外部repository evaluationを次のとおり固定した。
 
 - Repository: `leethomason/tinyxml2`
 - Pinned commit: `8224e427b655b83dae5e2298f1e6919523a78737`
 - Role: pilot only
 - Formal target membership: false
-- Pilot target IDs: selection pending
+- Pilot target IDs: このrepositoryからは凍結しない。最終的な外部pilot候補は16.1.2で固定する。
 - Docker image: `cpp-rag-pilot-env:tinyxml2-v1`
 - Docker image ID: `sha256:cf9ac1211043f2c6e6563628eddb48a7783e0a6109baa78be31b196ba2645cad`
 - Baseline configure/build: PASS
@@ -642,6 +653,18 @@ retrieved candidate、rank、selected chunk、BM25 score、generated design/code
 
 Baseline evidenceは`reports/rag/pilot/external_pilot_repository_baseline.json`へ保存する。
 
+### 16.1.2 Frozen external-pilot candidate set
+
+最終的な外部pilot専用repositoryとして`jbeder/yaml-cpp`のcommit `3eb39d5808c33aa93a113cb6c668fa2435ff3ecd`を使用し、formal対象を参照せず決定的に選定した次の5 targetをcandidate setとして凍結した。
+
+1. `yaml-cpp-yaml-node-d2929956c2cd`
+2. `yaml-cpp-yaml-detail-get-idx-key-typename-std-enable-if-s-50aa23319a5e`
+3. `yaml-cpp-yaml-detail-remove-idx-key-typename-std-enable-i-b8aacd8b022d`
+4. `yaml-cpp-yaml-convert-std-string-3825140d3f5f`
+5. `yaml-cpp-yaml-decodebase64-625c9379f8bd`
+
+この5件はfrozen candidate setであり、5件すべてを実行済みpilotとして扱わない。実際に外部RAG pilotとして実行したtargetは`yaml-cpp-yaml-node-d2929956c2cd`の1件だけである。残り4件は未実行であり、formal result、pilot resultまたはRAG効果の観測数へ含めない。
+
 ### 16.2 Pilot rules
 
 - one generation per condition
@@ -652,6 +675,34 @@ Baseline evidenceは`reports/rag/pilot/external_pilot_repository_baseline.json`�
 - pilot artifactsをformal resultへ再利用しない
 
 修正可能なのはimplementation/path/serialization/deterministic ordering/manifest schema bugだけである。formal 17の結果を見たtuning、target-specific query、retry/repair policy変更は禁止する。
+
+### 16.3 Pilot result interpretation
+
+#### 16.3.1 Executed external YAML::Node RAG pilot
+
+実行済みexternal RAG pilot targetは`yaml-cpp-yaml-node-d2929956c2cd`のみである。このrunではretrieval、design/code prompt input isolationおよびone-shot generation evidenceを確認した。code responseは`YAML::Node` classの閉じ波括弧を欠き、normalization/structural validationで停止したため、source replacement、configure、build、direct testおよびfull testには到達していない。
+
+- Result: `failed_without_retry_or_repair`
+- Primary failure: `generated_code_missing_closing_brace`
+- Retry: false
+- Repair: false
+- Manual patch: false
+- Formal result: false
+
+このimmutable runの出力を修正、再実行、同じrun IDで再開またはformal resultへ転用しない。
+
+#### 16.3.2 Mechanics-only YAML::Node pilot
+
+別condition `rag-pipeline-mechanics-v1`でYAML::Nodeの固定fixtureを使用し、source replacement、configure、build、direct test、full testおよびexact-byte restoration mechanicsがすべてPASSすることを確認した。
+
+- RAG treatment result: false
+- Formal result: false
+- Evidence of RAG improvement: false
+- Experimental LLM/Ollama call count: `0`
+- Source restoration: exact bytes and frozen SHA-256 match
+- Restored yaml-cpp worktree: clean
+
+このmechanics-only pilotはdownstream pipeline mechanicsだけを検証する。RAG treatment、生成コードの能力またはRAG改善効果を評価したものではない。
 
 ---
 
@@ -671,7 +722,18 @@ Baseline evidenceは`reports/rag/pilot/external_pilot_repository_baseline.json`�
 - Automatic repair: false
 - Manual generated-code patch: false
 
-contextが`num_ctx`へ収まらない場合、targetごとの`num_ctx`を変えず、pilotで共通context budgetを小さくする。
+contextが対応non-RAG targetの`num_ctx`へ収まらない場合、targetごとの`num_ctx`または凍結済み共通context budgetを変更せず、formal batch全体を停止する。
+
+### 17.1 Formal start gate
+
+- Formal target count: `17`
+- Frozen non-RAG results: `17` targets、PASS `6`、FAIL `11`、pass rate `35.3%`
+- Formal config: not created
+- Formal retrieval context: not created
+- Enabled formal target count: `0`
+- Formal execution status: not started
+
+このprotocol 1.0 commitだけではformal runを許可しない。共通formal config、formal tooling、17 target config、全17件の決定的retrieval contextおよびaggregate auditが完成し、すべての検証がPASSするまでtargetをenableしない。audit後も明示的な独立commitで1 targetだけをenableし、同時に複数targetをenableしない。
 
 ---
 
@@ -786,7 +848,7 @@ non-RAG artifactsを上書きしない。
 RAG corpus、parsing、retrieval、context生成は既存non-RAG generation/build環境から分離したローカルPythonで実装する。
 
 - OS: Windows
-- Python: CPython `TBD_IMPLEMENTATION`
+- Python: CPython `3.13.5`
 - Environment: `.venv-rag/`
 - Direct dependencies: `requirements/rag.in`
 - Locked dependencies: `requirements/rag.lock.txt`
