@@ -1,0 +1,86 @@
+{
+  "artifact_schema_version": "rag-yaml-cpp-design-generation-config-v1",
+  "condition_id": "rag-design-context-v1",
+  "run_id": "rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01",
+  "output_path": "experiments/rag/pilot/external/yaml-cpp/rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01",
+  "project_repository": {
+    "required_branch": "agent/rag-protocol-v0-9",
+    "required_baseline_ancestor": "8513cf51f36ffbba22d5e1a9db850e3f169dfb33"
+  },
+  "pilot_repository": {
+    "repository_id": "yaml-cpp",
+    "required_commit": "3eb39d5808c33aa93a113cb6c668fa2435ff3ecd"
+  },
+  "target": {
+    "target_id": "yaml-cpp-yaml-node-d2929956c2cd",
+    "target_symbol": "YAML::Node",
+    "granularity": "class_span",
+    "path": "include/yaml-cpp/node/node.h",
+    "selection_rank": 1,
+    "candidate_id": "d2929956c2cdbd6484497b0dd2ef558f0b81a927f928140ed1626879ad29ed8c",
+    "chunk_id": "0ead74e6fe0eea2477c21b72938433f14422dd475a6fed2b189d4528ef9d7302",
+    "start_byte": 738,
+    "end_byte": 3803,
+    "start_line": 29,
+    "end_line": 143,
+    "normalized_source_sha256": "4a70f9a232da4bd55faf19ea3123b8ae434dad46b1212e3066870e6d6862118c",
+    "source_range_sha256": "7c6a9b661f18ef3ccfcb1b4c357112b1a3ade1371ab31fe23781678f5e60ded4",
+    "source_normalization": "crlf-to-lf-before-utf8-byte-range-v1"
+  },
+  "frozen_artifacts": {
+    "selection_path": "reports/rag/pilot/external/yaml-cpp/candidate-selection-v2/external_pilot_selection.json",
+    "selection_sha256": "660eafc27072e4d04df321abe2c509ce063c61d154e625c214016cdbf3ef4170",
+    "retrieval_manifest_path": "rag/retrieval/external-pilot/yaml-cpp/retrieval-v2/yaml-cpp-yaml-node-d2929956c2cd/retrieval_manifest.json",
+    "retrieval_manifest_sha256": "f924003cc66de2f5d29dd1c13c597aa6f889cbfa389f77e7178010b67dff2343",
+    "context_path": "rag/retrieval/external-pilot/yaml-cpp/retrieval-v2/yaml-cpp-yaml-node-d2929956c2cd/context.txt",
+    "context_sha256": "9d4345e151390ae65df9d915046cdbfada1de1191c9278365c055b0bcff75dd9"
+  },
+  "prompt": {
+    "version": "yaml-cpp-external-pilot-design-prompt-v1",
+    "system": "あなたはC++ソフトウェアのリバースエンジニアリング担当者です。与えられたコードと取得済みリポジトリ文脈だけを根拠として、再実装に必要な設計文書を日本語で作成してください。推測で存在しない機能を追加しないでください。",
+    "task_instruction": "責務、公開インターフェース、入力、出力、状態、処理手順、例外・失敗条件、依存関係、重要な不変条件を記載してください。以下の凍結済み対象ソースと凍結済み取得文脈だけを根拠にし、設計文書だけを出力してください。",
+    "target_source_heading": "===== FROZEN TARGET SOURCE =====",
+    "retrieved_context_heading": "===== FROZEN RETRIEVED REPOSITORY CONTEXT ====="
+  },
+  "ollama": {
+    "endpoint": "http://localhost:11434/api/generate",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "model": "qwen2.5-coder:32b",
+    "stream": false,
+    "options": {
+      "temperature": 0,
+      "seed": 42,
+      "num_ctx": 16384,
+      "num_predict": 8192,
+      "top_k": 40,
+      "top_p": 0.9,
+      "repeat_penalty": 1.1
+    },
+    "timeout_seconds": 1800
+  },
+  "one_shot_policy": {
+    "design_generation_requests": 1,
+    "retry_allowed": false,
+    "repair_allowed": false,
+    "overwrite_allowed": false,
+    "second_call_allowed": false,
+    "attempt_marker": "design_generation_attempt.json",
+    "result_marker": "design_generation_result.json"
+  },
+  "downstream_code_regeneration_policy": {
+    "implemented_by_this_runner": false,
+    "allowed_direct_inputs": [
+      "design_document",
+      "fixed_scaffold"
+    ],
+    "forbidden_direct_inputs": [
+      "frozen_target_source",
+      "frozen_retrieved_repository_context",
+      "design_generation_prompt",
+      "design_generation_request"
+    ]
+  }
+}
