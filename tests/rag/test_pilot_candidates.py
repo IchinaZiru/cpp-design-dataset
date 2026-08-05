@@ -8,7 +8,10 @@ from pathlib import Path
 
 from scripts.rag.artifacts import CandidateConfig, load_index_artifacts, load_query_artifact
 from scripts.rag.build_pilot_candidates import build_and_verify_pilot_pool
-from scripts.rag.pilot_candidates import discover_pilot_candidates
+from scripts.rag.pilot_candidates import (
+    _test_evidence,
+    discover_pilot_candidates,
+)
 from tests.rag.fixture_factory import make_chunk, query_record, write_index, write_query
 
 
@@ -89,6 +92,60 @@ class PilotCandidateTests(unittest.TestCase):
             self.assertEqual(candidate["selection_status"], "provisional")
             self.assertEqual(candidate["static_test_evidence"][0]["path"], "tests/pilot_test.cpp")
             self.assertNotIn("content", candidate["static_test_evidence"][0])
+
+    def test_method_evidence_requires_owner_and_code_call(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            false_owner = root / "false_owner_test.cpp"
+            false_owner.write_text(
+                "ThreadPool pool;\npool.Start();\n",
+                encoding="utf-8",
+            )
+            comment_only = root / "comment_only_test.cpp"
+            comment_only.write_text(
+                "// WebServer server; server.Start();\n"
+                'const char* message = "WebServer::Start()";\n',
+                encoding="utf-8",
+            )
+            direct = root / "direct_test.cpp"
+            direct.write_text(
+                "WebServer server;\nserver.Start();\n",
+                encoding="utf-8",
+            )
+
+            evidence = _test_evidence(
+                canonical_name="ws::WebServer::Start",
+                short_name="Start",
+                kind="method_definition",
+                parent_symbol="ws::WebServer",
+                test_files=[
+                    ("tests/comment_only_test.cpp", comment_only),
+                    ("tests/direct_test.cpp", direct),
+                    ("tests/false_owner_test.cpp", false_owner),
+                ],
+            )
+
+            self.assertEqual(
+                [item["path"] for item in evidence],
+                ["tests/direct_test.cpp"],
+            )
+            self.assertEqual(
+                evidence[0]["match_type"],
+                "owner_and_short_call",
+            )
+
+    def test_main_is_not_selected_from_lexical_test_mentions(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            source = Path(raw) / "main_test.cpp"
+            source.write_text("int main();\n", encoding="utf-8")
+            evidence = _test_evidence(
+                canonical_name="main",
+                short_name="main",
+                kind="function_definition",
+                parent_symbol=None,
+                test_files=[("tests/main_test.cpp", source)],
+            )
+            self.assertEqual(evidence, [])
 
     def test_independent_pilot_pool_hashes_match_without_freezing_ids(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

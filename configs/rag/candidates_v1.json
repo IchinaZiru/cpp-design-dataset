@@ -45,7 +45,7 @@
     "formal_overlap_policy": "exclude",
     "selection_status": "provisional",
     "source_restoration_status": "not_run",
-    "version": "pilot-candidate-discovery-v1"
+    "version": "pilot-candidate-discovery-v2"
   },
   "stages": {
     "bm25": false,

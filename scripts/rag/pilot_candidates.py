@@ -22,6 +22,10 @@ _PILOT_KINDS = {
 _TEST_PATH_PARTS = {"test", "tests", "testing"}
 _IDENTIFIER_RE = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\b")
 _CALL_RE = re.compile(r"\b[A-Za-z_][A-Za-z0-9_:<>]*\s*\(")
+_CPP_NON_CODE_RE = re.compile(
+    r'//[^\r\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'',
+    re.DOTALL,
+)
 
 
 def _is_test_path(path: str) -> bool:
@@ -99,37 +103,104 @@ def _tracked_test_files(repository_root: Path) -> list[tuple[str, Path]]:
     return result
 
 
+def _code_only(text: str) -> str:
+    """Remove comments and literals before lexical evidence matching."""
+
+    return _CPP_NON_CODE_RE.sub(" ", text)
+
+
+def _identifier_count(text: str, name: str) -> int:
+    if not name:
+        return 0
+    pattern = re.compile(
+        r"(?<![A-Za-z0-9_])" + re.escape(name) + r"(?![A-Za-z0-9_])"
+    )
+    return len(pattern.findall(text))
+
+
+def _call_count(text: str, name: str) -> int:
+    if not name:
+        return 0
+    pattern = re.compile(
+        r"(?<![A-Za-z0-9_])"
+        + re.escape(name)
+        + r"(?![A-Za-z0-9_])\s*\("
+    )
+    return len(pattern.findall(text))
+
+
+def _owner_short_name(
+    *, canonical_name: str, parent_symbol: str | None
+) -> str:
+    owner = parent_symbol
+    if not owner and "::" in canonical_name:
+        owner = canonical_name.rsplit("::", 1)[0]
+    if not owner:
+        return ""
+    short = owner.rsplit("::", 1)[-1]
+    return re.sub(r"<.*>", "", short)
+
+
 def _test_evidence(
     *,
     canonical_name: str,
     short_name: str,
+    kind: str,
+    parent_symbol: str | None,
     test_files: Sequence[tuple[str, Path]],
 ) -> list[dict[str, Any]]:
-    names = sorted({canonical_name, short_name}, key=lambda item: (-len(item), item))
     evidence: list[dict[str, Any]] = []
     for path, source in test_files:
         try:
             text = source.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
-        best_name = ""
+
+        code = _code_only(text)
+        match_type = ""
         count = 0
-        for name in names:
-            if not name:
-                continue
-            pattern = re.compile(r"(?<![A-Za-z0-9_])" + re.escape(name) + r"(?![A-Za-z0-9_])")
-            current = len(pattern.findall(text))
-            if current > count or (current == count and current > 0 and name < best_name):
-                best_name = name
-                count = current
+
+        if kind in {"class_interface", "struct_interface"}:
+            canonical_count = _identifier_count(code, canonical_name)
+            short_count = _identifier_count(code, short_name)
+            if canonical_count:
+                match_type = "exact_canonical_symbol"
+                count = canonical_count
+            elif short_count:
+                match_type = "exact_short_symbol"
+                count = short_count
+        elif kind == "method_definition":
+            canonical_count = _call_count(code, canonical_name)
+            if canonical_count:
+                match_type = "exact_canonical_call"
+                count = canonical_count
+            else:
+                owner_short = _owner_short_name(
+                    canonical_name=canonical_name,
+                    parent_symbol=parent_symbol,
+                )
+                short_call_count = _call_count(code, short_name)
+                if (
+                    owner_short
+                    and _identifier_count(code, owner_short)
+                    and short_call_count
+                ):
+                    match_type = "owner_and_short_call"
+                    count = short_call_count
+        elif kind == "function_definition" and short_name != "main":
+            canonical_count = _call_count(code, canonical_name)
+            short_count = _call_count(code, short_name)
+            if canonical_count:
+                match_type = "exact_canonical_call"
+                count = canonical_count
+            elif short_count:
+                match_type = "exact_short_call"
+                count = short_count
+
         if count:
             evidence.append(
                 {
-                    "match_type": (
-                        "exact_canonical_symbol"
-                        if best_name == canonical_name
-                        else "exact_short_symbol"
-                    ),
+                    "match_type": match_type,
                     "path": path,
                     "reference_count": count,
                 }
@@ -236,6 +307,8 @@ def discover_pilot_candidates(
             evidence = _test_evidence(
                 canonical_name=canonical_name,
                 short_name=short_name,
+                kind=kind,
+                parent_symbol=chunk.get("parent_symbol"),
                 test_files=test_files,
             )
             if not evidence:
