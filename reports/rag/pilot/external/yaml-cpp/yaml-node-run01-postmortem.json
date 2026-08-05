@@ -1,0 +1,346 @@
+{
+  "artifact_schema_version": "rag-yaml-cpp-pilot-postmortem-v1",
+  "condition_id": "rag-design-context-v1",
+  "status": "completed_read_only_postmortem",
+  "target": {
+    "target_id": "yaml-cpp-yaml-node-d2929956c2cd",
+    "target_symbol": "YAML::Node",
+    "granularity": "class_span",
+    "path": "include/yaml-cpp/node/node.h",
+    "repository_id": "yaml-cpp",
+    "repository_commit": "3eb39d5808c33aa93a113cb6c668fa2435ff3ecd"
+  },
+  "immutable_runs": {
+    "design_run_id": "rag-v1-external-pilot-yaml-cpp-yaml-node-design-run01",
+    "code_run_id": "rag-v1-external-pilot-yaml-cpp-yaml-node-code-run01",
+    "run_ids_reused": false,
+    "evidence_modified": false,
+    "response_modified": false,
+    "retry_performed": false,
+    "repair_performed": false,
+    "manual_patch_performed": false
+  },
+  "artifact_validation": {
+    "method": "Read every existing regular file under both immutable run roots, compute SHA-256 over exact bytes, parse every JSON artifact, and verify declared request, response, design-document, plan-artifact, stage-log, call-count, and status cross-links.",
+    "status": "pass",
+    "hash_mismatch_count": 0,
+    "json_parse_failure_count": 0,
+    "cross_link_mismatch_count": 0,
+    "design_run": {
+      "files_discovered": 8,
+      "files_validated": 8,
+      "artifacts": [
+        {
+          "path": "design_document.md",
+          "sha256": "692d4328639916f425137b9254b8ee21db2a9d00b34d7f95cffbf330f1e3f796"
+        },
+        {
+          "path": "design_generation_attempt.json",
+          "sha256": "c7f51e21ba94bfbb1d7d2aae40b8fa83f7380cbbf8659dce473154f97940c256"
+        },
+        {
+          "path": "design_generation_response.json",
+          "sha256": "9dfed01226e02921d067ec07bf0f943d2e65464e7d54f0b987b7c63bec914986"
+        },
+        {
+          "path": "design_generation_result.json",
+          "sha256": "175e1aba05f97be3eff5dd3af16ddd0955ff3badd89b582986f55c4425f9617b"
+        },
+        {
+          "path": "generation_server_contact.json",
+          "sha256": "39df1fa8268fe80279f5a3153cfbad2ef4ffbabac2cce23499acfe9417e4e26c"
+        },
+        {
+          "path": "plan/design_prompt.txt",
+          "sha256": "b5d2d0cb5f9ba3c8cea1957a2b4d8692b2e00fd2980e9af5f9cdb2318bf70380"
+        },
+        {
+          "path": "plan/ollama_request.json",
+          "sha256": "0ed13ad3fd440dce9dbb7c62af4d91b82f1427e7e7857347dfcb586cc77fd050"
+        },
+        {
+          "path": "plan/plan_manifest.json",
+          "sha256": "c448a291d1070657c34f0426634077b7e4379b5dce05c1c8011e4dfae6d24e3f"
+        }
+      ],
+      "cross_links": {
+        "request_sha256_matches_attempt_contact_and_result": true,
+        "response_file_sha256_matches_result": true,
+        "response_text_sha256_matches_design_document": true,
+        "llm_called": true,
+        "llm_call_count": 1,
+        "retry_performed": false,
+        "repair_performed": false,
+        "result_status": "completed"
+      }
+    },
+    "code_run": {
+      "files_discovered": 30,
+      "files_validated": 30,
+      "root_and_plan_artifacts": [
+        {
+          "path": "code_regeneration_attempt.json",
+          "sha256": "e12de2ffdf9a2a7faf81b1aa0dcd19a21512104a817ae6027c62304174f23fb5"
+        },
+        {
+          "path": "code_regeneration_failure.json",
+          "sha256": "59ebeb1e10e5c650eb463e565fa33a877dbdd4abb1e0fd3cda1ee34cc16e3ee2"
+        },
+        {
+          "path": "code_regeneration_response.json",
+          "sha256": "c937681569052834cc9ca04809721f6dc7f9bc21b6277e6ff83be48dfc156078"
+        },
+        {
+          "path": "generation_server_contact.json",
+          "sha256": "043504547abb1b7fd1f0f72524c3b8a4977a90333eddd534c8ffa78dd1200ea7"
+        },
+        {
+          "path": "plan/code_regeneration_prompt.txt",
+          "sha256": "906b35c00e3d284e9513f77db2ffcf1c4b762cd56f696c258a833fe6cb45d760"
+        },
+        {
+          "path": "plan/evaluation_plan.json",
+          "sha256": "e0ac7158380e799f87b46cb99d15f601840b079b95623c7a5743856fafb41006"
+        },
+        {
+          "path": "plan/fixed_scaffold.txt",
+          "sha256": "78dc57fb4f8b5a6d909236426d0a61ac2811aec12759836640d557f33af2759c"
+        },
+        {
+          "path": "plan/ollama_request.json",
+          "sha256": "5f86303abf50358b60e58173ebe0ffe699f3ec76e17c223b11db4b013920e2d0"
+        },
+        {
+          "path": "plan/plan_manifest.json",
+          "sha256": "b273c0e543724d2fc0541490de3db0026f95ca6464c065330561732b5c6518a5"
+        }
+      ],
+      "stage_artifacts": [
+        {
+          "stage": "code_regeneration",
+          "record_sha256": "b4202f105b1819784d738be724858176c69bd0868f7c57a42a6d6d6fc04fb8a3",
+          "stdout_sha256": "c937681569052834cc9ca04809721f6dc7f9bc21b6277e6ff83be48dfc156078",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "pass",
+          "started": true,
+          "exit_code": 0
+        },
+        {
+          "stage": "normalization",
+          "record_sha256": "ede2a7c7c60c2d599a2200ad2a294687480bcaa5d6f147fa24562a6bf35d89a2",
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "63a707626e09a44ef04bd3943fc1ae936a24302a5de14e6d0c7342dc3c82313f",
+          "status": "fail",
+          "started": true,
+          "exit_code": 1
+        },
+        {
+          "stage": "configure",
+          "record_sha256": "4f4cdaed234d6797e7ff5636f7430354699e5b3fcc9ad752398d25a0a8bcd7d5",
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "skipped",
+          "started": false,
+          "exit_code": null
+        },
+        {
+          "stage": "build",
+          "record_sha256": "c06b3365b2d5cce29c65d1e60e22942a1085a2939c779b06ccb1418078a311c5",
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "skipped",
+          "started": false,
+          "exit_code": null
+        },
+        {
+          "stage": "direct_test",
+          "record_sha256": "c33bbd91c1d9c575d21213b2494264cffca17af8836ca9c31c3c86c5742e5588",
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "skipped",
+          "started": false,
+          "exit_code": null
+        },
+        {
+          "stage": "full_test",
+          "record_sha256": "cd36271ece3f8695fd7b1ffc2b33c3feddaaf7a37f0e04c1117258d3ddc8b464",
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "skipped",
+          "started": false,
+          "exit_code": null
+        },
+        {
+          "stage": "restoration",
+          "record_sha256": "06bbbf6dae1412640a8331f13c610b371c1794936958fe56a34fe5e3564e1acd",
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "skipped",
+          "started": false,
+          "exit_code": null
+        }
+      ],
+      "cross_links": {
+        "request_sha256_matches_attempt_contact_and_failure": true,
+        "response_file_sha256_matches_code_stage_record_and_stdout": true,
+        "normalization_stderr_matches_failure_error": true,
+        "all_declared_stage_log_hashes_match_exact_files": true,
+        "llm_called": true,
+        "llm_call_count": 1,
+        "retry_performed": false,
+        "repair_performed": false,
+        "manual_patch_performed": false,
+        "source_replaced": false,
+        "failure_status": "failed_without_retry_or_repair"
+      }
+    }
+  },
+  "retrieval_stage_observations": {
+    "scope": "observed_pre-generation retrieval evidence; no retrieval artifacts were changed",
+    "manifest_path": "rag/retrieval/external-pilot/yaml-cpp/retrieval-v2/yaml-cpp-yaml-node-d2929956c2cd/retrieval_manifest.json",
+    "manifest_sha256": "f924003cc66de2f5d29dd1c13c597aa6f889cbfa389f77e7178010b67dff2343",
+    "status": "pass",
+    "deterministic": true,
+    "context_sha256": "9d4345e151390ae65df9d915046cdbfada1de1191c9278365c055b0bcff75dd9",
+    "context_token_count": 2169,
+    "selected_chunk_count": 11,
+    "selected_tier_counts": {
+      "0": 4,
+      "1": 4,
+      "2": 3
+    },
+    "leakage_status": "pass",
+    "target_source_overlap_count": 0,
+    "verbatim_target_source_in_context": false,
+    "interpretation_limit": "Retrieval preparation and leakage controls were validated, but the run does not establish that the retrieved context improved or harmed generated-code semantics because semantic evaluation was never reached."
+  },
+  "design_document_observations": {
+    "scope": "read-only observation; the design document was neither corrected nor supplemented",
+    "design_document_sha256": "692d4328639916f425137b9254b8ee21db2a9d00b34d7f95cffbf330f1e3f796",
+    "generation_status": "completed",
+    "llm_call_count": 1,
+    "retry_performed": false,
+    "repair_performed": false,
+    "observations": [
+      "The document records the class responsibility, most public interface groups, private state, dependencies, and proposed invariants.",
+      "It does not enumerate every overload preserved by the fixed scaffold, including the Node-key operator[] and remove overloads.",
+      "It contains behavioral and invariant assertions that were not independently validated by this run, including an undefined-behavior statement and a claimed relationship between m_isValid and m_pNode.",
+      "No design-document audit finding was added to or used to enrich the code-regeneration prompt."
+    ],
+    "causal_limit": "The observed design-document omissions or assertions cannot be classified as a build or semantic failure cause because structural validation stopped the run before compilation."
+  },
+  "code_regeneration_observations": {
+    "request_sha256": "5f86303abf50358b60e58173ebe0ffe699f3ec76e17c223b11db4b013920e2d0",
+    "response_file_sha256": "c937681569052834cc9ca04809721f6dc7f9bc21b6277e6ff83be48dfc156078",
+    "response_text_sha256": "78d3998264e539dd27357b16a51df3352f776a3631c59b43faca6a2a6fb6c105",
+    "model": "qwen2.5-coder:32b",
+    "done": true,
+    "done_reason": "stop",
+    "prompt_eval_count": 2869,
+    "eval_count": 717,
+    "num_predict": 8192,
+    "llm_call_count": 1,
+    "retry_performed": false,
+    "repair_performed": false,
+    "manual_patch_performed": false,
+    "response_ending_observation": "The response ended after the m_pNode field declaration and did not contain the closing brace for class YAML::Node.",
+    "output_length_assessment": {
+      "classification": "not_output_length_truncation",
+      "evidence": [
+        "done_reason was stop rather than length",
+        "eval_count was 717",
+        "num_predict was 8192"
+      ],
+      "conclusion": "The stored response was not terminated by the configured output-token ceiling."
+    }
+  },
+  "structural_validation_failure": {
+    "run_result": "failed_without_retry_or_repair",
+    "failure_stage": "normalization_structural_validation",
+    "recorded_stage_name": "normalization",
+    "primary_failure_category": "generated_code_missing_closing_brace",
+    "error_type": "ValueError",
+    "error": "Matching closing brace was not found",
+    "validator_outcome": "The outer-fence/structural stage found the target class opening brace but could not find its matching closing brace.",
+    "manual_repair_policy": "Adding the missing brace would be a prohibited manual repair. It was not performed and must not be performed for this immutable run."
+  },
+  "stages_not_reached": {
+    "source_backup": {
+      "started": false,
+      "reason": "structural validation failed before the original-source backup step"
+    },
+    "source_replacement": {
+      "started": false,
+      "source_replaced": false,
+      "reason": "structural validation failed before replacement"
+    },
+    "configure": {
+      "started": false,
+      "status": "skipped"
+    },
+    "build": {
+      "started": false,
+      "status": "skipped"
+    },
+    "direct_test": {
+      "started": false,
+      "status": "skipped"
+    },
+    "full_test": {
+      "started": false,
+      "status": "skipped"
+    },
+    "restoration": {
+      "started": false,
+      "status": "skipped",
+      "reason": "restoration was unnecessary because source replacement never occurred"
+    },
+    "build_evaluated": false,
+    "semantic_behavior_evaluated": false
+  },
+  "next_pilot_options": {
+    "decision_criterion": "whether this pilot sufficiently validated the pipeline mechanics, not which option is more likely to produce a passing generated implementation",
+    "option_a": {
+      "label": "execute_next_frozen_target_unchanged",
+      "description": "Execute the next already-frozen yaml-cpp target under the unchanged protocol.",
+      "advantages": [
+        "Preserves direct protocol comparability across frozen targets.",
+        "Avoids introducing a new mechanism after observing the first target outcome.",
+        "Provides an independent observation of whether the structural failure recurs on a different frozen target."
+      ],
+      "disadvantages": [
+        "The source-replacement, configure, build, direct-test, full-test, and restoration mechanics may remain unvalidated if the next output also fails structural validation.",
+        "Consumes another frozen target while a material portion of the execution pipeline has never been exercised.",
+        "A second target outcome would mix treatment behavior with unresolved pipeline-mechanics uncertainty."
+      ]
+    },
+    "option_b": {
+      "label": "separate_mechanics_sensitivity_pilot",
+      "description": "Create a separately identified mechanics/sensitivity pilot with a new run ID and an explicit protocol revision; do not treat it as a retry or replacement for run01.",
+      "advantages": [
+        "Separates pipeline-mechanics validation from the immutable treatment outcome.",
+        "Allows predeclared study of structural-output sensitivity and the downstream replacement/build/test/restoration path under a separately labeled protocol.",
+        "Preserves run01 as an unmodified failure while reducing uncertainty about whether later failures occur before or after the pipeline mechanics are exercised."
+      ],
+      "disadvantages": [
+        "Results are not directly interchangeable with unchanged-protocol runs.",
+        "A protocol revision introduces a new experimental factor that must be documented and analyzed separately.",
+        "Requires additional preparation and cannot be used to reclassify, repair, or supersede run01."
+      ]
+    },
+    "recommendation": "B",
+    "recommendation_label": "separate_mechanics_sensitivity_pilot",
+    "rationale": "The current pilot validated retrieval preparation, prompt isolation, one-shot reservation/contact, evidence capture, and rejection before unsafe source mutation. It did not validate source replacement, configure/build, direct/full tests, restoration after replacement, or semantic evaluation. Therefore pipeline mechanics are not sufficiently validated to spend the next frozen target solely as an unchanged-protocol continuation. Option B is recommended to resolve that mechanics uncertainty under a new identity and protocol revision, not because it is expected to make generated code pass.",
+    "not_implemented": true
+  },
+  "verification": {
+    "unit_test_command": ".venv-rag/Scripts/python.exe -m unittest discover -s tests/rag -p test_*.py",
+    "unit_test_status": "pass",
+    "unit_test_count": 86,
+    "generation_server_contacted_during_postmortem": false,
+    "design_llm_call_count_after_postmortem": 1,
+    "code_llm_call_count_after_postmortem": 1,
+    "source_replaced_during_postmortem": false,
+    "docker_execution_during_postmortem": false
+  }
+}
