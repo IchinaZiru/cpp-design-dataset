@@ -1,0 +1,142 @@
+{
+  "artifact_schema_version": "rag-formal-target-config-v1",
+  "inherited_non_rag_schema_version": "3.0",
+  "enabled": false,
+  "condition_id": "rag-design-context-v1",
+  "experiment_id": "rag-v1-formal-echo-web-server-http",
+  "run_id": "rag-v1-formal-echo-web-server-http",
+  "output_directory": "experiments/rag/rag-v1-formal-echo-web-server-http",
+  "target_id": "echo-web-server-http",
+  "formal_run_id": "rag-v1-formal-echo-web-server-http",
+  "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-http",
+  "target_kind": "standard",
+  "non_rag_evidence": {
+    "config_path": "experiments/echo-web-server-http-roundtrip/configs/target_config.json",
+    "config_sha256": "b99623fb50e41164bf53a2bf04caebed80ac081c48e7442a1e9efee5fb6f5bd6",
+    "source_metadata_path": "experiments/echo-web-server-http-roundtrip/input/source_metadata.json",
+    "source_metadata_sha256": "f8ca1dfc93a3b48244dbdb715a21279318359506c2034ddd7dc53b941be8be33"
+  },
+  "common_formal_config": {
+    "path": "configs/rag/formal_retrieval_pipeline_v1.json",
+    "sha256": "0640b24e8b9d5454aa4838fa30b27fb80f83cffd44fd286b78c5fe68416e85c1"
+  },
+  "frozen_query": {
+    "path": "rag/query/echo-web-server-http/query.json",
+    "sha256": "cbd94f066782653e5063a83fe5de1e6db5e146e134755db6c5ca26bd386b55a4"
+  },
+  "retrieval_settings": {
+    "retrieval_top_k": 12,
+    "context_budget_tokens": 6000,
+    "category_quotas": {
+      "0": 4,
+      "1": 4,
+      "2": 3,
+      "3": 1
+    },
+    "top_k_and_quotas_are_caps": true,
+    "per_target_override": false,
+    "target_specific_manual_query": false
+  },
+  "context_status": "not_generated",
+  "context_path": "rag/retrieval/formal/echo-web-server-http/context.txt",
+  "context_sha256": null,
+  "one_shot_generation_policy": {
+    "design_generation_count": 1,
+    "code_generation_count": 1,
+    "retry": false,
+    "automatic_repair": false,
+    "manual_patch": false,
+    "overwrite": false
+  },
+  "input_isolation": {
+    "design_generation_allowed_inputs": [
+      "frozen design instruction",
+      "frozen target source",
+      "frozen context.txt"
+    ],
+    "code_regeneration_allowed_inputs": [
+      "single one-shot generated design document",
+      "fixed scaffold equivalent to the corresponding non-RAG target"
+    ],
+    "code_regeneration_forbidden_inputs": [
+      "original target source body",
+      "retrieved context",
+      "selected chunks",
+      "candidates",
+      "query artifact",
+      "repository source",
+      "design-generation request or prompt",
+      "design audit findings",
+      "previous generated output"
+    ]
+  },
+  "repository_id": "Echo-Web-Server",
+  "repository_path": "repos/Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "target_name": "http",
+  "granularity": "module_files",
+  "source_files": [
+    "include/http.h",
+    "src/http/http.cpp",
+    "src/http/request.h",
+    "src/http/request.cpp",
+    "src/http/response.h",
+    "src/http/response.cpp"
+  ],
+  "locator": {},
+  "test_files": [
+    "tests/http_test.cpp",
+    "src/http/request_test.cpp",
+    "src/http/response_test.cpp"
+  ],
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:echo-web-server-v2",
+    "docker_image_id": "sha256:f4983b70f6c2400cec7c8869810a8ec3e87f6966e2cc86e09598bdbbc4773c5c",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='HTTPTest.StatusCodeEnumConversion:HTTPTest.MethodEnumConversion:HTTPTest.ContentType:HTTPTest.URLEncoding:HTTPTest.HTMLPlaceholder:HTTPTest.PutParameterIntoHTML:HTTPRequestTest.Parse:HTTPResponseTest.BuiltByFile:HTTPResponseTest.BuiltByPredefinedErrorContent'",
+    "full_test_command": "ctest --test-dir build --output-on-failure",
+    "full_test_kind": "ctest",
+    "direct_test_filter": "HTTPTest.StatusCodeEnumConversion:HTTPTest.MethodEnumConversion:HTTPTest.ContentType:HTTPTest.URLEncoding:HTTPTest.HTMLPlaceholder:HTTPTest.PutParameterIntoHTML:HTTPRequestTest.Parse:HTTPResponseTest.BuiltByFile:HTTPResponseTest.BuiltByPredefinedErrorContent",
+    "direct_test_names": [
+      "HTTPTest.StatusCodeEnumConversion",
+      "HTTPTest.MethodEnumConversion",
+      "HTTPTest.ContentType",
+      "HTTPTest.URLEncoding",
+      "HTTPTest.HTMLPlaceholder",
+      "HTTPTest.PutParameterIntoHTML",
+      "HTTPRequestTest.Parse",
+      "HTTPResponseTest.BuiltByFile",
+      "HTTPResponseTest.BuiltByPredefinedErrorContent"
+    ],
+    "expected_direct_tests": 9,
+    "expected_full_tests": 63,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "readiness": {
+    "configured": true,
+    "reasons": [],
+    "baseline_probed": true,
+    "baseline_passed": true
+  },
+  "adoption_status": "採用"
+}

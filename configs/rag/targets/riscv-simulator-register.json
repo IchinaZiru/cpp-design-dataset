@@ -1,0 +1,131 @@
+{
+  "artifact_schema_version": "rag-formal-target-config-v1",
+  "inherited_non_rag_schema_version": "3.0",
+  "enabled": false,
+  "condition_id": "rag-design-context-v1",
+  "experiment_id": "rag-v1-formal-riscv-simulator-register",
+  "run_id": "rag-v1-formal-riscv-simulator-register",
+  "output_directory": "experiments/rag/rag-v1-formal-riscv-simulator-register",
+  "target_id": "riscv-simulator-register",
+  "formal_run_id": "rag-v1-formal-riscv-simulator-register",
+  "formal_output_directory": "experiments/rag/rag-v1-formal-riscv-simulator-register",
+  "target_kind": "standard",
+  "non_rag_evidence": {
+    "config_path": "experiments/riscv-simulator-register-roundtrip/configs/target_config.json",
+    "config_sha256": "d382ecd4301c4a683af3a014894d538e4be0d00469e0659932e790b14b09d0b1",
+    "source_metadata_path": "experiments/riscv-simulator-register-roundtrip/input/source_metadata.json",
+    "source_metadata_sha256": "f692d747fa60325f2c4636940a669bb302e09d569dd924b26995854a0d2b70bb"
+  },
+  "common_formal_config": {
+    "path": "configs/rag/formal_retrieval_pipeline_v1.json",
+    "sha256": "0640b24e8b9d5454aa4838fa30b27fb80f83cffd44fd286b78c5fe68416e85c1"
+  },
+  "frozen_query": {
+    "path": "rag/query/riscv-simulator-register/query.json",
+    "sha256": "6767ac7ca169c9ca749b96ceca123ea2ed87b5cf30f28c2c063c922c6dae6ad1"
+  },
+  "retrieval_settings": {
+    "retrieval_top_k": 12,
+    "context_budget_tokens": 6000,
+    "category_quotas": {
+      "0": 4,
+      "1": 4,
+      "2": 3,
+      "3": 1
+    },
+    "top_k_and_quotas_are_caps": true,
+    "per_target_override": false,
+    "target_specific_manual_query": false
+  },
+  "context_status": "not_generated",
+  "context_path": "rag/retrieval/formal/riscv-simulator-register/context.txt",
+  "context_sha256": null,
+  "one_shot_generation_policy": {
+    "design_generation_count": 1,
+    "code_generation_count": 1,
+    "retry": false,
+    "automatic_repair": false,
+    "manual_patch": false,
+    "overwrite": false
+  },
+  "input_isolation": {
+    "design_generation_allowed_inputs": [
+      "frozen design instruction",
+      "frozen target source",
+      "frozen context.txt"
+    ],
+    "code_regeneration_allowed_inputs": [
+      "single one-shot generated design document",
+      "fixed scaffold equivalent to the corresponding non-RAG target"
+    ],
+    "code_regeneration_forbidden_inputs": [
+      "original target source body",
+      "retrieved context",
+      "selected chunks",
+      "candidates",
+      "query artifact",
+      "repository source",
+      "design-generation request or prompt",
+      "design audit findings",
+      "previous generated output"
+    ]
+  },
+  "repository_id": "RISCV-Simulator",
+  "repository_path": "repos/RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "target_name": "Register",
+  "granularity": "class_span",
+  "source_files": [
+    "src/Common/Register.hpp"
+  ],
+  "locator": {
+    "kind": "class",
+    "symbol": "Register"
+  },
+  "test_files": [
+    "src/Common/Register_test.cpp"
+  ],
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:riscv-simulator-v1",
+    "docker_image_id": "sha256:81e23cc94a387697d7979c847d81bf557543fece913065fbdbd329bf194f62cd",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Register.ReadWrite:Register.ReadWriteOperator'",
+    "full_test_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+    "full_test_kind": "gtest",
+    "direct_test_filter": "Register.ReadWrite:Register.ReadWriteOperator",
+    "direct_test_names": [
+      "Register.ReadWrite",
+      "Register.ReadWriteOperator"
+    ],
+    "expected_direct_tests": 2,
+    "expected_full_tests": 18,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "readiness": {
+    "configured": true,
+    "reasons": [],
+    "baseline_probed": true,
+    "baseline_passed": true
+  },
+  "adoption_status": "条件付き採用"
+}
