@@ -1,0 +1,77 @@
+# デザイン文書: configモジュール
+
+## 概要
+この設計文書は、Echo Web Serverプロジェクト内のconfigモジュールについて記載しています。このモジュールはYAML形式の設定ファイルを読み込み、アプリケーションの設定値を管理します。
+
+## 責務
+- YAML形式の設定ファイルから設定値を読み込む。
+- 設定値を型安全にアクセスし、変更可能にする。
+- 変数の変化をリスナーに通知する。
+
+## 公開インターフェース
+
+### クラス: `VarBase`
+- **メソッド**
+  - `std::string_view Name() const noexcept`: 変数名を取得します。
+  - `std::string_view Description() const noexcept`: 変数の説明を取得します。
+  - `virtual std::string ToString() const noexcept = 0`: 変数値を文字列に変換します。
+  - `virtual void FromString(std::string_view str) = 0`: 文字列から変数値を設定します。
+
+### クラス: `Var<T>`
+- **メソッド**
+  - `std::string ToString() const noexcept override`: 変数値を文字列に変換します。
+  - `void FromString(std::string_view str) override`: 文字列から変数値を設定します。
+  - `T GetValue() const noexcept`: 変数値を取得します。
+  - `void SetValue(const T& val) noexcept`: 変数値を設定します。
+  - `std::string_view TypeName() const noexcept`: 変数の型名を取得します。
+  - `void RemoveListener(const std::uint64_t key) noexcept`: リスナーを削除します。
+  - `std::uint64_t AddListener(OnChange listener) noexcept`: リスナーを追加します。
+  - `void ClearListeners() noexcept`: 全てのリスナーを削除します。
+
+### クラス: `Config`
+- **メソッド**
+  - `std::string_view Name() const noexcept`: 設定名を取得します。
+  - `typename Var<T>::Ptr Lookup(const std::string_view name, const T& default_val, const std::string_view description = "")`: 変数を探し、存在しない場合は新規作成します。
+  - `typename Var<T>::Ptr Lookup(const std::string_view name) const`: 変数を探します。
+  - `VarBase::Ptr LookupBase(std::string_view name) const noexcept`: 基本情報の変数を探します。
+  - `void LoadYaml(const YAML::Node& root)`: YAMLノードから設定値を読み込みます。
+  - `void Visit(std::function<void(VarBase::Ptr)> visitor) const noexcept`: 全ての変数に対してビジタ関数を実行します。
+
+### 関数: `RootConfig`
+- **戻り値**: `Config::Ptr` - ルート設定インスタンスへのポインタ
+
+## 入力
+- YAML形式の設定ファイル
+- 変数名とデフォルト値、説明（`Lookup`メソッド）
+
+## 出力
+- 設定値（型安全）
+- 文字列形式の設定値（`ToString`メソッド）
+
+## 状態
+- `VarBase`: 変数名と説明を保持します。
+- `Var<T>`: 値、リスナーを保持します。
+- `Config`: 設定名と変数マップを保持します。
+
+## 処理手順
+1. **設定ファイルの読み込み**:
+   - YAML形式の設定ファイルからノードを読み込みます。
+2. **変数の検索または作成**:
+   - `Lookup`メソッドを使用して変数を探し、存在しない場合は新規作成します。
+3. **YAMLノードからの値の設定**:
+   - `LoadYaml`メソッドを使用してYAMLノードから設定値を読み込みます。
+4. **リスナーへの通知**:
+   - 変数の値が変更された場合、登録されているリスナーに通知します。
+
+## 例外・失敗条件
+- `std::invalid_argument`: 読み込んだYAMLノードが期待する型と一致しない場合。
+- `std::invalid_argument`: `Lookup`メソッドで見つかった変数の型が要求された型と一致しない場合。
+
+## 依存関係
+- `util.h`: YAML文字列を読み込むための`LoadYamlString`関数。
+- `fmt`: 文字列フォーマット用ライブラリ（例外メッセージ生成）。
+- `YAML`: YAMLファイルのパースと操作用ライブラリ。
+
+## 重要な不変条件
+- 変数名はユニークである。
+- リスナーのキーはユニークである。

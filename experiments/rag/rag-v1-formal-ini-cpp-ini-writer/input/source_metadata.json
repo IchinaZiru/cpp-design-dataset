@@ -1,0 +1,19 @@
+{
+  "artifact_schema_version": "rag-formal-source-input-v1",
+  "context_path": "rag/retrieval/formal/ini-cpp-ini-writer/context.txt",
+  "context_sha256": "b5cf691520ab6555bcecc71f63be6edf5c48bf92d109664a8370ace8b0adbe5f",
+  "design_input_sha256": "303d8a22022c6dc64e933f767eed5c16e63d089e93cd2aafb8133c75f97ebd30",
+  "fixed_scaffold_sha256": "1a70671c3bed03469b5b07f8a8bfae4bd7aa94c2d64156f298acaed39fe89f93",
+  "legacy_design_input_path": "experiments/ini-writer-minimal/input/design_input.cpp",
+  "legacy_design_input_sha256": "303d8a22022c6dc64e933f767eed5c16e63d089e93cd2aafb8133c75f97ebd30",
+  "legacy_fixed_scaffold_path": "experiments/ini-writer-minimal/input/fixed_scaffold.cpp",
+  "legacy_fixed_scaffold_sha256": "1a70671c3bed03469b5b07f8a8bfae4bd7aa94c2d64156f298acaed39fe89f93",
+  "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+  "source_files": [
+    {
+      "path": "ini/ini.h",
+      "sha256": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+    }
+  ],
+  "target_id": "ini-cpp-ini-writer"
+}

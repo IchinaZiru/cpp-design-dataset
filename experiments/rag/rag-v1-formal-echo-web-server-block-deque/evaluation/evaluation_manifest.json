@@ -1,0 +1,135 @@
+{
+  "code_regeneration_normalization": {
+    "automatic_repair_performed": false,
+    "code_body_modified": false,
+    "fence_language": null,
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "normalized_sha256": "9e061d4f600e8a7a336437af3f2ad6c38e42e1d31e71f297a156938cf4171811",
+    "raw_sha256": "9e061d4f600e8a7a336437af3f2ad6c38e42e1d31e71f297a156938cf4171811",
+    "retry_performed": false,
+    "schema_version": "1.0",
+    "strict_format_pass": true
+  },
+  "completed_at_utc": "2026-08-06T01:42:34.024103+00:00",
+  "error": null,
+  "generation_policy": {
+    "automatic_repair_performed": false,
+    "code_regeneration_calls": 1,
+    "design_generation_calls": 1,
+    "manual_patch_performed": false,
+    "retry_performed": false
+  },
+  "local_raw_log_directory": "logs/rag/formal/rag-v1-formal-echo-web-server-block-deque",
+  "overall_pass": false,
+  "restoration": {
+    "original_hashes": {
+      "include/containers/block_deque.h": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e"
+    },
+    "repository_clean": true,
+    "restored": true,
+    "restored_hashes": {
+      "include/containers/block_deque.h": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e"
+    },
+    "tracked_status": ""
+  },
+  "run_id": "rag-v1-formal-echo-web-server-block-deque",
+  "schema_version": "rag-formal-evaluation-v1",
+  "stages": {
+    "build": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "completed_at_utc": "2026-08-06T01:37:33.716060+00:00",
+      "container_shell_command": "cmake --build build --parallel",
+      "elapsed_seconds": 34.87281570001505,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "build",
+      "started_at_utc": "2026-08-06T01:36:58.842878+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-block-deque/build.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-block-deque/build.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 600
+    },
+    "configure": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "completed_at_utc": "2026-08-06T01:36:58.842739+00:00",
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "elapsed_seconds": 7.820701400050893,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "configure",
+      "started_at_utc": "2026-08-06T01:36:51.021948+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-block-deque/configure.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-block-deque/configure.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    "direct_test": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='BlockDequeTest.Construction:BlockDequeTest.SingleThreadPushPop:BlockDequeTest.MultiThreadPushPop:BlockDequeTest.Close'"
+      ],
+      "completed_at_utc": "2026-08-06T01:42:33.943077+00:00",
+      "container_shell_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='BlockDequeTest.Construction:BlockDequeTest.SingleThreadPushPop:BlockDequeTest.MultiThreadPushPop:BlockDequeTest.Close'",
+      "counts": {
+        "failed": 0,
+        "passed": null,
+        "ran": null
+      },
+      "elapsed_seconds": 300.22365269996226,
+      "exit_code": 124,
+      "passed": false,
+      "stage": "direct_test",
+      "started_at_utc": "2026-08-06T01:37:33.716196+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-block-deque/direct_test.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-block-deque/direct_test.stdout.txt",
+      "timed_out": true,
+      "timeout_seconds": 300
+    },
+    "full_test": {
+      "passed": false,
+      "skipped": true,
+      "stage": "full_test"
+    }
+  },
+  "target_id": "echo-web-server-block-deque"
+}

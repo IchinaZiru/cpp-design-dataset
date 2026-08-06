@@ -1,0 +1,109 @@
+{
+  "code_regeneration_normalization": {
+    "automatic_repair_performed": false,
+    "code_body_modified": false,
+    "fence_language": null,
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "normalized_sha256": "595b3bd7ef86a968b2719eb443c075e1ad2bf8f1f898774cfab57ea35bbb7609",
+    "raw_sha256": "595b3bd7ef86a968b2719eb443c075e1ad2bf8f1f898774cfab57ea35bbb7609",
+    "retry_performed": false,
+    "schema_version": "1.0",
+    "strict_format_pass": true
+  },
+  "completed_at_utc": "2026-08-06T02:28:49.026951+00:00",
+  "error": null,
+  "generation_policy": {
+    "automatic_repair_performed": false,
+    "code_regeneration_calls": 1,
+    "design_generation_calls": 1,
+    "manual_patch_performed": false,
+    "retry_performed": false
+  },
+  "local_raw_log_directory": "logs/rag/formal/rag-v1-formal-echo-web-server-util",
+  "overall_pass": false,
+  "restoration": {
+    "original_hashes": {
+      "include/util.h": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85",
+      "src/util/util.cpp": "6400c263f1a882b68c6f5197ced15ba20327030490833df54b118ab57516ff44"
+    },
+    "repository_clean": true,
+    "restored": true,
+    "restored_hashes": {
+      "include/util.h": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85",
+      "src/util/util.cpp": "6400c263f1a882b68c6f5197ced15ba20327030490833df54b118ab57516ff44"
+    },
+    "tracked_status": ""
+  },
+  "run_id": "rag-v1-formal-echo-web-server-util",
+  "schema_version": "rag-formal-evaluation-v1",
+  "stages": {
+    "build": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "completed_at_utc": "2026-08-06T02:28:48.966249+00:00",
+      "container_shell_command": "cmake --build build --parallel",
+      "elapsed_seconds": 2.1925439999904484,
+      "exit_code": 2,
+      "passed": false,
+      "stage": "build",
+      "started_at_utc": "2026-08-06T02:28:46.773706+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-util/build.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-util/build.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 600
+    },
+    "configure": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "completed_at_utc": "2026-08-06T02:28:46.773586+00:00",
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "elapsed_seconds": 8.277505500009283,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "configure",
+      "started_at_utc": "2026-08-06T02:28:38.495986+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-util/configure.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-util/configure.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    "direct_test": {
+      "passed": false,
+      "skipped": true,
+      "stage": "direct_test"
+    },
+    "full_test": {
+      "passed": false,
+      "skipped": true,
+      "stage": "full_test"
+    }
+  },
+  "target_id": "echo-web-server-util"
+}

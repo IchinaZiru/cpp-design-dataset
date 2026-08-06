@@ -1,0 +1,16 @@
+{
+  "artifact_schema_version": "rag-formal-generation-metadata-v1",
+  "automatic_repair_performed": false,
+  "completed_at_utc": "2026-08-06T02:25:54.966200+00:00",
+  "done": true,
+  "done_reason": "stop",
+  "elapsed_seconds": 86.383890299825,
+  "eval_count": 1561,
+  "llm_call_count_for_stage": 1,
+  "llm_call_index": 1,
+  "prompt_eval_count": 8557,
+  "retry_performed": false,
+  "stage": "design_generation",
+  "started_at_utc": "2026-08-06T02:24:28.579101+00:00",
+  "target_id": "echo-web-server-util"
+}

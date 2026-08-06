@@ -1,0 +1,16 @@
+{
+  "artifact_schema_version": "rag-formal-source-input-v1",
+  "context_path": "rag/retrieval/formal/echo-web-server-block-deque/context.txt",
+  "context_sha256": "87ae91eca17743ebc465274c5b25bca027705464c39932493b1504187eb1dfd0",
+  "design_input_sha256": "b3f4716da945b1964f65334897666423ab159636f51cb172bd342ea91ec448eb",
+  "fixed_scaffold_sha256": "aa99834936a21a8b365e9f2f74cc68ccc670b253484e4d35041203772596acfa",
+  "locator": null,
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "source_files": [
+    {
+      "path": "include/containers/block_deque.h",
+      "sha256": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e"
+    }
+  ],
+  "target_id": "echo-web-server-block-deque"
+}

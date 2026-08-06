@@ -1,0 +1,146 @@
+{
+  "artifact_schema_version": "rag-formal-batch-execution-v1",
+  "automatic_repair_performed": false,
+  "completed_target_count": 17,
+  "condition_id": "rag-design-context-v1",
+  "planned_target_count": 17,
+  "results": [
+    {
+      "exit_code": 1,
+      "failure_stage": "direct_test",
+      "result_path": "experiments/rag/rag-v1-formal-echo-web-server-block-deque/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-echo-web-server-block-deque",
+      "status": "failed",
+      "target_id": "echo-web-server-block-deque"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "build",
+      "result_path": "experiments/rag/rag-v1-formal-echo-web-server-buffer/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-echo-web-server-buffer",
+      "status": "failed",
+      "target_id": "echo-web-server-buffer"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "build",
+      "result_path": "experiments/rag/rag-v1-formal-echo-web-server-config/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-echo-web-server-config",
+      "status": "failed",
+      "target_id": "echo-web-server-config"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "build",
+      "result_path": "experiments/rag/rag-v1-formal-echo-web-server-heap-timer/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-echo-web-server-heap-timer",
+      "status": "failed",
+      "target_id": "echo-web-server-heap-timer"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "build",
+      "result_path": "experiments/rag/rag-v1-formal-echo-web-server-http/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-echo-web-server-http",
+      "status": "failed",
+      "target_id": "echo-web-server-http"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "build",
+      "result_path": "experiments/rag/rag-v1-formal-echo-web-server-io/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-echo-web-server-io",
+      "status": "failed",
+      "target_id": "echo-web-server-io"
+    },
+    {
+      "exit_code": 0,
+      "failure_stage": null,
+      "result_path": "experiments/rag/rag-v1-formal-echo-web-server-ip/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-echo-web-server-ip",
+      "status": "passed",
+      "target_id": "echo-web-server-ip"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "materialize_code",
+      "result_path": "experiments/rag/rag-v1-formal-echo-web-server-log/evaluation/pipeline_failure.json",
+      "run_id": "rag-v1-formal-echo-web-server-log",
+      "status": "failed",
+      "target_id": "echo-web-server-log"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "build",
+      "result_path": "experiments/rag/rag-v1-formal-echo-web-server-thread-pool/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-echo-web-server-thread-pool",
+      "status": "failed",
+      "target_id": "echo-web-server-thread-pool"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "build",
+      "result_path": "experiments/rag/rag-v1-formal-echo-web-server-util/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-echo-web-server-util",
+      "status": "failed",
+      "target_id": "echo-web-server-util"
+    },
+    {
+      "exit_code": 0,
+      "failure_stage": null,
+      "result_path": "experiments/rag/rag-v1-formal-ini-cpp-ini-writer/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-ini-cpp-ini-writer",
+      "status": "passed",
+      "target_id": "ini-cpp-ini-writer"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "build",
+      "result_path": "experiments/rag/rag-v1-formal-ini-cpp-inireader/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-ini-cpp-inireader",
+      "status": "failed",
+      "target_id": "ini-cpp-inireader"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "build",
+      "result_path": "experiments/rag/rag-v1-formal-riscv-simulator-instruction/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-riscv-simulator-instruction",
+      "status": "failed",
+      "target_id": "riscv-simulator-instruction"
+    },
+    {
+      "exit_code": 0,
+      "failure_stage": null,
+      "result_path": "experiments/rag/rag-v1-formal-riscv-simulator-memory/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-riscv-simulator-memory",
+      "status": "passed",
+      "target_id": "riscv-simulator-memory"
+    },
+    {
+      "exit_code": 1,
+      "failure_stage": "build",
+      "result_path": "experiments/rag/rag-v1-formal-riscv-simulator-parser/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-riscv-simulator-parser",
+      "status": "failed",
+      "target_id": "riscv-simulator-parser"
+    },
+    {
+      "exit_code": 0,
+      "failure_stage": null,
+      "result_path": "experiments/rag/rag-v1-formal-riscv-simulator-register/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-riscv-simulator-register",
+      "status": "passed",
+      "target_id": "riscv-simulator-register"
+    },
+    {
+      "exit_code": 0,
+      "failure_stage": null,
+      "result_path": "experiments/rag/rag-v1-formal-riscv-simulator-registerfile/evaluation/evaluation_manifest.json",
+      "run_id": "rag-v1-formal-riscv-simulator-registerfile",
+      "status": "passed",
+      "target_id": "riscv-simulator-registerfile"
+    }
+  ],
+  "retry_performed": false
+}

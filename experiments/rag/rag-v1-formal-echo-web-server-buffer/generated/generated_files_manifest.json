@@ -1,0 +1,6 @@
+{
+  "files": [
+    "include/containers/buffer.h",
+    "src/containers/buffer/buffer.cpp"
+  ]
+}

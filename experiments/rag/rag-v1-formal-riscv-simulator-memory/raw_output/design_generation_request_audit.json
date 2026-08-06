@@ -1,0 +1,15 @@
+{
+  "allowed_inputs_used": [
+    "frozen design instruction",
+    "frozen target source",
+    "frozen context.txt"
+  ],
+  "context_path": "rag/retrieval/formal/riscv-simulator-memory/context.txt",
+  "context_sha256": "e4abac6d1a09a3266434f5e3a6ea3790b9d74a4e452d6a1b4dc15535cf382aac",
+  "design_input_sha256": "5ce22fe76cc55155c6ec40657a2d11c361fdc9644f74cec9361e7e25c67e43a8",
+  "llm_call_count_before_request": 0,
+  "prompt_sha256": "679fc4054a4333aa7ae9079a90338a54f3906444b515bdf0f43b1a0980cb5a6c",
+  "retrieval_section_precedes_target_source": true,
+  "schema_version": "rag-formal-design-request-audit-v1",
+  "target_id": "riscv-simulator-memory"
+}

@@ -1,0 +1,15 @@
+{
+  "allowed_inputs_used": [
+    "frozen design instruction",
+    "frozen target source",
+    "frozen context.txt"
+  ],
+  "context_path": "rag/retrieval/formal/echo-web-server-config/context.txt",
+  "context_sha256": "2ead46be7511cd0bb847363803cb2852208a53e8864a400cdd4f4adc35a95da8",
+  "design_input_sha256": "1b03cbaccd80b08fea91218c897ae7fdea5adb51d43e9279befca6f5ff2d291c",
+  "llm_call_count_before_request": 0,
+  "prompt_sha256": "df59c1eae31e5db7ca95cb0c70ec1811fc4ea23321531fe1363edd620a14d16e",
+  "retrieval_section_precedes_target_source": true,
+  "schema_version": "rag-formal-design-request-audit-v1",
+  "target_id": "echo-web-server-config"
+}

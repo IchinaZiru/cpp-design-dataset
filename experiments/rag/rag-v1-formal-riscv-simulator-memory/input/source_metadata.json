@@ -1,0 +1,21 @@
+{
+  "artifact_schema_version": "rag-formal-source-input-v1",
+  "context_path": "rag/retrieval/formal/riscv-simulator-memory/context.txt",
+  "context_sha256": "e4abac6d1a09a3266434f5e3a6ea3790b9d74a4e452d6a1b4dc15535cf382aac",
+  "design_input_sha256": "5ce22fe76cc55155c6ec40657a2d11c361fdc9644f74cec9361e7e25c67e43a8",
+  "fixed_scaffold_sha256": "62b28616353e914822d21286c0f3205795abc1a15ba7c09dbfe8d270779f5e37",
+  "locator": {
+    "end_offset": 1534,
+    "original_span_sha256": "dc209000fb252e55a398cdc1fec1aff19cc445b21fe8152e0468d779b0ff1197",
+    "start_offset": 230,
+    "symbol": "Memory"
+  },
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "source_files": [
+    {
+      "path": "src/Common/Memory.hpp",
+      "sha256": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec"
+    }
+  ],
+  "target_id": "riscv-simulator-memory"
+}

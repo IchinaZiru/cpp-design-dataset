@@ -1,0 +1,36 @@
+{
+  "artifact_schema_version": "rag-formal-source-input-v1",
+  "context_path": "rag/retrieval/formal/echo-web-server-http/context.txt",
+  "context_sha256": "aab9e72bdd074dfbabd23adccc2c09c4fe87aed24154a53ecfeee51c7a89dd39",
+  "design_input_sha256": "f629de20c16b2b425631dc7cb6195ee1f0ca3982531c658a7a8ed65c6b2f6d0c",
+  "fixed_scaffold_sha256": "19cd4b2cd51d9493ce3d091ab71468ef03e6d0735d224b2e27fde0094557213d",
+  "locator": null,
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "source_files": [
+    {
+      "path": "include/http.h",
+      "sha256": "943fde3d6548c12620e27563a00dc121550891651da3e61d2958db94ebb664bd"
+    },
+    {
+      "path": "src/http/http.cpp",
+      "sha256": "fd61a787220a54ae758bbb7c826d34ab15867968d055d10db9c8383e497bbf57"
+    },
+    {
+      "path": "src/http/request.h",
+      "sha256": "738a5489150f0ab537281f6832127e784e08e009f2db3338751ca362500e3ef6"
+    },
+    {
+      "path": "src/http/request.cpp",
+      "sha256": "551325144379c1297b7744acb813598cd27fdaf8ac21e39f0e3726f4ef1ae63c"
+    },
+    {
+      "path": "src/http/response.h",
+      "sha256": "e159547a5f019e824d01facd977c9c2070a2b415db56b851a001608fb867aefc"
+    },
+    {
+      "path": "src/http/response.cpp",
+      "sha256": "342a541c43e04792db14ef98886653086961d23a04ef76c039c4ff4f946a014d"
+    }
+  ],
+  "target_id": "echo-web-server-http"
+}

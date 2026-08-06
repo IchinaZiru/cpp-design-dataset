@@ -1,0 +1,16 @@
+{
+  "allowed_inputs_used": [
+    "single one-shot generated design document",
+    "fixed scaffold equivalent to the corresponding non-RAG target"
+  ],
+  "dependency_context_loaded": false,
+  "design_document_sha256": "385ce91b8832aebd3781250b074132eb4a4923bc09d6bfb53e9258708a3287c3",
+  "fixed_scaffold_sha256": "dd94124a29f0bb3df07c770d5456af507611197dcee4e9fb6152b6c6858fe23b",
+  "forbidden_inputs_directly_loaded": [],
+  "llm_call_count_before_request": 0,
+  "prompt_sha256": "3beaac9ffde66a7359a7f6cac801ed54c771283361cfe364f21bcc5d197ed397",
+  "retrieved_context_directly_injected": false,
+  "schema_version": "rag-formal-code-request-audit-v1",
+  "target_id": "riscv-simulator-register",
+  "target_source_directly_injected": false
+}

@@ -1,0 +1,150 @@
+# デザイン文書：ログシステム (ws::log)
+
+## 概要
+この設計文書は、Echo Web Serverプロジェクト内のログシステム (`ws::log`) の設計を詳細に記述します。主なクラスとその責務、公開インターフェース、入力・出力、状態、処理手順、例外・失敗条件、依存関係、重要な不変条件について説明します。
+
+## 責務
+- ログイベントの作成と管理。
+- ログメッセージのフォーマット化。
+- ログメッセージの出力先（標準出力やファイル）への書き込み。
+- ロガーの同期・非同期処理の制御。
+
+## 公開インターフェース
+### クラス: `Event`
+- **メソッド**
+  - `static Ptr Create(log::Level level, std::experimental::source_location location = std::experimental::source_location::current(), std::uint32_t thread_id = CurrentThreadId(), Clock::time_point time = Clock::now()) noexcept;`
+  - `log::Level Level() const noexcept;`
+  - `std::string_view FileName() const noexcept;`
+  - `std::size_t LineNum() const noexcept;`
+  - `std::uint32_t ThreadId() const noexcept;`
+  - `Clock::time_point Time() const noexcept;`
+  - `std::string Message() const noexcept;`
+  - `std::ostringstream& MessageStream() noexcept;`
+
+### クラス: `Formatter`
+- **メソッド**
+  - `static Formatter::Ptr Default() noexcept;`
+  - `explicit Formatter(std::string_view pattern);`
+  - `std::string Format(const Logger& logger, const Event& event) const noexcept;`
+  - `std::string_view Pattern() const noexcept;`
+
+### クラス: `Appender`
+- **メソッド**
+  - `explicit Appender(std::string_view pattern);`
+  - `explicit Appender(Formatter::Ptr formatter = Formatter::Default()) noexcept;`
+  - `virtual void Log(const Logger& logger, const Event& event) noexcept = 0;`
+  - `virtual std::string ToYamlString() const noexcept = 0;`
+  - `Formatter::Ptr GetFormatter() const noexcept;`
+  - `void SetFormatter(Formatter::Ptr formatter) noexcept;`
+  - `void SetFormatter(std::string_view pattern);`
+
+### クラス: `StdOutAppender` (継承元: `Appender`)
+- **メソッド**
+  - `void Log(const Logger& logger, const Event& event) noexcept override;`
+  - `std::string ToYamlString() const noexcept override;`
+
+### クラス: `FileAppender` (継承元: `Appender`)
+- **メソッド**
+  - `explicit FileAppender(std::string_view file_name, Formatter::Ptr formatter = Formatter::Default());`
+  - `void Log(const Logger& logger, const Event& event) noexcept override;`
+  - `std::string ToYamlString() const noexcept override;`
+
+### クラス: `Logger`
+- **メソッド**
+  - `explicit Logger(std::string_view name, log::Level level = Level::Info, std::optional<std::size_t> capacity = std::nullopt) noexcept;`
+  - `~Logger() noexcept;`
+  - `void Log(Event::Ptr event) noexcept;`
+  - `void AddAppender(Appender::Ptr appender) noexcept;`
+  - `void RemoveAppender(Appender::Ptr appender) noexcept;`
+  - `void ClearAppenders() noexcept;`
+  - `log::Level GetLevel() const noexcept;`
+  - `void SetLevel(log::Level level) noexcept;`
+  - `Formatter::Ptr GetDefaultFormatter() const noexcept;`
+  - `void SetDefaultFormatter(Formatter::Ptr formatter) noexcept;`
+  - `void SetDefaultFormatter(std::string_view pattern);`
+  - `std::string_view Name() const noexcept;`
+  - `std::size_t Capacity() const noexcept;`
+  - `std::string ToYamlString() const noexcept;`
+
+### クラス: `Manager`
+- **メソッド**
+  - `static void InitConfig() noexcept;`
+  - `explicit Manager(std::string_view name) noexcept;`
+  - `std::string_view Name() const noexcept;`
+  - `Logger::Ptr FindLogger(std::string_view name, log::Level level = Level::Info, std::optional<std::size_t> capacity = std::nullopt) noexcept;`
+  - `void RemoveLogger(std::string_view name) noexcept;`
+  - `std::string ToYamlString() const noexcept;`
+
+### クラス: `EventWriter`
+- **メソッド**
+  - `explicit EventWriter(Logger& logger, Event::Ptr event) noexcept;`
+  - `~EventWriter() noexcept;`
+  - `std::ostringstream& MessageStream() noexcept;`
+
+## 入力
+- ログレベル (`log::Level`)
+- イベントメッセージ (`std::string_view`)
+- フォーマットパターン (`std::string_view`)
+- アペンダーの種類 (`AppenderType`)
+- ファイル名 (`std::string_view`)
+
+## 出力
+- フォーマットされたログメッセージ (`std::string`)
+- YAML形式のロガー設定 (`std::string`)
+
+## 状態
+- **Event**
+  - メッセージ内容
+  - イベントレベル
+  - 発生位置情報 (ファイル名、行番号)
+  - スレッドID
+  - 発生日時
+
+- **Formatter**
+  - フォーマットパターン
+  - フィールドフォーマッタリスト
+
+- **Appender**
+  - フォーマッタ
+  - 出力先 (標準出力またはファイル)
+
+- **Logger**
+  - 名前
+  - ログレベル
+  - イベントキューの容量
+  - アペンダーリスト
+  - デフォルトフォーマッタ
+
+- **Manager**
+  - ロガーマップ
+
+## 処理手順
+1. **Event作成**
+   - `Event::Create` を呼び出して新しいイベントを作成する。
+2. **Loggerにログを記録**
+   - `Logger::Log` を呼び出してイベントをロガーに追加する。
+3. **フォーマットと出力**
+   - 各アペンダーがイベントをフォーマットし、指定された出力先に出力する。
+
+## 例外・失敗条件
+- フォーマットパターンが無効な場合 (`std::invalid_argument`)
+- アペンダータイプが無効な場合 (`std::invalid_argument`)
+- ログレベルが無効な場合 (`std::invalid_argument`)
+- ファイルの作成に失敗した場合 (`std::system_error`)
+
+## 依存関係
+- `config.h`: 設定管理用クラスとインターフェース。
+- `containers/block_deque.h`: イベントキューとして使用されるブロックデキュー。
+- `util.h`: ユーティリティ関数（例：`StringToUpper`）。
+
+## 重要な不変条件
+- **Event**
+  - 発生日時は常に現在時刻である。
+  - スレッドIDはイベントが作成されたスレッドのものである。
+
+- **Logger**
+  - イベントキューの容量がゼロの場合、同期モードで動作する。
+  - イベントキューの容量が正の場合、非同期モードで動作し、専用のスレッドがイベントを処理する。
+
+- **Manager**
+  - ロガーマップはユニークな名前を持つロガーのみを保持する。

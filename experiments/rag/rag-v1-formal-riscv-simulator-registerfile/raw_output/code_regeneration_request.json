@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "options": {
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "repeat_penalty": 1.1,
+    "seed": 42,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.9
+  },
+  "prompt": "# 対象\n- target: RegisterFile\n- granularity: class_span\n- source_files: [\"src/Common/RegisterFile.hpp\"]\n\n# 出力規則\n対象クラス定義全体だけをC++コードとして返してください。Markdownコードフェンス、説明文、JSONは出力しないでください。\n\n# JSON Schema\nN/A\n\n# 設計文書\n# デザイン文書: RegisterFile クラス\n\n## 責務\nRegisterFileクラスは、RISC-Vシミュレータにおいてレジスタファイルを管理します。具体的には、32個のレジスタの現在値と次のクロックサイクルでの値を保持し、読み書き操作を行います。\n\n## 公開インターフェース\n\n### コンストラクタ\n- `RegisterFile()`: レジスタファイルを初期化します。すべてのレジスタの現在値と次の値を0に設定します。\n\n### メソッド\n- `void tick()`: クロックサイクルが進む際に呼び出されます。`next`配列の値を`prev`配列にコピーします。\n- `Immediate read(int id)`: 指定されたIDのレジスタの現在値を返します。ただし、IDが0の場合には常に0を返します（ゼロレジスタ）。\n- `void write(int id, Immediate val)`: 指定されたIDのレジスタの次の値を設定します。\n- `void debug()`: レジスタファイルの内容をデバッグ用に出力します。\n\n## 入力\n- `int id`: 読み書き対象のレジスタのID（0から31までの整数）。\n- `Immediate val`: 書き込む値。\n\n## 出力\n- `Immediate read(int id)`: 指定されたレジスタの現在値を返します。\n\n## 状態\n- `Immediate prev[REG_NUM]`: 各レジスタの現在値を保持する配列。\n- `Immediate next[REG_NUM]`: 各レジスタの次のクロックサイクルでの値を保持する配列。\n\n## 処理手順\n1. **初期化**: コンストラクタが呼び出されると、`prev`と`next`配列が0で初期化されます。\n2. **書き込み**: `write(int id, Immediate val)`メソッドが呼び出されると、指定されたIDのレジスタの次の値が設定されます。\n3. **読み取り**: `read(int id)`メソッドが呼び出されると、指定されたIDのレジスタの現在値が返されます。ただし、IDが0の場合には常に0を返します。\n4. **クロックサイクル更新**: `tick()`メソッドが呼び出されると、`next`配列の値が`prev`配列にコピーされ、次のクロックサイクルでのレジスタ値が現在値となります。\n5. **デバッグ情報出力**: `debug()`メソッドが呼び出されると、レジスタファイルの内容がフォーマットされた形式で標準出力に出力されます。\n\n## 例外・失敗条件\n- `read(int id)`と`write(int id, Immediate val)`メソッドにおいて、IDが0から31の範囲外の場合には未定義動作となります。ただし、実装上はIDが0の場合に特別な処理が行われます。\n\n## 依存関係\n- `debug_immediate(Immediate v, unsigned width)`: デバッグ情報出力のために使用されます。\n\n## 重要な不変条件\n- `prev`と`next`配列のサイズは常に32です。\n- IDが0の場合、`read(int id)`メソッドは常に0を返します。これはゼロレジスタの特性に基づいています。\n\n# 固定インターフェース・スキャフォールド\nclass RegisterFile { // : public Tickable {\n    static const int REG_NUM = 32;\npublic:\n    Immediate prev[REG_NUM];\n    Immediate next[REG_NUM];\n\n    RegisterFile() ;\n\n    void tick() ;\n\n    Immediate read(int id) ;\n\n    void write(int id, Immediate val) ;\n\n    void debug() ;\n};\n\n",
+  "stream": false,
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。"
+}

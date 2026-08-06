@@ -1,0 +1,20 @@
+{
+  "artifact_schema_version": "rag-formal-source-input-v1",
+  "context_path": "rag/retrieval/formal/echo-web-server-thread-pool/context.txt",
+  "context_sha256": "3c135ede05a26751047c65f5d0e76664550a5bd7588c7714534f15a15a852378",
+  "design_input_sha256": "62b9753351792bad2c8858f5eaa8503f8cba98805d8000481a0befb09eb385fa",
+  "fixed_scaffold_sha256": "bb5ec14d74d13521ecc7dda38311d1a4ae3d376a3cfe63b6629333e7e1a20f1f",
+  "locator": null,
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "source_files": [
+    {
+      "path": "include/containers/thread_pool.h",
+      "sha256": "ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c"
+    },
+    {
+      "path": "src/containers/thread_pool/thread_pool.cpp",
+      "sha256": "234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6"
+    }
+  ],
+  "target_id": "echo-web-server-thread-pool"
+}

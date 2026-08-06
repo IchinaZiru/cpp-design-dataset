@@ -1,0 +1,49 @@
+{
+  "format": {
+    "additionalProperties": false,
+    "properties": {
+      "files": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "path": {
+              "enum": [
+                "include/containers/thread_pool.h",
+                "src/containers/thread_pool/thread_pool.cpp"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 2,
+        "type": "array"
+      }
+    },
+    "required": [
+      "files"
+    ],
+    "type": "object"
+  },
+  "model": "qwen2.5-coder:32b",
+  "options": {
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "repeat_penalty": 1.1,
+    "seed": 42,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.9
+  },
+  "prompt": "# 対象\n- target: thread-pool\n- granularity: module_files\n- source_files: [\"include/containers/thread_pool.h\", \"src/containers/thread_pool/thread_pool.cpp\"]\n\n# 出力規則\n出力は指定されたJSON Schemaに一致するJSONのみとし、Markdownコードフェンスを使用しないでください。source_filesにある各ファイルを完全な内容として1回ずつ返してください。C++コード中の改行や引用符はJSON文字列として正しくエスケープしてください。\n\n# JSON Schema\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"files\": {\n      \"type\": \"array\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"path\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"include/containers/thread_pool.h\",\n              \"src/containers/thread_pool/thread_pool.cpp\"\n            ]\n          },\n          \"content\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"path\",\n          \"content\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\n    \"files\"\n  ],\n  \"additionalProperties\": false\n}\n\n# 設計文書\n# デザイン文書: スレッドプールモジュール\n\n## 概要\nこの設計文書は、Echo Web Serverプロジェクト内のスレッドプールモジュールについて記載しています。スレッドプールは並列処理を効率化し、リソースの使用を最適化するために使用されます。\n\n## 責務\n- 与えられたタスクを複数のスレッドで並列に実行します。\n- タスクの追加とスレッドプールの開始・終了を管理します。\n- スレッド間での同期とタスクキューの管理を行います。\n- 例外処理を行い、エラーログを出力します。\n\n## 公開インターフェース\n### コンストラクタ\n```cpp\nexplicit ThreadPool(std::optional<std::size_t> thread_count = std::nullopt,\n                    log::Logger::Ptr logger = log::RootLogger()) noexcept;\n```\n- `thread_count`: スレッド数。指定しない場合や0の場合はハードウェアがサポートする並列スレッド数を使用します。\n- `logger`: ロガーインスタンス。指定しない場合はグローバルなルートロガーを使用します。\n\n### デストラクタ\n```cpp\n~ThreadPool() noexcept;\n```\n\n### 代入演算子とコピーコンストラクタ\n```cpp\nThreadPool(const ThreadPool&) = delete;\nThreadPool(ThreadPool&&) = delete;\nThreadPool& operator=(const ThreadPool&) = delete;\nThreadPool& operator=(ThreadPool&&) = delete;\n```\n- コピーとムーブは禁止されています。\n\n### メソッド\n#### Start\n```cpp\nvoid Start() noexcept;\n```\n- スレッドプールを開始します。スレッドがタスクキューからタスクを取り出して実行するようになります。\n\n#### Push\n```cpp\nvoid Push(Task task) noexcept;\n```\n- タスクをスレッドプールに追加します。\n- `task`: 実行すべきタスク（`std::function<void()>`型）。\n\n#### Close\n```cpp\nvoid Close() noexcept;\n```\n- スレッドプールを終了し、未処理のタスクは実行されません。\n\n## 入力\n- タスク（`std::function<void()>`型）\n- スレッド数（オプション）\n- ロガーインスタンス（オプション）\n\n## 出力\n- なし\n\n## 状態\n- `closed_`: スレッドプールが閉じているかどうかを示すフラグ。\n- `tasks_`: タスクキュー（`std::list<Task>`型）。\n- `threads_`: スレッドリスト（`std::list<std::thread>`型）。\n\n## 処理手順\n1. **コンストラクタ呼び出し**:\n   - ロガーが指定されていない場合は、グローバルなルートロガーを使用します。\n   - スレッド数が指定されていない場合や0の場合は、ハードウェアがサポートする並列スレッド数を使用します。\n\n2. **Startメソッド呼び出し**:\n   - `closed_`フラグをfalseに設定し、タスク実行用のスレッドを作成します。\n   - 各スレッドは`ExecProc`メソッドで動作します。\n\n3. **Pushメソッド呼び出し**:\n   - タスクキューにタスクを追加し、待機中のスレッドに通知します。\n\n4. **ExecProcメソッドの内部処理**:\n   - タスクキューが空でないか、またはスレッドプールが閉じているまで待機します。\n   - タスクキューからタスクを取り出し、実行します。\n   - 例外が発生した場合はロガーにエラーメッセージを記録します。\n\n5. **Closeメソッド呼び出し**:\n   - `closed_`フラグをtrueに設定し、すべてのスレッドに通知します。\n   - スレッドプール内の全てのスレッドが終了するまで待機します。\n\n## 例外・失敗条件\n- タスク実行中に例外が発生した場合、ロガーにエラーメッセージを記録します。ただし、例外は再スローされません。\n- スレッドプールが閉じている状態でタスクを追加しようとすると、アサーションが失敗します。\n\n## 依存関係\n- `log::Logger`: ロギング機能を使用します。\n- `std::thread`, `std::mutex`, `std::condition_variable`: スレッド管理と同期に使用します。\n- `std::list`: タスクキューを実装するために使用します。\n\n## 重要な不変条件\n- スレッドプールが閉じている場合、タスクキューは空であるべきです。\n- スレッドプールが開始されている場合、スレッドリストには少なくとも1つのスレッドが含まれるべきです。\n\n# 固定インターフェース・スキャフォールド\n===== FILE: include/containers/thread_pool.h =====\n/**\n * @file thread_pool.h\n * @brief The thread pool.\n *\n * @author Zhenshuo Chen (chenzs108@outlook.com)\n * @author Liu Guowen (liu.guowen@outlook.com)\n * @par GitHub\n * https://github.com/Zhuagenborn\n * @version 1.0\n * @date 2022-06-04\n *\n * @example tests/containers/thread_pool_test.cpp\n */\n\n#pragma once\n\n#include \"log.h\"\n\n#include <condition_variable>\n#include <functional>\n#include <list>\n#include <mutex>\n#include <optional>\n#include <thread>\n\n\nnamespace ws {\n\n//! The thread pool.\nclass ThreadPool {\npublic:\n    using Task = std::function<void()>;\n\n    /**\n     * @brief Create a thread pool.\n     *\n     * @param thread_count\n     * The number of working threads.\n     * If it is @p std::nullopt or zero, the thread pool will use the number of concurrent threads supported by hardware.\n     * @param logger\n     * A logger. If it is @p nullptr, the thread pool will use the global root logger.\n     */\n    explicit ThreadPool(std::optional<std::size_t> thread_count = std::nullopt,\n                        log::Logger::Ptr logger = log::RootLogger()) noexcept;\n\n    ~ThreadPool() noexcept;\n\n    ThreadPool(const ThreadPool&) = delete;\n\n    ThreadPool(ThreadPool&&) = delete;\n\n    ThreadPool& operator=(const ThreadPool&) = delete;\n\n    ThreadPool& operator=(ThreadPool&&) = delete;\n\n    //! Run the thread pool.\n    void Start() noexcept;\n\n    //! Push a task into the thread pool.\n    void Push(Task task) noexcept;\n\n    /**\n     * @brief Close the thread pool.\n     *\n     * @details\n     * The remaining tasks will not be executed.\n     */\n    void Close() noexcept;\n\nprivate:\n    /**\n     * @brief Continually pop and execute tasks.\n     *\n     * @warning\n     * Any exceptions raised in callbacks will not be rethrown.\n     * Exception messages will be recorded in the logger.\n     */\n    void ExecProc() noexcept;\n\n    log::Logger::Ptr logger_;\n\n    mutable std::mutex mtx_;\n    std::atomic_bool closed_ {true};\n    std::size_t thread_count_;\n    std::condition_variable cond_;\n\n    std::list<Task> tasks_;\n    std::list<std::thread> threads_;\n};\n\n}  // namespace ws\n\n",
+  "stream": false,
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。"
+}

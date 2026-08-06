@@ -1,0 +1,48 @@
+{
+  "format": {
+    "additionalProperties": false,
+    "properties": {
+      "files": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "path": {
+              "enum": [
+                "src/Common/Instruction.hpp"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "type": "object"
+        },
+        "maxItems": 1,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "files"
+    ],
+    "type": "object"
+  },
+  "model": "qwen2.5-coder:32b",
+  "options": {
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "repeat_penalty": 1.1,
+    "seed": 42,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.9
+  },
+  "prompt": "# 対象\n- target: Instruction\n- granularity: module_files\n- source_files: [\"src/Common/Instruction.hpp\"]\n\n# 出力規則\n出力は指定されたJSON Schemaに一致するJSONのみとし、Markdownコードフェンスを使用しないでください。source_filesにある各ファイルを完全な内容として1回ずつ返してください。C++コード中の改行や引用符はJSON文字列として正しくエスケープしてください。\n\n# JSON Schema\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"files\": {\n      \"type\": \"array\",\n      \"minItems\": 1,\n      \"maxItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"path\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"src/Common/Instruction.hpp\"\n            ]\n          },\n          \"content\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"path\",\n          \"content\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\n    \"files\"\n  ],\n  \"additionalProperties\": false\n}\n\n# 設計文書\n# デザイン文書: Instructionモジュール\n\n## 概要\nこの設計文書は、RISC-VシミュレータにおけるInstructionモジュールの仕様を詳細に記載します。Instructionモジュールは、RISC-Vアーキテクチャの命令を解析し、適切な形式に変換する役割を持ちます。\n\n## 責務\n- RISC-Vアーキテクチャの命令を解析し、その種類（R型、I型、S型、B型、U型、J型）に応じたInstructionオブジェクトを作成します。\n- 各命令のフィールド（opcode, rs1, rs2, rd, funct3, funct7, imm）を適切に抽出し設定します。\n\n## 公開インターフェース\n### クラス: InstructionBase\n#### メソッド:\n- `InstructionBase()`: デフォルトコンストラクタ。すべてのフィールドを初期化します。\n- `InstructionBase(unsigned)`: NOP命令用のコンストラクタ。NOP命令として設定します。\n- `static InstructionBase nop()`: NOP命令を作成して返します。\n- `bool is_nop()`: 現在のインスタンスがNOP命令であるかを判定します。\n- `unsigned opcode, rs1, rs2, rd, funct3, funct7; Immediate imm;`: 命令フィールドへのアクセス用メンバ変数です。\n- `enum Type { R, I, S, B, U, J };`: 命令の種類を表す列挙型です。\n- `static constexpr unsigned int bin_mask(int digits)`: 指定されたビット長のマスクを作成します。\n- `static unsigned int get_digits(unsigned int n, int hi, int lo)`: 指定された範囲のビットを抽出します。\n- `static unsigned int expand_digit(unsigned int digit, int lo)`: 符号拡張を行います。\n- `bool is_valid(const std::string &key)`: 指定されたフィールドが現在の命令種類で有効であるかを判定します。\n- `void verify(const std::string &key)`: 指定されたフィールドが無効な場合に例外をスローします。\n- `void debug()`: 命令の詳細情報を出力します。\n- `bool has_op1()`: 命令がオペランド1を持つかどうかを判定します。\n- `bool has_op2()`: 命令がオペランド2を持つかどうかを判定します。\n\n### 派生クラス:\n- `InstructionR`\n- `InstructionI`\n- `InstructionS`\n- `InstructionB`\n- `InstructionU`\n- `InstructionJ`\n\n各派生クラスは、対応する命令種類のフィールドを適切に設定するコンストラクタを持ちます。\n\n## 入力\n- 命令コード（`unsigned int`型）\n- インスタンス化時に必要な追加情報（必要に応じて）\n\n## 出力\n- `InstructionBase`またはその派生クラスのインスタンス\n\n## 状態\n- 各命令フィールド（opcode, rs1, rs2, rd, funct3, funct7, imm）\n- 命令種類（Type列挙型）\n\n## 処理手順\n### InstructionBase::InstructionBase()\n1. すべてのフィールドを初期化します。\n\n### InstructionBase::InstructionBase(unsigned)\n1. NOP命令として設定します。\n\n### InstructionBase::nop()\n1. NOP命令を作成して返します。\n\n### InstructionBase::is_nop()\n1. 現在のインスタンスがNOP命令であるかを判定します。\n\n### InstructionBase::get_digits\n1. 指定された範囲のビットを抽出します。\n\n### InstructionBase::expand_digit\n1. 符号拡張を行います。\n\n### InstructionBase::is_valid\n1. 指定されたフィールドが現在の命令種類で有効であるかを判定します。\n\n### InstructionBase::verify\n1. 指定されたフィールドが無効な場合に例外をスローします。\n\n### InstructionBase::debug\n1. 命令の詳細情報を出力します。\n\n### InstructionBase::has_op1\n1. 命令がオペランド1を持つかどうかを判定します。\n\n### InstructionBase::has_op2\n1. 命令がオペランド2を持つかどうかを判定します。\n\n### InstructionR, InstructionI, InstructionS, InstructionB, InstructionU, InstructionJのコンストラクタ\n1. 対応する命令種類のフィールドを適切に設定します。\n\n## 例外・失敗条件\n- `InstructionBase::verify`メソッドで無効なフィールドアクセスが行われた場合、`InvalidAccess`例外がスローされます。\n- 不明な命令コードが与えられた場合、NOP命令として扱われます。\n\n## 依存関係\n- `Common.h`\n- `std::string`\n- `std::iostream`\n\n## 重要な不変条件\n- 各命令種類のインスタンスは、その命令種類に応じたフィールドのみを有効に設定する必要があります。\n- NOP命令の場合、`inst`フィールドが-1である必要があります。\n\n# 固定インターフェース・スキャフォールド\n===== FILE: src/Common/Instruction.hpp =====\n//\n// Created by Alex Chi on 2019-07-01.\n//\n\n#ifndef RISCV_SIMULATOR_INSTRUCTION_HPP\n#define RISCV_SIMULATOR_INSTRUCTION_HPP\n\n#include <utility>\n#include \"Common.h\"\n#include <string>\n#include <iostream>\n\nusing Instruction = unsigned int;\n\nstruct InstructionBase {\n    class InvalidAccess {\n    };\n\n    InstructionBase() ;\n\n    InstructionBase(unsigned) ;\n\n    static InstructionBase nop() ;\n\n    bool is_nop() ;\n\n    unsigned opcode, rs1, rs2, rd, funct3, funct7;\n    Immediate imm;\n    Instruction inst;\n    enum Type {\n        R, I, S, B, U, J\n    } t;\n\n    static constexpr unsigned int bin_mask(int digits) ;\n\n    static unsigned int get_digits(unsigned int n, int hi, int lo) ;\n\n    static unsigned int expand_digit(unsigned int digit, int lo) ;\n\n    bool is_valid(const std::string &key) ;\n\n    void verify(const std::string &key) ;;\n\n    void debug() ;\n\n    bool has_op1() ;\n\n    bool has_op2() ;\n};\n\nstruct InstructionR : InstructionBase {\n    InstructionR(const Instruction &inst) ;\n};\n\nstruct InstructionI : InstructionBase {\n    InstructionI(const Instruction &inst) ;\n};\n\nstruct InstructionS : InstructionBase {\n    InstructionS(const Instruction &inst) ;\n};\n\nstruct InstructionB : InstructionBase {\n    InstructionB(const Instruction &inst) ;\n};\n\nstruct InstructionU : InstructionBase {\n    InstructionU(const Instruction &inst) ;\n};\n\nstruct InstructionJ : InstructionBase {\n    InstructionJ(const Instruction &inst) ;\n};\n\n#endif //RISCV_SIMULATOR_INSTRUCTION_HPP\n\n",
+  "stream": false,
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。"
+}

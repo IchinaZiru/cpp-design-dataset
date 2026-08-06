@@ -1,0 +1,90 @@
+# デザイン文書: IPアドレスインターフェースモジュール
+
+## 概要
+この設計文書は、Echo Web ServerプロジェクトにおけるIPアドレスの処理を担当する`ip.h`と`ip.cpp`ファイルについて記述します。主なクラスとして`IPAddr`, `IPv4Addr`, `IPv6Addr`が定義されており、それぞれの役割やインターフェース、入出力、状態、例外条件などを詳細に説明します。
+
+## 責務
+- IPv4アドレスとIPv6アドレスを抽象化し、共通のインターフェースを通じて操作する。
+- IPアドレスのバージョン、サイズ、生のソケットアドレス、ポート番号、IPアドレス文字列を提供する。
+
+## 公開インターフェース
+### クラス: `ws::IPAddr`
+| メンバ関数 | 説明 |
+| --- | --- |
+| `virtual ~IPAddr() noexcept` | 仮想デストラクタ |
+| `virtual int Version() const noexcept` | IPアドレスのバージョンを返す |
+| `virtual std::size_t Size() const noexcept` | ソケットアドレスのサイズを返す |
+| `virtual const sockaddr* Raw() const noexcept` | 生のソケットアドレスを返す |
+| `virtual std::uint16_t Port() const noexcept` | ポート番号を返す |
+| `virtual std::string IPAddress() const noexcept` | IPアドレス文字列を返す |
+
+### クラス: `ws::IPv4Addr`
+| コンストラクタ | 説明 |
+| --- | --- |
+| `IPv4Addr(sockaddr_in addr)` | `sockaddr_in`から初期化する |
+| `IPv4Addr(std::string ip, std::uint16_t port)` | IPアドレス文字列とポート番号から初期化する |
+
+| メンバ関数 | 説明 |
+| --- | --- |
+| `int Version() const noexcept override` | IPv4のバージョンを返す |
+| `std::size_t Size() const noexcept override` | IPv4アドレスのサイズを返す |
+| `const sockaddr* Raw() const noexcept override` | 生のIPv4ソケットアドレスを返す |
+| `std::uint16_t Port() const noexcept override` | ポート番号を返す |
+| `std::string IPAddress() const noexcept override` | IPv4アドレス文字列を返す |
+
+### クラス: `ws::IPv6Addr`
+| コンストラクタ | 説明 |
+| --- | --- |
+| `IPv6Addr(sockaddr_in6 addr)` | `sockaddr_in6`から初期化する |
+| `IPv6Addr(std::string ip, std::uint16_t port)` | IPアドレス文字列とポート番号から初期化する |
+
+| メンバ関数 | 説明 |
+| --- | --- |
+| `int Version() const noexcept override` | IPv6のバージョンを返す |
+| `std::size_t Size() const noexcept override` | IPv6アドレスのサイズを返す |
+| `const sockaddr* Raw() const noexcept override` | 生のIPv6ソケットアドレスを返す |
+| `std::uint16_t Port() const noexcept override` | ポート番号を返す |
+| `std::string IPAddress() const noexcept override` | IPv6アドレス文字列を返す |
+
+## 入力
+- `IPv4Addr`: `sockaddr_in`, IPアドレス文字列とポート番号
+- `IPv6Addr`: `sockaddr_in6`, IPアドレス文字列とポート番号
+
+## 出力
+- IPバージョン (`int`)
+- ソケットアドレスのサイズ (`std::size_t`)
+- 生のソケットアドレス (`const sockaddr*`)
+- ポート番号 (`std::uint16_t`)
+- IPアドレス文字列 (`std::string`)
+
+## 状態
+- `IPv4Addr`: 内部に保持するIPアドレス文字列と`sockaddr_in`
+- `IPv6Addr`: 内部に保持するIPアドレス文字列と`sockaddr_in6`
+
+## 処理手順
+1. **初期化**:
+   - `IPv4Addr`: コンストラクタで与えられた`sockaddr_in`またはIPアドレス文字列とポート番号から内部状態を設定する。
+   - `IPv6Addr`: コンストラクタで与えられた`sockaddr_in6`またはIPアドレス文字列とポート番号から内部状態を設定する。
+
+2. **メソッド呼び出し**:
+   - 各メンバ関数が呼ばれると、内部に保持している情報を基に必要な値を返す。
+   - `Port()`はネットワークバイトオーダーのポート番号をホストバイトオーダーに変換してから返す。
+
+## 例外・失敗条件
+- **初期化時のエラー**:
+  - IPアドレス文字列が無効な場合、`inet_pton()`関数が1以外を返し、`ThrowLastSystemError()`が呼ばれる。
+  - `inet_ntop()`関数が`nullptr`を返す場合、`ThrowLastSystemError()`が呼ばれる。
+
+## 依存関係
+- `<concepts>`
+- `<cstdint>`
+- `<string>`
+- `<string_view>`
+- `<netinet/in.h>`
+- `"util.h"`
+- `<arpa/inet.h>`
+
+## 重要な不変条件
+- `IPv4Addr`と`IPv6Addr`の内部状態は、コンストラクタによって正しく初期化される。
+- `Port()`が返すポート番号は常にホストバイトオーダーである。
+- `IPAddress()`が返すIPアドレス文字列は、コンストラクタで設定されたものと一致する。

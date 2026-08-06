@@ -1,0 +1,16 @@
+{
+  "artifact_schema_version": "rag-formal-source-input-v1",
+  "context_path": "rag/retrieval/formal/riscv-simulator-instruction/context.txt",
+  "context_sha256": "b330c2e5c643b6554712789d0a17eaeebe87c3729d1f8613da567f48f0942efb",
+  "design_input_sha256": "27c62711dbd999bc350992fb5e0f19a405c6dc8bf4a7abbbdfeb47fb815a889e",
+  "fixed_scaffold_sha256": "3d43d3ac3ffe1e1b81a6abb1667de1d72b3090c20158efe3ba883fbcf1147916",
+  "locator": null,
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "source_files": [
+    {
+      "path": "src/Common/Instruction.hpp",
+      "sha256": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9"
+    }
+  ],
+  "target_id": "riscv-simulator-instruction"
+}

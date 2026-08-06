@@ -1,0 +1,12 @@
+{
+  "automatic_repair_performed": false,
+  "code_body_modified": false,
+  "fence_language": null,
+  "normalization_applied": false,
+  "normalization_type": "none",
+  "normalized_sha256": "18fe53b6a3d397226c6eb13af1ba13e2162838d7a8e80871a5b759e99a873d56",
+  "raw_sha256": "18fe53b6a3d397226c6eb13af1ba13e2162838d7a8e80871a5b759e99a873d56",
+  "retry_performed": false,
+  "schema_version": "1.0",
+  "strict_format_pass": true
+}

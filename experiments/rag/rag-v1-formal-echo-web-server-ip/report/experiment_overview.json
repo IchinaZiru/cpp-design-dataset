@@ -1,0 +1,165 @@
+{
+  "code_regeneration_normalization": {
+    "automatic_repair_performed": false,
+    "code_body_modified": false,
+    "fence_language": null,
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "normalized_sha256": "2ac2c0a54703ea2683905b18ce98118bb6a06aaad9055844036b54fc893c46c5",
+    "raw_sha256": "2ac2c0a54703ea2683905b18ce98118bb6a06aaad9055844036b54fc893c46c5",
+    "retry_performed": false,
+    "schema_version": "1.0",
+    "strict_format_pass": true
+  },
+  "completed_at_utc": "2026-08-06T02:11:27.107425+00:00",
+  "error": null,
+  "generation_policy": {
+    "automatic_repair_performed": false,
+    "code_regeneration_calls": 1,
+    "design_generation_calls": 1,
+    "manual_patch_performed": false,
+    "retry_performed": false
+  },
+  "local_raw_log_directory": "logs/rag/formal/rag-v1-formal-echo-web-server-ip",
+  "overall_pass": true,
+  "restoration": {
+    "original_hashes": {
+      "include/ip.h": "82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1",
+      "src/ip/ip.cpp": "b61e08ee3f4d11802b86ff445586120f1d0ca48ede8fb22b0b39cc4841b0f9d7"
+    },
+    "repository_clean": true,
+    "restored": true,
+    "restored_hashes": {
+      "include/ip.h": "82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1",
+      "src/ip/ip.cpp": "b61e08ee3f4d11802b86ff445586120f1d0ca48ede8fb22b0b39cc4841b0f9d7"
+    },
+    "tracked_status": ""
+  },
+  "run_id": "rag-v1-formal-echo-web-server-ip",
+  "schema_version": "rag-formal-evaluation-v1",
+  "stages": {
+    "build": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "completed_at_utc": "2026-08-06T02:11:24.088435+00:00",
+      "container_shell_command": "cmake --build build --parallel",
+      "elapsed_seconds": 29.24024620000273,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "build",
+      "started_at_utc": "2026-08-06T02:10:54.847880+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-ip/build.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-ip/build.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 600
+    },
+    "configure": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "completed_at_utc": "2026-08-06T02:10:54.847755+00:00",
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "elapsed_seconds": 7.989453600021079,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "configure",
+      "started_at_utc": "2026-08-06T02:10:46.858214+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-ip/configure.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-ip/configure.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    "direct_test": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='ConceptTest.ValidIPAddr:IPAddrTest.MaximumLength:IPAddrTest.LoopBack:IPAddrTest.Any:IPAddrTest.Construction'"
+      ],
+      "completed_at_utc": "2026-08-06T02:11:24.689277+00:00",
+      "container_shell_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='ConceptTest.ValidIPAddr:IPAddrTest.MaximumLength:IPAddrTest.LoopBack:IPAddrTest.Any:IPAddrTest.Construction'",
+      "counts": {
+        "failed": 0,
+        "passed": 5,
+        "ran": 5
+      },
+      "elapsed_seconds": 0.6007014000788331,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "direct_test",
+      "started_at_utc": "2026-08-06T02:11:24.088576+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-ip/direct_test.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-ip/direct_test.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    "full_test": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "ctest --test-dir build --output-on-failure"
+      ],
+      "completed_at_utc": "2026-08-06T02:11:27.042966+00:00",
+      "container_shell_command": "ctest --test-dir build --output-on-failure",
+      "counts": {
+        "failed": 0,
+        "passed": 63,
+        "ran": 63
+      },
+      "elapsed_seconds": 2.3535315000917763,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "full_test",
+      "started_at_utc": "2026-08-06T02:11:24.689417+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-ip/full_test.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-ip/full_test.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 600
+    }
+  },
+  "target_id": "echo-web-server-ip"
+}

@@ -1,0 +1,109 @@
+{
+  "code_regeneration_normalization": {
+    "automatic_repair_performed": false,
+    "code_body_modified": false,
+    "fence_language": null,
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "normalized_sha256": "96d1371b6991d75b47c7cf2b49286406a5b889d073a0db1229d0793ee785e723",
+    "raw_sha256": "96d1371b6991d75b47c7cf2b49286406a5b889d073a0db1229d0793ee785e723",
+    "retry_performed": false,
+    "schema_version": "1.0",
+    "strict_format_pass": true
+  },
+  "completed_at_utc": "2026-08-06T02:09:33.000669+00:00",
+  "error": null,
+  "generation_policy": {
+    "automatic_repair_performed": false,
+    "code_regeneration_calls": 1,
+    "design_generation_calls": 1,
+    "manual_patch_performed": false,
+    "retry_performed": false
+  },
+  "local_raw_log_directory": "logs/rag/formal/rag-v1-formal-echo-web-server-io",
+  "overall_pass": false,
+  "restoration": {
+    "original_hashes": {
+      "include/io.h": "760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241",
+      "src/io/io.cpp": "3b651a328148eb1dd0151f1b889524a4ee624d3d2c549d57a22e021f179a0975"
+    },
+    "repository_clean": true,
+    "restored": true,
+    "restored_hashes": {
+      "include/io.h": "760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241",
+      "src/io/io.cpp": "3b651a328148eb1dd0151f1b889524a4ee624d3d2c549d57a22e021f179a0975"
+    },
+    "tracked_status": ""
+  },
+  "run_id": "rag-v1-formal-echo-web-server-io",
+  "schema_version": "rag-formal-evaluation-v1",
+  "stages": {
+    "build": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "completed_at_utc": "2026-08-06T02:09:32.910850+00:00",
+      "container_shell_command": "cmake --build build --parallel",
+      "elapsed_seconds": 6.5756454998627305,
+      "exit_code": 2,
+      "passed": false,
+      "stage": "build",
+      "started_at_utc": "2026-08-06T02:09:26.335141+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-io/build.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-io/build.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 600
+    },
+    "configure": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "completed_at_utc": "2026-08-06T02:09:26.335013+00:00",
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "elapsed_seconds": 6.856461399933323,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "configure",
+      "started_at_utc": "2026-08-06T02:09:19.478478+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-io/configure.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-io/configure.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    "direct_test": {
+      "passed": false,
+      "skipped": true,
+      "stage": "direct_test"
+    },
+    "full_test": {
+      "passed": false,
+      "skipped": true,
+      "stage": "full_test"
+    }
+  },
+  "target_id": "echo-web-server-io"
+}

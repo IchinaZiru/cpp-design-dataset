@@ -1,0 +1,73 @@
+# INIReader クラスの設計文書
+
+## 責務
+INIファイルを読み込み、セクションとキーに対応する値を取得・更新し、エラー処理を行う。
+
+## 公開インターフェース
+- `INIReader()`: 空のコンストラクタ。
+- `INIReader(const std::string& filename)`: ファイル名からINIファイルを読み込む。
+- `INIReader(std::FILE* file)`: ファイルポインタからINIファイルを読み込む。
+- `int ParseError() const`: 解析エラーの状態を返す。エラーが発生した場合は例外を投げる。
+- `std::set<std::string> Sections() const`: INIファイル内のセクションリストを返す。
+- `std::set<std::string> Keys(const std::string& section) const`: 指定されたセクション内のキーのリストを返す。
+- `std::unordered_map<std::string, std::string> Get(const std::string& section) const`: 指定されたセクションの値マップを返す。
+- `template <typename T = std::string> T Get(const std::string& section, const std::string& name) const`: 指定されたセクションとキーに対応する値を取得する。型変換が失敗した場合は例外を投げる。
+- `template <typename T> T Get(const std::string& section, const std::string& name, T&& default_v) const`: 指定されたセクションとキーに対応する値を取得し、見つからなかった場合はデフォルト値を返す。
+- `template <typename T = std::string> std::vector<T> GetVector(const std::string& section, const std::string& name) const`: 指定されたセクションとキーに対応する値のベクトルを取得する。パースに失敗した場合は例外を投げる。
+- `template <typename T> std::vector<T> GetVector(const std::string& section, const std::string& name, const std::vector<T>& default_v) const`: 指定されたセクションとキーに対応する値のベクトルを取得し、見つからなかった場合はデフォルト値を返す。
+- `template <typename T = std::string> void InsertEntry(const std::string& section, const std::string& name, const T& v)`: 指定されたセクションとキーに対応するエントリを挿入する。既に存在する場合は例外を投げる。
+- `template <typename T = std::string> void InsertEntry(const std::string& section, const std::string& name, const std::vector<T>& vs)`: 指定されたセクションとキーに対応するエントリのベクトルを挿入する。既に存在する場合は例外を投げる。
+- `template <typename T = std::string> void UpdateEntry(const std::string& section, const std::string& name, const T& v)`: 指定されたセクションとキーに対応するエントリを更新する。存在しない場合は例外を投げる。
+- `template <typename T = std::string> void UpdateEntry(const std::string& section, const std::string& name, const std::vector<T>& vs)`: 指定されたセクションとキーに対応するエントリのベクトルを更新する。存在しない場合は例外を投げる。
+
+## 入力
+- `std::string filename`: INIファイルのパス。
+- `std::FILE* file`: INIファイルへのポインタ。
+- `const std::string& section`: セクション名。
+- `const std::string& name`: キー名。
+- `T v`: 値（型はテンプレートパラメータ）。
+- `std::vector<T> vs`: 値のベクトル（型はテンプレートパラメータ）。
+
+## 出力
+- `int`: 解析エラーの状態。
+- `std::set<std::string>`: セクションリストまたはキーのリスト。
+- `std::unordered_map<std::string, std::string>`: セクション内の値マップ。
+- `T`: 値（型はテンプレートパラメータ）。
+- `std::vector<T>`: 値のベクトル（型はテンプレートパラメータ）。
+
+## 状態
+- `_error`: 解析エラーの状態を表す整数値。0は成功、-1はファイルオープンエラー、それ以外は最初のエラー行番号。
+- `_values`: セクションとキーに対応する値を保持するマップ。
+
+## 処理手順
+1. コンストラクタでINIファイルを読み込み、内容を文字列として取得する。
+2. `Parse`メソッドでINIファイルの内容を解析し、セクションとキーに対応する値をマップに格納する。
+3. 各種getterメソッドで指定されたセクションとキーに対応する値を取得する。
+4. 各種setterメソッドで指定されたセクションとキーに対応するエントリを挿入または更新する。
+
+## 例外・失敗条件
+- ファイルが開けない場合、`ParseError()`は`std::runtime_error("ini file not found.")`を投げる。
+- メモリ確保に失敗した場合、`ParseError()`は`std::runtime_error("memory alloc error")`を投げる。
+- 解析中にエラーが発生した場合、`ParseError()`は`std::runtime_error("parse error on line no: " + std::to_string(_error))`を投げる。
+- 指定されたセクションが存在しない場合、`GetSection()`は`std::runtime_error("section '" + section + "' not found.")`を投げる。
+- 指定されたキーが存在しない場合、`FindEntry()`は`std::runtime_error("key '" + name + "' not exist in section '" + section + "'.")`を投げる。
+- 既に同じセクションとキーのエントリが存在する場合、`InsertEntry()`は`std::runtime_error("duplicate key '" + name + "' in section '" + section + "'.")`を投げる。
+- 指定されたキーが存在しない場合、`UpdateEntry()`は`std::runtime_error("key '" + name + "' not exist in section '" + section + "'.")`を投げる。
+
+## 依存関係
+- `<cstddef>`
+- `<cstdio>`
+- `<fstream>`
+- `<set>`
+- `<sstream>`
+- `<stdexcept>`
+- `<string>`
+- `<string_view>`
+- `<type_traits>`
+- `<unordered_map>`
+- `<utility>`
+- `<vector>`
+
+## 重要な不変条件
+- `_error`は解析エラーの状態を正確に反映していること。
+- `_values`はセクションとキーに対応する値を正しく保持していること。

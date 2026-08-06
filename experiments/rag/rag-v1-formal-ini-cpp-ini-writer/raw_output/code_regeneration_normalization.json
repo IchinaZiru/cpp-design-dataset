@@ -1,0 +1,10 @@
+{
+  "automatic_repair_performed": false,
+  "code_body_modified": false,
+  "normalization_applied": false,
+  "normalization_type": "none",
+  "normalized_sha256": "64cc33979d4728e54eb44f759054079f3d2aba89710de9533fee34c72f77357f",
+  "raw_sha256": "64cc33979d4728e54eb44f759054079f3d2aba89710de9533fee34c72f77357f",
+  "retry_performed": false,
+  "schema_version": "legacy-exact-output-v1"
+}

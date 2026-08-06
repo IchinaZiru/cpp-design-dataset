@@ -1,0 +1,16 @@
+{
+  "allowed_inputs_used": [
+    "single one-shot generated design document",
+    "fixed scaffold equivalent to the corresponding non-RAG target"
+  ],
+  "dependency_context_loaded": false,
+  "design_document_sha256": "2bd5adb327ef1b1b3017523768062297d9a3b192ff5920d3ed11d02cd5d115ac",
+  "fixed_scaffold_sha256": "3fefd09d42e9a7a3282992e67bbd26ed920ed4ecfc66bdb07c3eb36b9d444109",
+  "forbidden_inputs_directly_loaded": [],
+  "llm_call_count_before_request": 0,
+  "prompt_sha256": "d165d1531ce58d39453f9239fb605f5059a21d5c51e2ec0cbeebff355858065a",
+  "retrieved_context_directly_injected": false,
+  "schema_version": "rag-formal-code-request-audit-v1",
+  "target_id": "echo-web-server-config",
+  "target_source_directly_injected": false
+}

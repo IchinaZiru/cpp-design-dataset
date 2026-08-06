@@ -1,0 +1,100 @@
+# デザイン文書: I/Oモジュール
+
+## 概要
+この設計文書は、Echo Web ServerプロジェクトにおけるI/O操作を担当するモジュールの仕様と詳細なインターフェースについて記載しています。主に`include/io.h`と`src/io/io.cpp`に基づいています。
+
+## 責務
+- バッファとのデータ読み書きを行う。
+- 文字列ストリームやファイルディスクリプタを介したI/O操作を提供する。
+- エラー処理を行い、システムエラーが発生した場合は例外を投げる。
+
+## 公開インターフェース
+
+### クラス: `ws::io::IReader`
+- **メソッド**: 
+  - `virtual std::size_t ReadFrom(Buffer& buf) = 0;`
+
+### クラス: `ws::io::IWriter`
+- **メソッド**:
+  - `virtual std::size_t WriteTo(Buffer& buf) = 0;`
+
+### クラス: `ws::io::IReadWriter`
+- **継承**: `public virtual IReader, public virtual IWriter`
+
+### クラス: `ws::io::Null`
+- **メソッド**:
+  - `std::size_t WriteTo(Buffer& buf) noexcept override;`
+  - `std::size_t ReadFrom(Buffer& buf) noexcept override;`
+
+### クラス: `ws::io::StringStream`
+- **コンストラクタ**: 
+  - `explicit StringStream(std::istream& read, std::ostream& write) noexcept;`
+- **メソッド**:
+  - `std::size_t WriteTo(Buffer& buf) noexcept override;`
+  - `std::size_t ReadFrom(Buffer& buf) noexcept override;`
+
+### クラス: `ws::io::FileDescriptor`
+- **コンストラクタ**: 
+  - `explicit FileDescriptor(ws::FileDescriptor read, ws::FileDescriptor write) noexcept;`
+- **メソッド**:
+  - `std::size_t WriteTo(Buffer& buf) override;`
+  - `std::size_t ReadFrom(Buffer& buf) override;`
+
+## 入力
+- バッファ (`ws::Buffer`)
+- 文字列ストリーム (`std::istream`, `std::ostream`)
+- ファイルディスクリプタ (`ws::FileDescriptor`)
+
+## 出力
+- 読み書きしたバイト数 (`std::size_t`)
+
+## 状態
+- **Null**: 何も読み書きしない状態。
+- **StringStream**: 文字列ストリームへの参照を持つ状態。
+- **FileDescriptor**: ファイルディスクリプタへの参照を持つ状態。
+
+## 処理手順
+
+### Null::WriteTo
+1. バッファの書き込み可能なサイズを取得する。
+2. 書き込みオフセットをそのサイズ分進める。
+3. サイズを返す。
+
+### Null::ReadFrom
+1. バッファから全てのデータを読み取り、読み取りオフセットを最後まで進める。
+2. 読み取ったバイト数を返す。
+
+### StringStream::WriteTo
+1. 文字列ストリームから文字列を読み込む。
+2. バッファに読み込んだ文字列を追加する。
+3. 読み込んだ文字列の長さを返す。
+
+### StringStream::ReadFrom
+1. バッファから全てのデータを読み取り、読み取りオフセットを最後まで進める。
+2. 文字列ストリームに読み取ったデータを書き込む。
+3. 読み取った文字列の長さを返す。
+
+### FileDescriptor::WriteTo
+1. バッファから書き込み可能なバイト列を取得する。
+2. 追加バッファを作成し、`readv`を使用してファイルディスクリプタからデータを読み込む。
+3. 読み込んだサイズがバッファの書き込み可能なサイズを超えた場合、追加バッファの残り部分をバッファに追加する。
+4. 読み込んだバイト数を返す。
+
+### FileDescriptor::ReadFrom
+1. バッファから読み取り可能なバイト列を取得する。
+2. `write`を使用してファイルディスクリプタにデータを書き込む。
+3. 書き込んだサイズが負の場合、システムエラーを投げる。
+4. 書き込んだバイト数を返す。
+
+## 例外・失敗条件
+- システムコール(`readv`, `write`)が失敗した場合、`ws::ThrowLastSystemError()`を呼び出して例外を投げる。
+
+## 依存関係
+- `ws::Buffer`
+- `std::istream`
+- `std::ostream`
+- `ws::FileDescriptor`
+
+## 重要な不変条件
+- バッファの読み取りオフセットと書き込みオフセットは常に有効な範囲内である。
+- 文字列ストリームやファイルディスクリプタへの参照が有効である。

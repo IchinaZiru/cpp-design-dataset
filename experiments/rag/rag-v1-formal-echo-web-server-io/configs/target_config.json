@@ -1,0 +1,129 @@
+{
+  "adoption_status": "採用",
+  "artifact_schema_version": "rag-formal-target-config-v1",
+  "common_formal_config": {
+    "path": "configs/rag/formal_retrieval_pipeline_v1.json",
+    "sha256": "0640b24e8b9d5454aa4838fa30b27fb80f83cffd44fd286b78c5fe68416e85c1"
+  },
+  "condition_id": "rag-design-context-v1",
+  "context_path": "rag/retrieval/formal/echo-web-server-io/context.txt",
+  "context_sha256": "f716328af65833ba64f75b2bec8b615324f4b5952ab1a5b6526181ab704570b3",
+  "context_status": "generated_and_audited",
+  "enabled": true,
+  "evaluation": {
+    "build_command": "cmake --build build --parallel",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+    "direct_test_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='StringStreamIOTest.ReadWrite:FileDescriptorIOTest.ReadWrite'",
+    "direct_test_filter": "StringStreamIOTest.ReadWrite:FileDescriptorIOTest.ReadWrite",
+    "direct_test_names": [
+      "StringStreamIOTest.ReadWrite",
+      "FileDescriptorIOTest.ReadWrite"
+    ],
+    "docker_image": "cpp-roundtrip-env:echo-web-server-v2",
+    "docker_image_id": "sha256:f4983b70f6c2400cec7c8869810a8ec3e87f6966e2cc86e09598bdbbc4773c5c",
+    "expected_direct_tests": 2,
+    "expected_full_tests": 63,
+    "full_test_command": "ctest --test-dir build --output-on-failure",
+    "full_test_kind": "ctest"
+  },
+  "experiment_id": "rag-v1-formal-echo-web-server-io",
+  "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-io",
+  "formal_run_id": "rag-v1-formal-echo-web-server-io",
+  "frozen_query": {
+    "path": "rag/query/echo-web-server-io/query.json",
+    "sha256": "4312d8ed3432aabfb3f023119415b57b3ec746463cd74f3709cd7959d14f82a4"
+  },
+  "granularity": "module_files",
+  "inherited_non_rag_schema_version": "3.0",
+  "input_isolation": {
+    "code_regeneration_allowed_inputs": [
+      "single one-shot generated design document",
+      "fixed scaffold equivalent to the corresponding non-RAG target"
+    ],
+    "code_regeneration_forbidden_inputs": [
+      "original target source body",
+      "retrieved context",
+      "selected chunks",
+      "candidates",
+      "query artifact",
+      "repository source",
+      "design-generation request or prompt",
+      "design audit findings",
+      "previous generated output"
+    ],
+    "design_generation_allowed_inputs": [
+      "frozen design instruction",
+      "frozen target source",
+      "frozen context.txt"
+    ]
+  },
+  "locator": {},
+  "model": {
+    "automatic_repair": false,
+    "generations": 1,
+    "name": "qwen2.5-coder:32b",
+    "num_ctx": 8192,
+    "num_predict": 2048,
+    "repeat_penalty": 1.1,
+    "retry": false,
+    "seed": 42,
+    "stream": false,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.9
+  },
+  "non_rag_evidence": {
+    "config_path": "experiments/echo-web-server-io-roundtrip-002/configs/target_config.json",
+    "config_sha256": "ac76fd72f59c0c517071e436a3d565fc82e23f46649115c2f051232d3b6f96fa",
+    "source_metadata_path": "experiments/echo-web-server-io-roundtrip-002/input/source_metadata.json",
+    "source_metadata_sha256": "50cf7e6b0bf6b546aa5afe7e134fb85dfc46f4c46190074dd69506bade2246e2"
+  },
+  "one_shot_generation_policy": {
+    "automatic_repair": false,
+    "code_generation_count": 1,
+    "design_generation_count": 1,
+    "manual_patch": false,
+    "overwrite": false,
+    "retry": false
+  },
+  "output_directory": "experiments/rag/rag-v1-formal-echo-web-server-io",
+  "protocol": {
+    "automatic_repair": false,
+    "module_output_format": "ollama_json_schema",
+    "pilot_failure_excluded": "echo-web-server-io-qwen25coder32b-001",
+    "retry": false
+  },
+  "readiness": {
+    "baseline_passed": true,
+    "baseline_probed": true,
+    "configured": true,
+    "reasons": []
+  },
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "repository_id": "Echo-Web-Server",
+  "repository_path": "repos/Echo-Web-Server",
+  "retrieval_settings": {
+    "category_quotas": {
+      "0": 4,
+      "1": 4,
+      "2": 3,
+      "3": 1
+    },
+    "context_budget_tokens": 6000,
+    "per_target_override": false,
+    "retrieval_top_k": 12,
+    "target_specific_manual_query": false,
+    "top_k_and_quotas_are_caps": true
+  },
+  "run_id": "rag-v1-formal-echo-web-server-io",
+  "source_files": [
+    "include/io.h",
+    "src/io/io.cpp"
+  ],
+  "target_id": "echo-web-server-io",
+  "target_kind": "standard",
+  "target_name": "io",
+  "test_files": [
+    "tests/io_test.cpp"
+  ]
+}

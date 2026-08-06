@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "options": {
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "repeat_penalty": 1.1,
+    "seed": 42,
+    "temperature": 0,
+    "top_k": 40,
+    "top_p": 0.9
+  },
+  "prompt": "# 対象\n- target: Register\n- granularity: class_span\n- source_files: [\"src/Common/Register.hpp\"]\n\n# 出力規則\n対象クラス定義全体だけをC++コードとして返してください。Markdownコードフェンス、説明文、JSONは出力しないでください。\n\n# JSON Schema\nN/A\n\n# 設計文書\n# デザイン文書: Register クラス\n\n## 責務\n`Register`クラスは、RISC-Vシミュレータにおいてデータの読み書きとステージ間でのデータ伝達を管理します。具体的には、現在の値(`next`)と前の値(`prev`)を保持し、必要に応じて値を更新または停止することができます。\n\n## 公開インターフェース\n- `T read()`: 前の値(`prev`)を返す。\n- `T current()`: 現在の値(`next`)を返す。\n- `void write(const T &t)`: 新しい値`t`を現在の値(`next`)に設定する。\n- `void tick()`: `_stall`がfalseの場合、前の値(`prev`)を現在の値(`next`)に更新する。\n- `void stall(bool stall)`: ストール状態を設定する。`true`に設定するとデータ伝達が停止し、`false`に設定すると再開する。\n- `operator T()`: 前の値(`prev`)を返すようにオペレータをオーバーロードしている。\n- `void operator=(T next)`: 新しい値`t`を現在の値(`next`)に設定するようにオペレータをオーバーロードしている。\n\n## 入力\n- コンストラクタ: 初期値`d` (省略可能)\n- `write(const T &t)`: 書き込む新しい値`t`\n- `stall(bool stall)`: ストール状態を設定するためのブーリアン値\n\n## 出力\n- `read()`, `current()`, キャスト演算子`operator T()`: 値を返す。\n\n## 状態\n- `prev`: 前の値。\n- `next`: 現在の値。\n- `_stall`: ストール状態。`true`の場合、データ伝達が停止する。\n\n## 処理手順\n1. **初期化**: コンストラクタで`prev`, `next`を初期値に設定し、`_stall`をfalseに設定。\n2. **書き込み**: `write()`メソッドを使用して新しい値`t`を現在の値(`next`)に設定する。\n3. **読み取り**: `read()`, `current()`, キャスト演算子`operator T()`を使用して前の値(`prev`)または現在の値(`next`)を取得する。\n4. **ステージ更新**: `tick()`メソッドが呼ばれたときに、`_stall`がfalseの場合のみ前の値(`prev`)を現在の値(`next`)に更新する。\n5. **ストール状態設定**: `stall(bool stall)`メソッドを使用してデータ伝達の停止や再開を行う。\n\n## 例外・失敗条件\n- コンストラクタ: 初期値が指定されない場合、デフォルトで0に初期化される。\n- `write()`: 正常な入力を受け取ると仮定しているため、特定の例外処理は行われていない。\n- `tick()`, `stall(bool stall)`: これらのメソッド自体が例外を投げることはない。\n\n## 依存関係\n- このクラスは他のクラスから直接参照され、値の読み書きやステージ間でのデータ伝達に使用される。具体的には`LoadStoreUnit::get_store_cnt_register`, `LoadStoreUnit::get_load_cnt_register`, `LoadStoreUnit::get_load_buffer`などのメソッドで利用されている。\n\n## 重要な不変条件\n- `_stall`がtrueの場合、`tick()`によって前の値(`prev`)は更新されない。\n- `write(const T &t)`によって現在の値(`next`)が設定された後、`tick()`が呼ばれるまで前の値(`prev`)は変化しない。\n\n# 固定インターフェース・スキャフォールド\nclass Register { // : public Tickable {\npublic:\n    T prev, next;\n\n    bool _stall;\n\n    Register() : prev((T) 0), next((T) 0), _stall(false) ;\n\n    Register(T d) : prev(d), next(d), _stall(false) ;\n\n    T read() ;\n\n    T current() ;\n\n    void write(const T &t) ;\n\n    void tick() ;\n\n    void stall(bool stall) ;\n\n    operator T() ;\n\n    void operator=(T next) ;\n};\n\n",
+  "stream": false,
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。"
+}

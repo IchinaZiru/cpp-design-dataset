@@ -1,0 +1,21 @@
+{
+  "artifact_schema_version": "rag-formal-source-input-v1",
+  "context_path": "rag/retrieval/formal/riscv-simulator-parser/context.txt",
+  "context_sha256": "49ef3f67de5fea1a05c0a507f3a749599ee0c80226cf949031dcb6b914b33ecd",
+  "design_input_sha256": "270e60d7f8c8fe09c07a75a1a5b6cef6bcdbe3216984f3c374fb5a5a4cfb7b5c",
+  "fixed_scaffold_sha256": "09c7f67580c3f14439a975eea125bd7802159a4e0cd647174d67cea772a0564b",
+  "locator": {
+    "end_offset": 1339,
+    "original_span_sha256": "5c1de587cd8ee8276439813e0c3a8a6a50bdfe0ba6934829c63a6b7ee7785106",
+    "start_offset": 215,
+    "symbol": "Parser"
+  },
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "source_files": [
+    {
+      "path": "src/Common/Parser.hpp",
+      "sha256": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0"
+    }
+  ],
+  "target_id": "riscv-simulator-parser"
+}

@@ -1,0 +1,16 @@
+{
+  "artifact_schema_version": "rag-formal-generation-metadata-v1",
+  "automatic_repair_performed": false,
+  "completed_at_utc": "2026-08-06T02:39:53.350482+00:00",
+  "done": true,
+  "done_reason": "stop",
+  "elapsed_seconds": 7.643679399974644,
+  "eval_count": 172,
+  "llm_call_count_for_stage": 1,
+  "llm_call_index": 1,
+  "prompt_eval_count": 1168,
+  "retry_performed": false,
+  "stage": "code_regeneration",
+  "started_at_utc": "2026-08-06T02:39:45.704908+00:00",
+  "target_id": "riscv-simulator-register"
+}

@@ -1,0 +1,107 @@
+{
+  "code_regeneration_normalization": {
+    "automatic_repair_performed": false,
+    "code_body_modified": false,
+    "fence_language": "cpp",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "normalized_sha256": "cd1af6930866d6b8631770bb9d78b7bd1b656029139493a36b033fcf46f2169c",
+    "raw_sha256": "85f993880d99c3f078b42e556040d5adc89ccb46137b63cb58fa187cf2f99aad",
+    "retry_performed": false,
+    "schema_version": "1.0",
+    "strict_format_pass": false
+  },
+  "completed_at_utc": "2026-08-06T02:39:09.739369+00:00",
+  "error": null,
+  "generation_policy": {
+    "automatic_repair_performed": false,
+    "code_regeneration_calls": 1,
+    "design_generation_calls": 1,
+    "manual_patch_performed": false,
+    "retry_performed": false
+  },
+  "local_raw_log_directory": "logs/rag/formal/rag-v1-formal-riscv-simulator-parser",
+  "overall_pass": false,
+  "restoration": {
+    "original_hashes": {
+      "src/Common/Parser.hpp": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0"
+    },
+    "repository_clean": true,
+    "restored": true,
+    "restored_hashes": {
+      "src/Common/Parser.hpp": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0"
+    },
+    "tracked_status": ""
+  },
+  "run_id": "rag-v1-formal-riscv-simulator-parser",
+  "schema_version": "rag-formal-evaluation-v1",
+  "stages": {
+    "build": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "completed_at_utc": "2026-08-06T02:39:09.689129+00:00",
+      "container_shell_command": "cmake --build build --parallel",
+      "elapsed_seconds": 1.6479177998844534,
+      "exit_code": 2,
+      "passed": false,
+      "stage": "build",
+      "started_at_utc": "2026-08-06T02:39:08.041200+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-riscv-simulator-parser/build.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-riscv-simulator-parser/build.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 600
+    },
+    "configure": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "completed_at_utc": "2026-08-06T02:39:08.041045+00:00",
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "elapsed_seconds": 4.646530599799007,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "configure",
+      "started_at_utc": "2026-08-06T02:39:03.394463+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-riscv-simulator-parser/configure.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-riscv-simulator-parser/configure.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    "direct_test": {
+      "passed": false,
+      "skipped": true,
+      "stage": "direct_test"
+    },
+    "full_test": {
+      "passed": false,
+      "skipped": true,
+      "stage": "full_test"
+    }
+  },
+  "target_id": "riscv-simulator-parser"
+}

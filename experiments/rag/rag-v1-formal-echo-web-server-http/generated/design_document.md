@@ -1,0 +1,312 @@
+# デザイン文書
+
+## 概要
+この設計文書は、Echo-Web-ServerプロジェクトのHTTPモジュールについて記述しています。主なクラスとその責務、公開インターフェース、入力・出力、状態、処理手順、例外・失敗条件、依存関係、重要な不変条件を詳細に説明します。
+
+## クラス: `ws::http::ConnectionImpl`
+
+### 責務
+- HTTP接続の受信と送信を行う。
+- HTTPリクエストの処理を行い、適切なHTTPレスポンスを作成する。
+- 接続が維持されるかどうかを管理する。
+
+### 公開インターフェース
+
+| メソッド名 | 説明 |
+|------------|------|
+| `SetRootDirectory` | 根ディレクトリを設定します。 |
+| `GetRootDirectory` | 現在の根ディレクトリを取得します。 |
+| `Close` | 接続を閉じます。 |
+| `Valid` | 接続が有効かどうかを返します。 |
+| `Socket` | ソケットファイルディスクリプタを返します。 |
+| `Receive` | HTTPリクエストを受信します。 |
+| `Send` | HTTPレスポンスを送信します。 |
+| `KeepAlive` | 接続が維持されるかどうかを返します。 |
+| `Process` | 受信したHTTPリクエストを処理し、適切なHTTPレスポンスを作成します。 |
+
+### 入力
+- ソケットファイルディスクリプタ (`FileDescriptor`)
+- HTTPリクエストデータ (`Buffer`)
+
+### 出力
+- HTTPレスポンスデータ (`Buffer`)
+- 送信されたバイト数 (`std::size_t`)
+
+### 状態
+- `socket_`: ソケットファイルディスクリプタ
+- `keep_alive_`: 接続が維持されるかどうかを示すフラグ
+- `read_buf_`: 受信データ用のバッファ (`IOBuffer`)
+- `write_buf_`: 送信データ用のバッファ (`IOBuffer`)
+- `file_`: マップされた読み取り専用ファイル (`MappedReadOnlyFile`)
+
+### 処理手順
+1. **受信処理**:
+   - ソケットからデータを読み込み、`read_buf_`に格納します。
+2. **リクエストの解析とレスポンスの生成**:
+   - `Process()`メソッドでHTTPリクエストを解析し、適切なHTTPレスポンスを作成します。
+3. **送信処理**:
+   - 作成したHTTPレスポンスデータを`write_buf_`に格納し、ソケットを通じて送信します。
+
+### 例外・失敗条件
+- ソケットが無効な場合 (`std::system_error`)
+- リクエストの解析中にエラーが発生した場合 (`std::invalid_argument`)
+- ファイルマッピングに失敗した場合 (`std::exception`)
+
+### 依存関係
+- `ws::Buffer`
+- `ws::io::FileDescriptor`
+- `ws::http::Request`
+- `ws::http::Response`
+
+### 重要な不変条件
+- ソケットファイルディスクリプタは常に有効であるか、無効な値（`invalid_file_descriptor`）である。
+- バッファの読み取り位置と書き込み位置が適切に管理されている。
+
+## クラス: `ws::http::Connection<IPAddr>`
+
+### 責務
+- IPアドレス情報を保持するためのテンプレートクラスとして機能します。
+
+### 公開インターフェース
+
+| メソッド名 | 説明 |
+|------------|------|
+| `IPAddress` | クライアントのIPアドレスを返します。 |
+| `Port` | クライアントのポート番号を返します。 |
+
+### 依存関係
+- `ws::http::ConnectionImpl`
+- `ValidIPAddr`
+
+## クラス: `ws::http::Request`
+
+### 責務
+- HTTPリクエストデータを解析し、必要な情報を抽出する。
+
+### 公開インターフェース
+
+| メソッド名 | 説明 |
+|------------|------|
+| `Parse` | HTTPリクエストデータを解析します。 |
+| `Header` | 指定されたキーのHTTPヘッダー値を返します。 |
+| `Post` | 指定されたキーのPOSTパラメータ値を返します。 |
+| `PostSize` | POSTパラメータの数を返します。 |
+| `Method` | HTTPリクエストメソッドを返します。 |
+| `Path` | リクエストパスを返します。 |
+| `Version` | HTTPバージョンを返します。 |
+| `KeepAlive` | 接続が維持されるかどうかを返します。 |
+
+### 入力
+- HTTPリクエストデータ (`Buffer`)
+
+### 出力
+- リクエストメソッド (`Method`)
+- パス (`std::string_view`)
+- バージョン (`std::string_view`)
+- ヘッダー値 (`std::optional<std::string_view>`)
+- POSTパラメータ値 (`std::optional<std::string_view>`)
+
+### 状態
+- `method_`: HTTPリクエストメソッド
+- `version_`: HTTPバージョン
+- `path_`: リクエストパス
+- `headers_`: HTTPヘッダーのマップ (`Parameters`)
+- `post_`: POSTパラメータのマップ (`Parameters`)
+
+### 処理手順
+1. **解析状態の初期化**:
+   - 解析状態を`NotStarted`に設定します。
+2. **リクエストデータの解析**:
+   - バッファから読み取り可能な文字列を取得し、行単位で解析を行います。
+3. **ステータスラインの解析**:
+   - `NotStarted`状態ではステータスラインを解析し、メソッド、パス、バージョンを抽出します。
+4. **ヘッダーの解析**:
+   - `Header`状態ではヘッダーフィールドを解析し、マップに格納します。
+5. **ボディの解析**:
+   - `Body`状態ではリクエストボディを解析し、POSTパラメータを抽出します。
+
+### 例外・失敗条件
+- バッファが空の場合 (`std::invalid_argument`)
+- ステータスラインが無効な場合 (`std::invalid_argument`)
+- HTTPヘッダーとボディの間の空白行がない場合 (`std::invalid_argument`)
+- サポートされていないHTTPメソッドを使用した場合 (`std::invalid_argument`)
+- サポートされていないコンテンツタイプを使用した場合 (`std::invalid_argument`)
+
+### 依存関係
+- `ws::Buffer`
+- `ws::http::Parameters`
+
+## クラス: `ws::http::Response`
+
+### 責務
+- HTTPレスポンスデータを作成する。
+
+### 公開インターフェース
+
+| メソッド名 | 説明 |
+|------------|------|
+| `SetKeepAlive` | 接続が維持されるかどうかを設定します。 |
+| `Build` | 指定されたファイルやパラメータを使用してHTTPレスポンスを作成します。 |
+
+### 入力
+- ルートディレクトリ (`std::filesystem::path`)
+- ファイルパス (`std::filesystem::path`)
+- HTTPステータスコード (`StatusCode`)
+- HTMLテンプレートのファイルパス (`std::filesystem::path`)
+- パラメータマップ (`Parameters`)
+
+### 出力
+- 作成されたHTTPレスポンスデータ (`Buffer`)
+- マッピングされた読み取り専用ファイル (`MappedReadOnlyFile`)
+
+### 状態
+- `root_dir_`: ルートディレクトリ (`std::filesystem::path`)
+- `file_path_`: ファイルパス (`std::filesystem::path`)
+- `file_`: マッピングされた読み取り専用ファイル (`MappedReadOnlyFile`)
+- `keep_alive_`: 接続が維持されるかどうかを示すフラグ
+- `status_code_`: HTTPステータスコード (`StatusCode`)
+
+### 処理手順
+1. **初期化**:
+   - ルートディレクトリとファイルパスを設定します。
+2. **ファイルのマッピング**:
+   - 指定されたファイルパスを使用してファイルをメモリにマップします。
+3. **HTTPヘッダーの追加**:
+   - ステータスライン、接続情報、コンテンツタイプ、コンテンツ長などのHTTPヘッダーを追加します。
+4. **コンテンツの追加**:
+   - ファイルが存在する場合はその内容を追加します。パラメータが指定されている場合はHTMLテンプレートにパラメータを埋め込みます。
+
+### 例外・失敗条件
+- ファイルマッピングに失敗した場合 (`std::exception`)
+
+### 依存関係
+- `ws::Buffer`
+- `ws::http::Parameters`
+- `MappedReadOnlyFile`
+
+## クラス: `ws::http::Request::State`
+
+### 責務
+- HTTPリクエストの解析状態を管理する。
+
+### 公開インターフェース
+
+| メソッド名 | 説明 |
+|------------|------|
+| `Parse` | 解析対象の行データを処理します。 |
+
+### 依存関係
+- `ws::http::Request`
+
+## クラス: `ws::http::Request::NotStarted`
+
+### 責務
+- ステータスラインの解析を行う。
+
+### 公開インターフェース
+
+| メソッド名 | 説明 |
+|------------|------|
+| `Parse` | ステータスラインを解析し、次の状態に遷移します。 |
+
+### 例外・失敗条件
+- ステータスラインが無効な場合 (`std::invalid_argument`)
+
+## クラス: `ws::http::Request::Header`
+
+### 責務
+- HTTPヘッダーの解析を行う。
+
+### 公開インターフェース
+
+| メソッド名 | 説明 |
+|------------|------|
+| `Parse` | ヘッダーフィールドを解析し、次の状態に遷移します。 |
+
+### 例外・失敗条件
+- HTTPヘッダーとボディの間の空白行がない場合 (`std::invalid_argument`)
+
+## クラス: `ws::http::Request::Body`
+
+### 責務
+- リクエストボディの解析を行う。
+
+### 公開インターフェース
+
+| メソッド名 | 説明 |
+|------------|------|
+| `Parse` | ボディデータを解析し、次の状態に遷移します。 |
+
+### 例外・失敗条件
+- サポートされていないHTTPメソッドを使用した場合 (`std::invalid_argument`)
+- サポートされていないコンテンツタイプを使用した場合 (`std::invalid_argument`)
+
+## クラス: `ws::http::Request::Finished`
+
+### 責務
+- 解析が完了したことを示す。
+
+### 公開インターフェース
+
+| メソッド名 | 説明 |
+|------------|------|
+| `Parse` | 解析がすでに完了しているため、例外をスローします。 |
+
+## その他の関数
+
+### 関数: `ws::http::ContentTypeByFileName`
+
+- **説明**: 指定されたファイル名からコンテンツタイプを取得します。
+- **入力**: ファイル名 (`std::string_view`)
+- **出力**: コンテンツタイプ (`std::string_view`)
+
+### 関数: `ws::http::StatusCodeToMessage`
+
+- **説明**: HTTPステータスコードからメッセージを取得します。
+- **入力**: ステータスコード (`StatusCode`)
+- **出力**: メッセージ (`std::string_view`)
+
+### 関数: `ws::http::StatusCodeToInteger`
+
+- **説明**: HTTPステータスコードを整数値に変換します。
+- **入力**: ステータスコード (`StatusCode`)
+- **出力**: 整数値 (`std::uint32_t`)
+
+### 関数: `ws::http::MethodToString`
+
+- **説明**: HTTPメソッドを文字列に変換します。
+- **入力**: メソッド (`Method`)
+- **出力**: 文字列 (`std::string_view`)
+
+### 関数: `ws::http::StringToMethod`
+
+- **説明**: 文字列からHTTPメソッドを取得します。
+- **入力**: 文字列 (`std::string`)
+- **出力**: メソッド (`Method`)
+- **例外・失敗条件**: 有効なHTTPメソッドでない場合 (`std::invalid_argument`)
+
+### 関数: `ws::http::DecodeURLEncodedCharacter`
+
+- **説明**: URLエンコードされた文字をデコードします。
+- **入力**: エンコードされた文字列 (`std::string`)
+- **出力**: デコードされた文字 (`char`)
+- **例外・失敗条件**: 無効なURLエンコードされた文字の場合 (`std::invalid_argument`)
+
+### 関数: `ws::http::DecodeURLEncodedString`
+
+- **説明**: URLエンコードされた文字列をデコードします。
+- **入力**: エンコードされた文字列 (`std::string`)
+- **出力**: デコードされた文字列 (`std::string`)
+- **例外・失敗条件**: 無効なURLエンコードされた文字が含まれている場合 (`std::invalid_argument`)
+
+### 関数: `ws::http::HTMLPlaceholder`
+
+- **説明**: HTMLプレースホルダーを作成します。
+- **入力**: キー (`std::string_view`)
+- **出力**: プレースホルダー文字列 (`std::string`)
+
+### 関数: `ws::http::PutParamIntoHTML`
+
+- **説明**: HTMLテンプレートにパラメータを埋め込みます。
+- **入力**: HTMLテンプレート (`std::string`), パラメータマップ (`Parameters`)
+- **出力**: 埋め込まれたHTML文字列 (`std::string`)

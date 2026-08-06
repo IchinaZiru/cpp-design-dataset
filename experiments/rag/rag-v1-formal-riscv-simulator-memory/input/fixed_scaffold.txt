@@ -1,0 +1,21 @@
+class Memory {
+public:
+    unsigned char mem[MEMORY_SIZE];
+    unsigned char placeholder;
+
+    Memory() ;
+
+    bool check_addr(unsigned int addr) ;
+
+    Immediate read_word(unsigned int addr) ;
+
+    void write_word(unsigned int addr, Immediate imm) ;
+
+    unsigned short read_ushort(unsigned int addr) ;
+
+    void write_ushort(unsigned int addr, unsigned short imm) ;
+
+    unsigned char &operator[](unsigned int addr) ;
+
+    void debug() ;
+};

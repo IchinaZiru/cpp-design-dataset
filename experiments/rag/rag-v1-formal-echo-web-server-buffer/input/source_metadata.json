@@ -1,0 +1,20 @@
+{
+  "artifact_schema_version": "rag-formal-source-input-v1",
+  "context_path": "rag/retrieval/formal/echo-web-server-buffer/context.txt",
+  "context_sha256": "65ef992a019987084914de65791407c3e32ac7df0fd591d78c4affabd996c692",
+  "design_input_sha256": "0107fdc9a392e8f2a43011ed2d1ee9aaa9462771edae8da4b6a980ebd2f0d300",
+  "fixed_scaffold_sha256": "04c5892f92e0fe606c9c0dbf7fd9c91c048d8432ef73ca678e57f1ea781c643f",
+  "locator": null,
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "source_files": [
+    {
+      "path": "include/containers/buffer.h",
+      "sha256": "94807866681c70598b716d810ffd2bfe0d9cf3406f459b51f2d33013c37b9a09"
+    },
+    {
+      "path": "src/containers/buffer/buffer.cpp",
+      "sha256": "0d3f0824f3c63439d05e34d2e22dd1bc1c45c4bb0e3bd4c842ffc4ca1d56bc2b"
+    }
+  ],
+  "target_id": "echo-web-server-buffer"
+}

@@ -1,0 +1,117 @@
+{
+  "code_regeneration_normalization": {
+    "automatic_repair_performed": false,
+    "code_body_modified": false,
+    "fence_language": null,
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "normalized_sha256": "18fe53b6a3d397226c6eb13af1ba13e2162838d7a8e80871a5b759e99a873d56",
+    "raw_sha256": "18fe53b6a3d397226c6eb13af1ba13e2162838d7a8e80871a5b759e99a873d56",
+    "retry_performed": false,
+    "schema_version": "1.0",
+    "strict_format_pass": true
+  },
+  "completed_at_utc": "2026-08-06T02:07:31.117187+00:00",
+  "error": null,
+  "generation_policy": {
+    "automatic_repair_performed": false,
+    "code_regeneration_calls": 1,
+    "design_generation_calls": 1,
+    "manual_patch_performed": false,
+    "retry_performed": false
+  },
+  "local_raw_log_directory": "logs/rag/formal/rag-v1-formal-echo-web-server-http",
+  "overall_pass": false,
+  "restoration": {
+    "original_hashes": {
+      "include/http.h": "943fde3d6548c12620e27563a00dc121550891651da3e61d2958db94ebb664bd",
+      "src/http/http.cpp": "fd61a787220a54ae758bbb7c826d34ab15867968d055d10db9c8383e497bbf57",
+      "src/http/request.cpp": "551325144379c1297b7744acb813598cd27fdaf8ac21e39f0e3726f4ef1ae63c",
+      "src/http/request.h": "738a5489150f0ab537281f6832127e784e08e009f2db3338751ca362500e3ef6",
+      "src/http/response.cpp": "342a541c43e04792db14ef98886653086961d23a04ef76c039c4ff4f946a014d",
+      "src/http/response.h": "e159547a5f019e824d01facd977c9c2070a2b415db56b851a001608fb867aefc"
+    },
+    "repository_clean": true,
+    "restored": true,
+    "restored_hashes": {
+      "include/http.h": "943fde3d6548c12620e27563a00dc121550891651da3e61d2958db94ebb664bd",
+      "src/http/http.cpp": "fd61a787220a54ae758bbb7c826d34ab15867968d055d10db9c8383e497bbf57",
+      "src/http/request.cpp": "551325144379c1297b7744acb813598cd27fdaf8ac21e39f0e3726f4ef1ae63c",
+      "src/http/request.h": "738a5489150f0ab537281f6832127e784e08e009f2db3338751ca362500e3ef6",
+      "src/http/response.cpp": "342a541c43e04792db14ef98886653086961d23a04ef76c039c4ff4f946a014d",
+      "src/http/response.h": "e159547a5f019e824d01facd977c9c2070a2b415db56b851a001608fb867aefc"
+    },
+    "tracked_status": ""
+  },
+  "run_id": "rag-v1-formal-echo-web-server-http",
+  "schema_version": "rag-formal-evaluation-v1",
+  "stages": {
+    "build": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "completed_at_utc": "2026-08-06T02:07:30.994669+00:00",
+      "container_shell_command": "cmake --build build --parallel",
+      "elapsed_seconds": 14.25840779999271,
+      "exit_code": 2,
+      "passed": false,
+      "stage": "build",
+      "started_at_utc": "2026-08-06T02:07:16.736116+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-http/build.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-http/build.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 600
+    },
+    "configure": {
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "completed_at_utc": "2026-08-06T02:07:16.735991+00:00",
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "elapsed_seconds": 7.377283599926159,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "configure",
+      "started_at_utc": "2026-08-06T02:07:09.358620+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-echo-web-server-http/configure.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-echo-web-server-http/configure.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": 300
+    },
+    "direct_test": {
+      "passed": false,
+      "skipped": true,
+      "stage": "direct_test"
+    },
+    "full_test": {
+      "passed": false,
+      "skipped": true,
+      "stage": "full_test"
+    }
+  },
+  "target_id": "echo-web-server-http"
+}

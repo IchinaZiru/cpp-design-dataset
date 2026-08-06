@@ -1,0 +1,92 @@
+# デザイン文書: `ws::Buffer` クラス
+
+## 責務
+- 自動拡張可能なバッファを提供し、バイトや文字列の格納をサポートする。
+- バッファへの読み書き操作を効率的に行う。
+- バッファの状態（読み取り可能領域、書き込み可能領域）を管理する。
+
+## 公開インターフェース
+### コンストラクタ
+- `Buffer(std::size_t size = 1000) noexcept`: 初期サイズでバッファを作成。
+- `Buffer(std::span<const std::byte> bytes) noexcept`: バイト列からバッファを作成。
+- `Buffer(std::initializer_list<std::byte> bytes) noexcept`: 初期化リストからバッファを作成。
+- `Buffer(std::string_view str) noexcept`: 文字列からバッファを作成。
+
+### コピーコンストラクタとムーブコンストラクタ
+- `Buffer(const Buffer&) noexcept`
+- `Buffer(Buffer&&) noexcept`
+
+### 代入演算子
+- `Buffer& operator=(const Buffer&) noexcept`
+- `Buffer& operator=(Buffer&&) noexcept`
+
+### バッファの状態取得
+- `std::size_t WritableSize() const noexcept`: 書き込み可能なサイズを返す。
+- `std::size_t ReadableSize() const noexcept`: 読み取り可能なサイズを返す。
+- `std::optional<std::byte> Peek() const noexcept`: 最初のバイトを読み取るがオフセットは進めない。
+- `std::span<const std::byte> ReadableBytes() const noexcept`: 読み取り可能なバイト列を返す。
+- `std::string ReadableString() const noexcept`: 読み取り可能な文字列を返す。
+
+### バッファへの追加
+- `void Append(std::span<const std::byte> bytes) noexcept`: バイト列を追加する。
+- `void Append(std::initializer_list<std::byte> bytes) noexcept`: 初期化リストからバイト列を追加する。
+- `void Append(std::string_view str, std::optional<NewLine> new_line = std::nullopt) noexcept`: 文字列とオプションの改行文字を追加する。
+- `void Append(const void* data, std::size_t size) noexcept`: データポインタから指定サイズのバイト列を追加する。
+- `void Append(const Buffer& buf) noexcept`: 他のバッファの内容を追加する。
+
+### オフセット操作
+- `void EnsureWriteableSize(std::size_t size) noexcept`: 書き込み可能なスペースが十分であることを確認し、必要に応じて拡張する。
+- `void HasWritten(std::size_t size) noexcept`: 書き込みオフセットを指定サイズ進める。
+- `void Retrieve(std::size_t size) noexcept`: 読み取りオフセットを指定サイズ進める。
+- `std::size_t RetrieveUntil(const void* addr) noexcept`: 指定アドレスまで読み取りオフセットを進める。
+- `std::size_t RetrieveAll() noexcept`: 全ての読み取り可能なデータを読み取り、バッファをクリアする。
+- `std::string RetrieveAllToString() noexcept`: 全ての読み取り可能なデータを文字列として取得し、バッファをクリアする。
+
+### その他の操作
+- `void Clear() noexcept`: バッファをクリアする。
+- `bool Empty() const noexcept`: バッファが空であるか確認する。
+
+## 入力
+- 初期サイズ（`std::size_t size`）
+- バイト列（`std::span<const std::byte>`、`std::initializer_list<std::byte>`）
+- 文字列（`std::string_view`）
+- 他のバッファ（`Buffer& buf`）
+
+## 出力
+- 書き込み可能なサイズ（`std::size_t`）
+- 読み取り可能なサイズ（`std::size_t`）
+- 最初のバイト（`std::optional<std::byte>`）
+- 読み取り可能なバイト列（`std::span<const std::byte>`）
+- 読み取り可能な文字列（`std::string`）
+
+## 状態
+- `buf_`: バッファデータを保持するベクタ。
+- `read_pos_`: 読み取りオフセット。
+- `write_pos_`: 書き込みオフセット。
+
+## 処理手順
+1. **初期化**: コンストラクタを通じてバッファの初期状態を設定する。
+2. **データ追加**:
+   - バッファに書き込み可能なスペースが十分であることを確認し、必要に応じて拡張する。
+   - 指定されたデータをバッファに追加し、書き込みオフセットを進める。
+3. **データ読み取り**:
+   - 読み取り可能なデータを取得し、読み取りオフセットを進める。
+4. **オフセット操作**:
+   - 書き込みオフセットや読み取りオフセットを指定サイズ進める。
+5. **バッファクリア**: バッファの内容をクリアする。
+
+## 例外・失敗条件
+- `Append`メソッド: 引数が無効な場合、未定義動作となる（assertを使用）。
+- `HasWritten`, `Retrieve`: 指定サイズがバッファの範囲外の場合、未定義動作となる（assertを使用）。
+
+## 依存関係
+- `<atomic>`
+- `<optional>`
+- `<span>`
+- `<string>`
+- `<string_view>`
+- `<vector>`
+
+## 重要な不変条件
+- `read_pos_`は常に`write_pos_`以下である。
+- バッファのサイズが拡張される場合、読み取り可能なデータは保持され続ける。

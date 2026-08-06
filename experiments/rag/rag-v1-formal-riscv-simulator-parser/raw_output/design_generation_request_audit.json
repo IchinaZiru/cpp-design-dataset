@@ -1,0 +1,15 @@
+{
+  "allowed_inputs_used": [
+    "frozen design instruction",
+    "frozen target source",
+    "frozen context.txt"
+  ],
+  "context_path": "rag/retrieval/formal/riscv-simulator-parser/context.txt",
+  "context_sha256": "49ef3f67de5fea1a05c0a507f3a749599ee0c80226cf949031dcb6b914b33ecd",
+  "design_input_sha256": "270e60d7f8c8fe09c07a75a1a5b6cef6bcdbe3216984f3c374fb5a5a4cfb7b5c",
+  "llm_call_count_before_request": 0,
+  "prompt_sha256": "a2e59bb209516acc5e5ffe12814e902990c8a9bb0feeae41e149d57cf9bcc7b9",
+  "retrieval_section_precedes_target_source": true,
+  "schema_version": "rag-formal-design-request-audit-v1",
+  "target_id": "riscv-simulator-parser"
+}

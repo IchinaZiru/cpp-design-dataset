@@ -1,0 +1,16 @@
+{
+  "artifact_schema_version": "rag-formal-source-input-v1",
+  "context_path": "rag/retrieval/formal/echo-web-server-heap-timer/context.txt",
+  "context_sha256": "08d1558ff48cd87999f63a110b0fd5d92049746d2373a4dccff337d8b0ddfe3a",
+  "design_input_sha256": "f32007460320a24c9a4595c40ffd5c7dec0975e00928eaa81dba80972a99d0ef",
+  "fixed_scaffold_sha256": "7369ee5a79e1b3530d92f0b17ad01041f07143ab278ccd02db148c6a4e4c7188",
+  "locator": null,
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "source_files": [
+    {
+      "path": "include/containers/heap_timer.h",
+      "sha256": "d89dcc16bafd792ea0d76ac99ae2fdea68374391f952f85caf6c8dcfb88cf56a"
+    }
+  ],
+  "target_id": "echo-web-server-heap-timer"
+}

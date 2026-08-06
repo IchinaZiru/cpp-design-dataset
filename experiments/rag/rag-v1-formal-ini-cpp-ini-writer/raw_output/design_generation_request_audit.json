@@ -1,0 +1,15 @@
+{
+  "allowed_inputs_used": [
+    "frozen design instruction",
+    "frozen target source",
+    "frozen context.txt"
+  ],
+  "context_path": "rag/retrieval/formal/ini-cpp-ini-writer/context.txt",
+  "context_sha256": "b5cf691520ab6555bcecc71f63be6edf5c48bf92d109664a8370ace8b0adbe5f",
+  "design_input_sha256": "303d8a22022c6dc64e933f767eed5c16e63d089e93cd2aafb8133c75f97ebd30",
+  "llm_call_count_before_request": 0,
+  "prompt_sha256": "dd0ad53e8758989c4c7ffd98b774b9f0814bf54175b937ea2338e6285010fa3a",
+  "retrieval_section_precedes_target_source": true,
+  "schema_version": "rag-formal-design-request-audit-v1",
+  "target_id": "ini-cpp-ini-writer"
+}

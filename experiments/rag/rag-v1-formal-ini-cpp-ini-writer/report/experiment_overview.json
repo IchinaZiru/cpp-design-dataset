@@ -1,0 +1,175 @@
+{
+  "code_regeneration_normalization": {
+    "automatic_repair_performed": false,
+    "code_body_modified": false,
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "normalized_sha256": "64cc33979d4728e54eb44f759054079f3d2aba89710de9533fee34c72f77357f",
+    "raw_sha256": "64cc33979d4728e54eb44f759054079f3d2aba89710de9533fee34c72f77357f",
+    "retry_performed": false,
+    "schema_version": "legacy-exact-output-v1"
+  },
+  "completed_at_utc": "2026-08-06T02:30:06.029469+00:00",
+  "error": null,
+  "generation_policy": {
+    "automatic_repair_performed": false,
+    "code_regeneration_calls": 1,
+    "design_generation_calls": 1,
+    "manual_patch_performed": false,
+    "retry_performed": false
+  },
+  "local_raw_log_directory": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer",
+  "overall_pass": true,
+  "restoration": {
+    "nested_status": "",
+    "original_hashes": {
+      "ini/ini.h": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+    },
+    "repository_clean": true,
+    "restored": true,
+    "restored_hashes": {
+      "ini/ini.h": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+    },
+    "tracked_status": ""
+  },
+  "run_id": "rag-v1-formal-ini-cpp-ini-writer",
+  "schema_version": "rag-formal-evaluation-v1",
+  "stages": {
+    "build": {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "completed_at_utc": "2026-08-06T02:30:03.628591+00:00",
+      "elapsed_seconds": 21.017409400083125,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "build",
+      "started_at_utc": "2026-08-06T02:29:42.610962+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer/build.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer/build.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": null
+    },
+    "configure": {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "completed_at_utc": "2026-08-06T02:29:42.610823+00:00",
+      "elapsed_seconds": 5.8935314998961985,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "configure",
+      "started_at_utc": "2026-08-06T02:29:36.717225+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer/configure.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer/configure.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": null
+    },
+    "ctest": {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && ctest --test-dir build/test --output-on-failure"
+      ],
+      "completed_at_utc": "2026-08-06T02:30:05.886817+00:00",
+      "elapsed_seconds": 0.7873329999856651,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "ctest",
+      "started_at_utc": "2026-08-06T02:30:05.099483+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer/ctest.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer/ctest.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": null
+    },
+    "direct_test": {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && cd build/test && ./all_test --gtest_color=no --gtest_filter='INIWriter.*'"
+      ],
+      "completed_at_utc": "2026-08-06T02:30:04.291772+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 3,
+        "ran": 3
+      },
+      "elapsed_seconds": 0.6630758999381214,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "direct_test",
+      "started_at_utc": "2026-08-06T02:30:03.628696+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer/direct_test.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer/direct_test.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": null
+    },
+    "full_test": {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && cd build/test && ./all_test --gtest_color=no"
+      ],
+      "completed_at_utc": "2026-08-06T02:30:05.099355+00:00",
+      "counts": {
+        "failed": 0,
+        "passed": 27,
+        "ran": 27
+      },
+      "elapsed_seconds": 0.8074661998543888,
+      "exit_code": 0,
+      "passed": true,
+      "stage": "full_test",
+      "started_at_utc": "2026-08-06T02:30:04.291888+00:00",
+      "stderr_log": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer/full_test.stderr.txt",
+      "stdout_log": "logs/rag/formal/rag-v1-formal-ini-cpp-ini-writer/full_test.stdout.txt",
+      "timed_out": false,
+      "timeout_seconds": null
+    }
+  },
+  "target_id": "ini-cpp-ini-writer"
+}

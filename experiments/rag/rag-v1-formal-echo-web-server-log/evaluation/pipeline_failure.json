@@ -1,0 +1,18 @@
+{
+  "artifact_schema_version": "rag-formal-pipeline-failure-v1",
+  "automatic_repair_performed": false,
+  "error": "Code regeneration output is not valid JSON: line=21, column=18",
+  "error_type": "FormalRunExecutionError",
+  "failed_stage": "materialize_code",
+  "llm_calls": {
+    "code_regeneration": 1,
+    "design_generation": 1
+  },
+  "manual_patch_performed": false,
+  "recorded_at_utc": "2026-08-06T02:22:15.796500+00:00",
+  "repository_clean": true,
+  "retry_performed": false,
+  "run_id": "rag-v1-formal-echo-web-server-log",
+  "target_id": "echo-web-server-log",
+  "tracked_status": ""
+}
