@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "files": [
+    {
+      "path": "src/Common/Session.h",
+      "sha256": "8f7e134720643959b5f30f5992bc72a74c592518cd6d8a22bc36f444de42d586",
+      "character_count": 929
+    },
+    {
+      "path": "src/Common/Session.cpp",
+      "sha256": "acfb55a8e790411956745dc267b43fb123828700c189e6da8f78a09630c4ddd4",
+      "character_count": 1099
+    }
+  ]
+}
