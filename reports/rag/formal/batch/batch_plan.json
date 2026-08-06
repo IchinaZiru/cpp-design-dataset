@@ -1,0 +1,152 @@
+{
+  "artifact_schema_version": "rag-formal-batch-plan-v1",
+  "batch_report_root": "reports/rag/formal/batch",
+  "condition_id": "rag-design-context-v1",
+  "counts": {
+    "ready": 17
+  },
+  "force_supported": false,
+  "formal_run_manifest": "manifests/rag/formal_runs.csv",
+  "reprocess_existing_supported": false,
+  "shared_non_rag_batch_report_used": false,
+  "shared_non_rag_run_manifest_used": false,
+  "target_count": 17,
+  "targets": [
+    {
+      "config": "configs/rag/targets/echo-web-server-block-deque.json",
+      "context_path": "rag/retrieval/formal/echo-web-server-block-deque/context.txt",
+      "context_sha256": "87ae91eca17743ebc465274c5b25bca027705464c39932493b1504187eb1dfd0",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-block-deque",
+      "status": "ready",
+      "target_id": "echo-web-server-block-deque"
+    },
+    {
+      "config": "configs/rag/targets/echo-web-server-buffer.json",
+      "context_path": "rag/retrieval/formal/echo-web-server-buffer/context.txt",
+      "context_sha256": "65ef992a019987084914de65791407c3e32ac7df0fd591d78c4affabd996c692",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-buffer",
+      "status": "ready",
+      "target_id": "echo-web-server-buffer"
+    },
+    {
+      "config": "configs/rag/targets/echo-web-server-config.json",
+      "context_path": "rag/retrieval/formal/echo-web-server-config/context.txt",
+      "context_sha256": "2ead46be7511cd0bb847363803cb2852208a53e8864a400cdd4f4adc35a95da8",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-config",
+      "status": "ready",
+      "target_id": "echo-web-server-config"
+    },
+    {
+      "config": "configs/rag/targets/echo-web-server-heap-timer.json",
+      "context_path": "rag/retrieval/formal/echo-web-server-heap-timer/context.txt",
+      "context_sha256": "08d1558ff48cd87999f63a110b0fd5d92049746d2373a4dccff337d8b0ddfe3a",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-heap-timer",
+      "status": "ready",
+      "target_id": "echo-web-server-heap-timer"
+    },
+    {
+      "config": "configs/rag/targets/echo-web-server-http.json",
+      "context_path": "rag/retrieval/formal/echo-web-server-http/context.txt",
+      "context_sha256": "aab9e72bdd074dfbabd23adccc2c09c4fe87aed24154a53ecfeee51c7a89dd39",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-http",
+      "status": "ready",
+      "target_id": "echo-web-server-http"
+    },
+    {
+      "config": "configs/rag/targets/echo-web-server-io.json",
+      "context_path": "rag/retrieval/formal/echo-web-server-io/context.txt",
+      "context_sha256": "f716328af65833ba64f75b2bec8b615324f4b5952ab1a5b6526181ab704570b3",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-io",
+      "status": "ready",
+      "target_id": "echo-web-server-io"
+    },
+    {
+      "config": "configs/rag/targets/echo-web-server-ip.json",
+      "context_path": "rag/retrieval/formal/echo-web-server-ip/context.txt",
+      "context_sha256": "c451f8254563d3ef67ef54bc1fa4add09fda699d26d809390a83ad1e4be50d08",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-ip",
+      "status": "ready",
+      "target_id": "echo-web-server-ip"
+    },
+    {
+      "config": "configs/rag/targets/echo-web-server-log.json",
+      "context_path": "rag/retrieval/formal/echo-web-server-log/context.txt",
+      "context_sha256": "594f31a1708677a62842e457afba56adf81f27c1f84e57a668704115cf205b4f",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-log",
+      "status": "ready",
+      "target_id": "echo-web-server-log"
+    },
+    {
+      "config": "configs/rag/targets/echo-web-server-thread-pool.json",
+      "context_path": "rag/retrieval/formal/echo-web-server-thread-pool/context.txt",
+      "context_sha256": "3c135ede05a26751047c65f5d0e76664550a5bd7588c7714534f15a15a852378",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-thread-pool",
+      "status": "ready",
+      "target_id": "echo-web-server-thread-pool"
+    },
+    {
+      "config": "configs/rag/targets/echo-web-server-util.json",
+      "context_path": "rag/retrieval/formal/echo-web-server-util/context.txt",
+      "context_sha256": "fe9926e9b48c8fb5bac29aea692bc9f2baaa9cc72f0c1ef85db78e7c2779224e",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-echo-web-server-util",
+      "status": "ready",
+      "target_id": "echo-web-server-util"
+    },
+    {
+      "config": "configs/rag/targets/ini-cpp-ini-writer.json",
+      "context_path": "rag/retrieval/formal/ini-cpp-ini-writer/context.txt",
+      "context_sha256": "b5cf691520ab6555bcecc71f63be6edf5c48bf92d109664a8370ace8b0adbe5f",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-ini-cpp-ini-writer",
+      "status": "ready",
+      "target_id": "ini-cpp-ini-writer"
+    },
+    {
+      "config": "configs/rag/targets/ini-cpp-inireader.json",
+      "context_path": "rag/retrieval/formal/ini-cpp-inireader/context.txt",
+      "context_sha256": "e275d5288a7df367996c0323269fec6e448d1b3641a14a50dd10e56f46f76842",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-ini-cpp-inireader",
+      "status": "ready",
+      "target_id": "ini-cpp-inireader"
+    },
+    {
+      "config": "configs/rag/targets/riscv-simulator-instruction.json",
+      "context_path": "rag/retrieval/formal/riscv-simulator-instruction/context.txt",
+      "context_sha256": "b330c2e5c643b6554712789d0a17eaeebe87c3729d1f8613da567f48f0942efb",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-riscv-simulator-instruction",
+      "status": "ready",
+      "target_id": "riscv-simulator-instruction"
+    },
+    {
+      "config": "configs/rag/targets/riscv-simulator-memory.json",
+      "context_path": "rag/retrieval/formal/riscv-simulator-memory/context.txt",
+      "context_sha256": "e4abac6d1a09a3266434f5e3a6ea3790b9d74a4e452d6a1b4dc15535cf382aac",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-riscv-simulator-memory",
+      "status": "ready",
+      "target_id": "riscv-simulator-memory"
+    },
+    {
+      "config": "configs/rag/targets/riscv-simulator-parser.json",
+      "context_path": "rag/retrieval/formal/riscv-simulator-parser/context.txt",
+      "context_sha256": "49ef3f67de5fea1a05c0a507f3a749599ee0c80226cf949031dcb6b914b33ecd",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-riscv-simulator-parser",
+      "status": "ready",
+      "target_id": "riscv-simulator-parser"
+    },
+    {
+      "config": "configs/rag/targets/riscv-simulator-register.json",
+      "context_path": "rag/retrieval/formal/riscv-simulator-register/context.txt",
+      "context_sha256": "f27a151ef8efd2621b18fded3992bcbec0c18d2450aee13287575da6e57cb7c1",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-riscv-simulator-register",
+      "status": "ready",
+      "target_id": "riscv-simulator-register"
+    },
+    {
+      "config": "configs/rag/targets/riscv-simulator-registerfile.json",
+      "context_path": "rag/retrieval/formal/riscv-simulator-registerfile/context.txt",
+      "context_sha256": "d98b04f72aad44c8e11e2fb9f5ee4bdbf6ede4647510a3932e1154806daf28a1",
+      "formal_output_directory": "experiments/rag/rag-v1-formal-riscv-simulator-registerfile",
+      "status": "ready",
+      "target_id": "riscv-simulator-registerfile"
+    }
+  ]
+}
