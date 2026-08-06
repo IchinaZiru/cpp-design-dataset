@@ -141,13 +141,21 @@ def resolve_design_knowledge(
 
     retrieval_dir = experiment_root / "retrieval"
     write_text(retrieval_dir / "context.txt", text + "\n")
+    instruction_mode = knowledge.get("instruction_mode", "reference")
+    if instruction_mode not in {"reference", "required_additional_artifacts"}:
+        raise ValueError(
+            "design_knowledge.instruction_mode must be "
+            "'reference' or 'required_additional_artifacts'"
+        )
+
     write_json(
         retrieval_dir / "retrieval_manifest.json",
         {
-            "schema_version": "1.0",
+            "schema_version": "1.1",
             "condition": config.get("condition"),
             "knowledge_type": "general_detailed_design",
             "retrieval_mode": "fixed_query_fixed_knowledge",
+            "instruction_mode": instruction_mode,
             "query": knowledge.get("query"),
             "context_file": context_file,
             "context_sha256": sha256_bytes((text + "\n").encode("utf-8")),
@@ -242,10 +250,23 @@ def generate_design(
 
     knowledge_section = ""
     if knowledge_text:
-        knowledge_section = f"""
-# 検索コンテキスト
+        knowledge = config.get("design_knowledge") or {}
+        instruction_mode = knowledge.get("instruction_mode", "reference")
+        if instruction_mode == "required_additional_artifacts":
+            knowledge_intro = """# RAGによる追加成果物要件
+以下の検索コンテキストは単なる参考情報ではありません。
+元の「記載項目」に追加して満たす必須の出力要件です。
+検索コンテキストで指定された成果物を、独立した見出しとして出力してください。
+対象に該当しない成果物も省略せず、「該当なし」とコード上の判断根拠を記載してください。
+図が要求される場合は、指定されたMermaid形式で出力してください。
+ただし、元コードで確認できない呼び出し元、利用目的、状態、例外、依存関係を推測で作らないでください。"""
+        else:
+            knowledge_intro = """# 検索コンテキスト
 以下は、対象コードに依存しない汎用的な詳細設計知識です。
-元コードに存在する事実を優先し、該当しない項目を推測で補完しないでください。
+元コードに存在する事実を優先し、該当しない項目を推測で補完しないでください。"""
+
+        knowledge_section = f"""
+{knowledge_intro}
 
 ----- BEGIN RETRIEVED CONTEXT -----
 {knowledge_text}
