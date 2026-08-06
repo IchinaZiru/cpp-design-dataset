@@ -1,0 +1,49 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-log-v2-formal",
+  "target_name": "log",
+  "condition": "full_source_design_knowledge_rag_required_artifacts",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "include/log.h",
+    "src/log/log.cpp",
+    "src/log/appender.cpp",
+    "src/log/field.h",
+    "src/log/field.cpp",
+    "src/log/config_init.h",
+    "src/log/config_init.cpp"
+  ],
+  "source_files": [
+    "include/log.h",
+    "src/log/log.cpp",
+    "src/log/appender.cpp",
+    "src/log/field.h",
+    "src/log/field.cpp",
+    "src/log/config_init.h",
+    "src/log/config_init.cpp"
+  ],
+  "observation_file_hashes": {
+    "include/log.h": "3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252",
+    "src/log/log.cpp": "54510f48ccd408758165fb76e6a524c7ff6768b42c5f3a078e549aa10ccdb530",
+    "src/log/appender.cpp": "9d0e67f123b05b34389be66dcc4c8b763ab1da000655363ca51cb73944ca9854",
+    "src/log/field.h": "618df402e2d9d192a792255076b8fb3061619e4d5b1c11d944039dcccf08c73e",
+    "src/log/field.cpp": "6d5e70b9528d625b378d63980209b4bc33cdb602502ca7d7ddf9b21a8b0ecac1",
+    "src/log/config_init.h": "f5a38c8d7461b5711d11500234e2749bc0558448d251b05becddcc5fbaa1f2b7",
+    "src/log/config_init.cpp": "9da465bee8e5c1c315242122a14794005138db7254c793a0eeb6576823905355"
+  },
+  "source_file_hashes": {
+    "include/log.h": "3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252",
+    "src/log/log.cpp": "54510f48ccd408758165fb76e6a524c7ff6768b42c5f3a078e549aa10ccdb530",
+    "src/log/appender.cpp": "9d0e67f123b05b34389be66dcc4c8b763ab1da000655363ca51cb73944ca9854",
+    "src/log/field.h": "618df402e2d9d192a792255076b8fb3061619e4d5b1c11d944039dcccf08c73e",
+    "src/log/field.cpp": "6d5e70b9528d625b378d63980209b4bc33cdb602502ca7d7ddf9b21a8b0ecac1",
+    "src/log/config_init.h": "f5a38c8d7461b5711d11500234e2749bc0558448d251b05becddcc5fbaa1f2b7",
+    "src/log/config_init.cpp": "9da465bee8e5c1c315242122a14794005138db7254c793a0eeb6576823905355"
+  },
+  "prepared_at_utc": "2026-08-06T23:35:34.792633+00:00",
+  "replacement_scope": "module_files",
+  "locator": {}
+}

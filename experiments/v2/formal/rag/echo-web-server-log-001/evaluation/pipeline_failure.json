@@ -1,0 +1,12 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-log-v2-formal",
+  "run_id": "echo-web-server-log-full-source-rag-formal-001",
+  "condition": "full_source_design_knowledge_rag_required_artifacts",
+  "failed_stage": "code_regeneration",
+  "error_type": "RuntimeError",
+  "error": "Code regeneration output is not valid JSON: line=21, column=18, context='s::log::field\"\\n    },\\n    {\\n      \"path\": \"src/log/field.cpp\",\\n      \"content\": \"#include \\\\\"field.h\\\\\"\\\\n#include <ctime>\\\\n#include <'",
+  "recorded_at_utc": "2026-08-06T23:49:56.997476+00:00",
+  "retry_performed": false,
+  "automatic_repair_performed": false
+}
