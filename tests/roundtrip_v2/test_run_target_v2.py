@@ -242,6 +242,22 @@ class ModuleOutputTests(unittest.TestCase):
 
 
 class ScaffoldTests(unittest.TestCase):
+    def test_function_scaffold_preserves_constructor_initializer_list(self) -> None:
+        target = """Session::Session(bool debug) : _debug(debug) {
+    initialize();
+}
+"""
+        scaffold = RUNNER.make_target_scaffold(
+            target,
+            {"kind": "function", "symbol": "Session::Session"},
+        )
+        self.assertEqual(
+            scaffold,
+            "Session::Session(bool debug) : _debug(debug) {\n"
+            "    /* implementation omitted */\n"
+            "}\n",
+        )
+
     def test_module_scaffold_uses_headers_only(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

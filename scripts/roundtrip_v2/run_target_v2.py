@@ -334,7 +334,8 @@ def make_target_scaffold(target_text: str, locator: dict[str, Any]) -> str:
         open_brace = target_text.find("{")
         if open_brace < 0:
             raise ValueError("Opening brace not found in target function")
-        return target_text[:open_brace].rstrip() + ";\n"
+        prefix = target_text[:open_brace].rstrip()
+        return prefix + " {\n    /* implementation omitted */\n}\n"
     raise ValueError(f"Unsupported locator kind: {kind!r}")
 
 
