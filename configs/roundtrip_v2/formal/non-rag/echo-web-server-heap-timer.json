@@ -1,0 +1,98 @@
+{
+  "schema_version": "4.4-formal",
+  "enabled": false,
+  "pilot_only": false,
+  "formal_result_eligible": true,
+  "condition": "full_source_non_rag",
+  "target_id": "echo-web-server-heap-timer-v2-formal",
+  "pair_id": "echo-web-server-heap-timer",
+  "pair_sequence": 4,
+  "experiment_id": "v2/formal/non-rag/echo-web-server-heap-timer-001",
+  "run_id": "echo-web-server-heap-timer-full-source-non-rag-formal-001",
+  "repository_id": "Echo-Web-Server",
+  "repository_path": "repos/Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "target_name": "heap-timer",
+  "adoption_status": "採用",
+  "granularity": "module_files",
+  "observation_files": [
+    "include/containers/heap_timer.h"
+  ],
+  "source_files": [
+    "include/containers/heap_timer.h"
+  ],
+  "locator": {},
+  "design_knowledge": {
+    "enabled": false
+  },
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:echo-web-server-v2",
+    "docker_image_id": "sha256:f4983b70f6c2400cec7c8869810a8ec3e87f6966e2cc86e09598bdbbc4773c5c",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='HeapTimerTest.Construction:HeapTimerTest.PushPop:HeapTimerTest.Adjust:HeapTimerTest.Remove:HeapTimerTest.Invoke:HeapTimerTest.Tick:HeapTimerTest.ToNextTick:HeapTimerTest.Clear'",
+    "full_test_command": "ctest --test-dir build --output-on-failure",
+    "full_test_kind": "ctest",
+    "direct_test_filter": "HeapTimerTest.Construction:HeapTimerTest.PushPop:HeapTimerTest.Adjust:HeapTimerTest.Remove:HeapTimerTest.Invoke:HeapTimerTest.Tick:HeapTimerTest.ToNextTick:HeapTimerTest.Clear",
+    "direct_test_names": [
+      "HeapTimerTest.Construction",
+      "HeapTimerTest.PushPop",
+      "HeapTimerTest.Adjust",
+      "HeapTimerTest.Remove",
+      "HeapTimerTest.Invoke",
+      "HeapTimerTest.Tick",
+      "HeapTimerTest.ToNextTick",
+      "HeapTimerTest.Clear"
+    ],
+    "expected_direct_tests": 8,
+    "expected_full_tests": 63,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "protocol": {
+    "protocol_id": "full-source-design-knowledge-rag-v2-formal-001",
+    "formal_target_set_member": true,
+    "formal_pair_id": "echo-web-server-heap-timer",
+    "observation_scope": "full_source_files",
+    "replacement_scope": "module_files",
+    "code_regeneration_inputs": [
+      "generated_design_document",
+      "fixed_interface_scaffold",
+      "dependency_include_context"
+    ],
+    "original_source_in_code_regeneration": false,
+    "retrieved_context_in_code_regeneration": false,
+    "module_output_format": "ollama_json_schema",
+    "retry": false,
+    "automatic_repair": false,
+    "generated_code_manual_edit": false,
+    "generations_per_stage": 1
+  },
+  "provenance": {
+    "legacy_target_id": "echo-web-server-heap-timer",
+    "legacy_run_id": "echo-web-server-heap-timer-qwen25coder32b-001",
+    "legacy_experiment_id": "echo-web-server-heap-timer-roundtrip",
+    "source_config": "configs/roundtrip/targets/echo-web-server-heap-timer.json",
+    "source_note": null,
+    "legacy_results_are_not_direct_comparator": true,
+    "model_setting_policy": "Use v2 mechanics-pilot num_ctx=16384 and num_predict=8192 for both formal conditions; retain the canonical target's remaining model options."
+  }
+}

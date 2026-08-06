@@ -1,0 +1,353 @@
+{
+  "schema_version": "2.0",
+  "protocol_id": "full-source-design-knowledge-rag-v2-formal-001",
+  "valid": true,
+  "pair_count": 17,
+  "config_count": 34,
+  "rag_context_file": "knowledge/detailed-design/general-v2.md",
+  "rag_context_sha256": "9f67392f98ba4e419b834c84e148d3872025ca190857baa2b77978f2f1828dba",
+  "rag_context_character_count": 2379,
+  "records": [
+    {
+      "pair_id": "echo-web-server-block-deque",
+      "pair_sequence": 1,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-block-deque.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/echo-web-server-block-deque.json",
+      "non_rag_sha256": "7c3bd12c8a474013c7d4d761760b48a22c4ccc32bb8cc26b77cedd0105224df5",
+      "rag_sha256": "ccff3d837aa15e9d07e6cf7c262d3c87ac6fcf04b4bb13cc5ad4ea89a43e94f8",
+      "source_files": [
+        "include/containers/block_deque.h"
+      ],
+      "observation_files": [
+        "include/containers/block_deque.h"
+      ],
+      "repository_path": "repos/Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "observation_character_count": 6432
+    },
+    {
+      "pair_id": "echo-web-server-buffer",
+      "pair_sequence": 2,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-buffer.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/echo-web-server-buffer.json",
+      "non_rag_sha256": "185406973939ea4bf34aeb7463e828aabe4caad57e195f809c44f95f77e36e9e",
+      "rag_sha256": "484fc896f64247586e6a6bde8f975373b415010ae11b0d358fa171f04b066ad5",
+      "source_files": [
+        "include/containers/buffer.h",
+        "src/containers/buffer/buffer.cpp"
+      ],
+      "observation_files": [
+        "include/containers/buffer.h",
+        "src/containers/buffer/buffer.cpp"
+      ],
+      "repository_path": "repos/Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "observation_character_count": 11165
+    },
+    {
+      "pair_id": "echo-web-server-config",
+      "pair_sequence": 3,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-config.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/echo-web-server-config.json",
+      "non_rag_sha256": "d26f2f446ba1b1f3cdb3df49df1217bed9e325bbdf3200a5bb372c8d502cbd6b",
+      "rag_sha256": "15986aaf5c141891531572bfdb010b9ec30bbb5864a87c10a22f5396579ae0ac",
+      "source_files": [
+        "include/config.h",
+        "src/config/config.cpp"
+      ],
+      "observation_files": [
+        "include/config.h",
+        "src/config/config.cpp"
+      ],
+      "repository_path": "repos/Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "observation_character_count": 17920
+    },
+    {
+      "pair_id": "echo-web-server-heap-timer",
+      "pair_sequence": 4,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-heap-timer.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/echo-web-server-heap-timer.json",
+      "non_rag_sha256": "306d862baaf0253b165415c67f029973d4938fce76450a29c7f5ec15557d3a38",
+      "rag_sha256": "7c898f0f22bf29f9ea298f337ca1c2eaf4b7cecbf3b918d18432698c67b78b60",
+      "source_files": [
+        "include/containers/heap_timer.h"
+      ],
+      "observation_files": [
+        "include/containers/heap_timer.h"
+      ],
+      "repository_path": "repos/Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "observation_character_count": 13906
+    },
+    {
+      "pair_id": "echo-web-server-http",
+      "pair_sequence": 5,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-http.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/echo-web-server-http.json",
+      "non_rag_sha256": "ef6c5d5a690c2913fea6eb4a940a86f607e009b459fd2c1ad9b741a661ec6145",
+      "rag_sha256": "8dcd4433551ddeab88301fbd209d0b663e357435261215e6a9ecfa6c733d82e3",
+      "source_files": [
+        "include/http.h",
+        "src/http/http.cpp",
+        "src/http/request.h",
+        "src/http/request.cpp",
+        "src/http/response.h",
+        "src/http/response.cpp"
+      ],
+      "observation_files": [
+        "include/http.h",
+        "src/http/http.cpp",
+        "src/http/request.h",
+        "src/http/request.cpp",
+        "src/http/response.h",
+        "src/http/response.cpp"
+      ],
+      "repository_path": "repos/Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "observation_character_count": 33334
+    },
+    {
+      "pair_id": "echo-web-server-io",
+      "pair_sequence": 6,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-io.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/echo-web-server-io.json",
+      "non_rag_sha256": "34b2892244b435f8e49cf41bb55f43507bae3fce5fbbe8e59c84dd0ce281bd15",
+      "rag_sha256": "621ed828b18ac99c9c76b168ebf076319e4c836fa9da24c5a98d63002ecc18a3",
+      "source_files": [
+        "include/io.h",
+        "src/io/io.cpp"
+      ],
+      "observation_files": [
+        "include/io.h",
+        "src/io/io.cpp"
+      ],
+      "repository_path": "repos/Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "observation_character_count": 5588
+    },
+    {
+      "pair_id": "echo-web-server-ip",
+      "pair_sequence": 7,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-ip.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/echo-web-server-ip.json",
+      "non_rag_sha256": "89d1dbd2174a0c1226bff8fdfef00420b3a9a46e4a94815b462ed806e5fec555",
+      "rag_sha256": "57141aa86dc6edd3a9e39f9a0fe4b988fc2d37a112f619608d2d0a48c503cd22",
+      "source_files": [
+        "include/ip.h",
+        "src/ip/ip.cpp"
+      ],
+      "observation_files": [
+        "include/ip.h",
+        "src/ip/ip.cpp"
+      ],
+      "repository_path": "repos/Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "observation_character_count": 4291
+    },
+    {
+      "pair_id": "echo-web-server-log",
+      "pair_sequence": 8,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-log.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/echo-web-server-log.json",
+      "non_rag_sha256": "4b998d67b590cddf36e6827270b6f3c5e562c5fa225ebf81ce3789fe9c436c5e",
+      "rag_sha256": "4588d64b3f8f7af3813b72c6124f6ddd3ee4b22ab1e55f338257d5f93d06ee60",
+      "source_files": [
+        "include/log.h",
+        "src/log/log.cpp",
+        "src/log/appender.cpp",
+        "src/log/field.h",
+        "src/log/field.cpp",
+        "src/log/config_init.h",
+        "src/log/config_init.cpp"
+      ],
+      "observation_files": [
+        "include/log.h",
+        "src/log/log.cpp",
+        "src/log/appender.cpp",
+        "src/log/field.h",
+        "src/log/field.cpp",
+        "src/log/config_init.h",
+        "src/log/config_init.cpp"
+      ],
+      "repository_path": "repos/Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "observation_character_count": 44559
+    },
+    {
+      "pair_id": "echo-web-server-thread-pool",
+      "pair_sequence": 9,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-thread-pool.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/echo-web-server-thread-pool.json",
+      "non_rag_sha256": "cf4375c4092cb7c6351cca1d7560c14134abc4fe71ae3570eabaad7471b947a7",
+      "rag_sha256": "ec451392b53dd286e032de7972ef5cfa678b32450cfd853f670c5243e7a41dee",
+      "source_files": [
+        "include/containers/thread_pool.h",
+        "src/containers/thread_pool/thread_pool.cpp"
+      ],
+      "observation_files": [
+        "include/containers/thread_pool.h",
+        "src/containers/thread_pool/thread_pool.cpp"
+      ],
+      "repository_path": "repos/Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "observation_character_count": 4277
+    },
+    {
+      "pair_id": "echo-web-server-util",
+      "pair_sequence": 10,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-util.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/echo-web-server-util.json",
+      "non_rag_sha256": "5eb88ad9555dd8d17ad0769029081472601473b614b050b09fe51b50483e853a",
+      "rag_sha256": "3bc76d11f2817814fd608d743c0072febcd17e4fa3737e74b5347d80b0c8302a",
+      "source_files": [
+        "include/util.h",
+        "src/util/util.cpp"
+      ],
+      "observation_files": [
+        "include/util.h",
+        "src/util/util.cpp"
+      ],
+      "repository_path": "repos/Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "observation_character_count": 12758
+    },
+    {
+      "pair_id": "ini-cpp-inireader",
+      "pair_sequence": 11,
+      "granularity": "target_span",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/ini-cpp-inireader.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/ini-cpp-inireader.json",
+      "non_rag_sha256": "674fb62b127facfefa3dad3f081dc8677c8048c83d470f929993d2f6f66f6c6e",
+      "rag_sha256": "d07ec4d715505e3d63cbcdd52d72313905a3372793e73a2b23fb898b9ef99a4c",
+      "source_files": [
+        "ini/ini.h"
+      ],
+      "observation_files": [
+        "ini/ini.h"
+      ],
+      "repository_path": "repos/ini-cpp",
+      "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+      "observation_character_count": 19450
+    },
+    {
+      "pair_id": "ini-cpp-iniwriter",
+      "pair_sequence": 12,
+      "granularity": "target_span",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/ini-cpp-iniwriter.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/ini-cpp-iniwriter.json",
+      "non_rag_sha256": "54d662e3c1593656a8e3cafbf1be1e1ed47d6a8ccac965c57b6ed756aaff0937",
+      "rag_sha256": "b9407167ab2cee16f09e2709ddaf1f817b386a191034e522a63a0bef30d4eee8",
+      "source_files": [
+        "ini/ini.h"
+      ],
+      "observation_files": [
+        "ini/ini.h"
+      ],
+      "repository_path": "repos/ini-cpp",
+      "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+      "observation_character_count": 19450
+    },
+    {
+      "pair_id": "riscv-simulator-instruction",
+      "pair_sequence": 13,
+      "granularity": "module_files",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-instruction.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/riscv-simulator-instruction.json",
+      "non_rag_sha256": "76f02c6c7ac9ce97c080900955d931726849ec934e8b879bd8262a4efad0b3df",
+      "rag_sha256": "70dc72019a8668dc91aed431efbff015e42c5ef4db560301420136023f01dce0",
+      "source_files": [
+        "src/Common/Instruction.hpp"
+      ],
+      "observation_files": [
+        "src/Common/Instruction.hpp"
+      ],
+      "repository_path": "repos/RISCV-Simulator",
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "observation_character_count": 5490
+    },
+    {
+      "pair_id": "riscv-simulator-memory",
+      "pair_sequence": 14,
+      "granularity": "target_span",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-memory.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/riscv-simulator-memory.json",
+      "non_rag_sha256": "cd9955d87fef4ee8e46129c663d2a586fd44337ec180837fd2e97e654bc85621",
+      "rag_sha256": "be55ffb8da90cf141dd56e266c31bde6ca1df05df3ed2a90d3bc7f4923820db9",
+      "source_files": [
+        "src/Common/Memory.hpp"
+      ],
+      "observation_files": [
+        "src/Common/Memory.hpp"
+      ],
+      "repository_path": "repos/RISCV-Simulator",
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "observation_character_count": 1573
+    },
+    {
+      "pair_id": "riscv-simulator-parser",
+      "pair_sequence": 15,
+      "granularity": "target_span",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-parser.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/riscv-simulator-parser.json",
+      "non_rag_sha256": "4c0839f7a08ff59c752fd88101f1fed251b7eddecd76a7fc715d36a5daae3421",
+      "rag_sha256": "35b2600e93ba0c6995d7a5ca1d097a6a100fd830db9ba8ba7071c1e18e5b892b",
+      "source_files": [
+        "src/Common/Parser.hpp"
+      ],
+      "observation_files": [
+        "src/Common/Parser.hpp"
+      ],
+      "repository_path": "repos/RISCV-Simulator",
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "observation_character_count": 1378
+    },
+    {
+      "pair_id": "riscv-simulator-register",
+      "pair_sequence": 16,
+      "granularity": "target_span",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-register.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/riscv-simulator-register.json",
+      "non_rag_sha256": "49d0c1d8b3dc3f72f0908985848802c5a9f5a81e47fdb30cd57a3825fcf175bb",
+      "rag_sha256": "32c48a07d87211b8c64cb20ba05cfacc06a389e94e48fb10037ad3c3efe81291",
+      "source_files": [
+        "src/Common/Register.hpp"
+      ],
+      "observation_files": [
+        "src/Common/Register.hpp"
+      ],
+      "repository_path": "repos/RISCV-Simulator",
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "observation_character_count": 668
+    },
+    {
+      "pair_id": "riscv-simulator-registerfile",
+      "pair_sequence": 17,
+      "granularity": "target_span",
+      "non_rag_config": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-registerfile.json",
+      "rag_config": "configs/roundtrip_v2/formal/rag/riscv-simulator-registerfile.json",
+      "non_rag_sha256": "216680901afb3055f47cb894b92b43f5d46f947506a40a9022337599c42aeea1",
+      "rag_sha256": "87d1af29dc12fd1653d4ed02e9cbfe8e6f911a6728bb45b2ed5cebcce2ebb420",
+      "source_files": [
+        "src/Common/RegisterFile.hpp"
+      ],
+      "observation_files": [
+        "src/Common/RegisterFile.hpp"
+      ],
+      "repository_path": "repos/RISCV-Simulator",
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "observation_character_count": 1637
+    }
+  ],
+  "formal_experiments_executed": false
+}

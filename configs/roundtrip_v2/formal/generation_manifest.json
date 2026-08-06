@@ -1,0 +1,399 @@
+{
+  "schema_version": "2.0",
+  "protocol_id": "full-source-design-knowledge-rag-v2-formal-001",
+  "expected_pair_count": 17,
+  "expected_config_count": 34,
+  "pair_count": 17,
+  "config_count": 34,
+  "all_enabled": false,
+  "formal_target_ids": [
+    "echo-web-server-block-deque",
+    "echo-web-server-buffer",
+    "echo-web-server-config",
+    "echo-web-server-heap-timer",
+    "echo-web-server-http",
+    "echo-web-server-io",
+    "echo-web-server-ip",
+    "echo-web-server-log",
+    "echo-web-server-thread-pool",
+    "echo-web-server-util",
+    "ini-cpp-inireader",
+    "ini-cpp-iniwriter",
+    "riscv-simulator-instruction",
+    "riscv-simulator-memory",
+    "riscv-simulator-parser",
+    "riscv-simulator-register",
+    "riscv-simulator-registerfile"
+  ],
+  "condition_order": [
+    "non_rag",
+    "rag"
+  ],
+  "generated_files": [
+    "configs/roundtrip_v2/formal/non-rag/echo-web-server-block-deque.json",
+    "configs/roundtrip_v2/formal/rag/echo-web-server-block-deque.json",
+    "configs/roundtrip_v2/formal/non-rag/echo-web-server-buffer.json",
+    "configs/roundtrip_v2/formal/rag/echo-web-server-buffer.json",
+    "configs/roundtrip_v2/formal/non-rag/echo-web-server-config.json",
+    "configs/roundtrip_v2/formal/rag/echo-web-server-config.json",
+    "configs/roundtrip_v2/formal/non-rag/echo-web-server-heap-timer.json",
+    "configs/roundtrip_v2/formal/rag/echo-web-server-heap-timer.json",
+    "configs/roundtrip_v2/formal/non-rag/echo-web-server-http.json",
+    "configs/roundtrip_v2/formal/rag/echo-web-server-http.json",
+    "configs/roundtrip_v2/formal/non-rag/echo-web-server-io.json",
+    "configs/roundtrip_v2/formal/rag/echo-web-server-io.json",
+    "configs/roundtrip_v2/formal/non-rag/echo-web-server-ip.json",
+    "configs/roundtrip_v2/formal/rag/echo-web-server-ip.json",
+    "configs/roundtrip_v2/formal/non-rag/echo-web-server-log.json",
+    "configs/roundtrip_v2/formal/rag/echo-web-server-log.json",
+    "configs/roundtrip_v2/formal/non-rag/echo-web-server-thread-pool.json",
+    "configs/roundtrip_v2/formal/rag/echo-web-server-thread-pool.json",
+    "configs/roundtrip_v2/formal/non-rag/echo-web-server-util.json",
+    "configs/roundtrip_v2/formal/rag/echo-web-server-util.json",
+    "configs/roundtrip_v2/formal/non-rag/ini-cpp-inireader.json",
+    "configs/roundtrip_v2/formal/rag/ini-cpp-inireader.json",
+    "configs/roundtrip_v2/formal/non-rag/ini-cpp-iniwriter.json",
+    "configs/roundtrip_v2/formal/rag/ini-cpp-iniwriter.json",
+    "configs/roundtrip_v2/formal/non-rag/riscv-simulator-instruction.json",
+    "configs/roundtrip_v2/formal/rag/riscv-simulator-instruction.json",
+    "configs/roundtrip_v2/formal/non-rag/riscv-simulator-memory.json",
+    "configs/roundtrip_v2/formal/rag/riscv-simulator-memory.json",
+    "configs/roundtrip_v2/formal/non-rag/riscv-simulator-parser.json",
+    "configs/roundtrip_v2/formal/rag/riscv-simulator-parser.json",
+    "configs/roundtrip_v2/formal/non-rag/riscv-simulator-register.json",
+    "configs/roundtrip_v2/formal/rag/riscv-simulator-register.json",
+    "configs/roundtrip_v2/formal/non-rag/riscv-simulator-registerfile.json",
+    "configs/roundtrip_v2/formal/rag/riscv-simulator-registerfile.json"
+  ],
+  "targets": [
+    {
+      "pair_id": "echo-web-server-block-deque",
+      "pair_sequence": 1,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/echo-web-server-block-deque.json",
+          "experiment_id": "v2/formal/non-rag/echo-web-server-block-deque-001",
+          "run_id": "echo-web-server-block-deque-full-source-non-rag-formal-001",
+          "config_sha256": "7c3bd12c8a474013c7d4d761760b48a22c4ccc32bb8cc26b77cedd0105224df5"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/echo-web-server-block-deque.json",
+          "experiment_id": "v2/formal/rag/echo-web-server-block-deque-001",
+          "run_id": "echo-web-server-block-deque-full-source-rag-formal-001",
+          "config_sha256": "ccff3d837aa15e9d07e6cf7c262d3c87ac6fcf04b4bb13cc5ad4ea89a43e94f8"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-buffer",
+      "pair_sequence": 2,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/echo-web-server-buffer.json",
+          "experiment_id": "v2/formal/non-rag/echo-web-server-buffer-001",
+          "run_id": "echo-web-server-buffer-full-source-non-rag-formal-001",
+          "config_sha256": "185406973939ea4bf34aeb7463e828aabe4caad57e195f809c44f95f77e36e9e"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/echo-web-server-buffer.json",
+          "experiment_id": "v2/formal/rag/echo-web-server-buffer-001",
+          "run_id": "echo-web-server-buffer-full-source-rag-formal-001",
+          "config_sha256": "484fc896f64247586e6a6bde8f975373b415010ae11b0d358fa171f04b066ad5"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-config",
+      "pair_sequence": 3,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/echo-web-server-config.json",
+          "experiment_id": "v2/formal/non-rag/echo-web-server-config-001",
+          "run_id": "echo-web-server-config-full-source-non-rag-formal-001",
+          "config_sha256": "d26f2f446ba1b1f3cdb3df49df1217bed9e325bbdf3200a5bb372c8d502cbd6b"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/echo-web-server-config.json",
+          "experiment_id": "v2/formal/rag/echo-web-server-config-001",
+          "run_id": "echo-web-server-config-full-source-rag-formal-001",
+          "config_sha256": "15986aaf5c141891531572bfdb010b9ec30bbb5864a87c10a22f5396579ae0ac"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-heap-timer",
+      "pair_sequence": 4,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/echo-web-server-heap-timer.json",
+          "experiment_id": "v2/formal/non-rag/echo-web-server-heap-timer-001",
+          "run_id": "echo-web-server-heap-timer-full-source-non-rag-formal-001",
+          "config_sha256": "306d862baaf0253b165415c67f029973d4938fce76450a29c7f5ec15557d3a38"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/echo-web-server-heap-timer.json",
+          "experiment_id": "v2/formal/rag/echo-web-server-heap-timer-001",
+          "run_id": "echo-web-server-heap-timer-full-source-rag-formal-001",
+          "config_sha256": "7c898f0f22bf29f9ea298f337ca1c2eaf4b7cecbf3b918d18432698c67b78b60"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-http",
+      "pair_sequence": 5,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/echo-web-server-http.json",
+          "experiment_id": "v2/formal/non-rag/echo-web-server-http-001",
+          "run_id": "echo-web-server-http-full-source-non-rag-formal-001",
+          "config_sha256": "ef6c5d5a690c2913fea6eb4a940a86f607e009b459fd2c1ad9b741a661ec6145"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/echo-web-server-http.json",
+          "experiment_id": "v2/formal/rag/echo-web-server-http-001",
+          "run_id": "echo-web-server-http-full-source-rag-formal-001",
+          "config_sha256": "8dcd4433551ddeab88301fbd209d0b663e357435261215e6a9ecfa6c733d82e3"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-io",
+      "pair_sequence": 6,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/echo-web-server-io.json",
+          "experiment_id": "v2/formal/non-rag/echo-web-server-io-001",
+          "run_id": "echo-web-server-io-full-source-non-rag-formal-001",
+          "config_sha256": "34b2892244b435f8e49cf41bb55f43507bae3fce5fbbe8e59c84dd0ce281bd15"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/echo-web-server-io.json",
+          "experiment_id": "v2/formal/rag/echo-web-server-io-001",
+          "run_id": "echo-web-server-io-full-source-rag-formal-001",
+          "config_sha256": "621ed828b18ac99c9c76b168ebf076319e4c836fa9da24c5a98d63002ecc18a3"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-ip",
+      "pair_sequence": 7,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/echo-web-server-ip.json",
+          "experiment_id": "v2/formal/non-rag/echo-web-server-ip-001",
+          "run_id": "echo-web-server-ip-full-source-non-rag-formal-001",
+          "config_sha256": "89d1dbd2174a0c1226bff8fdfef00420b3a9a46e4a94815b462ed806e5fec555"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/echo-web-server-ip.json",
+          "experiment_id": "v2/formal/rag/echo-web-server-ip-001",
+          "run_id": "echo-web-server-ip-full-source-rag-formal-001",
+          "config_sha256": "57141aa86dc6edd3a9e39f9a0fe4b988fc2d37a112f619608d2d0a48c503cd22"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-log",
+      "pair_sequence": 8,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/echo-web-server-log.json",
+          "experiment_id": "v2/formal/non-rag/echo-web-server-log-001",
+          "run_id": "echo-web-server-log-full-source-non-rag-formal-001",
+          "config_sha256": "4b998d67b590cddf36e6827270b6f3c5e562c5fa225ebf81ce3789fe9c436c5e"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/echo-web-server-log.json",
+          "experiment_id": "v2/formal/rag/echo-web-server-log-001",
+          "run_id": "echo-web-server-log-full-source-rag-formal-001",
+          "config_sha256": "4588d64b3f8f7af3813b72c6124f6ddd3ee4b22ab1e55f338257d5f93d06ee60"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-thread-pool",
+      "pair_sequence": 9,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/echo-web-server-thread-pool.json",
+          "experiment_id": "v2/formal/non-rag/echo-web-server-thread-pool-001",
+          "run_id": "echo-web-server-thread-pool-full-source-non-rag-formal-001",
+          "config_sha256": "cf4375c4092cb7c6351cca1d7560c14134abc4fe71ae3570eabaad7471b947a7"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/echo-web-server-thread-pool.json",
+          "experiment_id": "v2/formal/rag/echo-web-server-thread-pool-001",
+          "run_id": "echo-web-server-thread-pool-full-source-rag-formal-001",
+          "config_sha256": "ec451392b53dd286e032de7972ef5cfa678b32450cfd853f670c5243e7a41dee"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-util",
+      "pair_sequence": 10,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/echo-web-server-util.json",
+          "experiment_id": "v2/formal/non-rag/echo-web-server-util-001",
+          "run_id": "echo-web-server-util-full-source-non-rag-formal-001",
+          "config_sha256": "5eb88ad9555dd8d17ad0769029081472601473b614b050b09fe51b50483e853a"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/echo-web-server-util.json",
+          "experiment_id": "v2/formal/rag/echo-web-server-util-001",
+          "run_id": "echo-web-server-util-full-source-rag-formal-001",
+          "config_sha256": "3bc76d11f2817814fd608d743c0072febcd17e4fa3737e74b5347d80b0c8302a"
+        }
+      }
+    },
+    {
+      "pair_id": "ini-cpp-inireader",
+      "pair_sequence": 11,
+      "granularity": "class_span",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/ini-cpp-inireader.json",
+          "experiment_id": "v2/formal/non-rag/ini-cpp-inireader-001",
+          "run_id": "ini-cpp-inireader-full-source-non-rag-formal-001",
+          "config_sha256": "674fb62b127facfefa3dad3f081dc8677c8048c83d470f929993d2f6f66f6c6e"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/ini-cpp-inireader.json",
+          "experiment_id": "v2/formal/rag/ini-cpp-inireader-001",
+          "run_id": "ini-cpp-inireader-full-source-rag-formal-001",
+          "config_sha256": "d07ec4d715505e3d63cbcdd52d72313905a3372793e73a2b23fb898b9ef99a4c"
+        }
+      }
+    },
+    {
+      "pair_id": "ini-cpp-iniwriter",
+      "pair_sequence": 12,
+      "granularity": "function",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/ini-cpp-iniwriter.json",
+          "experiment_id": "v2/formal/non-rag/ini-cpp-iniwriter-001",
+          "run_id": "ini-cpp-iniwriter-full-source-non-rag-formal-001",
+          "config_sha256": "54d662e3c1593656a8e3cafbf1be1e1ed47d6a8ccac965c57b6ed756aaff0937"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/ini-cpp-iniwriter.json",
+          "experiment_id": "v2/formal/rag/ini-cpp-iniwriter-001",
+          "run_id": "ini-cpp-iniwriter-full-source-rag-formal-001",
+          "config_sha256": "b9407167ab2cee16f09e2709ddaf1f817b386a191034e522a63a0bef30d4eee8"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-instruction",
+      "pair_sequence": 13,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-instruction.json",
+          "experiment_id": "v2/formal/non-rag/riscv-simulator-instruction-001",
+          "run_id": "riscv-simulator-instruction-full-source-non-rag-formal-001",
+          "config_sha256": "76f02c6c7ac9ce97c080900955d931726849ec934e8b879bd8262a4efad0b3df"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/riscv-simulator-instruction.json",
+          "experiment_id": "v2/formal/rag/riscv-simulator-instruction-001",
+          "run_id": "riscv-simulator-instruction-full-source-rag-formal-001",
+          "config_sha256": "70dc72019a8668dc91aed431efbff015e42c5ef4db560301420136023f01dce0"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-memory",
+      "pair_sequence": 14,
+      "granularity": "class_span",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-memory.json",
+          "experiment_id": "v2/formal/non-rag/riscv-simulator-memory-001",
+          "run_id": "riscv-simulator-memory-full-source-non-rag-formal-001",
+          "config_sha256": "cd9955d87fef4ee8e46129c663d2a586fd44337ec180837fd2e97e654bc85621"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/riscv-simulator-memory.json",
+          "experiment_id": "v2/formal/rag/riscv-simulator-memory-001",
+          "run_id": "riscv-simulator-memory-full-source-rag-formal-001",
+          "config_sha256": "be55ffb8da90cf141dd56e266c31bde6ca1df05df3ed2a90d3bc7f4923820db9"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-parser",
+      "pair_sequence": 15,
+      "granularity": "class_span",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-parser.json",
+          "experiment_id": "v2/formal/non-rag/riscv-simulator-parser-001",
+          "run_id": "riscv-simulator-parser-full-source-non-rag-formal-001",
+          "config_sha256": "4c0839f7a08ff59c752fd88101f1fed251b7eddecd76a7fc715d36a5daae3421"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/riscv-simulator-parser.json",
+          "experiment_id": "v2/formal/rag/riscv-simulator-parser-001",
+          "run_id": "riscv-simulator-parser-full-source-rag-formal-001",
+          "config_sha256": "35b2600e93ba0c6995d7a5ca1d097a6a100fd830db9ba8ba7071c1e18e5b892b"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-register",
+      "pair_sequence": 16,
+      "granularity": "class_span",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-register.json",
+          "experiment_id": "v2/formal/non-rag/riscv-simulator-register-001",
+          "run_id": "riscv-simulator-register-full-source-non-rag-formal-001",
+          "config_sha256": "49d0c1d8b3dc3f72f0908985848802c5a9f5a81e47fdb30cd57a3825fcf175bb"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/riscv-simulator-register.json",
+          "experiment_id": "v2/formal/rag/riscv-simulator-register-001",
+          "run_id": "riscv-simulator-register-full-source-rag-formal-001",
+          "config_sha256": "32c48a07d87211b8c64cb20ba05cfacc06a389e94e48fb10037ad3c3efe81291"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-registerfile",
+      "pair_sequence": 17,
+      "granularity": "class_span",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-registerfile.json",
+          "experiment_id": "v2/formal/non-rag/riscv-simulator-registerfile-001",
+          "run_id": "riscv-simulator-registerfile-full-source-non-rag-formal-001",
+          "config_sha256": "216680901afb3055f47cb894b92b43f5d46f947506a40a9022337599c42aeea1"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v2/formal/rag/riscv-simulator-registerfile.json",
+          "experiment_id": "v2/formal/rag/riscv-simulator-registerfile-001",
+          "run_id": "riscv-simulator-registerfile-full-source-rag-formal-001",
+          "config_sha256": "87d1af29dc12fd1653d4ed02e9cbfe8e6f911a6728bb45b2ed5cebcce2ebb420"
+        }
+      }
+    }
+  ],
+  "model_overrides": {
+    "num_ctx": 16384,
+    "num_predict": 8192
+  },
+  "legacy_frozen_results_modified": false,
+  "formal_experiments_executed": false
+}
