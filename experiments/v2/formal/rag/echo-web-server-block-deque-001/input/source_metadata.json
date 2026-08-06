@@ -1,0 +1,25 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-block-deque-v2-formal",
+  "target_name": "block-deque",
+  "condition": "full_source_design_knowledge_rag_required_artifacts",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "include/containers/block_deque.h"
+  ],
+  "source_files": [
+    "include/containers/block_deque.h"
+  ],
+  "observation_file_hashes": {
+    "include/containers/block_deque.h": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e"
+  },
+  "source_file_hashes": {
+    "include/containers/block_deque.h": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e"
+  },
+  "prepared_at_utc": "2026-08-06T14:07:28.596850+00:00",
+  "replacement_scope": "module_files",
+  "locator": {}
+}

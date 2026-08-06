@@ -1,0 +1,135 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-block-deque-v2-formal",
+  "run_id": "echo-web-server-block-deque-full-source-non-rag-formal-001",
+  "condition": "full_source_non_rag",
+  "granularity": "module_files",
+  "completed_at_utc": "2026-08-06T14:07:28.096813+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "started_at_utc": "2026-08-06T14:06:43.724421+00:00",
+      "completed_at_utc": "2026-08-06T14:06:52.014554+00:00",
+      "elapsed_seconds": 8.287859100149944,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-block-deque-full-source-non-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-block-deque-full-source-non-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-06T14:06:52.015056+00:00",
+      "completed_at_utc": "2026-08-06T14:07:27.407886+00:00",
+      "elapsed_seconds": 35.39082040009089,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-block-deque-full-source-non-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-block-deque-full-source-non-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='BlockDequeTest.Construction:BlockDequeTest.SingleThreadPushPop:BlockDequeTest.MultiThreadPushPop:BlockDequeTest.Close'"
+      ],
+      "container_shell_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='BlockDequeTest.Construction:BlockDequeTest.SingleThreadPushPop:BlockDequeTest.MultiThreadPushPop:BlockDequeTest.Close'",
+      "started_at_utc": "2026-08-06T14:07:27.408037+00:00",
+      "completed_at_utc": "2026-08-06T14:07:28.000475+00:00",
+      "elapsed_seconds": 0.590676800115034,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 1,
+      "passed": false,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-block-deque-full-source-non-rag-formal-001/direct_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-block-deque-full-source-non-rag-formal-001/direct_test.stderr.txt",
+      "counts": {
+        "ran": 4,
+        "passed": 3,
+        "failed": 1
+      }
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "include/containers/block_deque.h",
+        "original_hash": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e",
+        "restored_hash": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": "",
+    "original_hash": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e",
+    "restored_hash": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e"
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-06T14:06:43.621124+00:00",
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "fence_language": null,
+    "strict_format_pass": true,
+    "raw_sha256": "21c3f34a3199c417e8d95fc86397f01b884178a0fb100c86d582be642f323966",
+    "normalized_sha256": "21c3f34a3199c417e8d95fc86397f01b884178a0fb100c86d582be642f323966",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/echo-web-server-block-deque-full-source-non-rag-formal-001"
+}
