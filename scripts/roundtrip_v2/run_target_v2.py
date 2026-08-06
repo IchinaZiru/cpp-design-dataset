@@ -75,13 +75,62 @@ def locate_function_span(text: str, locator: dict[str, Any]) -> tuple[int, int]:
     return match.start(), close_brace + 1
 
 
+def expand_class_template_prefix(text: str, class_start: int) -> int:
+    """Include contiguous template declarations immediately before a class.
+
+    locate_class_span starts at the class/struct keyword. For a class template,
+    leaving the template declaration outside the replacement span can produce a
+    duplicated template head when the regenerated target correctly emits one.
+    """
+    expanded_start = class_start
+
+    while True:
+        cursor = expanded_start
+        while cursor > 0 and text[cursor - 1].isspace():
+            cursor -= 1
+
+        if cursor == 0 or text[cursor - 1] != ">":
+            break
+
+        close_angle = cursor - 1
+        depth = 0
+        open_angle = -1
+        for index in range(close_angle, -1, -1):
+            char = text[index]
+            if char == ">":
+                depth += 1
+            elif char == "<":
+                depth -= 1
+                if depth == 0:
+                    open_angle = index
+                    break
+
+        if open_angle < 0:
+            break
+
+        match = re.search(r"\btemplate\s*$", text[:open_angle])
+        if match is None:
+            break
+        if text[match.end():open_angle].strip():
+            break
+
+        line_start = text.rfind("\n", 0, match.start()) + 1
+        if text[line_start:match.start()].strip():
+            break
+
+        expanded_start = line_start
+
+    return expanded_start
+
+
 def locate_target_span(text: str, locator: dict[str, Any]) -> tuple[int, int]:
     kind = locator.get("kind")
     symbol = locator.get("symbol")
     if kind == "class":
         if not isinstance(symbol, str) or not symbol:
             raise ValueError("Class locator requires symbol")
-        return locate_class_span(text, symbol)
+        start, end = locate_class_span(text, symbol)
+        return expand_class_template_prefix(text, start), end
     if kind == "function":
         return locate_function_span(text, locator)
     raise ValueError(f"Unsupported locator kind: {kind!r}")
@@ -331,7 +380,12 @@ def regenerate(config: dict[str, Any], experiment_root: Path) -> dict[str, Any]:
     kind = config["locator"]["kind"]
     if kind == "class":
         output_instruction = (
+            "固定インターフェース・スキャフォールドの宣言内容を変更せず、"
             "対象クラスまたは構造体の定義全体だけをC++コードとして返してください。"
+            "template宣言の個数と内容、class/struct宣言、継承、可視性、"
+            "メンバ名と型、すべての関数・演算子の戻り値、引数、修飾を保持してください。"
+            "一般的なC++慣習に合わせる目的でも、特殊または非標準的に見えるシグネチャを変更しないでください。"
+            "スキャフォールドに存在しない宣言を追加せず、関数本体だけを実装してください。"
             "Markdownコードフェンス、説明文、JSONは出力しないでください。"
         )
     elif kind == "function":
