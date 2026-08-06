@@ -242,6 +242,38 @@ class ModuleOutputTests(unittest.TestCase):
 
 
 class ScaffoldTests(unittest.TestCase):
+    def test_scaffold_preserves_inline_constructor_initializer_list(self) -> None:
+        source = """struct Stat {
+    unsigned long long cycle;
+    Stat() : cycle(0) {}
+    unsigned long long value() const { return cycle; }
+};
+"""
+        scaffold = RUNNER.strip_inline_callable_bodies_for_scaffold(source)
+        self.assertIn(
+            "Stat() : cycle(0) { /* implementation omitted */ }",
+            scaffold,
+        )
+        self.assertIn("value() const ;", scaffold)
+        self.assertNotIn("return cycle", scaffold)
+
+    def test_scaffold_preserves_multiline_constructor_initializer_list(self) -> None:
+        source = """class Pair {
+public:
+    Pair(int left, int right)
+        : left_(left),
+          right_(right) {}
+private:
+    int left_;
+    int right_;
+};
+"""
+        scaffold = RUNNER.strip_inline_callable_bodies_for_scaffold(source)
+        self.assertIn(
+            "right_(right) { /* implementation omitted */ }",
+            scaffold,
+        )
+
     def test_function_scaffold_preserves_constructor_initializer_list(self) -> None:
         target = """Session::Session(bool debug) : _debug(debug) {
     initialize();

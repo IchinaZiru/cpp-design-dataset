@@ -26,7 +26,6 @@ from roundtrip_common import (  # noqa: E402
     read_text,
     sha256_bytes,
     sha256_file,
-    strip_inline_callable_bodies,
     utc_now,
     write_json,
     write_text,
@@ -326,10 +325,68 @@ def locate_target_span(text: str, locator: dict[str, Any]) -> tuple[int, int]:
     raise ValueError(f"Unsupported locator kind: {kind!r}")
 
 
+def strip_inline_callable_bodies_for_scaffold(text: str) -> str:
+    """Remove inline implementations while keeping constructor syntax valid.
+
+    The shared lexical stripper replaces every likely callable body with a
+    semicolon. That is valid for ordinary member functions, but invalid after
+    a constructor initializer list (for example, ``Ctor() : value(0) ;``).
+    This v2-specific variant preserves such initializer lists and replaces
+    only their bodies with an implementation-omitted placeholder.
+    """
+    output: list[str] = []
+    cursor = 0
+    index = 0
+
+    while index < len(text):
+        if text[index] != "{":
+            index += 1
+            continue
+
+        prefix = text[max(0, index - 240):index]
+        stripped = prefix.rstrip()
+        looks_callable = bool(
+            re.search(
+                r"\)\s*(?:const\s*)?(?:noexcept\s*)?"
+                r"(?:override\s*)?(?:final\s*)?$",
+                stripped,
+            )
+        )
+        looks_control = bool(
+            re.search(
+                r"\b(?:if|for|while|switch|catch)\s*\([^)]*\)\s*$",
+                stripped,
+            )
+        )
+
+        if not looks_callable or looks_control:
+            index += 1
+            continue
+
+        close = find_matching_brace(text, index)
+        has_constructor_initializer = bool(
+            re.search(r"\)\s*:\s*[^{}]*$", stripped)
+        )
+
+        output.append(text[cursor:index])
+        output.append(
+            "{ /* implementation omitted */ }"
+            if has_constructor_initializer
+            else ";"
+        )
+        cursor = close + 1
+        index = close + 1
+
+    output.append(text[cursor:])
+    return "".join(output)
+
+
 def make_target_scaffold(target_text: str, locator: dict[str, Any]) -> str:
     kind = locator.get("kind")
     if kind == "class":
-        return strip_inline_callable_bodies(target_text).rstrip() + "\n"
+        return (
+            strip_inline_callable_bodies_for_scaffold(target_text).rstrip() + "\n"
+        )
     if kind == "function":
         open_brace = target_text.find("{")
         if open_brace < 0:
@@ -356,7 +413,7 @@ def build_module_scaffold(repository: Path, source_files: list[str]) -> str:
         path = repository / relative
         if path.suffix.lower() not in HEADER_SUFFIXES:
             continue
-        scaffold = strip_inline_callable_bodies(read_text(path))
+        scaffold = strip_inline_callable_bodies_for_scaffold(read_text(path))
         parts.append(f"===== FILE: {relative} =====\n{scaffold.rstrip()}\n")
     return "\n".join(parts)
 

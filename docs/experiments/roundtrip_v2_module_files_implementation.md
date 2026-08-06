@@ -63,3 +63,18 @@ The earlier disabled configs that referenced formal targets (`io` and `INIWriter
 - No LLM, Docker, build, or test execution.
 - No retry, automatic repair, or generated-code editing.
 - No changes to frozen non-RAG results.
+
+## Module-files mechanics pilot 001
+
+The first formal-outside `Session` module pilot reached configure successfully
+but failed during build. The first compiler error was produced by the fixed
+scaffold: the shared lexical body stripper converted the inline constructor
+`Stat() : cycle(0) {}` into the invalid declaration `Stat() : cycle(0) ;`.
+Both source files were restored to their original SHA-256 values, and no retry
+or automatic repair was performed.
+
+The v2 runner now uses a local scaffold stripper that keeps constructor
+initializer lists and replaces only their inline bodies with
+`{ /* implementation omitted */ }`. Ordinary inline member-function bodies
+continue to be replaced with `;`. Pilot 001 remains frozen; pilot 002 uses a
+new experiment directory and run ID.
