@@ -1,0 +1,111 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-config-v2-formal",
+  "run_id": "echo-web-server-config-full-source-non-rag-formal-001",
+  "condition": "full_source_non_rag",
+  "granularity": "module_files",
+  "completed_at_utc": "2026-08-06T14:37:08.310330+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "started_at_utc": "2026-08-06T14:36:57.187142+00:00",
+      "completed_at_utc": "2026-08-06T14:37:02.111413+00:00",
+      "elapsed_seconds": 4.922412500018254,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-config-full-source-non-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-config-full-source-non-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-06T14:37:02.111546+00:00",
+      "completed_at_utc": "2026-08-06T14:37:08.260376+00:00",
+      "elapsed_seconds": 6.147475200006738,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-config-full-source-non-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-config-full-source-non-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "include/config.h",
+        "original_hash": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc",
+        "restored_hash": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc",
+        "restored": true
+      },
+      {
+        "path": "src/config/config.cpp",
+        "original_hash": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a",
+        "restored_hash": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-06T14:36:57.063392+00:00",
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "fence_language": null,
+    "strict_format_pass": true,
+    "raw_sha256": "0115f57f6bcbddad4fd19ce1f704b174e094aef3e8f2cef30ac58dc7dc40d380",
+    "normalized_sha256": "0115f57f6bcbddad4fd19ce1f704b174e094aef3e8f2cef30ac58dc7dc40d380",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/echo-web-server-config-full-source-non-rag-formal-001"
+}
