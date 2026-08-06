@@ -1,0 +1,50 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: ip\n- granularity: module_files\n- source_files: [\"include/ip.h\", \"src/ip/ip.cpp\"]\n\n# 出力規則\n出力は指定されたJSON Schemaに一致するJSONのみとし、Markdownコードフェンスを使用しないでください。source_filesにある各ファイルを完全な内容として1回ずつ返してください。pathはsource_filesの文字列をそのまま使用し、追加・省略・重複させないでください。C++コード中の改行や引用符はJSON文字列として正しくエスケープしてください。固定インターフェース・スキャフォールドに示された宣言とファイル構成を変更しないでください。\n\n# JSON Schema\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"files\": {\n      \"type\": \"array\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"path\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"include/ip.h\",\n              \"src/ip/ip.cpp\"\n            ]\n          },\n          \"content\": {\n            \"type\": \"string\",\n            \"minLength\": 1\n          }\n        },\n        \"required\": [\n          \"path\",\n          \"content\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\n    \"files\"\n  ],\n  \"additionalProperties\": false\n}\n\n# 設計文書\n# デザイン文書\n\n## 概要\nこの設計文書は、`include/ip.h`と`src/ip/ip.cpp`に含まれるIPアドレス処理モジュールの再実装に必要な情報を提供します。各ファイルの責務、公開インターフェース、入力、出力、状態、処理手順、例外・失敗条件、依存関係、重要な不変条件について記載します。\n\n## モジュール構造\n\n### ファイル間の関係\n- `include/ip.h`: クラス定義と公開インターフェースを含むヘッダーファイル。\n- `src/ip/ip.cpp`: 実装ファイルで、`ip.h`に定義されたクラスのメンバ関数を実装しています。\n\n## ファイル詳細\n\n### include/ip.h\n#### 責務\nIPアドレスを抽象化したインターフェースとその派生クラス（IPv4Addr, IPv6Addr）を提供します。\n#### 公開インターフェース\n- `class IPAddr`: IPアドレスの基底クラスで、純粋仮想関数として以下のメソッドを持ちます。\n  - `int Version() const noexcept`\n  - `std::size_t Size() const noexcept`\n  - `const sockaddr* Raw() const noexcept`\n  - `std::uint16_t Port() const noexcept`\n  - `std::string IPAddress() const noexcept`\n\n- `class IPv4Addr`: IPAddrを継承し、IPv4アドレスの具体的な実装を行います。\n  - コンストラクタ: \n    - `explicit IPv4Addr(sockaddr_in addr)`\n    - `explicit IPv4Addr(std::string ip, std::uint16_t port)`\n\n- `class IPv6Addr`: IPAddrを継承し、IPv6アドレスの具体的な実装を行います。\n  - コンストラクタ: \n    - `explicit IPv6Addr(sockaddr_in6 addr)`\n    - `explicit IPv6Addr(std::string ip, std::uint16_t port)`\n\n- `template <typename T> concept ValidIPAddr`: IPv4AddrまたはIPv6Addrの型を制約するためのコンセプト。\n\n#### 入力\n- IPアドレス文字列とポート番号（`std::string`, `std::uint16_t`）\n- `sockaddr_in` または `sockaddr_in6`\n\n#### 出力\n- IPバージョン (`int`)\n- ソケットアドレス構造体のサイズ (`std::size_t`)\n- ソケットアドレスへのポインタ (`const sockaddr*`)\n- ポート番号 (`std::uint16_t`)\n- IPアドレス文字列 (`std::string`)\n\n#### 状態\n- IPv4Addr: `ip_`, `raw_`\n- IPv6Addr: `ip_`, `raw_`\n\n#### 処理手順\n- コンストラクタでIPアドレスとポート番号を設定し、内部状態を初期化します。\n- 各メンバ関数は内部状態から情報を抽出して返却します。\n\n#### 例外・失敗条件\n- `inet_pton`が1以外の値を返した場合（無効なIPアドレス文字列）\n- `inet_ntop`がnullptrを返した場合（システムエラー）\n\n#### 依存関係\n- `<concepts>`\n- `<cstdint>`\n- `<string>`\n- `<string_view>`\n- `<netinet/in.h>`\n- `<arpa/inet.h>`\n\n#### 重要な不変条件\n- IPv4Addr: `raw_.sin_family`は常に`AF_INET`\n- IPv6Addr: `raw_.sin6_family`は常に`AF_INET6`\n\n### src/ip/ip.cpp\n#### 責務\n`include/ip.h`で定義されたクラスのメンバ関数を実装します。\n#### 公開インターフェース\n- 各コンストラクタと純粋仮想関数のオーバーライド\n\n#### 処理手順\n- コンストラクタ:\n  - IPアドレス文字列から`sockaddr_in`または`sockaddr_in6`への変換（`inet_pton`）\n  - `sockaddr_in`または`sockaddr_in6`からIPアドレス文字列への変換（`inet_ntop`）\n\n- 各メンバ関数:\n  - 内部状態から情報を抽出して返却\n\n#### 例外・失敗条件\n- `inet_pton`が1以外の値を返した場合（無効なIPアドレス文字列）\n- `inet_ntop`がnullptrを返した場合（システムエラー）\n\n## 注意事項\n- 再実装では、元コードに存在しない機能や変更は行わないでください。\n- 依存関係にあるヘッダーファイルとライブラリの使用は必須です。\n\n# 固定インターフェース・スキャフォールド\n===== FILE: include/ip.h =====\n/**\n * @file ip.h\n * @brief The IP address interface.\n *\n * @author Zhenshuo Chen (chenzs108@outlook.com)\n * @par GitHub\n * https://github.com/Zhuagenborn\n * @version 1.0\n * @date 2022-06-06\n */\n\n#pragma once\n\n#include <concepts>\n#include <cstdint>\n#include <string>\n#include <string_view>\n\n#include <netinet/in.h>\n\n\nnamespace ws {\n\n//! The interface of IP address.\nclass IPAddr {\npublic:\n    virtual ~IPAddr() noexcept = default;\n\n    //! Get the IP version.\n    virtual int Version() const noexcept = 0;\n\n    //! Get the size of socket address.\n    virtual std::size_t Size() const noexcept = 0;\n\n    //! Get the socket address.\n    virtual const sockaddr* Raw() const noexcept = 0;\n\n    virtual std::uint16_t Port() const noexcept = 0;\n\n    virtual std::string IPAddress() const noexcept = 0;\n};\n\n//! The IPv4 address.\nclass IPv4Addr : public IPAddr {\npublic:\n    static constexpr int version {AF_INET};\n\n    static constexpr std::string_view loop_back {\"127.0.0.1\"};\n\n    static constexpr std::string_view any {\"0.0.0.0\"};\n\n    static constexpr std::size_t max_length {15};\n\n    using RawType = sockaddr_in;\n\n    explicit IPv4Addr(sockaddr_in addr);\n\n    explicit IPv4Addr(std::string ip, std::uint16_t port);\n\n    int Version() const noexcept override;\n\n    std::size_t Size() const noexcept override;\n\n    const sockaddr* Raw() const noexcept override;\n\n    std::uint16_t Port() const noexcept override;\n\n    std::string IPAddress() const noexcept override;\n\nprivate:\n    std::string ip_;\n    sockaddr_in raw_ {};\n};\n\n//! The IPv6 address.\nclass IPv6Addr : public IPAddr {\npublic:\n    static constexpr int version {AF_INET6};\n\n    static constexpr std::string_view loop_back {\"::1\"};\n\n    static constexpr std::string_view any {\"::\"};\n\n    static constexpr std::size_t max_length {45};\n\n    using RawType = sockaddr_in6;\n\n    explicit IPv6Addr(sockaddr_in6 addr);\n\n    explicit IPv6Addr(std::string ip, std::uint16_t port);\n\n    int Version() const noexcept override;\n\n    std::size_t Size() const noexcept override;\n\n    const sockaddr* Raw() const noexcept override;\n\n    std::uint16_t Port() const noexcept override;\n\n    std::string IPAddress() const noexcept override;\n\nprivate:\n    std::string ip_;\n    sockaddr_in6 raw_ {};\n};\n\ntemplate <typename T>\nconcept ValidIPAddr = std::same_as<T, IPv4Addr> || std::same_as<T, IPv6Addr>;\n\n}  // namespace ws\n\n\n# 依存情報\n#include <concepts>\n#include <cstdint>\n#include <string>\n#include <string_view>\n#include <netinet/in.h>\n#include \"ip.h\"\n#include \"util.h\"\n#include <arpa/inet.h>\n#include <array>\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  },
+  "format": {
+    "type": "object",
+    "properties": {
+      "files": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "enum": [
+                "include/ip.h",
+                "src/ip/ip.cpp"
+              ]
+            },
+            "content": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "files"
+    ],
+    "additionalProperties": false
+  }
+}
