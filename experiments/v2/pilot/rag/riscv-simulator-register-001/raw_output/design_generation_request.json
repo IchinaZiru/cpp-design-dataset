@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++ソフトウェアのリバースエンジニアリング担当者です。与えられたコードだけを根拠として、再実装に必要な設計文書を日本語で作成してください。推測で存在しない機能を追加しないでください。",
+  "prompt": "# 対象\n- target: Register\n- granularity: target_span\n- target_kind: class\n- target_symbol: Register\n\n# 対象範囲\n元コード全体は対象部分を理解するための文脈として参照してください。\n設計文書は target_symbol で指定した対象部分だけについて作成してください。\n対象外の関数やクラスは、対象部分との関係を説明する場合に限って記載してください。\n\n# 記載項目\n責務、公開インターフェース、入力、出力、状態、処理手順、例外・失敗条件、依存関係、重要な不変条件を記載してください。\n\n# 検索コンテキスト\n以下は、対象コードに依存しない汎用的な詳細設計知識です。\n元コードに存在する事実を優先し、該当しない項目を推測で補完しないでください。\n\n----- BEGIN RETRIEVED CONTEXT -----\n# 汎用詳細設計知識 v1\n\n## 目的\n\n詳細設計文書は、対象コードの構造、インターフェース、データ構造、処理の流れを、再実装に利用できる粒度で明確にする。\n異なる実装者が同じ設計文書を参照したときに、同様の振る舞いを持つ実装を作れることを目標とする。\n\n参考観点: https://zenn.dev/nyanchu/articles/27a3f95d98df45\n\n## 共通ルール\n\n- 元コードに存在する事実だけを記述する。\n- 対象部分以外のコードは、対象部分との関係を説明するためにのみ使用する。\n- 型、引数、戻り値、状態変更、呼び出し順序、分岐条件、境界条件を省略しない。\n- 数値、比較演算子、更新順序、エラー時の動作を可能な限り具体的に記述する。\n- 情報が確認できない場合は推測せず「確認できない」と記述する。\n- 対象に該当しない成果物は、架空の構造を作らず「該当なし」とする。\n\n## 1. クラス図に相当する構造情報\n\n対象にクラスまたは構造体が関係する場合、次を記述する。\n\n- クラス名・構造体名\n- 継承関係\n- 保持する属性と型\n- 属性の可視性\n- 対象メソッドとの関係\n- 他クラスとの依存、所有、参照関係\n\n図を作成する場合は、Markdown内のMermaid `classDiagram`形式を使用する。\n対象が単独関数で、クラス構造が関係しない場合は「該当なし」とする。\n\n## 2. クラス・メソッド・インターフェースの詳細\n\n対象部分に関係する各要素について、次を表形式または箇条書きで記述する。\n\n- 完全な名前\n- 引数名と型\n- 戻り値の型\n- `const`、参照、ポインタ、例外指定などの修飾\n- 呼び出し側が満たす前提条件\n- 呼び出し後に保証される事後条件\n- 使用する属性、定数、列挙型、型別名\n- 呼び出す関数・メソッドと、その目的\n\nインターフェースと実装上の処理を分けて記述する。\n\n## 3. シーケンス図に相当する処理順序\n\n対象部分の実行に複数の関数、オブジェクト、状態が関係する場合、次を時系列で記述する。\n\n- 呼び出し元\n- 対象部分\n- 呼び出される関数・メソッド\n- 引数として渡す値\n- 戻り値の利用方法\n- 状態更新の順序\n- 条件分岐と早期終了\n- エラー発生時の処理\n\n図を作成する場合は、Markdown内のMermaid `sequenceDiagram`形式を使用する。\n単一処理で相互作用がない場合も、処理手順を番号付きで記述する。\n\n## 4. メソッド仕様書\n\n対象関数またはメソッドについて、最低限次の項目を記述する。\n\n| 項目 | 記述内容 |\n|---|---|\n| メソッド名 | 完全修飾名を含む対象名 |\n| 目的 | この処理が担う責務 |\n| 引数 | 名前、型、意味、許容範囲、特別な値 |\n| 戻り値 | 型、意味、値ごとの条件 |\n| 前提条件 | 呼び出し前に成立している条件 |\n| 動作の説明 | 分岐、反復、計算、呼び出し順序を含む処理 |\n| 状態変更・副作用 | メンバ、引数先、外部資源への変更 |\n| 依存関係 | 使用する型、関数、定数、外部状態 |\n| 境界条件 | 空、0、最大値、最小値、終端などの扱い |\n| エラー処理 | 例外、エラー値、無視、早期終了など |\n| 不変条件 | 処理前後を通じて維持される条件 |\n\n再実装時に解釈が分かれやすい箇所は、自然言語だけで曖昧にせず、条件式、値、順序を明記する。\n----- END RETRIEVED CONTEXT -----\n\n# 元コード\n===== FILE: src/Common/Register.hpp =====\n//\n// Created by Alex Chi on 2019-07-01.\n//\n\n#ifndef RISCV_SIMULATOR_REGISTER_HPP\n#define RISCV_SIMULATOR_REGISTER_HPP\n\ntemplate<typename T>\nclass Register { // : public Tickable {\npublic:\n    T prev, next;\n\n    bool _stall;\n\n    Register() : prev((T) 0), next((T) 0), _stall(false) {}\n\n    Register(T d) : prev(d), next(d), _stall(false) {}\n\n    T read() { return prev; }\n\n    T current() { return next; }\n\n    void write(const T &t) { next = t; }\n\n    void tick() { if (!_stall) prev = next; }\n\n    void stall(bool stall) { _stall = stall; }\n\n    operator T() { return read(); }\n\n    void operator=(T next) { write(next); }\n};\n\n#endif //RISCV_SIMULATOR_REGISTER_HPP\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}

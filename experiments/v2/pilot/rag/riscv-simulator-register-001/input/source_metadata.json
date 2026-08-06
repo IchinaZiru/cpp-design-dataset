@@ -1,0 +1,25 @@
+{
+  "schema_version": "2.0",
+  "target_id": "riscv-simulator-register-v2",
+  "target_name": "Register",
+  "condition": "full_source_design_knowledge_rag",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "src/Common/Register.hpp"
+  ],
+  "target_source_file": "src/Common/Register.hpp",
+  "replacement_scope": "target_span",
+  "locator": {
+    "kind": "class",
+    "symbol": "Register"
+  },
+  "target_start_offset": 141,
+  "target_end_offset": 628,
+  "target_sha256": "31a2104e42b45faad7eaa246b5cc942bfaaa9d1d789fb6d47b3725f5e62d53f1",
+  "observation_file_hashes": {
+    "src/Common/Register.hpp": "57fb42ae07816f444301153cdea5bf943b873262ff992e454b894ff990ad8e34"
+  },
+  "prepared_at_utc": "2026-08-06T10:19:13.748370+00:00"
+}

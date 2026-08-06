@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: Register\n- granularity: target_span\n- target_kind: class\n- target_symbol: Register\n- source_file: src/Common/Register.hpp\n\n# 出力規則\n対象クラスまたは構造体の定義全体だけをC++コードとして返してください。Markdownコードフェンス、説明文、JSONは出力しないでください。\n\n# 設計文書\n# 設計文書: Register クラス\n\n## 1. 概要\n`Register`クラスは、ジェネリックな型 `T` のデータを保持し、その値の読み書きを行うためのシンプルなレジスタモデルを提供します。主にシミュレーション環境で使用され、内部状態が時間ステップ（tick）ごとに更新されます。\n\n## 2. 責務\n- 型 `T` のデータを保持する。\n- データの読み取りと書き込みを行う。\n- 内部状態を次の値に更新する機能（tick）を提供する。\n- ストール状態を管理し、ストール中は内部状態を更新しない。\n\n## 3. 公開インターフェース\n\n### コンストラクタ\n- `Register()`: デフォルトコンストラクタ。`prev`と`next`をゼロに初期化し、`_stall`をfalseに設定する。\n- `Register(T d)`: 引数で指定された値`d`で`prev`と`next`を初期化し、`_stall`をfalseに設定する。\n\n### メソッド\n- `T read()`: 最新の読み取り可能な値（`prev`）を返す。\n- `T current()`: 次の書き込み候補の値（`next`）を返す。\n- `void write(const T &t)`: 引数`t`で`next`を更新する。\n- `void tick()`: ストール状態がfalseの場合、`prev`を`next`の値に更新する。\n- `void stall(bool stall)`: ストール状態を設定する。引数`stall`がtrueの場合、ストール状態になり内部状態は更新されない。\n\n### オペレータオーバーロード\n- `operator T()`: `read()`メソッドと同様に`prev`の値を返す。\n- `void operator=(T next)`: `write(next)`メソッドと同様に`next`を更新する。\n\n## 4. 入力\n- コンストラクタ: 型 `T` の初期値（オプション）。\n- `write(const T &t)`, `operator=(T next)`: 書き込む型 `T` の値。\n- `stall(bool stall)`: ストール状態を設定するためのブーリアン値。\n\n## 5. 出力\n- `read()`, `current()`, `operator T()`: 型 `T` の値。\n\n## 6. 状態\n- `prev`: 最新の読み取り可能な値。\n- `next`: 次の書き込み候補の値。\n- `_stall`: ストール状態を示すブーリアン値。trueの場合、`tick()`で内部状態は更新されない。\n\n## 7. 処理手順\n1. **初期化**: コンストラクタが呼び出される際に`prev`, `next`の初期値と`_stall`の初期状態を設定する。\n2. **書き込み**: `write()`や`operator=`を通じて`next`に新しい値を設定する。\n3. **読み取り**: `read()`, `current()`, `operator T()`を通じて現在の値（`prev`）を取得する。\n4. **状態更新**: `tick()`が呼び出される際に、ストール状態がfalseの場合のみ`prev`を`next`に更新する。\n5. **ストール管理**: `stall(bool stall)`を通じてストール状態を設定し、必要に応じて内部状態の更新を抑制する。\n\n## 8. 例外・失敗条件\n- このクラスは明示的な例外処理を行っていないため、通常の使用では例外が発生しない。\n- 型 `T` の範囲を超える値を書き込むと未定義動作となる可能性がある（型 `T` による）。\n\n## 9. 依存関係\n- このクラスは他のクラスに依存せず、独立して使用可能である。\n- クラス名の命名規則やコーディングスタイルは外部から影響を受けている可能性があるが、具体的な依存関係は存在しない。\n\n## 10. 重要な不変条件\n- `tick()`メソッド呼び出し後、`_stall`がfalseの場合、`prev`は必ず`next`の値と一致する。\n- `_stall`がtrueの場合、`tick()`による内部状態の更新は行われない。\n\nこの設計文書は元コードに基づいており、推測で存在しない機能を追加していません。\n\n# 固定インターフェース・スキャフォールド\nclass Register { // : public Tickable {\npublic:\n    T prev, next;\n\n    bool _stall;\n\n    Register() : prev((T) 0), next((T) 0), _stall(false) ;\n\n    Register(T d) : prev(d), next(d), _stall(false) ;\n\n    T read() ;\n\n    T current() ;\n\n    void write(const T &t) ;\n\n    void tick() ;\n\n    void stall(bool stall) ;\n\n    operator T() ;\n\n    void operator=(T next) ;\n};\n\n\n# 依存情報\n\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}
