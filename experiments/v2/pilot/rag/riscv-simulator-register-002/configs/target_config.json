@@ -1,0 +1,57 @@
+{
+  "schema_version": "4.1-pilot",
+  "enabled": true,
+  "condition": "full_source_design_knowledge_rag_required_artifacts",
+  "target_id": "riscv-simulator-register-v2",
+  "experiment_id": "v2/pilot/rag/riscv-simulator-register-002",
+  "run_id": "riscv-simulator-register-full-source-rag-pilot-002",
+  "repository_id": "RISCV-Simulator",
+  "repository_path": "repos/RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "target_name": "Register",
+  "observation_files": [
+    "src/Common/Register.hpp"
+  ],
+  "target_source_file": "src/Common/Register.hpp",
+  "locator": {
+    "kind": "class",
+    "symbol": "Register"
+  },
+  "design_knowledge": {
+    "enabled": true,
+    "context_file": "knowledge/detailed-design/general-v2.md",
+    "instruction_mode": "required_additional_artifacts",
+    "query": "対象部分を再実装可能な詳細設計文書に必要な必須成果物、処理フロー図、構造図、仕様項目、記述規則を取得する"
+  },
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:riscv-simulator-v1",
+    "docker_image_id": "sha256:81e23cc94a387697d7979c847d81bf557543fece913065fbdbd329bf194f62cd",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Register.ReadWrite:Register.ReadWriteOperator'",
+    "full_test_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+    "full_test_kind": "gtest",
+    "expected_direct_tests": 2,
+    "expected_full_tests": 18,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  }
+}
