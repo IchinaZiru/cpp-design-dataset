@@ -1,0 +1,70 @@
+{
+  "schema_version": "4.3-pilot",
+  "enabled": false,
+  "pilot_only": true,
+  "formal_result_eligible": false,
+  "condition": "full_source_design_knowledge_rag_required_artifacts",
+  "target_id": "riscv-simulator-session-v2-module-files-mechanics-pilot",
+  "experiment_id": "v2/pilot/rag/riscv-simulator-session-module-files-001",
+  "run_id": "riscv-simulator-session-full-source-rag-module-files-pilot-001",
+  "repository_id": "RISCV-Simulator",
+  "repository_path": "repos/RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "target_name": "Session",
+  "granularity": "module_files",
+  "observation_files": [
+    "src/Common/Session.h",
+    "src/Common/Session.cpp"
+  ],
+  "source_files": [
+    "src/Common/Session.h",
+    "src/Common/Session.cpp"
+  ],
+  "locator": {},
+  "design_knowledge": {
+    "enabled": true,
+    "context_file": "knowledge/detailed-design/general-v2.md",
+    "instruction_mode": "required_additional_artifacts",
+    "query": "対象モジュールを再実装可能な詳細設計文書に必要な必須成果物、処理フロー図、構造図、仕様項目、記述規則を取得する"
+  },
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:riscv-simulator-v1",
+    "docker_image_id": "sha256:81e23cc94a387697d7979c847d81bf557543fece913065fbdbd329bf194f62cd",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Session.Construct'",
+    "full_test_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+    "full_test_kind": "gtest",
+    "expected_direct_tests": 1,
+    "expected_full_tests": 18,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "protocol": {
+    "module_output_format": "ollama_json_schema",
+    "strict_file_path_set": true,
+    "formal_target_set_member": false,
+    "weak_test_warning": "Session.Construct only verifies construction and destruction. This pilot checks pipeline mechanics only and is not behavioral-equivalence evidence.",
+    "retry": false,
+    "automatic_repair": false,
+    "note": "Formal-outside mechanics pilot. Do not reuse this artifact as a formal result."
+  }
+}

@@ -47,12 +47,14 @@ Canonical older config values are also accepted:
 
 ## Included pilot configs
 
-Both configs are disabled and marked as mechanics-only:
+Both configs are disabled, mechanics-only, and outside the frozen 17-target formal set:
 
-- `echo-web-server-io-module-files-pilot-001.json`
-- `ini-cpp-iniwriter-write-function-pilot-001.json`
+- `riscv-simulator-session-module-files-pilot-001.json`
+- `riscv-simulator-session-constructor-function-pilot-001.json`
 
-They must not be counted as formal results or reused as formal artifacts.
+Both use the excluded `Session` target. `Session.Construct` checks only construction and destruction, so a pilot PASS must not be interpreted as broad behavioral correctness. The purpose is limited to pipeline mechanics such as prompt serialization, target/file replacement, test invocation, and source restoration.
+
+The earlier disabled configs that referenced formal targets (`io` and `INIWriter::write`) were removed before any pilot execution. No artifacts were generated from those configs.
 
 ## Not included
 
