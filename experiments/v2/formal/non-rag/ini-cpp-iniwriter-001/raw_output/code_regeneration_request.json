@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: INIWriter::write\n- granularity: target_span\n- target_kind: function\n- target_symbol: INIWriter::write\n- source_file: ini/ini.h\n\n# 出力規則\n固定インターフェース・スキャフォールドに示された対象関数の定義全体だけをC++コードとして返してください。戻り値、関数名、引数、既定値、修飾を含む関数シグネチャを変更しないでください。Markdownコードフェンス、説明文、JSONは出力しないでください。\n\n# JSON Schema\nN/A\n\n# 設計文書\n# 設計文書: `INIWriter::write` 関数\n\n## 概要\nこの設計文書は、`ini/ini.h` ファイルに含まれる `INIWriter::write` 関数についての詳細な仕様を記載します。対象範囲は `INIWriter::write` 関数のみであり、他の関数やクラスとの関係は必要に応じて説明します。\n\n## 責務\n- `INIReader` オブジェクトの内容を指定されたファイルパスに INI 形式で書き出す。\n- 既存ファイルの上書きオプションを提供する。\n- ファイル操作中に発生したエラーを適切な例外として通知する。\n\n## 公開インターフェース\n```cpp\ninline static void write(const std::string& filepath, const INIReader& reader, const bool overwrite = false);\n```\n\n## 入力\n- `filepath`: 書き出すファイルのパス（`std::string`）\n- `reader`: ファイルに書き出す内容を保持する `INIReader` オブジェクト\n- `overwrite`: 既存ファイルを上書きするかどうかを示すフラグ（デフォルトは `false`）\n\n## 出力\n- 成功時には何も返さない（戻り値なし）\n- 失敗時には例外をスローする\n\n## 状態\n- ファイルの存在状況（上書きオプションに応じて変化）\n- `INIReader` オブジェクトの内容（読み取り専用）\n\n## 処理手順\n1. **ファイルパスのチェック**:\n   - `overwrite` が `false` の場合、指定されたファイルパスに既存ファイルがないことを確認する。\n2. **ファイルオープン**:\n   - 指定されたファイルパスで出力ストリームを開く。\n3. **セクションとキーの書き出し**:\n   - `INIReader::Sections()` を呼び出してすべてのセクションを取得し、各セクションに対して以下の処理を行う：\n     1. セクション名をファイルに書き出す（`[section]\\n` 形式）。\n     2. `INIReader::Keys(section)` を呼び出して該当するセクション内のすべてのキーを取得し、各キーに対して以下の処理を行う：\n        1. キーと値をファイルに書き出す（`key=value\\n` 形式）。値は `INIReader::Get(section, key)` を使用して取得する。\n\n## 例外・失敗条件\n- 指定されたファイルパスに既存ファイルが存在し、かつ `overwrite` が `false` の場合:\n  - `std::runtime_error(\"file: \" + filepath + \" already exists.\")`\n- 出力ファイルを開くことができない場合:\n  - `std::runtime_error(\"cannot open output file: \" + filepath)`\n\n## 依存関係\n- `INIReader` クラス（`Sections()`, `Keys(section)`, `Get(section, key)` メソッド）\n- 標準ライブラリのファイルストリーム機能 (`std::ifstream`, `std::ofstream`)\n- 標準ライブラリの文字列操作機能 (`std::string`)\n\n## 重要な不変条件\n- 出力ファイルが既存である場合、`overwrite` フラグが `false` の限り書き込みは行われない。\n- `INIReader` オブジェクトの内容は読み取り専用であり、書き込み操作によって変更されない。\n\n# 固定インターフェース・スキャフォールド\ninline static void write(const std::string& filepath,\n                             const INIReader& reader,\n                             const bool overwrite = false) {\n    /* implementation omitted */\n}\n\n\n# 依存情報\n#include <cstddef>\n#include <cstdio>\n#include <fstream>\n#include <set>\n#include <sstream>\n#include <stdexcept>\n#include <string>\n#include <string_view>\n#include <type_traits>\n#include <unordered_map>\n#include <utility>\n#include <vector>\n#include <charconv>\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}

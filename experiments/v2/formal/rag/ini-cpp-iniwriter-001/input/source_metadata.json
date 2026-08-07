@@ -1,0 +1,33 @@
+{
+  "schema_version": "2.1",
+  "target_id": "ini-cpp-iniwriter-v2-formal",
+  "target_name": "INIWriter::write",
+  "condition": "full_source_design_knowledge_rag_required_artifacts",
+  "repository_id": "ini-cpp",
+  "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+  "granularity": "target_span",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "ini/ini.h"
+  ],
+  "source_files": [
+    "ini/ini.h"
+  ],
+  "observation_file_hashes": {
+    "ini/ini.h": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+  },
+  "source_file_hashes": {
+    "ini/ini.h": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+  },
+  "prepared_at_utc": "2026-08-07T00:41:07.220871+00:00",
+  "target_source_file": "ini/ini.h",
+  "replacement_scope": "target_span",
+  "locator": {
+    "kind": "function",
+    "symbol": "INIWriter::write",
+    "signature_regex": "inline\\s+static\\s+void\\s+write\\s*\\(\\s*const\\s+std::string\\s*&\\s*filepath\\s*,\\s*const\\s+INIReader\\s*&\\s*reader\\s*,\\s*const\\s+bool\\s+overwrite\\s*=\\s*false\\s*\\)"
+  },
+  "target_start_offset": 18671,
+  "target_end_offset": 19397,
+  "target_sha256": "42634cced9b66a007c7b2ab90331ab9595dcdd106aba4f369a0f73d1ee61eb5a"
+}
