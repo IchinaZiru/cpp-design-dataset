@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.1",
+  "condition": "full_source_design_knowledge_rag_required_artifacts",
+  "knowledge_type": "general_detailed_design",
+  "retrieval_mode": "fixed_query_fixed_knowledge",
+  "instruction_mode": "required_additional_artifacts",
+  "query": "対象コードを再実装可能な詳細設計文書に必要な必須成果物、完全な関数名とシグネチャ、構造図、処理フロー図、仕様項目、状態遷移、記述規則を取得する",
+  "context_file": "knowledge/detailed-design/general-v2.md",
+  "context_sha256": "9f67392f98ba4e419b834c84e148d3872025ca190857baa2b77978f2f1828dba",
+  "retrieved_at_utc": "2026-08-07T00:12:50.679509+00:00",
+  "target_specific_tuning": false
+}
