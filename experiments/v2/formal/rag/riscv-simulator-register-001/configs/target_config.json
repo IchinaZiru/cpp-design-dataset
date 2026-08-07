@@ -1,0 +1,99 @@
+{
+  "schema_version": "4.4-formal",
+  "enabled": true,
+  "pilot_only": false,
+  "formal_result_eligible": true,
+  "condition": "full_source_design_knowledge_rag_required_artifacts",
+  "target_id": "riscv-simulator-register-v2-formal",
+  "pair_id": "riscv-simulator-register",
+  "pair_sequence": 16,
+  "experiment_id": "v2/formal/rag/riscv-simulator-register-001",
+  "run_id": "riscv-simulator-register-full-source-rag-formal-001",
+  "repository_id": "RISCV-Simulator",
+  "repository_path": "repos/RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "target_name": "Register",
+  "adoption_status": "条件付き採用",
+  "granularity": "class_span",
+  "observation_files": [
+    "src/Common/Register.hpp"
+  ],
+  "source_files": [
+    "src/Common/Register.hpp"
+  ],
+  "locator": {
+    "kind": "class",
+    "symbol": "Register"
+  },
+  "design_knowledge": {
+    "enabled": true,
+    "context_file": "knowledge/detailed-design/general-v2.md",
+    "instruction_mode": "required_additional_artifacts",
+    "query": "対象コードを再実装可能な詳細設計文書に必要な必須成果物、完全な関数名とシグネチャ、構造図、処理フロー図、仕様項目、状態遷移、記述規則を取得する"
+  },
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:riscv-simulator-v1",
+    "docker_image_id": "sha256:81e23cc94a387697d7979c847d81bf557543fece913065fbdbd329bf194f62cd",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Register.ReadWrite:Register.ReadWriteOperator'",
+    "full_test_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+    "full_test_kind": "gtest",
+    "direct_test_filter": "Register.ReadWrite:Register.ReadWriteOperator",
+    "direct_test_names": [
+      "Register.ReadWrite",
+      "Register.ReadWriteOperator"
+    ],
+    "expected_direct_tests": 2,
+    "expected_full_tests": 18,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "protocol": {
+    "protocol_id": "full-source-design-knowledge-rag-v2-formal-001",
+    "formal_target_set_member": true,
+    "formal_pair_id": "riscv-simulator-register",
+    "observation_scope": "full_source_files",
+    "replacement_scope": "target_span",
+    "code_regeneration_inputs": [
+      "generated_design_document",
+      "fixed_interface_scaffold",
+      "dependency_include_context"
+    ],
+    "original_source_in_code_regeneration": false,
+    "retrieved_context_in_code_regeneration": false,
+    "module_output_format": null,
+    "retry": false,
+    "automatic_repair": false,
+    "generated_code_manual_edit": false,
+    "generations_per_stage": 1
+  },
+  "provenance": {
+    "legacy_target_id": "riscv-simulator-register",
+    "legacy_run_id": "riscv-simulator-register-qwen25coder32b-001",
+    "legacy_experiment_id": "riscv-simulator-register-roundtrip",
+    "source_config": "configs/roundtrip/targets/riscv-simulator-register.json",
+    "source_note": null,
+    "legacy_results_are_not_direct_comparator": true,
+    "model_setting_policy": "Use v2 mechanics-pilot num_ctx=16384 and num_predict=8192 for both formal conditions; retain the canonical target's remaining model options."
+  },
+  "target_source_file": "src/Common/Register.hpp"
+}
