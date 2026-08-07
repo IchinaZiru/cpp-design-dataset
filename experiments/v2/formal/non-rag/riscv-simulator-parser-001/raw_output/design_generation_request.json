@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++ソフトウェアのリバースエンジニアリング担当者です。与えられたコードだけを根拠として、再実装に必要な設計文書を日本語で作成してください。推測で存在しない機能を追加しないでください。",
+  "prompt": "# 対象\n- target: Parser\n- granularity: target_span\n- target_kind: class\n- target_symbol: Parser\n\n# 対象範囲\n元コード全体は対象部分を理解するための文脈として参照してください。\n設計文書はtarget_symbolで指定した対象部分だけについて作成してください。\n対象外の関数やクラスは、対象部分との関係を説明する場合に限って記載してください。\n\n# 記載項目\n責務、公開インターフェース、入力、出力、状態、処理手順、例外・失敗条件、依存関係、重要な不変条件を記載してください。\n\n# 元コード\n===== FILE: src/Common/Parser.hpp =====\n//\n// Created by Alex Chi on 2019-07-01.\n//\n\n#ifndef RISCV_SIMULATOR_PARSER_HPP\n#define RISCV_SIMULATOR_PARSER_HPP\n\n#include <iostream>\n#include <iomanip>\n#include <sstream>\n#include <string>\n#include \"Memory.hpp\"\n\nclass Parser {\npublic:\n    static unsigned parse_hex(const std::string &hex) {\n        return strtol(hex.c_str(), NULL, 16);\n    }\n\n    static void parse(std::istream &in, Memory &mem) {\n        if (!in) std::cerr << \"parse failed, invalid stream\" << std::endl;\n        unsigned base_addr = 0;\n        while (in) {\n            std::string line;\n            std::getline(in, line);\n            if (line[0] == '@') {\n                base_addr = strtol(line.c_str() + 1, NULL, 16);\n            } else {\n                std::stringstream ss(line);\n                std::string hex;\n                while (ss >> hex) {\n                    if (hex.length() == 0) break;\n                    char data = parse_hex(hex);\n                    mem[base_addr++] = data;\n                }\n            }\n        }\n    }\n\n    static void parse_hex(std::istream &in, Memory &mem) {\n        if (!in) std::cerr << \"parse failed, invalid stream\" << std::endl;\n        unsigned base_addr = 0;\n        std::string hex;\n        while(in >> hex) {\n            mem.write_word(base_addr, parse_hex(hex));\n            base_addr += 4;\n        }\n    }\n};\n\n\n#endif //RISCV_SIMULATOR_PARSER_HPP\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}

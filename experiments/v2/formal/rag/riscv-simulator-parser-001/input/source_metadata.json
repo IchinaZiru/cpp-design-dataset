@@ -1,0 +1,32 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-parser-v2-formal",
+  "target_name": "Parser",
+  "condition": "full_source_design_knowledge_rag_required_artifacts",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "granularity": "target_span",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "src/Common/Parser.hpp"
+  ],
+  "source_files": [
+    "src/Common/Parser.hpp"
+  ],
+  "observation_file_hashes": {
+    "src/Common/Parser.hpp": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0"
+  },
+  "source_file_hashes": {
+    "src/Common/Parser.hpp": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0"
+  },
+  "prepared_at_utc": "2026-08-07T00:56:15.100835+00:00",
+  "target_source_file": "src/Common/Parser.hpp",
+  "replacement_scope": "target_span",
+  "locator": {
+    "kind": "class",
+    "symbol": "Parser"
+  },
+  "target_start_offset": 215,
+  "target_end_offset": 1339,
+  "target_sha256": "5c1de587cd8ee8276439813e0c3a8a6a50bdfe0ba6934829c63a6b7ee7785106"
+}
