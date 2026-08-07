@@ -1,0 +1,163 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-registerfile-v2-formal",
+  "run_id": "riscv-simulator-registerfile-full-source-non-rag-formal-001",
+  "condition": "full_source_non_rag",
+  "granularity": "target_span",
+  "completed_at_utc": "2026-08-07T01:02:51.070005+00:00",
+  "overall_pass": true,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-07T01:02:43.668985+00:00",
+      "completed_at_utc": "2026-08-07T01:02:46.732676+00:00",
+      "elapsed_seconds": 3.061382200103253,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-full-source-non-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-full-source-non-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-07T01:02:46.732804+00:00",
+      "completed_at_utc": "2026-08-07T01:02:50.148975+00:00",
+      "elapsed_seconds": 3.4142303001135588,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-full-source-non-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-full-source-non-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='RegisterFile.ReadWrite'"
+      ],
+      "container_shell_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='RegisterFile.ReadWrite'",
+      "started_at_utc": "2026-08-07T01:02:50.149077+00:00",
+      "completed_at_utc": "2026-08-07T01:02:50.597170+00:00",
+      "elapsed_seconds": 0.4462575998622924,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-full-source-non-rag-formal-001/direct_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-full-source-non-rag-formal-001/direct_test.stderr.txt",
+      "counts": {
+        "ran": 1,
+        "passed": 1,
+        "failed": 0
+      }
+    },
+    "full_test": {
+      "stage": "full_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "./build/RISCV_Simulator_Test --gtest_color=no"
+      ],
+      "container_shell_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+      "started_at_utc": "2026-08-07T01:02:50.597513+00:00",
+      "completed_at_utc": "2026-08-07T01:02:51.030968+00:00",
+      "elapsed_seconds": 0.4324008000548929,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-full-source-non-rag-formal-001/full_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-full-source-non-rag-formal-001/full_test.stderr.txt",
+      "counts": {
+        "ran": 18,
+        "passed": 18,
+        "failed": 0
+      }
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "src/Common/RegisterFile.hpp",
+        "original_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+        "restored_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": "",
+    "original_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+    "restored_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110"
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-07T01:02:43.585385+00:00",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "fence_language": "cpp",
+    "strict_format_pass": false,
+    "raw_sha256": "bb7aea7c5fa7b7188e27a9734a809db8fd143ccc7df2f1f14ff062078eb2cfe8",
+    "normalized_sha256": "b91ff657aed7fbcd4b0606a4a27b38d0ffc856817f46f61f6992ed4f32c66035",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/riscv-simulator-registerfile-full-source-non-rag-formal-001"
+}

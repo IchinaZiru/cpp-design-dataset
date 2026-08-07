@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: RegisterFile\n- granularity: target_span\n- target_kind: class\n- target_symbol: RegisterFile\n- source_file: src/Common/RegisterFile.hpp\n\n# 出力規則\n固定インターフェース・スキャフォールドの宣言内容を変更せず、対象クラスまたは構造体の定義全体だけをC++コードとして返してください。template宣言の個数と内容、class/struct宣言、継承、可視性、メンバ名と型、すべての関数・演算子の戻り値、引数、修飾を保持してください。一般的なC++慣習に合わせる目的でも、特殊または非標準的に見えるシグネチャを変更しないでください。スキャフォールドに存在しない宣言を追加せず、関数本体だけを実装してください。Markdownコードフェンス、説明文、JSONは出力しないでください。\n\n# JSON Schema\nN/A\n\n# 設計文書\n# デザイン文書: RegisterFile クラス\n\n## 責務\nRegisterFileクラスは、RISC-Vシミュレータにおいて32個のレジスタを管理します。各レジスタには現在の値と次のサイクルでの値が保持され、tickメソッドによって更新されます。\n\n## 公開インターフェース\n\n### コンストラクタ\n- `RegisterFile()`: RegisterFileオブジェクトを初期化し、すべてのレジスタを0に設定します。\n\n### メソッド\n- `void tick()`: 現在のサイクルでの値を次のサイクルの値で更新します。\n- `Immediate read(int id)`: 指定されたIDのレジスタの現在の値を読み取ります。ただし、IDが0の場合には常に0を返します。\n- `void write(int id, Immediate val)`: 指定されたIDのレジスタに次のサイクルでの値を書き込みます。\n- `void debug()`: レジスタの現在の状態をデバッグ用に出力します。\n\n## 入力\n- `int id`: 読み取りまたは書き込みを行う対象のレジスタID（0から31まで）。\n- `Immediate val`: 書き込む値。\n\n## 出力\n- `Immediate read(int id)`: 指定されたレジスタの現在の値を返します。\n\n## 状態\n- `Immediate prev[REG_NUM]`: 各レジスタの現在の値。\n- `Immediate next[REG_NUM]`: 各レジスタの次のサイクルでの値。\n\n## 処理手順\n1. **初期化**: コンストラクタが呼び出されると、すべてのレジスタが0に設定されます。\n2. **書き込み**: `write`メソッドが呼び出されると、指定されたIDのレジスタの次のサイクルでの値が更新されます。\n3. **読み取り**: `read`メソッドが呼び出されると、指定されたIDのレジスタの現在の値が返されます。ただし、IDが0の場合には常に0を返します。\n4. **更新**: `tick`メソッドが呼び出されると、すべてのレジスタの現在の値が次のサイクルでの値に更新されます。\n5. **デバッグ**: `debug`メソッドが呼び出されると、各レジスタの現在の状態がフォーマットされた形式で標準出力に出力されます。\n\n## 例外・失敗条件\n- `read(int id)`と`write(int id, Immediate val)`: IDが0から31までの範囲外の場合、未定義動作となるため、呼び出し元で適切な範囲チェックが必要です。\n- `tick()`, `debug()`: これらのメソッドは例外を投げません。\n\n## 依存関係\n- `Immediate`: このクラスが使用するデータ型。具体的な定義は`Common.h`や他のヘッダファイルで行われていると推測されます。\n- `Register.hpp`: レジスタに関する追加の機能や定義を含む可能性がありますが、このクラス自体では直接参照していません。\n\n## 重要な不変条件\n- `prev[0]`は常に0であるべきです。これは`read(int id)`メソッドでIDが0の場合に常に0を返すように設計されています。\n- `REG_NUM`は32であるべきであり、RISC-Vアーキテクチャの仕様に基づいています。\n\nこの設計文書は対象コードから直接抽出した情報に基づいており、推測によって存在しない機能や詳細は含まれていません。\n\n# 固定インターフェース・スキャフォールド\nclass RegisterFile { // : public Tickable {\n    static const int REG_NUM = 32;\npublic:\n    Immediate prev[REG_NUM];\n    Immediate next[REG_NUM];\n\n    RegisterFile() ;\n\n    void tick() ;\n\n    Immediate read(int id) ;\n\n    void write(int id, Immediate val) ;\n\n    void debug() ;\n};\n\n\n# 依存情報\n#include \"Common.h\"\n#include \"Register.hpp\"\n#include <iostream>\n#include <iomanip>\n#include <vector>\n#include \"utils.h\"\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 16384,
+    "num_predict": 8192,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}

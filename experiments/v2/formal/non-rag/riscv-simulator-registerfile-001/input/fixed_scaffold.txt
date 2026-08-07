@@ -1,0 +1,16 @@
+class RegisterFile { // : public Tickable {
+    static const int REG_NUM = 32;
+public:
+    Immediate prev[REG_NUM];
+    Immediate next[REG_NUM];
+
+    RegisterFile() ;
+
+    void tick() ;
+
+    Immediate read(int id) ;
+
+    void write(int id, Immediate val) ;
+
+    void debug() ;
+};
