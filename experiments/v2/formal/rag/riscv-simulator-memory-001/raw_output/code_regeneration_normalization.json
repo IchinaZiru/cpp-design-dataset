@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "normalized_at_utc": "2026-08-07T00:55:00.807265+00:00",
+  "normalization_applied": true,
+  "normalization_type": "outer_markdown_fence",
+  "fence_language": "cpp",
+  "strict_format_pass": false,
+  "raw_sha256": "1f0be69930bee550556c1ce2bffe8f3c3b83bdcb827e7731be5386ecf682f3f7",
+  "normalized_sha256": "b0706b8d5502312ab3521dbfd15aff1b649c47933ad0a2be4a745ec3a4f0a3c6",
+  "code_body_modified": false,
+  "retry_performed": false,
+  "automatic_repair_performed": false
+}
