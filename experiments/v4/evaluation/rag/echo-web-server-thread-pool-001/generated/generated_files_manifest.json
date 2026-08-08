@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "files": [
+    {
+      "path": "include/containers/thread_pool.h",
+      "sha256": "5085581c18d3bf3f160c5d19b408bea17a9cdb7766adb793d37bafd14220682c",
+      "character_count": 2084
+    },
+    {
+      "path": "src/containers/thread_pool/thread_pool.cpp",
+      "sha256": "d9c4a4179804119d35046bdf4e738f54b8b99fd669d672d9345f0ff1ccf93989",
+      "character_count": 1590
+    }
+  ]
+}
