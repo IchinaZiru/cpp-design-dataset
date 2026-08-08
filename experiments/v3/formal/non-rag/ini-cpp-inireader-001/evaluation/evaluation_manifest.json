@@ -1,0 +1,107 @@
+{
+  "schema_version": "2.1",
+  "target_id": "ini-cpp-inireader-v3-formal",
+  "run_id": "ini-cpp-inireader-prompt-preserving-non-rag-formal-001",
+  "condition": "full_source_prompt_preserving_non_rag",
+  "granularity": "target_span",
+  "completed_at_utc": "2026-08-08T08:02:35.758048+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-08T08:02:21.224151+00:00",
+      "completed_at_utc": "2026-08-08T08:02:26.171970+00:00",
+      "elapsed_seconds": 4.9445821000263095,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/ini-cpp-inireader-prompt-preserving-non-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/ini-cpp-inireader-prompt-preserving-non-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-08T08:02:26.172252+00:00",
+      "completed_at_utc": "2026-08-08T08:02:35.680985+00:00",
+      "elapsed_seconds": 9.507354500005022,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip_v2/ini-cpp-inireader-prompt-preserving-non-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/ini-cpp-inireader-prompt-preserving-non-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "ini/ini.h",
+        "original_hash": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+        "restored_hash": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": "",
+    "original_hash": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+    "restored_hash": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-08T08:02:21.130545+00:00",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "fence_language": "cpp",
+    "strict_format_pass": false,
+    "raw_sha256": "566ab72d12fc1f017a51b5ab2d79714cfbbcd8ea4299926338b0a21cf2c215b9",
+    "normalized_sha256": "6e7e23c06ffe64125e440627d46d89371071ab2a1496f07eaba9bc6dcabc98eb",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/ini-cpp-inireader-prompt-preserving-non-rag-formal-001"
+}
