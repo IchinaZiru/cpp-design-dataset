@@ -1,0 +1,29 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-config-v3-formal",
+  "target_name": "config",
+  "condition": "full_source_prompt_preserving_detailed_design_rag",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "include/config.h",
+    "src/config/config.cpp"
+  ],
+  "source_files": [
+    "include/config.h",
+    "src/config/config.cpp"
+  ],
+  "observation_file_hashes": {
+    "include/config.h": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc",
+    "src/config/config.cpp": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a"
+  },
+  "source_file_hashes": {
+    "include/config.h": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc",
+    "src/config/config.cpp": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a"
+  },
+  "prepared_at_utc": "2026-08-08T02:38:54.143130+00:00",
+  "replacement_scope": "module_files",
+  "locator": {}
+}

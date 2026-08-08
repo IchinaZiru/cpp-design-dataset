@@ -1,0 +1,33 @@
+{
+  "schema_version": "2.0",
+  "prompt_profile": "prompt-preserving-detailed-design-v3",
+  "condition": "full_source_prompt_preserving_non_rag",
+  "expected_level2_headings": [
+    "責務",
+    "公開インターフェース",
+    "入力",
+    "出力",
+    "状態",
+    "処理手順",
+    "例外・失敗条件",
+    "依存関係",
+    "重要な不変条件"
+  ],
+  "actual_level2_headings": [
+    "責務",
+    "公開インターフェース",
+    "入力",
+    "出力",
+    "状態",
+    "処理手順",
+    "例外・失敗条件",
+    "依存関係",
+    "重要な不変条件"
+  ],
+  "expected_detail_level3_headings": [],
+  "actual_detail_level3_headings": [],
+  "artifact_checks": {},
+  "passed": true,
+  "errors": [],
+  "validated_at_utc": "2026-08-08T02:25:32.957471+00:00"
+}
