@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++ソフトウェアのリバースエンジニアリング担当者です。与えられたコードだけを根拠として、再実装に必要な設計文書を日本語で作成してください。推測で存在しない機能を追加しないでください。指定された見出し構成を厳密に保持してください。",
+  "prompt": "# 対象\n- target: Register\n- granularity: target_span\n- target_kind: class\n- target_symbol: Register\n\n# 対象範囲\n元コード全体は対象部分を理解するための文脈として参照してください。\n設計文書はtarget_symbolで指定した対象部分だけについて作成してください。\n対象外の関数やクラスは、対象部分との関係を説明する場合に限って記載してください。\n\n# 基本設計項目の出力構成（全条件共通・固定）\n以下の9個のlevel-2見出しを、この順序・この表記で必ず出力してください。\n見出し名の変更、統合、省略、順序変更を禁止します。\n各項目は元コードから確認できる事実だけを記述し、同じ事実を複数項目で長文反復しないでください。\n非RAG条件では、以下9個以外のlevel-2見出しを追加しないでください。\n\n## 責務\n## 公開インターフェース\n## 入力\n## 出力\n## 状態\n## 処理手順\n## 例外・失敗条件\n## 依存関係\n## 重要な不変条件\n\n\n# 元コード\n===== FILE: src/Common/Register.hpp =====\n//\n// Created by Alex Chi on 2019-07-01.\n//\n\n#ifndef RISCV_SIMULATOR_REGISTER_HPP\n#define RISCV_SIMULATOR_REGISTER_HPP\n\ntemplate<typename T>\nclass Register { // : public Tickable {\npublic:\n    T prev, next;\n\n    bool _stall;\n\n    Register() : prev((T) 0), next((T) 0), _stall(false) {}\n\n    Register(T d) : prev(d), next(d), _stall(false) {}\n\n    T read() { return prev; }\n\n    T current() { return next; }\n\n    void write(const T &t) { next = t; }\n\n    void tick() { if (!_stall) prev = next; }\n\n    void stall(bool stall) { _stall = stall; }\n\n    operator T() { return read(); }\n\n    void operator=(T next) { write(next); }\n};\n\n#endif //RISCV_SIMULATOR_REGISTER_HPP\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}
