@@ -1,0 +1,225 @@
+{
+  "schema_version": "4.0",
+  "prompt_profile": "source-faithful-detailed-design-v4",
+  "condition": "full_source_source_faithful_detailed_design_rag_v4",
+  "validation_mode": "advisory_non_blocking",
+  "generated_design_unchanged": true,
+  "blocking_passed": true,
+  "advisory_passed": false,
+  "headings": [
+    {
+      "level": 1,
+      "name": "設計文書"
+    },
+    {
+      "level": 2,
+      "name": "責務"
+    },
+    {
+      "level": 2,
+      "name": "公開インターフェース"
+    },
+    {
+      "level": 3,
+      "name": "クラス・メソッド詳細"
+    },
+    {
+      "level": 2,
+      "name": "入力"
+    },
+    {
+      "level": 2,
+      "name": "出力"
+    },
+    {
+      "level": 2,
+      "name": "状態"
+    },
+    {
+      "level": 2,
+      "name": "処理手順"
+    },
+    {
+      "level": 2,
+      "name": "例外・失敗条件"
+    },
+    {
+      "level": 2,
+      "name": "依存関係"
+    },
+    {
+      "level": 2,
+      "name": "重要な不変条件"
+    },
+    {
+      "level": 2,
+      "name": "追加詳細設計情報"
+    },
+    {
+      "level": 3,
+      "name": "クラス図"
+    },
+    {
+      "level": 3,
+      "name": "シーケンス図"
+    },
+    {
+      "level": 3,
+      "name": "メソッド仕様書"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<From, To>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<From, std::string>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::string, std::string>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::string, To>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::string, std::list<T>>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::list<T>, std::string>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::string, std::vector<T>>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::vector<T>, std::string>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::string, std::set<T>>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::set<T>, std::string>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::string, std::unordered_set<T>>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::unordered_set<T>, std::string>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::string, std::map<std::string, T>>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::map<std::string, T>, std::string>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::string, std::unordered_map<std::string, T>>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarConverter<std::unordered_map<std::string, T>, std::string>::operator()`"
+    },
+    {
+      "level": 4,
+      "name": "`VarBase::Name`"
+    },
+    {
+      "level": 4,
+      "name": "`VarBase::Description`"
+    },
+    {
+      "level": 4,
+      "name": "`Var<T, FromStr, ToStr>::ToString`"
+    },
+    {
+      "level": 4,
+      "name": "`Var<T, FromStr, ToStr>::FromString`"
+    },
+    {
+      "level": 4,
+      "name": "`Var<T, FromStr, ToStr>::GetValue`"
+    },
+    {
+      "level": 4,
+      "name": "`Var<T, FromStr, ToStr>::SetValue`"
+    },
+    {
+      "level": 4,
+      "name": "`Var<T, FromStr, ToStr>::TypeName`"
+    },
+    {
+      "level": 4,
+      "name": "`Var<T, FromStr, ToStr>::RemoveListener`"
+    },
+    {
+      "level": 4,
+      "name": "`Var<T, FromStr, ToStr>::AddListener`"
+    },
+    {
+      "level": 4,
+      "name": "`Var<T, FromStr, ToStr>::ClearListeners`"
+    },
+    {
+      "level": 4,
+      "name": "`Config::Lookup~T~(const std::string_view name, const T& default_val, const std::string_view description = \"\")`"
+    },
+    {
+      "level": 4,
+      "name": "`Config::Lookup~T~(const std::string_view name) const`"
+    },
+    {
+      "level": 4,
+      "name": "`Config::LookupBase(std::string_view name) const`"
+    },
+    {
+      "level": 4,
+      "name": "`Config::LoadYaml(const YAML::Node& root)`"
+    },
+    {
+      "level": 4,
+      "name": "`Config::Visit(std::function<void(VarBase::Ptr)> visitor) const`"
+    },
+    {
+      "level": 4,
+      "name": "`RootConfig()`"
+    },
+    {
+      "level": 3,
+      "name": "処理フロー図"
+    },
+    {
+      "level": 3,
+      "name": "状態遷移・副作用"
+    },
+    {
+      "level": 3,
+      "name": "データ変換・制約"
+    },
+    {
+      "level": 3,
+      "name": "その他の詳細"
+    }
+  ],
+  "diagram_checks": {
+    "クラス図": true,
+    "シーケンス図": true,
+    "処理フロー図": false
+  },
+  "warnings": [
+    "detail section name not found as Markdown heading: クラス・メソッド・インターフェース詳細",
+    "処理フロー図: expected Mermaid type not detected; advisory only"
+  ],
+  "validated_at_utc": "2026-08-08T14:38:04.702543+00:00"
+}
