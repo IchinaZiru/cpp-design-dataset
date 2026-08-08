@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "files": [
+    {
+      "path": "include/http.h",
+      "sha256": "8d4adc757d56972137ee35d99365f1d86b38fa02b71ad3c253d61aa8169e2177",
+      "character_count": 5480
+    },
+    {
+      "path": "src/http/http.cpp",
+      "sha256": "13af40b25bd47369b8b1c46a29ad2c8a2eb4f598feae766043e08cefa70a016e",
+      "character_count": 5067
+    },
+    {
+      "path": "src/http/request.h",
+      "sha256": "b5e5fc2991059a930cc0227358dfabbf7e6209bbb19e5e928a3bc5e29849c9f8",
+      "character_count": 2066
+    },
+    {
+      "path": "src/http/request.cpp",
+      "sha256": "5afc39ae8330efed2bfbd2d54932f7e4df8544789965edb80fd408bd3bafbf92",
+      "character_count": 1663
+    },
+    {
+      "path": "src/http/response.h",
+      "sha256": "d19647d9230979af82bd3547ca5e58d980fee5415d1d42c98b493a52bbec1e8c",
+      "character_count": 4405
+    },
+    {
+      "path": "src/http/response.cpp",
+      "sha256": "19c1ff8bd510169e9f439a94f9e1b1bbf2e2b03f093998ad1ff723ea2196c8da",
+      "character_count": 3589
+    }
+  ]
+}

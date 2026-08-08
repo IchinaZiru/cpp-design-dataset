@@ -1,0 +1,135 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-http-v4-eval",
+  "run_id": "echo-web-server-http-source-faithful-detailed-design-rag-v4-eval-001",
+  "condition": "full_source_source_faithful_detailed_design_rag_v4",
+  "granularity": "module_files",
+  "completed_at_utc": "2026-08-08T15:52:50.573578+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "started_at_utc": "2026-08-08T15:52:24.714263+00:00",
+      "completed_at_utc": "2026-08-08T15:52:29.992045+00:00",
+      "elapsed_seconds": 5.275779300136492,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-http-source-faithful-detailed-design-rag-v4-eval-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-http-source-faithful-detailed-design-rag-v4-eval-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-08T15:52:29.992167+00:00",
+      "completed_at_utc": "2026-08-08T15:52:50.512541+00:00",
+      "elapsed_seconds": 20.518683800008148,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-http-source-faithful-detailed-design-rag-v4-eval-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-http-source-faithful-detailed-design-rag-v4-eval-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "include/http.h",
+        "original_hash": "943fde3d6548c12620e27563a00dc121550891651da3e61d2958db94ebb664bd",
+        "restored_hash": "943fde3d6548c12620e27563a00dc121550891651da3e61d2958db94ebb664bd",
+        "restored": true
+      },
+      {
+        "path": "src/http/http.cpp",
+        "original_hash": "fd61a787220a54ae758bbb7c826d34ab15867968d055d10db9c8383e497bbf57",
+        "restored_hash": "fd61a787220a54ae758bbb7c826d34ab15867968d055d10db9c8383e497bbf57",
+        "restored": true
+      },
+      {
+        "path": "src/http/request.h",
+        "original_hash": "738a5489150f0ab537281f6832127e784e08e009f2db3338751ca362500e3ef6",
+        "restored_hash": "738a5489150f0ab537281f6832127e784e08e009f2db3338751ca362500e3ef6",
+        "restored": true
+      },
+      {
+        "path": "src/http/request.cpp",
+        "original_hash": "551325144379c1297b7744acb813598cd27fdaf8ac21e39f0e3726f4ef1ae63c",
+        "restored_hash": "551325144379c1297b7744acb813598cd27fdaf8ac21e39f0e3726f4ef1ae63c",
+        "restored": true
+      },
+      {
+        "path": "src/http/response.h",
+        "original_hash": "e159547a5f019e824d01facd977c9c2070a2b415db56b851a001608fb867aefc",
+        "restored_hash": "e159547a5f019e824d01facd977c9c2070a2b415db56b851a001608fb867aefc",
+        "restored": true
+      },
+      {
+        "path": "src/http/response.cpp",
+        "original_hash": "342a541c43e04792db14ef98886653086961d23a04ef76c039c4ff4f946a014d",
+        "restored_hash": "342a541c43e04792db14ef98886653086961d23a04ef76c039c4ff4f946a014d",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-08T15:52:24.531250+00:00",
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "fence_language": null,
+    "strict_format_pass": true,
+    "raw_sha256": "c58a8196528205abf28623bc2917816098c9f06beec25d2c541580d76280274e",
+    "normalized_sha256": "c58a8196528205abf28623bc2917816098c9f06beec25d2c541580d76280274e",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/echo-web-server-http-source-faithful-detailed-design-rag-v4-eval-001"
+}
