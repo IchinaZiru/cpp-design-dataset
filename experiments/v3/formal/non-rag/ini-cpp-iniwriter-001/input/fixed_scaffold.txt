@@ -1,0 +1,5 @@
+inline static void write(const std::string& filepath,
+                             const INIReader& reader,
+                             const bool overwrite = false) {
+    /* implementation omitted */
+}

@@ -1,0 +1,163 @@
+{
+  "schema_version": "2.1",
+  "target_id": "ini-cpp-iniwriter-v3-formal",
+  "run_id": "ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001",
+  "condition": "full_source_prompt_preserving_non_rag",
+  "granularity": "target_span",
+  "completed_at_utc": "2026-08-08T08:32:58.061049+00:00",
+  "overall_pass": true,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-08T08:32:28.084144+00:00",
+      "completed_at_utc": "2026-08-08T08:32:35.826646+00:00",
+      "elapsed_seconds": 7.7401177999563515,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-08T08:32:35.826778+00:00",
+      "completed_at_utc": "2026-08-08T08:32:56.541659+00:00",
+      "elapsed_seconds": 20.713436800055206,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && cd build/test && ./all_test --gtest_color=no --gtest_filter='INIWriter.*'"
+      ],
+      "container_shell_command": "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && cd build/test && ./all_test --gtest_color=no --gtest_filter='INIWriter.*'",
+      "started_at_utc": "2026-08-08T08:32:56.541764+00:00",
+      "completed_at_utc": "2026-08-08T08:32:57.192207+00:00",
+      "elapsed_seconds": 0.6492437000852078,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001/direct_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001/direct_test.stderr.txt",
+      "counts": {
+        "ran": 3,
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    "full_test": {
+      "stage": "full_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/ini-cpp",
+        "cpp-roundtrip-env:ini-cpp-v2",
+        "bash",
+        "-lc",
+        "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && cd build/test && ./all_test --gtest_color=no"
+      ],
+      "container_shell_command": "rm -rf build/test/fixtures && cp -a test/fixtures build/test/fixtures && cd build/test && ./all_test --gtest_color=no",
+      "started_at_utc": "2026-08-08T08:32:57.192516+00:00",
+      "completed_at_utc": "2026-08-08T08:32:57.986072+00:00",
+      "elapsed_seconds": 0.7923585998360068,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001/full_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001/full_test.stderr.txt",
+      "counts": {
+        "ran": 27,
+        "passed": 27,
+        "failed": 0
+      }
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "ini/ini.h",
+        "original_hash": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+        "restored_hash": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": "",
+    "original_hash": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+    "restored_hash": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-08T08:32:27.981417+00:00",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "fence_language": "cpp",
+    "strict_format_pass": false,
+    "raw_sha256": "a02e2fbee403241cb27ece28e368b2eb954d540425763a9cf16632637f82115b",
+    "normalized_sha256": "d7d565d6607e7a82318f5e597be81b0615f9bd53e107701599a1cf38b501f575",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001"
+}

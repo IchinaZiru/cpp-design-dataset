@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: INIWriter::write\n- granularity: target_span\n- target_kind: function\n- target_symbol: INIWriter::write\n- source_file: ini/ini.h\n\n# 出力規則\n固定インターフェース・スキャフォールドに示された対象関数の定義全体だけをC++コードとして返してください。戻り値、関数名、引数、既定値、修飾を含む関数シグネチャを変更しないでください。Markdownコードフェンス、説明文、JSONは出力しないでください。\n\n# JSON Schema\nN/A\n\n# 設計文書\n# 対象\n- target: INIWriter::write\n- granularity: target_span\n- target_kind: function\n- target_symbol: INIWriter::write\n\n# 対象範囲\n元コード全体は対象部分を理解するための文脈として参照してください。\n設計文書はtarget_symbolで指定した対象部分だけについて作成してください。\n対象外の関数やクラスは、対象部分との関係を説明する場合に限って記載してください。\n\n# 基本設計項目の出力構成（全条件共通・固定）\n\n## 責務\nINIファイルにINIReaderオブジェクトの内容を書き込む責任を持ちます。既存ファイルの上書きはオプションで制御できます。\n\n## 公開インターフェース\n```cpp\ninline static void write(const std::string& filepath, const INIReader& reader, const bool overwrite = false);\n```\n\n## 入力\n- `filepath`: 書き込み先のファイルパス（`std::string`）\n- `reader`: 書き込むINIデータを保持するINIReaderオブジェクト（`const INIReader&`）\n- `overwrite`: 既存ファイルを上書きするかどうかを示すフラグ（`bool`、デフォルトは`false`）\n\n## 出力\nなし\n\n## 状態\n- ファイルの存在状況: `overwrite`が`false`の場合、指定されたファイルパスにファイルが既存であるか確認されます。\n- 書き込みモード: `std::ofstream`を使用してファイルを開きます。\n\n## 処理手順\n1. `overwrite`フラグが`false`で、指定されたファイルパスにファイルが存在する場合、例外をスローします。\n2. 指定されたファイルパスにファイルを開きます。開けない場合は例外をスローします。\n3. INIReaderオブジェクトからセクション名のリストを取得し、各セクションに対して以下の処理を行います：\n   - セクション名を書き込みます（例: `[section]`）。\n   - 各セクション内のキー名と値のペアを取得し、キー=値の形式でファイルに書き込みます。\n\n## 例外・失敗条件\n- 指定されたファイルパスに既存ファイルがあり、かつ`overwrite`が`false`の場合、`std::runtime_error`をスローします。\n- ファイルを開くことができない場合、`std::runtime_error`をスローします。\n\n## 依存関係\n- `INIReader`: INIデータを保持するためのクラス。`Sections()`メソッドと`Keys(section)`メソッド、および`Get(section, key)`メソッドを使用しています。\n- `std::ofstream`: ファイルへの書き込みに使用されます。\n\n## 重要な不変条件\n- 出力ファイルはUTF-8エンコーディングで保存されることが期待されます（ただし、元コードでは明示的なエンコーディング指定が行われていません）。\n- セクション名とキー名は`INIReader::Sections()`と`INIReader::Keys(section)`によって提供され、これらはユニークである必要があります。\n\n# 固定インターフェース・スキャフォールド\ninline static void write(const std::string& filepath,\n                             const INIReader& reader,\n                             const bool overwrite = false) {\n    /* implementation omitted */\n}\n\n\n# 依存情報\n#include <cstddef>\n#include <cstdio>\n#include <fstream>\n#include <set>\n#include <sstream>\n#include <stdexcept>\n#include <string>\n#include <string_view>\n#include <type_traits>\n#include <unordered_map>\n#include <utility>\n#include <vector>\n#include <charconv>\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}
