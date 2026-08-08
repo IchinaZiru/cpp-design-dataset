@@ -1,0 +1,12 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-log-v3-formal",
+  "run_id": "echo-web-server-log-prompt-preserving-non-rag-formal-001",
+  "condition": "full_source_prompt_preserving_non_rag",
+  "failed_stage": "code_regeneration",
+  "error_type": "TimeoutError",
+  "error": "timed out",
+  "recorded_at_utc": "2026-08-08T05:46:03.153369+00:00",
+  "retry_performed": false,
+  "automatic_repair_performed": false
+}
