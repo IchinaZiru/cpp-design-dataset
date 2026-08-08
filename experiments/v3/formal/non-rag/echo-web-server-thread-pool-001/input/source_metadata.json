@@ -1,0 +1,29 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-thread-pool-v3-formal",
+  "target_name": "thread-pool",
+  "condition": "full_source_prompt_preserving_non_rag",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "include/containers/thread_pool.h",
+    "src/containers/thread_pool/thread_pool.cpp"
+  ],
+  "source_files": [
+    "include/containers/thread_pool.h",
+    "src/containers/thread_pool/thread_pool.cpp"
+  ],
+  "observation_file_hashes": {
+    "include/containers/thread_pool.h": "ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c",
+    "src/containers/thread_pool/thread_pool.cpp": "234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6"
+  },
+  "source_file_hashes": {
+    "include/containers/thread_pool.h": "ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c",
+    "src/containers/thread_pool/thread_pool.cpp": "234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6"
+  },
+  "prepared_at_utc": "2026-08-08T07:16:40.710194+00:00",
+  "replacement_scope": "module_files",
+  "locator": {}
+}

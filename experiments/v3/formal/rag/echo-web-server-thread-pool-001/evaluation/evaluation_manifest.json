@@ -1,0 +1,111 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-thread-pool-v3-formal",
+  "run_id": "echo-web-server-thread-pool-prompt-preserving-detailed-design-rag-formal-001",
+  "condition": "full_source_prompt_preserving_detailed_design_rag",
+  "granularity": "module_files",
+  "completed_at_utc": "2026-08-08T07:29:45.900977+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "started_at_utc": "2026-08-08T07:29:22.733778+00:00",
+      "completed_at_utc": "2026-08-08T07:29:27.723748+00:00",
+      "elapsed_seconds": 4.9870202001184225,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-thread-pool-prompt-preserving-detailed-design-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-thread-pool-prompt-preserving-detailed-design-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-08T07:29:27.723897+00:00",
+      "completed_at_utc": "2026-08-08T07:29:45.851095+00:00",
+      "elapsed_seconds": 18.125087100081146,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-thread-pool-prompt-preserving-detailed-design-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-thread-pool-prompt-preserving-detailed-design-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "include/containers/thread_pool.h",
+        "original_hash": "ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c",
+        "restored_hash": "ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c",
+        "restored": true
+      },
+      {
+        "path": "src/containers/thread_pool/thread_pool.cpp",
+        "original_hash": "234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6",
+        "restored_hash": "234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-08T07:29:22.621406+00:00",
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "fence_language": null,
+    "strict_format_pass": true,
+    "raw_sha256": "b7e7f22b6264844f4df8da9f24306cf33e004412c6411ace4a3d2cd871b8c4c4",
+    "normalized_sha256": "b7e7f22b6264844f4df8da9f24306cf33e004412c6411ace4a3d2cd871b8c4c4",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/echo-web-server-thread-pool-prompt-preserving-detailed-design-rag-formal-001"
+}
