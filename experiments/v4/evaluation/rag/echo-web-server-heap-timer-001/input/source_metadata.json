@@ -1,0 +1,25 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-heap-timer-v4-eval",
+  "target_name": "heap-timer",
+  "condition": "full_source_source_faithful_detailed_design_rag_v4",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "include/containers/heap_timer.h"
+  ],
+  "source_files": [
+    "include/containers/heap_timer.h"
+  ],
+  "observation_file_hashes": {
+    "include/containers/heap_timer.h": "d89dcc16bafd792ea0d76ac99ae2fdea68374391f952f85caf6c8dcfb88cf56a"
+  },
+  "source_file_hashes": {
+    "include/containers/heap_timer.h": "d89dcc16bafd792ea0d76ac99ae2fdea68374391f952f85caf6c8dcfb88cf56a"
+  },
+  "prepared_at_utc": "2026-08-08T14:59:42.839017+00:00",
+  "replacement_scope": "module_files",
+  "locator": {}
+}
