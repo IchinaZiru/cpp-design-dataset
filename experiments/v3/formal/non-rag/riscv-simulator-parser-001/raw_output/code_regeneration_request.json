@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: Parser\n- granularity: target_span\n- target_kind: class\n- target_symbol: Parser\n- source_file: src/Common/Parser.hpp\n\n# 出力規則\n固定インターフェース・スキャフォールドの宣言内容を変更せず、対象クラスまたは構造体の定義全体だけをC++コードとして返してください。template宣言の個数と内容、class/struct宣言、継承、可視性、メンバ名と型、すべての関数・演算子の戻り値、引数、修飾を保持してください。一般的なC++慣習に合わせる目的でも、特殊または非標準的に見えるシグネチャを変更しないでください。スキャフォールドに存在しない宣言を追加せず、関数本体だけを実装してください。Markdownコードフェンス、説明文、JSONは出力しないでください。\n\n# JSON Schema\nN/A\n\n# 設計文書\n# 対象\n- target: Parser\n- granularity: target_span\n- target_kind: class\n- target_symbol: Parser\n\n# 対象範囲\n元コード全体は対象部分を理解するための文脈として参照してください。\n設計文書はtarget_symbolで指定した対象部分だけについて作成してください。\n対象外の関数やクラスは、対象部分との関係を説明する場合に限って記載してください。\n\n# 基本設計項目の出力構成（全条件共通・固定）\n\n## 責務\n`Parser` クラスは、入力ストリームからデータを読み取り、それをメモリオブジェクトに書き込む責任を持っています。具体的には、16進数形式のデータをパースし、指定されたアドレスに格納します。\n\n## 公開インターフェース\n- `static unsigned parse_hex(const std::string &hex)`: 16進数文字列を符号なし整数に変換します。\n- `static void parse(std::istream &in, Memory &mem)`: 入力ストリームからデータを読み取り、メモリオブジェクトにバイト単位で書き込みます。アドレスは`@`で指定された値から始まります。\n- `static void parse_hex(std::istream &in, Memory &mem)`: 入力ストリームから16進数のワード（4バイト）を読み取り、メモリオブジェクトに書き込みます。アドレスは自動的にインクリメントされます。\n\n## 入力\n- `parse_hex` メソッド: 16進数文字列。\n- `parse` メソッド: 行単位の入力ストリーム、各行にはデータまたはベースアドレスが含まれています。データ行はスペース区切りの16進数値で構成され、ベースアドレス行は`@`で始まる16進数値です。\n- `parse_hex` メソッド: スペース区切りの16進数ワード。\n\n## 出力\n- なし（メモリオブジェクトへの書き込み）\n\n## 状態\n- 内部状態は保持されず、すべての操作が静的メソッドとして実装されています。\n- `parse` メソッド: `base_addr` 変数を使用して現在の書き込み位置を追跡します。\n\n## 処理手順\n1. **parse_hex**:\n   - 入力ストリームから16進数文字列を読み取ります。\n   - その文字列を整数に変換し、メモリオブジェクトの現在のアドレス位置に書き込みます。\n   - アドレスは4バイトずつインクリメントされます。\n\n2. **parse**:\n   - 入力ストリームから行を読み取ります。\n   - 行が`@`で始まる場合、その16進数値をベースアドレスとして設定します。\n   - それ以外の場合は、スペース区切りの16進数文字列を読み取り、それぞれを整数に変換し、メモリオブジェクトの現在のアドレス位置に書き込みます。アドレスは1バイトずつインクリメントされます。\n\n## 例外・失敗条件\n- 入力ストリームが無効な場合（`if (!in)`）、エラーメッセージを出力します。\n- `parse_hex` メソッド: 不正な16進数文字列が入力された場合、未定義の動作となる可能性があります。\n\n## 依存関係\n- `Memory` クラス: データの書き込み先として使用されます。このクラスは別途定義されている必要があります。\n- 標準ライブラリ: `<iostream>`, `<iomanip>`, `<sstream>`, `<string>` を使用しています。\n\n## 重要な不変条件\n- `parse_hex` メソッド: 入力ストリームが有効であることを確認します。\n- `parse` メソッド: 同じく入力ストリームの有効性を確認し、ベースアドレスは正しい16進数形式である必要があります。\n\n# 固定インターフェース・スキャフォールド\nclass Parser {\npublic:\n    static unsigned parse_hex(const std::string &hex) ;\n\n    static void parse(std::istream &in, Memory &mem) ;\n\n    static void parse_hex(std::istream &in, Memory &mem) ;\n};\n\n\n# 依存情報\n#include <iostream>\n#include <iomanip>\n#include <sstream>\n#include <string>\n#include \"Memory.hpp\"\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "schema_version": "2.0",
+  "prompt_profile": "prompt-preserving-detailed-design-v3",
+  "condition": "full_source_prompt_preserving_detailed_design_rag",
+  "expected_level2_headings": [
+    "責務",
+    "公開インターフェース",
+    "入力",
+    "出力",
+    "状態",
+    "処理手順",
+    "例外・失敗条件",
+    "依存関係",
+    "重要な不変条件",
+    "追加詳細設計情報"
+  ],
+  "actual_level2_headings": [
+    "公開インターフェース",
+    "入力",
+    "出力",
+    "状態",
+    "処理手順",
+    "例外・失敗条件",
+    "依存関係",
+    "重要な不変条件",
+    "クラス図",
+    "クラス・メソッド・インターフェース詳細",
+    "シーケンス図",
+    "メソッド仕様書",
+    "処理フロー図",
+    "状態遷移・副作用",
+    "データ変換・制約"
+  ],
+  "expected_detail_level3_headings": [
+    "クラス図",
+    "クラス・メソッド・インターフェース詳細",
+    "シーケンス図",
+    "メソッド仕様書",
+    "処理フロー図",
+    "状態遷移・副作用",
+    "データ変換・制約"
+  ],
+  "actual_detail_level3_headings": [],
+  "artifact_checks": {
+    "クラス図": {
+      "non_empty": false,
+      "not_applicable": false,
+      "unconfirmed": false,
+      "required_mermaid_type": "classDiagram",
+      "mermaid_present": false
+    },
+    "クラス・メソッド・インターフェース詳細": {
+      "non_empty": false,
+      "not_applicable": false,
+      "unconfirmed": false
+    },
+    "シーケンス図": {
+      "non_empty": false,
+      "not_applicable": false,
+      "unconfirmed": false,
+      "required_mermaid_type": "sequenceDiagram",
+      "mermaid_present": false
+    },
+    "メソッド仕様書": {
+      "non_empty": false,
+      "not_applicable": false,
+      "unconfirmed": false
+    },
+    "処理フロー図": {
+      "non_empty": false,
+      "not_applicable": false,
+      "unconfirmed": false,
+      "required_mermaid_type": "flowchart",
+      "mermaid_present": false
+    },
+    "状態遷移・副作用": {
+      "non_empty": false,
+      "not_applicable": false,
+      "unconfirmed": false
+    },
+    "データ変換・制約": {
+      "non_empty": false,
+      "not_applicable": false,
+      "unconfirmed": false
+    }
+  },
+  "passed": false,
+  "errors": [
+    "level-2 headings differ: expected=['責務', '公開インターフェース', '入力', '出力', '状態', '処理手順', '例外・失敗条件', '依存関係', '重要な不変条件', '追加詳細設計情報'], actual=['公開インターフェース', '入力', '出力', '状態', '処理手順', '例外・失敗条件', '依存関係', '重要な不変条件', 'クラス図', 'クラス・メソッド・インターフェース詳細', 'シーケンス図', 'メソッド仕様書', '処理フロー図', '状態遷移・副作用', 'データ変換・制約']",
+    "detail level-3 headings differ: expected=['クラス図', 'クラス・メソッド・インターフェース詳細', 'シーケンス図', 'メソッド仕様書', '処理フロー図', '状態遷移・副作用', 'データ変換・制約'], actual=[]",
+    "クラス図: requires Mermaid classDiagram or an explicit 該当なし",
+    "クラス・メソッド・インターフェース詳細: section is empty",
+    "シーケンス図: requires Mermaid sequenceDiagram or an explicit 該当なし",
+    "メソッド仕様書: section is empty",
+    "処理フロー図: requires Mermaid flowchart or an explicit 該当なし",
+    "状態遷移・副作用: section is empty",
+    "データ変換・制約: section is empty"
+  ],
+  "validated_at_utc": "2026-08-08T09:15:33.223631+00:00"
+}

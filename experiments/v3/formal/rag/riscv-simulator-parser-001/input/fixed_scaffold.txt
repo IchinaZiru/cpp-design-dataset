@@ -1,0 +1,8 @@
+class Parser {
+public:
+    static unsigned parse_hex(const std::string &hex) ;
+
+    static void parse(std::istream &in, Memory &mem) ;
+
+    static void parse_hex(std::istream &in, Memory &mem) ;
+};
