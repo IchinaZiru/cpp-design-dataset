@@ -1,0 +1,167 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-ip-v4-eval",
+  "run_id": "echo-web-server-ip-source-faithful-detailed-design-rag-v4-eval-001",
+  "condition": "full_source_source_faithful_detailed_design_rag_v4",
+  "granularity": "module_files",
+  "completed_at_utc": "2026-08-08T16:16:11.948244+00:00",
+  "overall_pass": true,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "started_at_utc": "2026-08-08T16:15:35.707904+00:00",
+      "completed_at_utc": "2026-08-08T16:15:40.498491+00:00",
+      "elapsed_seconds": 4.788328900001943,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-ip-source-faithful-detailed-design-rag-v4-eval-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-ip-source-faithful-detailed-design-rag-v4-eval-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-08T16:15:40.498619+00:00",
+      "completed_at_utc": "2026-08-08T16:16:09.087586+00:00",
+      "elapsed_seconds": 28.587292100070044,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-ip-source-faithful-detailed-design-rag-v4-eval-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-ip-source-faithful-detailed-design-rag-v4-eval-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='ConceptTest.ValidIPAddr:IPAddrTest.MaximumLength:IPAddrTest.LoopBack:IPAddrTest.Any:IPAddrTest.Construction'"
+      ],
+      "container_shell_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='ConceptTest.ValidIPAddr:IPAddrTest.MaximumLength:IPAddrTest.LoopBack:IPAddrTest.Any:IPAddrTest.Construction'",
+      "started_at_utc": "2026-08-08T16:16:09.087715+00:00",
+      "completed_at_utc": "2026-08-08T16:16:09.680437+00:00",
+      "elapsed_seconds": 0.5915611002128571,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-ip-source-faithful-detailed-design-rag-v4-eval-001/direct_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-ip-source-faithful-detailed-design-rag-v4-eval-001/direct_test.stderr.txt",
+      "counts": {
+        "ran": 5,
+        "passed": 5,
+        "failed": 0
+      }
+    },
+    "full_test": {
+      "stage": "full_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "ctest --test-dir build --output-on-failure"
+      ],
+      "container_shell_command": "ctest --test-dir build --output-on-failure",
+      "started_at_utc": "2026-08-08T16:16:09.680789+00:00",
+      "completed_at_utc": "2026-08-08T16:16:11.909453+00:00",
+      "elapsed_seconds": 2.227324799867347,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-ip-source-faithful-detailed-design-rag-v4-eval-001/full_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-ip-source-faithful-detailed-design-rag-v4-eval-001/full_test.stderr.txt",
+      "counts": {
+        "ran": 63,
+        "passed": 63,
+        "failed": 0
+      }
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "include/ip.h",
+        "original_hash": "82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1",
+        "restored_hash": "82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1",
+        "restored": true
+      },
+      {
+        "path": "src/ip/ip.cpp",
+        "original_hash": "b61e08ee3f4d11802b86ff445586120f1d0ca48ede8fb22b0b39cc4841b0f9d7",
+        "restored_hash": "b61e08ee3f4d11802b86ff445586120f1d0ca48ede8fb22b0b39cc4841b0f9d7",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-08T16:15:35.599846+00:00",
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "fence_language": null,
+    "strict_format_pass": true,
+    "raw_sha256": "9a7f6663cf4d801b21736da232055251cbb426fdb89d279133accc893d09ff09",
+    "normalized_sha256": "9a7f6663cf4d801b21736da232055251cbb426fdb89d279133accc893d09ff09",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/echo-web-server-ip-source-faithful-detailed-design-rag-v4-eval-001"
+}
