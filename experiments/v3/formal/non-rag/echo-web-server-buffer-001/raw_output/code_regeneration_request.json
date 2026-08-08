@@ -1,0 +1,50 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: buffer\n- granularity: module_files\n- source_files: [\"include/containers/buffer.h\", \"src/containers/buffer/buffer.cpp\"]\n\n# 出力規則\n出力は指定されたJSON Schemaに一致するJSONのみとし、Markdownコードフェンスを使用しないでください。source_filesにある各ファイルを完全な内容として1回ずつ返してください。pathはsource_filesの文字列をそのまま使用し、追加・省略・重複させないでください。C++コード中の改行や引用符はJSON文字列として正しくエスケープしてください。固定インターフェース・スキャフォールドに示された宣言とファイル構成を変更しないでください。\n\n# JSON Schema\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"files\": {\n      \"type\": \"array\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"path\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"include/containers/buffer.h\",\n              \"src/containers/buffer/buffer.cpp\"\n            ]\n          },\n          \"content\": {\n            \"type\": \"string\",\n            \"minLength\": 1\n          }\n        },\n        \"required\": [\n          \"path\",\n          \"content\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\n    \"files\"\n  ],\n  \"additionalProperties\": false\n}\n\n# 設計文書\n# デザイン文書\n\n## 責務\n`buffer.h`と`buffer.cpp`は、自動的に拡張可能なバッファを提供します。このバッファはバイトや文字列の格納をサポートし、読み取りオフセットと書き込みオフセットを使用してデータの範囲を管理します。\n\n## 公開インターフェース\n- `Buffer`クラス:\n  - コンストラクタ: 初期サイズ、バイト配列、初期化リスト、文字列からバッファを作成。\n  - メソッド: `WritableSize`, `ReadableSize`, `Peek`, `ReadableBytes`, `ReadableString`, `WritableBytes`, `Append`, `EnsureWriteableSize`, `HasWritten`, `Retrieve`, `RetrieveUntil`, `RetrieveAll`, `RetrieveAllToString`, `Clear`, `Empty`.\n- `IOBuffer`クラス:\n  - メソッド: `ReadFrom`, `WriteTo`.\n- グローバルオペレータ: `<<` (バッファへの文字列、バッファ、バイト配列、初期化リストの追加).\n\n## 入力\n- 文字列 (`std::string_view`)\n- バイト配列 (`std::span<const std::byte>`, `std::initializer_list<std::byte>`)\n- その他のバッファ (`Buffer&`)\n\n## 出力\n- 読み取り可能なバイト数 (`std::size_t`)\n- 読み取り可能なバイトデータ (`std::span<const std::byte>`)\n- 読み取り可能な文字列 (`std::string`)\n- 書き込み可能なバイトデータ (`std::span<std::byte>`)\n\n## 状態\n- `buf_`: バッファの内部ストレージ (`std::vector<std::byte>`)\n- `read_pos_`: 読み取りオフセット (`std::atomic<std::size_t>`)\n- `write_pos_`: 書き込みオフセット (`std::atomic<std::size_t>`)\n\n## 処理手順\n1. バッファの初期化: コンストラクタを使用してバッファを作成し、必要なサイズを確保する。\n2. データの追加: `Append`メソッドを使用してデータをバッファに追加する。必要に応じて書き込み可能なスペースを確保する。\n3. データの読み取り: `ReadableBytes`, `ReadableString`メソッドを使用してデータを読み取る。読み取りオフセットを適切に進める。\n4. バッファのクリア: `Clear`メソッドを使用してバッファを空にする。\n\n## 例外・失敗条件\n- `Append`メソッドで`data`がnullptrの場合、assertionが発生する。\n- `HasWritten`, `Retrieve`メソッドで指定されたサイズが現在の書き込み可能なサイズや読み取り可能なサイズを超える場合、assertionが発生する。\n\n## 依存関係\n- `std::atomic`\n- `std::optional`\n- `std::span`\n- `std::string`\n- `std::string_view`\n- `std::vector`\n- `io.h` (IOBufferクラスのため)\n\n## 重要な不変条件\n- `read_pos_`は常に`write_pos_`以下である。\n- `buf_.size()`は常に`write_pos_ + WritableSize()`以上である。\n\n# 固定インターフェース・スキャフォールド\n===== FILE: include/containers/buffer.h =====\n/**\n * @file buffer.h\n * @brief The auto-expandable buffer, supporting storing bytes and strings.\n *\n * @author Chen Zhenshuo (chenzs108@outlook.com)\n * @author Liu Guowen (liu.guowen@outlook.com)\n * @par GitHub\n * https://github.com/Zhuagenborn\n * @version 1.0\n * @date 2022-05-03\n *\n * @example tests/containers/buffer_test.cpp\n */\n\n#pragma once\n\n#include <atomic>\n#include <optional>\n#include <span>\n#include <string>\n#include <string_view>\n#include <vector>\n\nnamespace ws {\n\nnamespace io {\n\nclass IReadWriter;\n\n}\n\n//! New-line characters\nenum class NewLine {\n    //! @p \\n\n    LF,\n\n    //! @p \\r\\n\n    CRLF\n};\n\n/**\n * @brief An auto-expandable buffer, supporting storing bytes and strings.\n *\n * @details\n * @code\n *                 Writing Offset ──────┐\n * Reading Offset ─────┐                │\n *                     │                │\n *                     │                │\n * ┌───────────────────▼────────────────▼────────────────┐\n * │ Prependable Bytes │ Readable Bytes │ Writable Bytes │\n * └───────────────────┴────────────────┴────────────────┘\n * @endcode\n *\n * Prependable space can be reused.\n */\nclass Buffer {\npublic:\n    //! Create a buffer with an initial size.\n    explicit Buffer(std::size_t size = 1000) noexcept;\n\n    //! Create a buffer with bytes.\n    explicit Buffer(std::span<const std::byte> bytes) noexcept;\n\n    //! Create a buffer with bytes.\n    explicit Buffer(std::initializer_list<std::byte> bytes) noexcept;\n\n    //! Create a buffer with a string.\n    explicit Buffer(std::string_view str) noexcept;\n\n    Buffer(const Buffer&) noexcept;\n\n    Buffer(Buffer&&) noexcept;\n\n    Buffer& operator=(const Buffer&) noexcept;\n\n    Buffer& operator=(Buffer&&) noexcept;\n\n    //! Get the current writable size without expanding.\n    std::size_t WritableSize() const noexcept;\n\n    //! Get the readable size.\n    std::size_t ReadableSize() const noexcept;\n\n    //! Peek the first byte without moving the reading offset.\n    std::optional<std::byte> Peek() const noexcept;\n\n    //! Get readable bytes without moving the reading offset.\n    std::span<const std::byte> ReadableBytes() const noexcept;\n\n    /**\n     * @brief Get a readable string without moving the reading offset.\n     *\n     * @warning Developers should ensure that the stored bytes are printable.\n     */\n    std::string ReadableString() const noexcept;\n\n    /**\n     * @brief Get writable space for editing.\n     *\n     * @warning\n     * If developers directly write data using the base address of writable space,\n     * they must manually adjust the writing offset with @p HasWritten.\n     */\n    std::span<std::byte> WritableBytes() const noexcept;\n\n    //! Append bytes to the buffer and move forward the writing offset.\n    void Append(std::span<const std::byte> bytes) noexcept;\n\n    //! Append bytes to the buffer and move forward the writing offset.\n    void Append(std::initializer_list<std::byte> bytes) noexcept;\n\n    //! Append a string and an optional new-line character to the buffer and move forward the writing offset.\n    void Append(std::string_view str,\n                std::optional<NewLine> new_line = std::nullopt) noexcept;\n\n    //! Append data to the buffer and move forward the writing offset.\n    void Append(const void* data, std::size_t size) noexcept;\n\n    //! Append another buffer to the buffer and move forward the writing offset.\n    void Append(const Buffer& buf) noexcept;\n\n    //! Ensure the buffer has enough writable space.\n    void EnsureWriteableSize(std::size_t size) noexcept;\n\n    //! Manually move forward the writing offset by a specific size.\n    void HasWritten(std::size_t size) noexcept;\n\n    //! Manually move forward the reading offset by a specific size.\n    void Retrieve(std::size_t size) noexcept;\n\n    //! Manually move forward the reading offset until it reaches the destination.\n    std::size_t RetrieveUntil(const void* addr) noexcept;\n\n    //! Manually move forward the reading offset to the end.\n    std::size_t RetrieveAll() noexcept;\n\n    /**\n     * @brief Manually move forward the reading offset to the end and extract a string from the rest.\n     *\n     * @warning Developers should ensure that the stored bytes are printable.\n     */\n    std::string RetrieveAllToString() noexcept;\n\n    //! Clear the buffer.\n    void Clear() noexcept;\n\n    //! Whether the buffer is empty.\n    bool Empty() const noexcept;\n\nprotected:\n    //! Get the prependable size which can be reused.\n    std::size_t PrependableSize() const noexcept;\n\n    //! Make the buffer have enough writable space.\n    void MakeSpace(std::size_t size) noexcept;\n\n    //! Get the reading offset.\n    std::vector<std::byte>::iterator ReadIter() const noexcept;\n\n    //! Get the writing offset.\n    std::vector<std::byte>::iterator WriteIter() const noexcept;\n\n    std::vector<std::byte> buf_;\n    std::atomic<std::size_t> read_pos_ {0};\n    std::atomic<std::size_t> write_pos_ {0};\n};\n\n//! An enhanced buffer supporting I/O reading and writing.\nclass IOBuffer : public Buffer {\npublic:\n    using Buffer::Buffer;\n\n    //! Read data from an I/O object.\n    std::size_t ReadFrom(io::IReadWriter& io);\n\n    //! Write data to an I/O object.\n    std::size_t WriteTo(io::IReadWriter& io);\n};\n\n//! Write a string to a buffer.\nBuffer& operator<<(Buffer& buf, std::string_view str) noexcept;\n\n//! Write a buffer to another buffer.\nBuffer& operator<<(Buffer& to, const Buffer& from) noexcept;\n\n//! Write bytes to a buffer.\nBuffer& operator<<(Buffer& buf, std::span<const std::byte> bytes) noexcept;\n\n//! Write bytes to a buffer.\nBuffer& operator<<(Buffer& buf,\n                   std::initializer_list<std::byte> bytes) noexcept;\n\n}  // namespace ws\n\n\n# 依存情報\n#include <atomic>\n#include <optional>\n#include <span>\n#include <string>\n#include <string_view>\n#include <vector>\n#include \"buffer.h\"\n#include \"io.h\"\n#include <algorithm>\n#include <cassert>\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  },
+  "format": {
+    "type": "object",
+    "properties": {
+      "files": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "enum": [
+                "include/containers/buffer.h",
+                "src/containers/buffer/buffer.cpp"
+              ]
+            },
+            "content": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "files"
+    ],
+    "additionalProperties": false
+  }
+}

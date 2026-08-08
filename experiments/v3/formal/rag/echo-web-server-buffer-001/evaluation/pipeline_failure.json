@@ -1,0 +1,12 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-buffer-v3-formal",
+  "run_id": "echo-web-server-buffer-prompt-preserving-detailed-design-rag-formal-001",
+  "condition": "full_source_prompt_preserving_detailed_design_rag",
+  "failed_stage": "design_generation",
+  "error_type": "RuntimeError",
+  "error": "Design output contract violation: level-2 headings differ: expected=['責務', '公開インターフェース', '入力', '出力', '状態', '処理手順', '例外・失敗条件', '依存関係', '重要な不変条件', '追加詳細設計情報'], actual=['追加詳細設計情報']",
+  "recorded_at_utc": "2026-08-08T01:39:52.536732+00:00",
+  "retry_performed": false,
+  "automatic_repair_performed": false
+}
