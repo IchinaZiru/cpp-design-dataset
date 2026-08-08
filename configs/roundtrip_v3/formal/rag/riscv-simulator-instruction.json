@@ -1,0 +1,134 @@
+{
+  "schema_version": "5.1-formal",
+  "enabled": false,
+  "pilot_only": false,
+  "formal_result_eligible": true,
+  "condition": "full_source_prompt_preserving_detailed_design_rag",
+  "target_id": "riscv-simulator-instruction-v3-formal",
+  "pair_id": "riscv-simulator-instruction",
+  "pair_sequence": 13,
+  "experiment_id": "v3/formal/rag/riscv-simulator-instruction-001",
+  "run_id": "riscv-simulator-instruction-prompt-preserving-detailed-design-rag-formal-001",
+  "repository_id": "RISCV-Simulator",
+  "repository_path": "repos/RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "target_name": "Instruction",
+  "adoption_status": "条件付き採用",
+  "granularity": "module_files",
+  "observation_files": [
+    "src/Common/Instruction.hpp"
+  ],
+  "source_files": [
+    "src/Common/Instruction.hpp"
+  ],
+  "locator": {},
+  "design_knowledge": {
+    "enabled": true,
+    "context_file": "knowledge/detailed-design/general-v3.md",
+    "instruction_mode": "required_additional_artifacts",
+    "query": "対象コードの基本9項目を保持したまま、クラス図、クラス・メソッド・インターフェース詳細、シーケンス図、メソッド仕様書、処理フロー図、状態遷移・副作用、データ変換・制約を追加するための汎用詳細設計知識を取得する"
+  },
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:riscv-simulator-v1",
+    "docker_image_id": "sha256:81e23cc94a387697d7979c847d81bf557543fece913065fbdbd329bf194f62cd",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Instruction.CorrectSize:Instruction.InstructionR:Instruction.InstructionI:Instruction.InstructionS:Instruction.InstructionB:Instruction.InstructionU:Instruction.InstructionJ'",
+    "full_test_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+    "full_test_kind": "gtest",
+    "direct_test_filter": "Instruction.CorrectSize:Instruction.InstructionR:Instruction.InstructionI:Instruction.InstructionS:Instruction.InstructionB:Instruction.InstructionU:Instruction.InstructionJ",
+    "direct_test_names": [
+      "Instruction.CorrectSize",
+      "Instruction.InstructionR",
+      "Instruction.InstructionI",
+      "Instruction.InstructionS",
+      "Instruction.InstructionB",
+      "Instruction.InstructionU",
+      "Instruction.InstructionJ"
+    ],
+    "expected_direct_tests": 7,
+    "expected_full_tests": 18,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "protocol": {
+    "protocol_id": "prompt-preserving-detailed-design-rag-v3-formal-001",
+    "formal_target_set_member": true,
+    "formal_pair_id": "riscv-simulator-instruction",
+    "observation_scope": "full_source_files",
+    "replacement_scope": "module_files",
+    "code_regeneration_inputs": [
+      "generated_design_document",
+      "fixed_interface_scaffold",
+      "dependency_include_context"
+    ],
+    "original_source_in_code_regeneration": false,
+    "retrieved_context_in_code_regeneration": false,
+    "module_output_format": "ollama_json_schema",
+    "retry": false,
+    "automatic_repair": false,
+    "generated_code_manual_edit": false,
+    "generations_per_stage": 1,
+    "design_prompt_profile": "prompt-preserving-detailed-design-v3",
+    "base_level2_sections": [
+      "責務",
+      "公開インターフェース",
+      "入力",
+      "出力",
+      "状態",
+      "処理手順",
+      "例外・失敗条件",
+      "依存関係",
+      "重要な不変条件"
+    ],
+    "treatment_root_level2_section": "追加詳細設計情報",
+    "treatment_detail_level3_sections": [
+      "クラス図",
+      "クラス・メソッド・インターフェース詳細",
+      "シーケンス図",
+      "メソッド仕様書",
+      "処理フロー図",
+      "状態遷移・副作用",
+      "データ変換・制約"
+    ],
+    "allow_other_level2_sections": false,
+    "design_contract_validation_required": true,
+    "design_done_reason_required": "stop",
+    "code_regeneration_done_reason_required": "stop",
+    "num_ctx": 32768,
+    "num_predict": 16384
+  },
+  "provenance": {
+    "legacy_target_id": "riscv-simulator-instruction",
+    "legacy_run_id": "riscv-simulator-instruction-qwen25coder32b-001",
+    "legacy_experiment_id": "riscv-simulator-instruction-roundtrip",
+    "source_config": "configs/roundtrip/targets/riscv-simulator-instruction.json",
+    "source_note": null,
+    "legacy_results_are_not_direct_comparator": true,
+    "model_setting_policy": "Use v2 mechanics-pilot num_ctx=16384 and num_predict=8192 for both formal conditions; retain the canonical target's remaining model options.",
+    "v3_source_config": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-instruction.json",
+    "v2_results_are_not_v3_results": true,
+    "v3_change_scope": "Both conditions preserve the same nine base headings. The treatment additionally externalizes seven generic detailed-design artifacts.",
+    "context_preflight": "analysis/v3/context-preflight-final-prompt/v3_context_preflight.json",
+    "context_policy": "Use num_ctx=32768 and num_predict=16384 in both conditions; re-run the exact-prompt preflight after implementation before any LLM pilot."
+  },
+  "design_prompt_profile": "prompt-preserving-detailed-design-v3"
+}

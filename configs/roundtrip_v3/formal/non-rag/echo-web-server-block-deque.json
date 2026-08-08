@@ -1,0 +1,128 @@
+{
+  "schema_version": "5.1-formal",
+  "enabled": false,
+  "pilot_only": false,
+  "formal_result_eligible": true,
+  "condition": "full_source_prompt_preserving_non_rag",
+  "target_id": "echo-web-server-block-deque-v3-formal",
+  "pair_id": "echo-web-server-block-deque",
+  "pair_sequence": 1,
+  "experiment_id": "v3/formal/non-rag/echo-web-server-block-deque-001",
+  "run_id": "echo-web-server-block-deque-prompt-preserving-non-rag-formal-001",
+  "repository_id": "Echo-Web-Server",
+  "repository_path": "repos/Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "target_name": "block-deque",
+  "adoption_status": "採用",
+  "granularity": "module_files",
+  "observation_files": [
+    "include/containers/block_deque.h"
+  ],
+  "source_files": [
+    "include/containers/block_deque.h"
+  ],
+  "locator": {},
+  "design_knowledge": {
+    "enabled": false
+  },
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:echo-web-server-v2",
+    "docker_image_id": "sha256:f4983b70f6c2400cec7c8869810a8ec3e87f6966e2cc86e09598bdbbc4773c5c",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='BlockDequeTest.Construction:BlockDequeTest.SingleThreadPushPop:BlockDequeTest.MultiThreadPushPop:BlockDequeTest.Close'",
+    "full_test_command": "ctest --test-dir build --output-on-failure",
+    "full_test_kind": "ctest",
+    "direct_test_filter": "BlockDequeTest.Construction:BlockDequeTest.SingleThreadPushPop:BlockDequeTest.MultiThreadPushPop:BlockDequeTest.Close",
+    "direct_test_names": [
+      "BlockDequeTest.Construction",
+      "BlockDequeTest.SingleThreadPushPop",
+      "BlockDequeTest.MultiThreadPushPop",
+      "BlockDequeTest.Close"
+    ],
+    "expected_direct_tests": 4,
+    "expected_full_tests": 63,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "protocol": {
+    "protocol_id": "prompt-preserving-detailed-design-rag-v3-formal-001",
+    "formal_target_set_member": true,
+    "formal_pair_id": "echo-web-server-block-deque",
+    "observation_scope": "full_source_files",
+    "replacement_scope": "module_files",
+    "code_regeneration_inputs": [
+      "generated_design_document",
+      "fixed_interface_scaffold",
+      "dependency_include_context"
+    ],
+    "original_source_in_code_regeneration": false,
+    "retrieved_context_in_code_regeneration": false,
+    "module_output_format": "ollama_json_schema",
+    "retry": false,
+    "automatic_repair": false,
+    "generated_code_manual_edit": false,
+    "generations_per_stage": 1,
+    "design_prompt_profile": "prompt-preserving-detailed-design-v3",
+    "base_level2_sections": [
+      "責務",
+      "公開インターフェース",
+      "入力",
+      "出力",
+      "状態",
+      "処理手順",
+      "例外・失敗条件",
+      "依存関係",
+      "重要な不変条件"
+    ],
+    "treatment_root_level2_section": "追加詳細設計情報",
+    "treatment_detail_level3_sections": [
+      "クラス図",
+      "クラス・メソッド・インターフェース詳細",
+      "シーケンス図",
+      "メソッド仕様書",
+      "処理フロー図",
+      "状態遷移・副作用",
+      "データ変換・制約"
+    ],
+    "allow_other_level2_sections": false,
+    "design_contract_validation_required": true,
+    "design_done_reason_required": "stop",
+    "code_regeneration_done_reason_required": "stop",
+    "num_ctx": 32768,
+    "num_predict": 16384
+  },
+  "provenance": {
+    "legacy_target_id": "echo-web-server-block-deque",
+    "legacy_run_id": "echo-web-server-block-deque-qwen25coder32b-001",
+    "legacy_experiment_id": "echo-web-server-block-deque-roundtrip-001",
+    "source_config": "configs/roundtrip/targets/echo-web-server-block-deque.json",
+    "source_note": null,
+    "legacy_results_are_not_direct_comparator": true,
+    "model_setting_policy": "Use v2 mechanics-pilot num_ctx=16384 and num_predict=8192 for both formal conditions; retain the canonical target's remaining model options.",
+    "v3_source_config": "configs/roundtrip_v2/formal/non-rag/echo-web-server-block-deque.json",
+    "v2_results_are_not_v3_results": true,
+    "v3_change_scope": "Both conditions preserve the same nine base headings. The treatment additionally externalizes seven generic detailed-design artifacts.",
+    "context_preflight": "analysis/v3/context-preflight-final-prompt/v3_context_preflight.json",
+    "context_policy": "Use num_ctx=32768 and num_predict=16384 in both conditions; re-run the exact-prompt preflight after implementation before any LLM pilot."
+  },
+  "design_prompt_profile": "prompt-preserving-detailed-design-v3"
+}

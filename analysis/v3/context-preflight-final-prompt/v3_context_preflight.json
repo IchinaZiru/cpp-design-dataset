@@ -1,0 +1,523 @@
+{
+  "schema_version": "1.0",
+  "audit_type": "v3_design_generation_input_context_preflight",
+  "formal_llm_generation_performed": false,
+  "ollama_model": "qwen2.5-coder:32b",
+  "ollama_version": "ollama version is 0.32.0",
+  "ollama_show": {
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen2",
+      "families": [
+        "qwen2"
+      ],
+      "parameter_size": "32.8B",
+      "quantization_level": "Q4_K_M"
+    },
+    "native_context_length": 32768
+  },
+  "probe_context_requested": 32768,
+  "probe": {
+    "preload_response": {
+      "model": "qwen2.5-coder:32b",
+      "created_at": "2026-08-08T00:16:44.430522Z",
+      "response": "",
+      "done": true,
+      "done_reason": "load"
+    },
+    "loaded_model": {
+      "name": "qwen2.5-coder:32b",
+      "model": "qwen2.5-coder:32b",
+      "size": 28805808781,
+      "digest": "b92d6a0bd47ee79114298de0177bf920c05a706d12633950b3936778492bef41",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen2",
+        "families": [
+          "qwen2"
+        ],
+        "parameter_size": "32.8B",
+        "quantization_level": "Q4_K_M"
+      },
+      "expires_at": "2026-08-08T09:26:44.430522+09:00",
+      "size_vram": 22659517644,
+      "context_length": 32768
+    },
+    "ollama_ps": "NAME                 ID              SIZE     PROCESSOR          CONTEXT    UNTIL              \nqwen2.5-coder:32b    b92d6a0bd47e    28 GB    21%/79% CPU/GPU    32768      9 minutes from now"
+  },
+  "gpu": [
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memory_total_mib": 24564,
+      "memory_free_mib": 620
+    }
+  ],
+  "tokenizer": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "transformers_version": "4.57.6",
+  "tokenizer_validation": {
+    "available": true,
+    "samples": [
+      {
+        "run": "echo-web-server-block-deque-001",
+        "observed": 3753,
+        "predicted": 3753,
+        "delta": 0
+      },
+      {
+        "run": "echo-web-server-buffer-001",
+        "observed": 4886,
+        "predicted": 4886,
+        "delta": 0
+      },
+      {
+        "run": "echo-web-server-config-001",
+        "observed": 6302,
+        "predicted": 6302,
+        "delta": 0
+      },
+      {
+        "run": "echo-web-server-heap-timer-001",
+        "observed": 5453,
+        "predicted": 5453,
+        "delta": 0
+      },
+      {
+        "run": "echo-web-server-http-001",
+        "observed": 9928,
+        "predicted": 9928,
+        "delta": 0
+      },
+      {
+        "run": "echo-web-server-io-001",
+        "observed": 3530,
+        "predicted": 3530,
+        "delta": 0
+      },
+      {
+        "run": "echo-web-server-ip-001",
+        "observed": 3319,
+        "predicted": 3319,
+        "delta": 0
+      },
+      {
+        "run": "echo-web-server-log-001",
+        "observed": 12546,
+        "predicted": 12546,
+        "delta": 0
+      },
+      {
+        "run": "echo-web-server-thread-pool-001",
+        "observed": 3191,
+        "predicted": 3191,
+        "delta": 0
+      },
+      {
+        "run": "echo-web-server-util-001",
+        "observed": 5206,
+        "predicted": 5206,
+        "delta": 0
+      },
+      {
+        "run": "ini-cpp-inireader-001",
+        "observed": 6792,
+        "predicted": 6792,
+        "delta": 0
+      },
+      {
+        "run": "ini-cpp-iniwriter-001",
+        "observed": 6796,
+        "predicted": 6796,
+        "delta": 0
+      },
+      {
+        "run": "riscv-simulator-instruction-001",
+        "observed": 3923,
+        "predicted": 3923,
+        "delta": 0
+      },
+      {
+        "run": "riscv-simulator-memory-001",
+        "observed": 2554,
+        "predicted": 2554,
+        "delta": 0
+      },
+      {
+        "run": "riscv-simulator-parser-001",
+        "observed": 2484,
+        "predicted": 2484,
+        "delta": 0
+      },
+      {
+        "run": "riscv-simulator-register-001",
+        "observed": 2344,
+        "predicted": 2344,
+        "delta": 0
+      },
+      {
+        "run": "riscv-simulator-registerfile-001",
+        "observed": 2633,
+        "predicted": 2633,
+        "delta": 0
+      }
+    ],
+    "max_abs_delta": 0,
+    "mean_abs_delta": 0.0
+  },
+  "context_budget_used_for_headroom": 32768,
+  "prompt_profile": "prompt-preserving-detailed-design-v3",
+  "reserved_output_tokens": 16384,
+  "knowledge_file": "knowledge\\detailed-design\\general-v3.md",
+  "repository_checks": [
+    {
+      "pair_id": "echo-web-server-block-deque",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\Echo-Web-Server",
+      "expected_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "actual_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "match": true
+    },
+    {
+      "pair_id": "echo-web-server-buffer",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\Echo-Web-Server",
+      "expected_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "actual_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "match": true
+    },
+    {
+      "pair_id": "echo-web-server-config",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\Echo-Web-Server",
+      "expected_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "actual_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "match": true
+    },
+    {
+      "pair_id": "echo-web-server-heap-timer",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\Echo-Web-Server",
+      "expected_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "actual_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "match": true
+    },
+    {
+      "pair_id": "echo-web-server-http",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\Echo-Web-Server",
+      "expected_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "actual_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "match": true
+    },
+    {
+      "pair_id": "echo-web-server-io",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\Echo-Web-Server",
+      "expected_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "actual_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "match": true
+    },
+    {
+      "pair_id": "echo-web-server-ip",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\Echo-Web-Server",
+      "expected_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "actual_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "match": true
+    },
+    {
+      "pair_id": "echo-web-server-log",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\Echo-Web-Server",
+      "expected_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "actual_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "match": true
+    },
+    {
+      "pair_id": "echo-web-server-thread-pool",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\Echo-Web-Server",
+      "expected_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "actual_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "match": true
+    },
+    {
+      "pair_id": "echo-web-server-util",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\Echo-Web-Server",
+      "expected_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "actual_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "match": true
+    },
+    {
+      "pair_id": "ini-cpp-inireader",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\ini-cpp",
+      "expected_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+      "actual_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+      "match": true
+    },
+    {
+      "pair_id": "ini-cpp-iniwriter",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\ini-cpp",
+      "expected_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+      "actual_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+      "match": true
+    },
+    {
+      "pair_id": "riscv-simulator-instruction",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\RISCV-Simulator",
+      "expected_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "actual_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "match": true
+    },
+    {
+      "pair_id": "riscv-simulator-memory",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\RISCV-Simulator",
+      "expected_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "actual_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "match": true
+    },
+    {
+      "pair_id": "riscv-simulator-parser",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\RISCV-Simulator",
+      "expected_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "actual_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "match": true
+    },
+    {
+      "pair_id": "riscv-simulator-register",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\RISCV-Simulator",
+      "expected_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "actual_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "match": true
+    },
+    {
+      "pair_id": "riscv-simulator-registerfile",
+      "repository": "C:\\Users\\kikumanetworklab\\Documents\\research\\cpp-design-dataset-v2\\repos\\RISCV-Simulator",
+      "expected_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "actual_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "match": true
+    }
+  ],
+  "target_count": 17,
+  "max_non_rag_input_tokens": 10786,
+  "max_non_rag_target": "echo-web-server-log",
+  "max_rag_input_tokens": 12134,
+  "max_rag_target": "echo-web-server-log",
+  "min_rag_headroom": 20634,
+  "min_rag_headroom_after_reserved_output": 4250,
+  "rows": [
+    {
+      "pair_id": "echo-web-server-block-deque",
+      "target_name": "block-deque",
+      "repository_id": "Echo-Web-Server",
+      "granularity": "module_files",
+      "source_files": 1,
+      "source_characters": 6484,
+      "non_rag_input_tokens": 1993,
+      "rag_input_tokens": 3341,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 30775,
+      "rag_headroom": 29427
+    },
+    {
+      "pair_id": "echo-web-server-buffer",
+      "target_name": "buffer",
+      "repository_id": "Echo-Web-Server",
+      "granularity": "module_files",
+      "source_files": 2,
+      "source_characters": 11265,
+      "non_rag_input_tokens": 3126,
+      "rag_input_tokens": 4474,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 29642,
+      "rag_headroom": 28294
+    },
+    {
+      "pair_id": "echo-web-server-config",
+      "target_name": "config",
+      "repository_id": "Echo-Web-Server",
+      "granularity": "module_files",
+      "source_files": 2,
+      "source_characters": 17998,
+      "non_rag_input_tokens": 4542,
+      "rag_input_tokens": 5890,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 28226,
+      "rag_headroom": 26878
+    },
+    {
+      "pair_id": "echo-web-server-heap-timer",
+      "target_name": "heap-timer",
+      "repository_id": "Echo-Web-Server",
+      "granularity": "module_files",
+      "source_files": 1,
+      "source_characters": 13957,
+      "non_rag_input_tokens": 3693,
+      "rag_input_tokens": 5041,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 29075,
+      "rag_headroom": 27727
+    },
+    {
+      "pair_id": "echo-web-server-http",
+      "target_name": "http",
+      "repository_id": "Echo-Web-Server",
+      "granularity": "module_files",
+      "source_files": 6,
+      "source_characters": 33568,
+      "non_rag_input_tokens": 8168,
+      "rag_input_tokens": 9516,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 24600,
+      "rag_headroom": 23252
+    },
+    {
+      "pair_id": "echo-web-server-io",
+      "target_name": "io",
+      "repository_id": "Echo-Web-Server",
+      "granularity": "module_files",
+      "source_files": 2,
+      "source_characters": 5654,
+      "non_rag_input_tokens": 1770,
+      "rag_input_tokens": 3118,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 30998,
+      "rag_headroom": 29650
+    },
+    {
+      "pair_id": "echo-web-server-ip",
+      "target_name": "ip",
+      "repository_id": "Echo-Web-Server",
+      "granularity": "module_files",
+      "source_files": 2,
+      "source_characters": 4357,
+      "non_rag_input_tokens": 1559,
+      "rag_input_tokens": 2907,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 31209,
+      "rag_headroom": 29861
+    },
+    {
+      "pair_id": "echo-web-server-log",
+      "target_name": "log",
+      "repository_id": "Echo-Web-Server",
+      "granularity": "module_files",
+      "source_files": 7,
+      "source_characters": 44829,
+      "non_rag_input_tokens": 10786,
+      "rag_input_tokens": 12134,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 21982,
+      "rag_headroom": 20634
+    },
+    {
+      "pair_id": "echo-web-server-thread-pool",
+      "target_name": "thread-pool",
+      "repository_id": "Echo-Web-Server",
+      "granularity": "module_files",
+      "source_files": 2,
+      "source_characters": 4392,
+      "non_rag_input_tokens": 1431,
+      "rag_input_tokens": 2779,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 31337,
+      "rag_headroom": 29989
+    },
+    {
+      "pair_id": "echo-web-server-util",
+      "target_name": "util",
+      "repository_id": "Echo-Web-Server",
+      "granularity": "module_files",
+      "source_files": 2,
+      "source_characters": 12830,
+      "non_rag_input_tokens": 3446,
+      "rag_input_tokens": 4794,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 29322,
+      "rag_headroom": 27974
+    },
+    {
+      "pair_id": "ini-cpp-inireader",
+      "target_name": "INIReader",
+      "repository_id": "ini-cpp",
+      "granularity": "target_span",
+      "source_files": 1,
+      "source_characters": 19478,
+      "non_rag_input_tokens": 5032,
+      "rag_input_tokens": 6380,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 27736,
+      "rag_headroom": 26388
+    },
+    {
+      "pair_id": "ini-cpp-iniwriter",
+      "target_name": "INIWriter::write",
+      "repository_id": "ini-cpp",
+      "granularity": "target_span",
+      "source_files": 1,
+      "source_characters": 19478,
+      "non_rag_input_tokens": 5036,
+      "rag_input_tokens": 6384,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 27732,
+      "rag_headroom": 26384
+    },
+    {
+      "pair_id": "riscv-simulator-instruction",
+      "target_name": "Instruction",
+      "repository_id": "RISCV-Simulator",
+      "granularity": "module_files",
+      "source_files": 1,
+      "source_characters": 5535,
+      "non_rag_input_tokens": 2163,
+      "rag_input_tokens": 3511,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 30605,
+      "rag_headroom": 29257
+    },
+    {
+      "pair_id": "riscv-simulator-memory",
+      "target_name": "Memory",
+      "repository_id": "RISCV-Simulator",
+      "granularity": "target_span",
+      "source_files": 1,
+      "source_characters": 1613,
+      "non_rag_input_tokens": 794,
+      "rag_input_tokens": 2142,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 31974,
+      "rag_headroom": 30626
+    },
+    {
+      "pair_id": "riscv-simulator-parser",
+      "target_name": "Parser",
+      "repository_id": "RISCV-Simulator",
+      "granularity": "target_span",
+      "source_files": 1,
+      "source_characters": 1418,
+      "non_rag_input_tokens": 724,
+      "rag_input_tokens": 2072,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 32044,
+      "rag_headroom": 30696
+    },
+    {
+      "pair_id": "riscv-simulator-register",
+      "target_name": "Register",
+      "repository_id": "RISCV-Simulator",
+      "granularity": "target_span",
+      "source_files": 1,
+      "source_characters": 710,
+      "non_rag_input_tokens": 584,
+      "rag_input_tokens": 1932,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 32184,
+      "rag_headroom": 30836
+    },
+    {
+      "pair_id": "riscv-simulator-registerfile",
+      "target_name": "RegisterFile",
+      "repository_id": "RISCV-Simulator",
+      "granularity": "target_span",
+      "source_files": 1,
+      "source_characters": 1683,
+      "non_rag_input_tokens": 873,
+      "rag_input_tokens": 2221,
+      "rag_overhead_tokens": 1348,
+      "non_rag_headroom": 31895,
+      "rag_headroom": 30547
+    }
+  ]
+}

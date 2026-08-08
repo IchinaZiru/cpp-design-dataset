@@ -1,0 +1,399 @@
+{
+  "schema_version": "3.1",
+  "protocol_id": "prompt-preserving-detailed-design-rag-v3-formal-001",
+  "expected_pair_count": 17,
+  "expected_config_count": 34,
+  "pair_count": 17,
+  "config_count": 34,
+  "all_enabled": false,
+  "design_prompt_profile": "prompt-preserving-detailed-design-v3",
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "num_ctx": 32768,
+    "num_predict": 16384
+  },
+  "formal_target_ids": [
+    "echo-web-server-block-deque",
+    "echo-web-server-buffer",
+    "echo-web-server-config",
+    "echo-web-server-heap-timer",
+    "echo-web-server-http",
+    "echo-web-server-io",
+    "echo-web-server-ip",
+    "echo-web-server-log",
+    "echo-web-server-thread-pool",
+    "echo-web-server-util",
+    "ini-cpp-inireader",
+    "ini-cpp-iniwriter",
+    "riscv-simulator-instruction",
+    "riscv-simulator-memory",
+    "riscv-simulator-parser",
+    "riscv-simulator-register",
+    "riscv-simulator-registerfile"
+  ],
+  "condition_order": [
+    "non_rag",
+    "rag"
+  ],
+  "generated_files": [
+    "configs/roundtrip_v3/formal/non-rag/echo-web-server-block-deque.json",
+    "configs/roundtrip_v3/formal/rag/echo-web-server-block-deque.json",
+    "configs/roundtrip_v3/formal/non-rag/echo-web-server-buffer.json",
+    "configs/roundtrip_v3/formal/rag/echo-web-server-buffer.json",
+    "configs/roundtrip_v3/formal/non-rag/echo-web-server-config.json",
+    "configs/roundtrip_v3/formal/rag/echo-web-server-config.json",
+    "configs/roundtrip_v3/formal/non-rag/echo-web-server-heap-timer.json",
+    "configs/roundtrip_v3/formal/rag/echo-web-server-heap-timer.json",
+    "configs/roundtrip_v3/formal/non-rag/echo-web-server-http.json",
+    "configs/roundtrip_v3/formal/rag/echo-web-server-http.json",
+    "configs/roundtrip_v3/formal/non-rag/echo-web-server-io.json",
+    "configs/roundtrip_v3/formal/rag/echo-web-server-io.json",
+    "configs/roundtrip_v3/formal/non-rag/echo-web-server-ip.json",
+    "configs/roundtrip_v3/formal/rag/echo-web-server-ip.json",
+    "configs/roundtrip_v3/formal/non-rag/echo-web-server-log.json",
+    "configs/roundtrip_v3/formal/rag/echo-web-server-log.json",
+    "configs/roundtrip_v3/formal/non-rag/echo-web-server-thread-pool.json",
+    "configs/roundtrip_v3/formal/rag/echo-web-server-thread-pool.json",
+    "configs/roundtrip_v3/formal/non-rag/echo-web-server-util.json",
+    "configs/roundtrip_v3/formal/rag/echo-web-server-util.json",
+    "configs/roundtrip_v3/formal/non-rag/ini-cpp-inireader.json",
+    "configs/roundtrip_v3/formal/rag/ini-cpp-inireader.json",
+    "configs/roundtrip_v3/formal/non-rag/ini-cpp-iniwriter.json",
+    "configs/roundtrip_v3/formal/rag/ini-cpp-iniwriter.json",
+    "configs/roundtrip_v3/formal/non-rag/riscv-simulator-instruction.json",
+    "configs/roundtrip_v3/formal/rag/riscv-simulator-instruction.json",
+    "configs/roundtrip_v3/formal/non-rag/riscv-simulator-memory.json",
+    "configs/roundtrip_v3/formal/rag/riscv-simulator-memory.json",
+    "configs/roundtrip_v3/formal/non-rag/riscv-simulator-parser.json",
+    "configs/roundtrip_v3/formal/rag/riscv-simulator-parser.json",
+    "configs/roundtrip_v3/formal/non-rag/riscv-simulator-register.json",
+    "configs/roundtrip_v3/formal/rag/riscv-simulator-register.json",
+    "configs/roundtrip_v3/formal/non-rag/riscv-simulator-registerfile.json",
+    "configs/roundtrip_v3/formal/rag/riscv-simulator-registerfile.json"
+  ],
+  "targets": [
+    {
+      "pair_id": "echo-web-server-block-deque",
+      "pair_sequence": 1,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/echo-web-server-block-deque.json",
+          "experiment_id": "v3/formal/non-rag/echo-web-server-block-deque-001",
+          "run_id": "echo-web-server-block-deque-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "d49233228ad9f73460d686e0279acdaeb42d0141a4ad79736a66d4ebb4a7cd68"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/echo-web-server-block-deque.json",
+          "experiment_id": "v3/formal/rag/echo-web-server-block-deque-001",
+          "run_id": "echo-web-server-block-deque-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "e58252cad3c1c828db173286bf77e0842f0cff0543c4c523370f08a50d159965"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-buffer",
+      "pair_sequence": 2,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/echo-web-server-buffer.json",
+          "experiment_id": "v3/formal/non-rag/echo-web-server-buffer-001",
+          "run_id": "echo-web-server-buffer-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "9e52753a46a530432c8b93250e902d6b1ce5b3031ae59ea865b0e31310213997"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/echo-web-server-buffer.json",
+          "experiment_id": "v3/formal/rag/echo-web-server-buffer-001",
+          "run_id": "echo-web-server-buffer-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "0c60e41a158bd02d690417875d31032e988805947fd5ab1db446e4d702fd6b0e"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-config",
+      "pair_sequence": 3,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/echo-web-server-config.json",
+          "experiment_id": "v3/formal/non-rag/echo-web-server-config-001",
+          "run_id": "echo-web-server-config-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "6ffc7ec12a7eabca981cae4835d6ac068f0f8dc0bff8d3351907158edc62b9a4"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/echo-web-server-config.json",
+          "experiment_id": "v3/formal/rag/echo-web-server-config-001",
+          "run_id": "echo-web-server-config-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "65bc7b94dadee538a0891093b241723cf9e4e033a9b6b90e23d7c27929d5f759"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-heap-timer",
+      "pair_sequence": 4,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/echo-web-server-heap-timer.json",
+          "experiment_id": "v3/formal/non-rag/echo-web-server-heap-timer-001",
+          "run_id": "echo-web-server-heap-timer-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "36d59cafc8b25aec3786dceed8ca8d75b61ff4a415942757b42c52a9b062033b"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/echo-web-server-heap-timer.json",
+          "experiment_id": "v3/formal/rag/echo-web-server-heap-timer-001",
+          "run_id": "echo-web-server-heap-timer-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "82e6947eb6ee8dd6cd7fbb710feede7159134aa9b7f01b0533e6a5dd4fa3f2ff"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-http",
+      "pair_sequence": 5,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/echo-web-server-http.json",
+          "experiment_id": "v3/formal/non-rag/echo-web-server-http-001",
+          "run_id": "echo-web-server-http-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "08cc648a1815f60b36dcb7b7d368499cfeb8af1d740bae5aa4ffe4544ac07cfd"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/echo-web-server-http.json",
+          "experiment_id": "v3/formal/rag/echo-web-server-http-001",
+          "run_id": "echo-web-server-http-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "f04309f8164cfc917f5edfd97df8a79022d809d28a6eda25e516519cc829f322"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-io",
+      "pair_sequence": 6,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/echo-web-server-io.json",
+          "experiment_id": "v3/formal/non-rag/echo-web-server-io-001",
+          "run_id": "echo-web-server-io-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "57c17fb929dccdeb358a4912c67b1e55e5c1aa5518b85bbb1a5374e427828666"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/echo-web-server-io.json",
+          "experiment_id": "v3/formal/rag/echo-web-server-io-001",
+          "run_id": "echo-web-server-io-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "a3362027daea8ff16cfa4dab267960154497a242ea8b70df4837a2e85b995e26"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-ip",
+      "pair_sequence": 7,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/echo-web-server-ip.json",
+          "experiment_id": "v3/formal/non-rag/echo-web-server-ip-001",
+          "run_id": "echo-web-server-ip-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "27efcea69d0c49340ac1af99e3f22771a24d45c9b2558d52c8d9f70efa1dbfdb"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/echo-web-server-ip.json",
+          "experiment_id": "v3/formal/rag/echo-web-server-ip-001",
+          "run_id": "echo-web-server-ip-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "64c2bfa12c9dea861ea2cbdc85c3412a512af4d9c87aa08869b1a52a41449f42"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-log",
+      "pair_sequence": 8,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/echo-web-server-log.json",
+          "experiment_id": "v3/formal/non-rag/echo-web-server-log-001",
+          "run_id": "echo-web-server-log-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "e41dc3d761312a101e0431af157e62c439be6704a4ae47ec203e4e2d4fbc9cde"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/echo-web-server-log.json",
+          "experiment_id": "v3/formal/rag/echo-web-server-log-001",
+          "run_id": "echo-web-server-log-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "a7028ff97f3acd66dd2392e338a8041a730322a059f26e2d1ae92deaa8ba44dc"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-thread-pool",
+      "pair_sequence": 9,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/echo-web-server-thread-pool.json",
+          "experiment_id": "v3/formal/non-rag/echo-web-server-thread-pool-001",
+          "run_id": "echo-web-server-thread-pool-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "835d372aedcee7f1dda12c3318feb5eb8a8462418944dad750263e2391654c0c"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/echo-web-server-thread-pool.json",
+          "experiment_id": "v3/formal/rag/echo-web-server-thread-pool-001",
+          "run_id": "echo-web-server-thread-pool-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "8e5b76c594b8bd8ceeebfe8e453a8a5a95f1b75298792e801ae3856343414d33"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-util",
+      "pair_sequence": 10,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/echo-web-server-util.json",
+          "experiment_id": "v3/formal/non-rag/echo-web-server-util-001",
+          "run_id": "echo-web-server-util-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "0478f35a9e8c96d401ce138c1a057cae3cebfc63d44b683ce9798c7b986a438b"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/echo-web-server-util.json",
+          "experiment_id": "v3/formal/rag/echo-web-server-util-001",
+          "run_id": "echo-web-server-util-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "049d1016eee3b60061560d5d8386142a4864fe3b89f0436b1129a27c0201e796"
+        }
+      }
+    },
+    {
+      "pair_id": "ini-cpp-inireader",
+      "pair_sequence": 11,
+      "granularity": "class_span",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/ini-cpp-inireader.json",
+          "experiment_id": "v3/formal/non-rag/ini-cpp-inireader-001",
+          "run_id": "ini-cpp-inireader-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "86e92db615eb9a2843b1af9671afc67d99c9697b9ceedb38303be286f4e83038"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/ini-cpp-inireader.json",
+          "experiment_id": "v3/formal/rag/ini-cpp-inireader-001",
+          "run_id": "ini-cpp-inireader-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "bd4a7701e20687f56a11fe4571df8541347735257995dd9f50524a3325fb95b1"
+        }
+      }
+    },
+    {
+      "pair_id": "ini-cpp-iniwriter",
+      "pair_sequence": 12,
+      "granularity": "function",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/ini-cpp-iniwriter.json",
+          "experiment_id": "v3/formal/non-rag/ini-cpp-iniwriter-001",
+          "run_id": "ini-cpp-iniwriter-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "7185ed64e93d7473e3b0488e96a9a51e4df78ae310b0eb12afcc480e78eafc28"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/ini-cpp-iniwriter.json",
+          "experiment_id": "v3/formal/rag/ini-cpp-iniwriter-001",
+          "run_id": "ini-cpp-iniwriter-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "2901e609a837ffbdab98c240688753a628098030a3b0962b0df34023a5e3e324"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-instruction",
+      "pair_sequence": 13,
+      "granularity": "module_files",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/riscv-simulator-instruction.json",
+          "experiment_id": "v3/formal/non-rag/riscv-simulator-instruction-001",
+          "run_id": "riscv-simulator-instruction-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "4a74d3fde1e97381c897f1e4d07f724dac158d8730d741573134f2bbff690367"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/riscv-simulator-instruction.json",
+          "experiment_id": "v3/formal/rag/riscv-simulator-instruction-001",
+          "run_id": "riscv-simulator-instruction-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "6f048778c2c77fd65866a865d897c071cdcdb778a53e3df4a91ecd0788290f9c"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-memory",
+      "pair_sequence": 14,
+      "granularity": "class_span",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/riscv-simulator-memory.json",
+          "experiment_id": "v3/formal/non-rag/riscv-simulator-memory-001",
+          "run_id": "riscv-simulator-memory-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "a9257e2a5bbb0e926e4510a211c2c415b4ec89613ef2cd9298a8a93d2fb6e646"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/riscv-simulator-memory.json",
+          "experiment_id": "v3/formal/rag/riscv-simulator-memory-001",
+          "run_id": "riscv-simulator-memory-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "25bb488bdb023eccc529f3a529cd0e5e3ad26a7a12819935db8c3b5b714cf983"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-parser",
+      "pair_sequence": 15,
+      "granularity": "class_span",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/riscv-simulator-parser.json",
+          "experiment_id": "v3/formal/non-rag/riscv-simulator-parser-001",
+          "run_id": "riscv-simulator-parser-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "89feea9d65c478f565362f667855a56c76a7fd40447f9671b72f1f2dea98f6d4"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/riscv-simulator-parser.json",
+          "experiment_id": "v3/formal/rag/riscv-simulator-parser-001",
+          "run_id": "riscv-simulator-parser-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "4076b362381ad09dd0ab36d0edb27844ce3761bd911ab4327950aaf06cb87fd9"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-register",
+      "pair_sequence": 16,
+      "granularity": "class_span",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/riscv-simulator-register.json",
+          "experiment_id": "v3/formal/non-rag/riscv-simulator-register-001",
+          "run_id": "riscv-simulator-register-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "3432932a45d73245d79a8c59c59b70a9bb38477f1242c78b55a2322431412cf9"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/riscv-simulator-register.json",
+          "experiment_id": "v3/formal/rag/riscv-simulator-register-001",
+          "run_id": "riscv-simulator-register-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "454fe2abd4bfc29eb24cd684b37a4c6cbf30963b2e1c131fe6119cd34d5a97eb"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-registerfile",
+      "pair_sequence": 17,
+      "granularity": "class_span",
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v3/formal/non-rag/riscv-simulator-registerfile.json",
+          "experiment_id": "v3/formal/non-rag/riscv-simulator-registerfile-001",
+          "run_id": "riscv-simulator-registerfile-prompt-preserving-non-rag-formal-001",
+          "config_sha256": "74cd6b7c250f2385052450c9364d0f3b03b8c90de59d78caca62fd7d64ed392f"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v3/formal/rag/riscv-simulator-registerfile.json",
+          "experiment_id": "v3/formal/rag/riscv-simulator-registerfile-001",
+          "run_id": "riscv-simulator-registerfile-prompt-preserving-detailed-design-rag-formal-001",
+          "config_sha256": "532eab358a794f12b6fdcfcce79465a71b3ba8298e1ed8e6627e493e8f01eedc"
+        }
+      }
+    }
+  ]
+}
