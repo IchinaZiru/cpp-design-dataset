@@ -1,0 +1,107 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-registerfile-v4-eval",
+  "run_id": "riscv-simulator-registerfile-source-faithful-detailed-design-rag-v4-eval-001",
+  "condition": "full_source_source_faithful_detailed_design_rag_v4",
+  "granularity": "target_span",
+  "completed_at_utc": "2026-08-08T18:40:13.003099+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-08T18:39:58.930191+00:00",
+      "completed_at_utc": "2026-08-08T18:40:02.262211+00:00",
+      "elapsed_seconds": 3.330183499958366,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-source-faithful-detailed-design-rag-v4-eval-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-source-faithful-detailed-design-rag-v4-eval-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-08T18:40:02.262341+00:00",
+      "completed_at_utc": "2026-08-08T18:40:12.965624+00:00",
+      "elapsed_seconds": 10.699021199950948,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-source-faithful-detailed-design-rag-v4-eval-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-source-faithful-detailed-design-rag-v4-eval-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "src/Common/RegisterFile.hpp",
+        "original_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+        "restored_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": "",
+    "original_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+    "restored_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110"
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-08T18:39:58.845556+00:00",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "fence_language": "cpp",
+    "strict_format_pass": false,
+    "raw_sha256": "83c2df1e7c7ccbf19d5a7624a0373ec10220b53d41c0c345dd2438e21969cd97",
+    "normalized_sha256": "dc8bacb9ad73d93751c51771a9044e0f89b7d649cf8749e464ff0646fdb871a3",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/riscv-simulator-registerfile-source-faithful-detailed-design-rag-v4-eval-001"
+}
