@@ -1,0 +1,29 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-session-v3-mechanics-pilot-001",
+  "target_name": "Session",
+  "condition": "full_source_prompt_preserving_non_rag",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "granularity": "module_files",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "src/Common/Session.h",
+    "src/Common/Session.cpp"
+  ],
+  "source_files": [
+    "src/Common/Session.h",
+    "src/Common/Session.cpp"
+  ],
+  "observation_file_hashes": {
+    "src/Common/Session.h": "3e58f85b0169829b12149ccdbc7c0f1d240e1a391fc590a532e0262fe895a3c7",
+    "src/Common/Session.cpp": "09abbd014824533609ce8453ed4a19b7e2871cb6f9bd30480095c6849235a41f"
+  },
+  "source_file_hashes": {
+    "src/Common/Session.h": "3e58f85b0169829b12149ccdbc7c0f1d240e1a391fc590a532e0262fe895a3c7",
+    "src/Common/Session.cpp": "09abbd014824533609ce8453ed4a19b7e2871cb6f9bd30480095c6849235a41f"
+  },
+  "prepared_at_utc": "2026-08-08T00:23:16.882622+00:00",
+  "replacement_scope": "module_files",
+  "locator": {}
+}

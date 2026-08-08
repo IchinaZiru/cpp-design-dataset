@@ -1,0 +1,115 @@
+{
+  "schema_version": "5.1-pilot",
+  "enabled": true,
+  "pilot_only": true,
+  "formal_result_eligible": false,
+  "condition": "full_source_prompt_preserving_detailed_design_rag",
+  "target_id": "riscv-simulator-session-v3-mechanics-pilot-001",
+  "experiment_id": "v3/pilot/rag/riscv-simulator-session-001",
+  "run_id": "riscv-simulator-session-v3-detailed-design-rag-pilot-001",
+  "repository_id": "RISCV-Simulator",
+  "repository_path": "repos/RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "target_name": "Session",
+  "granularity": "module_files",
+  "observation_files": [
+    "src/Common/Session.h",
+    "src/Common/Session.cpp"
+  ],
+  "source_files": [
+    "src/Common/Session.h",
+    "src/Common/Session.cpp"
+  ],
+  "locator": {},
+  "design_knowledge": {
+    "enabled": true,
+    "context_file": "knowledge/detailed-design/general-v3.md",
+    "instruction_mode": "required_additional_artifacts",
+    "query": "対象コードの基本9項目を保持したまま、クラス図、クラス・メソッド・インターフェース詳細、シーケンス図、メソッド仕様書、処理フロー図、状態遷移・副作用、データ変換・制約を追加するための汎用詳細設計知識を取得する"
+  },
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:riscv-simulator-v1",
+    "docker_image_id": "sha256:81e23cc94a387697d7979c847d81bf557543fece913065fbdbd329bf194f62cd",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Session.Construct'",
+    "full_test_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+    "full_test_kind": "gtest",
+    "expected_direct_tests": 1,
+    "expected_full_tests": 18,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "protocol": {
+    "module_output_format": "ollama_json_schema",
+    "strict_file_path_set": true,
+    "formal_target_set_member": false,
+    "weak_test_warning": "Session.Construct only verifies construction and destruction. This pilot checks v3 prompt/output/pipeline mechanics only and is not formal behavioral-equivalence evidence.",
+    "retry": false,
+    "automatic_repair": false,
+    "note": "Formal-outside v3 mechanics pilot. Do not reuse pilot artifacts as formal results. A terminal pilot ID is never rerun; use a new pilot ID after implementation fixes.",
+    "previous_pilot_run_id": "riscv-simulator-session-full-source-rag-module-files-pilot-001",
+    "mechanics_fix": "Preserve inline constructor initializer lists in the fixed module scaffold.",
+    "protocol_id": "prompt-preserving-detailed-design-rag-v3-formal-001",
+    "pilot_protocol_id": "prompt-preserving-detailed-design-rag-v3-pilot-001",
+    "formal_pair_id": null,
+    "design_prompt_profile": "prompt-preserving-detailed-design-v3",
+    "base_level2_sections": [
+      "責務",
+      "公開インターフェース",
+      "入力",
+      "出力",
+      "状態",
+      "処理手順",
+      "例外・失敗条件",
+      "依存関係",
+      "重要な不変条件"
+    ],
+    "treatment_root_level2_section": "追加詳細設計情報",
+    "treatment_detail_level3_sections": [
+      "クラス図",
+      "クラス・メソッド・インターフェース詳細",
+      "シーケンス図",
+      "メソッド仕様書",
+      "処理フロー図",
+      "状態遷移・副作用",
+      "データ変換・制約"
+    ],
+    "allow_other_level2_sections": false,
+    "design_contract_validation_required": true,
+    "design_done_reason_required": "stop",
+    "code_regeneration_done_reason_required": "stop",
+    "original_source_in_code_regeneration": false,
+    "retrieved_context_in_code_regeneration": false,
+    "generated_code_manual_edit": false,
+    "generations_per_stage": 1,
+    "num_ctx": 32768,
+    "num_predict": 16384
+  },
+  "pair_id": "riscv-simulator-session-v3-pilot",
+  "pair_sequence": 0,
+  "design_prompt_profile": "prompt-preserving-detailed-design-v3",
+  "provenance": {
+    "v3_source_config": "configs/roundtrip_v2/pilot/rag/riscv-simulator-session-module-files-pilot-002.json",
+    "v2_pilot_artifact_not_reused": true,
+    "v3_pilot_purpose": "Check exact base-heading preservation, seven treatment artifacts, 32K/16K generation settings, source restoration, and round-trip mechanics."
+  }
+}

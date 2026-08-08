@@ -1,0 +1,111 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-session-v3-mechanics-pilot-001",
+  "run_id": "riscv-simulator-session-v3-detailed-design-rag-pilot-001",
+  "condition": "full_source_prompt_preserving_detailed_design_rag",
+  "granularity": "module_files",
+  "completed_at_utc": "2026-08-08T00:33:05.600602+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-08T00:33:01.055100+00:00",
+      "completed_at_utc": "2026-08-08T00:33:04.200580+00:00",
+      "elapsed_seconds": 3.142926499946043,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-session-v3-detailed-design-rag-pilot-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-session-v3-detailed-design-rag-pilot-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-08T00:33:04.200817+00:00",
+      "completed_at_utc": "2026-08-08T00:33:05.556155+00:00",
+      "elapsed_seconds": 1.3538569000083953,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-session-v3-detailed-design-rag-pilot-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-session-v3-detailed-design-rag-pilot-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "src/Common/Session.h",
+        "original_hash": "3e58f85b0169829b12149ccdbc7c0f1d240e1a391fc590a532e0262fe895a3c7",
+        "restored_hash": "3e58f85b0169829b12149ccdbc7c0f1d240e1a391fc590a532e0262fe895a3c7",
+        "restored": true
+      },
+      {
+        "path": "src/Common/Session.cpp",
+        "original_hash": "09abbd014824533609ce8453ed4a19b7e2871cb6f9bd30480095c6849235a41f",
+        "restored_hash": "09abbd014824533609ce8453ed4a19b7e2871cb6f9bd30480095c6849235a41f",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-08T00:33:00.957079+00:00",
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "fence_language": null,
+    "strict_format_pass": true,
+    "raw_sha256": "fad876c710443a254fd0049e5996ac9a09e35d4d255d5e5865d3b8aaa1c202f4",
+    "normalized_sha256": "fad876c710443a254fd0049e5996ac9a09e35d4d255d5e5865d3b8aaa1c202f4",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/riscv-simulator-session-v3-detailed-design-rag-pilot-001"
+}

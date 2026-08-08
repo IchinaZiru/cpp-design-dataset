@@ -1,0 +1,50 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: Session\n- granularity: module_files\n- source_files: [\"src/Common/Session.h\", \"src/Common/Session.cpp\"]\n\n# 出力規則\n出力は指定されたJSON Schemaに一致するJSONのみとし、Markdownコードフェンスを使用しないでください。source_filesにある各ファイルを完全な内容として1回ずつ返してください。pathはsource_filesの文字列をそのまま使用し、追加・省略・重複させないでください。C++コード中の改行や引用符はJSON文字列として正しくエスケープしてください。固定インターフェース・スキャフォールドに示された宣言とファイル構成を変更しないでください。\n\n# JSON Schema\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"files\": {\n      \"type\": \"array\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"path\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"src/Common/Session.h\",\n              \"src/Common/Session.cpp\"\n            ]\n          },\n          \"content\": {\n            \"type\": \"string\",\n            \"minLength\": 1\n          }\n        },\n        \"required\": [\n          \"path\",\n          \"content\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\n    \"files\"\n  ],\n  \"additionalProperties\": false\n}\n\n# 設計文書\n# 対象\n- target: Session\n- granularity: module_files\n- source_files: [\"src/Common/Session.h\", \"src/Common/Session.cpp\"]\n\n# 対象範囲\n元コードとして示したsource_files全体を1つのモジュールとして扱ってください。\n設計文書は、各ファイルの責務、ファイル間の関係、公開インターフェース、実装上の処理を含めて作成してください。\n再実装ではsource_filesにある各ファイル全体を生成するため、ファイルごとの構造と責務を区別してください。\n\n## 責務\n`Session`クラスはRISC-Vシミュレータのセッションを管理します。メモリの読み込み、サイクルの進行情報の更新、デバッグ情報の出力、レポートの生成などの機能を持っています。\n\n## 公開インターフェース\n- `Session(bool debug = false);`\n- `void tick();`\n- `void load_memory(const char *path);`\n- `void load_memory(std::istream &in);`\n- `void load_hex(const char *path);`\n- `void report(std::ostream& out);`\n- `virtual ~Session();`\n- `void debug();`\n\n## 入力\n- メモリファイルのパス（`const char* path`）\n- 入力ストリーム（`std::istream &in`）\n\n## 出力\n- シミュレーションレポート（`std::ostream& out`）\n\n## 状態\n- `_debug`: デバッグモードフラグ（bool型）\n- `rf`: レジスタファイル（RegisterFile型）\n- `memory`: メモリ（Memory型）\n- `e`: 出力オーダー実行エンジンへのポインタ（OoOExecute* 型）\n- `i`: イシューステージへのポインタ（Issue* 型）\n- `branch`: 分岐予測エンジンへのポインタ（BranchPrediction* 型）\n- `stat`: サイクルカウンタを含む構造体（Stat型）\n\n## 処理手順\n1. コンストラクタでデバッグモードフラグと各サブシステムのインスタンスを作成する。\n2. `tick()`メソッドでサイクルカウンタを更新し、各サブシステムの状態を更新する。\n3. メモリ読み込み関数(`load_memory`, `load_hex`)で指定されたファイルからデータを読み込む。\n4. `report()`メソッドでシミュレーション結果を出力する。\n5. デバッグ情報が必要な場合は`debug()`メソッドでデバッグ情報を出力する。\n\n## 例外・失敗条件\n- メモリファイルの読み込みに失敗した場合、内部処理が中断される可能性がある（確認不能）。\n\n## 依存関係\n- `RegisterFile`\n- `Memory`\n- `OoOExecute`\n- `Issue`\n- `BranchPrediction`\n- `Parser`\n\n## 重要な不変条件\n- `_debug`フラグは初期化時に設定され、その後変更されない。\n- 各サブシステムのインスタンス(`e`, `i`, `branch`)はコンストラクタで生成され、デストラクタで破棄される。\n\n## 追加詳細設計情報\n\n### クラス図\n```mermaid\nclassDiagram\n    class Session {\n        -bool _debug\n        +RegisterFile rf\n        +Memory memory\n        +OoOExecute* e\n        +Issue* i\n        +BranchPrediction* branch\n        +Stat stat\n        +Session(bool debug = false)\n        +void tick()\n        +void load_memory(const char *path)\n        +void load_memory(std::istream &in)\n        +void load_hex(const char *path)\n        +void report(std::ostream& out)\n        +virtual ~Session()\n        +void debug()\n    }\n    class RegisterFile\n    class Memory\n    class OoOExecute\n    class Issue\n    class BranchPrediction\n    Session --> RegisterFile : contains\n    Session --> Memory : contains\n    Session --> OoOExecute : manages\n    Session --> Issue : manages\n    Session --> BranchPrediction : manages\n```\n\n### クラス・メソッド・インターフェース詳細\n\n| 完全な名前 | 属性 | 引数名と型 | 戻り値型 | 可視性 | const | リファレンス | ポインタ | static | virtual | noexcept |\n|------------|------|------------|----------|--------|-------|------------|----------|--------|---------|----------|\n| Session::Session | コンストラクタ | debug: bool = false | void | public | なし | なし | なし | いいえ | いいえ | いいえ |\n| Session::~Session | デストラクタ | なし | void | public | なし | なし | なし | いいえ | はい | いいえ |\n| Session::tick | メソッド | なし | void | public | なし | なし | なし | いいえ | いいえ | いいえ |\n| Session::load_memory(const char*) | メソッド | path: const char* | void | public | なし | なし | なし | いいえ | いいえ | いいえ |\n| Session::load_memory(std::istream&) | メソッド | in: std::istream& | void | public | なし | あり | なし | いいえ | いいえ | いいえ |\n| Session::load_hex(const char*) | メソッド | path: const char* | void | public | なし | なし | なし | いいえ | いいえ | いいえ |\n| Session::report(std::ostream&) | メソッド | out: std::ostream& | void | public | なし | あり | なし | いいえ | いいえ | いいえ |\n| Session::debug | メソッド | なし | void | public | なし | なし | なし | いいえ | いいえ | いいえ |\n\n### シーケンス図\n該当なし\n\n### メソッド仕様書\n\n| 完全な名前 | 目的 | 引数 | 戻り値 | 動作の説明 | 副作用 | 使用例 | エラー処理 |\n|------------|------|------|--------|------------|--------|--------|------------|\n| Session::Session(bool) | デバッグモードを設定し、サブシステムを初期化する | debug: bool = false | void | デバッグモードフラグを設定し、Issue, OoOExecute, BranchPredictionのインスタンスを作成する | なし | `Session session(true);` | 無効 |\n| Session::~Session() | サブシステムのリソースを解放する | なし | void | Issue, OoOExecute, BranchPredictionのインスタンスを破棄する | なし | `session.~Session();` | 無効 |\n| Session::tick() | シミュレーションサイクルを1つ進める | なし | void | サイクルカウンタを更新し、各サブシステムの状態を更新する | なし | `session.tick();` | 無効 |\n| Session::load_memory(const char*) | ファイルからメモリを読み込む | path: const char* | void | 指定されたファイルパスからデータを読み込み、メモリに格納する | なし | `session.load_memory(\"memory.bin\");` | 無効 |\n| Session::load_memory(std::istream&) | ストリームからメモリを読み込む | in: std::istream& | void | 指定されたストリームからデータを読み込み、メモリに格納する | なし | `std::ifstream file(\"memory.bin\"); session.load_memory(file);` | 無効 |\n| Session::load_hex(const char*) | ファイルから16進数形式のメモリを読み込む | path: const char* | void | 指定されたファイルパスから16進数データを読み込み、メモリに格納する | なし | `session.load_hex(\"memory.hex\");` | 無効 |\n| Session::report(std::ostream&) | シミュレーションレポートを出力する | out: std::ostream& | void | 各サブシステムの状態とサイクルカウンタを指定されたストリームに出力する | なし | `std::ofstream report(\"report.txt\"); session.report(report);` | 無効 |\n| Session::debug() | デバッグ情報を出力する | なし | void | 各サブシステムのデバッグ情報を標準出力に出力する | なし | `session.debug();` | 無効 |\n\n### 処理フロー図\n```mermaid\nflowchart TD\n    A[Session::tick()] --> B[stat.cycle++]\n    B --> C[i->update()]\n    C --> D[e->update()]\n    D --> E{is _debug?}\n    E -- はい --> F[debug()]\n    E -- いいえ --> G[i->tick()]\n    F --> G\n    G --> H[e->tick()]\n    H --> I[rf.tick()]\n```\n\n### 状態遷移・副作用\n\n| 更新前状態 | 遷移条件 | 変更対象 | 更新後状態 | 更新順序 | 副作用 |\n|------------|----------|----------|------------|----------|--------|\n| 任意のサイクル数 | tick()が呼ばれる | stat.cycle | サイクル数+1 | tick()内で最初に実行 | なし |\n| 任意の状態 | load_memory()が呼ばれる | memory | ファイルから読み込まれたデータ | load_memory()内で実行 | なし |\n| 任意の状態 | load_hex()が呼ばれる | memory | 16進数形式のファイルから読み込まれたデータ | load_hex()内で実行 | なし |\n\n### データ変換・制約\n\n| 入力形式 | 出力形式 | 変換規則 | 値域 | 境界値 | 単位 | 精度 | エンコーディング | 検証条件 | 特殊値・欠損値の扱い |\n|----------|----------|----------|------|--------|------|------|------------------|------------|-----------------------|\n| ファイルパス文字列 | メモリデータ | ファイルから読み込み | 任意 | 空文字列 | バイト | バイト単位 | バイナリ | 存在するファイルパスを指定 | 読み込めない場合、エラー |\n| ストリームオブジェクト | メモリデータ | ストリームから読み込み | 任意 | 空ストリーム | バイト | バイト単位 | バイナリ | 存在するストリームを指定 | 読み込めない場合、エラー |\n| 16進数形式のファイルパス文字列 | メモリデータ | 16進数から読み込み | 任意 | 空文字列 | バイト | バイト単位 | バイナリ | 存在するファイルパスを指定 | 読み込めない場合、エラー |\n\n# 固定インターフェース・スキャフォールド\n===== FILE: src/Common/Session.h =====\n//\n// Created by Alex Chi on 2019-07-02.\n//\n\n#ifndef RISCV_SIMULATOR_SESSION_H\n#define RISCV_SIMULATOR_SESSION_H\n\n#include <iostream>\n#include <memory>\n#include <cstring>\n\n#include \"Common.h\"\n#include \"Register.hpp\"\n#include \"Memory.hpp\"\n#include \"RegisterFile.hpp\"\n\nusing std::shared_ptr;\n\nclass OoOExecute;\n\nclass Issue;\n\nclass BranchPrediction;\n\nclass Session { // : public Tickable {\n    bool _debug;\npublic:\n    RegisterFile rf;\n    Memory memory;\n    OoOExecute *e;\n    Issue *i;\n    BranchPrediction* branch;\n\n\n    struct Stat {\n        unsigned long long cycle;\n        Stat() : cycle(0) { /* implementation omitted */ }\n    } stat;\n\n    Session(bool debug = false);\n\n    void tick();\n\n    void load_memory(const char *path);\n\n    void load_memory(std::istream &in);\n\n    void load_hex(const char *path);\n\n    void report(std::ostream& out);\n\n    virtual ~Session();\n\n    void debug();\n};\n\n\n#endif //RISCV_SIMULATOR_SESSION_H\n\n\n# 依存情報\n#include <iostream>\n#include <memory>\n#include <cstring>\n#include \"Common.h\"\n#include \"Register.hpp\"\n#include \"Memory.hpp\"\n#include \"RegisterFile.hpp\"\n#include \"Session.h\"\n#include \"../Pipeline/Issue.h\"\n#include \"../Pipeline/OoOExecute.h\"\n#include \"../Module/BranchPrediction.h\"\n#include \"Parser.hpp\"\n#include <thread>\n#include <fstream>\n#include <random>\n#include <functional>\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  },
+  "format": {
+    "type": "object",
+    "properties": {
+      "files": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "enum": [
+                "src/Common/Session.h",
+                "src/Common/Session.cpp"
+              ]
+            },
+            "content": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "files"
+    ],
+    "additionalProperties": false
+  }
+}
