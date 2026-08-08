@@ -1,0 +1,86 @@
+{
+  "schema_version": "2.0",
+  "prompt_profile": "prompt-preserving-detailed-design-v3",
+  "condition": "full_source_prompt_preserving_detailed_design_rag",
+  "expected_level2_headings": [
+    "責務",
+    "公開インターフェース",
+    "入力",
+    "出力",
+    "状態",
+    "処理手順",
+    "例外・失敗条件",
+    "依存関係",
+    "重要な不変条件",
+    "追加詳細設計情報"
+  ],
+  "actual_level2_headings": [
+    "追加詳細設計情報"
+  ],
+  "expected_detail_level3_headings": [
+    "クラス図",
+    "クラス・メソッド・インターフェース詳細",
+    "シーケンス図",
+    "メソッド仕様書",
+    "処理フロー図",
+    "状態遷移・副作用",
+    "データ変換・制約"
+  ],
+  "actual_detail_level3_headings": [
+    "クラス図",
+    "クラス・メソッド・インターフェース詳細",
+    "シーケンス図",
+    "メソッド仕様書",
+    "処理フロー図",
+    "状態遷移・副作用",
+    "データ変換・制約"
+  ],
+  "artifact_checks": {
+    "クラス図": {
+      "non_empty": true,
+      "not_applicable": false,
+      "unconfirmed": false,
+      "required_mermaid_type": "classDiagram",
+      "mermaid_present": true
+    },
+    "クラス・メソッド・インターフェース詳細": {
+      "non_empty": true,
+      "not_applicable": false,
+      "unconfirmed": false
+    },
+    "シーケンス図": {
+      "non_empty": true,
+      "not_applicable": true,
+      "unconfirmed": false,
+      "required_mermaid_type": "sequenceDiagram",
+      "mermaid_present": false
+    },
+    "メソッド仕様書": {
+      "non_empty": true,
+      "not_applicable": false,
+      "unconfirmed": false
+    },
+    "処理フロー図": {
+      "non_empty": true,
+      "not_applicable": true,
+      "unconfirmed": false,
+      "required_mermaid_type": "flowchart",
+      "mermaid_present": false
+    },
+    "状態遷移・副作用": {
+      "non_empty": true,
+      "not_applicable": false,
+      "unconfirmed": false
+    },
+    "データ変換・制約": {
+      "non_empty": true,
+      "not_applicable": false,
+      "unconfirmed": true
+    }
+  },
+  "passed": false,
+  "errors": [
+    "level-2 headings differ: expected=['責務', '公開インターフェース', '入力', '出力', '状態', '処理手順', '例外・失敗条件', '依存関係', '重要な不変条件', '追加詳細設計情報'], actual=['追加詳細設計情報']"
+  ],
+  "validated_at_utc": "2026-08-08T08:52:42.522311+00:00"
+}

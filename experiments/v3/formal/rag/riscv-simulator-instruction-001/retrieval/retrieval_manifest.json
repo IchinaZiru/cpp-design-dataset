@@ -1,0 +1,22 @@
+{
+  "schema_version": "3.0",
+  "condition": "full_source_prompt_preserving_detailed_design_rag",
+  "knowledge_type": "generic_detailed_design_bundle",
+  "retrieval_mode": "fixed_query_fixed_knowledge",
+  "instruction_mode": "required_additional_artifacts",
+  "query": "対象コードの基本9項目を保持したまま、クラス図、クラス・メソッド・インターフェース詳細、シーケンス図、メソッド仕様書、処理フロー図、状態遷移・副作用、データ変換・制約を追加するための汎用詳細設計知識を取得する",
+  "context_file": "knowledge/detailed-design/general-v3.md",
+  "context_sha256": "abd4431f5bfb7fc8dd319f0da3cb9ab51c1f8f8b63af903f0b95566888700f07",
+  "retrieved_at_utc": "2026-08-08T08:44:25.861421+00:00",
+  "target_specific_tuning": false,
+  "base_sections_preserved": true,
+  "additional_artifacts": [
+    "クラス図",
+    "クラス・メソッド・インターフェース詳細",
+    "シーケンス図",
+    "メソッド仕様書",
+    "処理フロー図",
+    "状態遷移・副作用",
+    "データ変換・制約"
+  ]
+}

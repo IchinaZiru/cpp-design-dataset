@@ -1,0 +1,49 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: Instruction\n- granularity: module_files\n- source_files: [\"src/Common/Instruction.hpp\"]\n\n# 出力規則\n出力は指定されたJSON Schemaに一致するJSONのみとし、Markdownコードフェンスを使用しないでください。source_filesにある各ファイルを完全な内容として1回ずつ返してください。pathはsource_filesの文字列をそのまま使用し、追加・省略・重複させないでください。C++コード中の改行や引用符はJSON文字列として正しくエスケープしてください。固定インターフェース・スキャフォールドに示された宣言とファイル構成を変更しないでください。\n\n# JSON Schema\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"files\": {\n      \"type\": \"array\",\n      \"minItems\": 1,\n      \"maxItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"path\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"src/Common/Instruction.hpp\"\n            ]\n          },\n          \"content\": {\n            \"type\": \"string\",\n            \"minLength\": 1\n          }\n        },\n        \"required\": [\n          \"path\",\n          \"content\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\n    \"files\"\n  ],\n  \"additionalProperties\": false\n}\n\n# 設計文書\n# デザイン文書\n\n## 責務\n`Instruction.hpp`ファイルは、RISC-Vアーキテクチャの命令を表すクラスと構造体を定義します。主な責務は以下の通りです：\n- 命令型（R, I, S, B, U, J）ごとに異なるフィールドを持つ命令オブジェクトを作成する。\n- 各命令から必要な情報を抽出し、メンバ変数に格納する。\n- 命令のデバッグ情報出力を行う。\n\n## 公開インターフェース\n- `InstructionBase`構造体とその派生クラス（`InstructionR`, `InstructionI`, `InstructionS`, `InstructionB`, `InstructionU`, `InstructionJ`）が公開されています。\n- 各命令型のコンストラクタは、命令コードから必要な情報を抽出してメンバ変数に格納します。\n- `is_nop()`メソッド：NOP命令かどうかを判定する。\n- `is_valid(const std::string &key)`メソッド：指定されたフィールドが現在の命令型で有効かを判定する。\n- `verify(const std::string &key)`メソッド：`is_valid`を使用してフィールドの有効性を確認し、無効な場合は例外を投げる。\n- `debug()`メソッド：命令のデバッグ情報を出力する。\n- `has_op1()`メソッド：命令がオペランド1を持つかどうかを判定する。\n- `has_op2()`メソッド：命令がオペランド2を持つかどうかを判定する。\n\n## 入力\n- 各命令型のコンストラクタは、RISC-V命令コード（`unsigned int`）を受け取ります。\n\n## 出力\n- 各命令型のインスタンスは、命令コードから抽出した情報をメンバ変数に格納します。\n- `debug()`メソッドは、標準出力に命令のデバッグ情報を出力します。\n\n## 状態\n- 各命令型のインスタンスは、命令コードから抽出した情報をメンバ変数として保持します。これらのメンバ変数には以下のものがあります：\n  - `opcode`, `rs1`, `rs2`, `rd`, `funct3`, `funct7`：命令フィールド\n  - `imm`：即値\n  - `inst`：元の命令コード\n  - `t`：命令型（R, I, S, B, U, J）\n\n## 処理手順\n1. 各命令型のコンストラクタが呼び出されると、命令コードから必要な情報を抽出します。\n2. 抽出した情報はメンバ変数に格納されます。\n3. `is_valid()`メソッドは、指定されたフィールドが現在の命令型で有効かを判定します。\n4. `verify()`メソッドは`is_valid()`を使用してフィールドの有効性を確認し、無効な場合は例外を投げます。\n5. `debug()`メソッドは、標準出力に命令のデバッグ情報を出力します。\n\n## 例外・失敗条件\n- `verify(const std::string &key)`メソッドが呼び出され、指定されたフィールドが現在の命令型で無効な場合、`InstructionBase::InvalidAccess`例外を投げます。\n\n## 依存関係\n- このファイルは`Common.h`と`<utility>`ヘッダーファイルに依存しています。\n- `Immediate`型は`Common.h`から定義されていると仮定します。\n\n## 重要な不変条件\n- 各命令型のインスタンスが作成されると、そのメンバ変数は命令コードから抽出した情報で初期化されます。\n- 命令型（R, I, S, B, U, J）によって有効なフィールドが異なるため、`is_valid()`メソッドと`verify()`メソッドを使用してフィールドの有効性を確認します。\n\n# 固定インターフェース・スキャフォールド\n===== FILE: src/Common/Instruction.hpp =====\n//\n// Created by Alex Chi on 2019-07-01.\n//\n\n#ifndef RISCV_SIMULATOR_INSTRUCTION_HPP\n#define RISCV_SIMULATOR_INSTRUCTION_HPP\n\n#include <utility>\n#include \"Common.h\"\n#include <string>\n#include <iostream>\n\nusing Instruction = unsigned int;\n\nstruct InstructionBase {\n    class InvalidAccess {\n    };\n\n    InstructionBase() ;\n\n    InstructionBase(unsigned) ;\n\n    static InstructionBase nop() ;\n\n    bool is_nop() ;\n\n    unsigned opcode, rs1, rs2, rd, funct3, funct7;\n    Immediate imm;\n    Instruction inst;\n    enum Type {\n        R, I, S, B, U, J\n    } t;\n\n    static constexpr unsigned int bin_mask(int digits) ;\n\n    static unsigned int get_digits(unsigned int n, int hi, int lo) ;\n\n    static unsigned int expand_digit(unsigned int digit, int lo) ;\n\n    bool is_valid(const std::string &key) ;\n\n    void verify(const std::string &key) ;;\n\n    void debug() ;\n\n    bool has_op1() ;\n\n    bool has_op2() ;\n};\n\nstruct InstructionR : InstructionBase {\n    InstructionR(const Instruction &inst) ;\n};\n\nstruct InstructionI : InstructionBase {\n    InstructionI(const Instruction &inst) ;\n};\n\nstruct InstructionS : InstructionBase {\n    InstructionS(const Instruction &inst) ;\n};\n\nstruct InstructionB : InstructionBase {\n    InstructionB(const Instruction &inst) ;\n};\n\nstruct InstructionU : InstructionBase {\n    InstructionU(const Instruction &inst) ;\n};\n\nstruct InstructionJ : InstructionBase {\n    InstructionJ(const Instruction &inst) ;\n};\n\n#endif //RISCV_SIMULATOR_INSTRUCTION_HPP\n\n\n# 依存情報\n#include <utility>\n#include \"Common.h\"\n#include <string>\n#include <iostream>\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  },
+  "format": {
+    "type": "object",
+    "properties": {
+      "files": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 1,
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "enum": [
+                "src/Common/Instruction.hpp"
+              ]
+            },
+            "content": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "files"
+    ],
+    "additionalProperties": false
+  }
+}
