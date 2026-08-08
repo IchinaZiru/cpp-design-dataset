@@ -1,0 +1,22 @@
+{
+  "schema_version": "3.0",
+  "condition": "full_source_source_faithful_detailed_design_rag_v4",
+  "knowledge_type": "generic_detailed_design_bundle",
+  "retrieval_mode": "fixed_query_fixed_knowledge",
+  "instruction_mode": "required_additional_artifacts",
+  "query": "再実装に必要な型定義、直接依存API、利用方法、条件・具体値、使用/更新データ、状態・副作用・不変条件を、ソース全文コピーではなく正確な詳細設計情報として保持する",
+  "context_file": "knowledge/detailed-design/general-v4.md",
+  "context_sha256": "280f38b01f3ba1906fe297a344b978fe5cbc4e325655316163412ddc90f3ca08",
+  "retrieved_at_utc": "2026-08-08T13:52:52.481364+00:00",
+  "target_specific_tuning": false,
+  "base_sections_preserved": true,
+  "additional_artifacts": [
+    "クラス図",
+    "クラス・メソッド・インターフェース詳細",
+    "シーケンス図",
+    "メソッド仕様書",
+    "処理フロー図",
+    "状態遷移・副作用",
+    "データ変換・制約"
+  ]
+}
