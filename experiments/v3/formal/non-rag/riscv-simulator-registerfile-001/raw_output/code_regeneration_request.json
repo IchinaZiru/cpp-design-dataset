@@ -1,0 +1,15 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: RegisterFile\n- granularity: target_span\n- target_kind: class\n- target_symbol: RegisterFile\n- source_file: src/Common/RegisterFile.hpp\n\n# 出力規則\n固定インターフェース・スキャフォールドの宣言内容を変更せず、対象クラスまたは構造体の定義全体だけをC++コードとして返してください。template宣言の個数と内容、class/struct宣言、継承、可視性、メンバ名と型、すべての関数・演算子の戻り値、引数、修飾を保持してください。一般的なC++慣習に合わせる目的でも、特殊または非標準的に見えるシグネチャを変更しないでください。スキャフォールドに存在しない宣言を追加せず、関数本体だけを実装してください。Markdownコードフェンス、説明文、JSONは出力しないでください。\n\n# JSON Schema\nN/A\n\n# 設計文書\n# 対象\n- target: RegisterFile\n- granularity: target_span\n- target_kind: class\n- target_symbol: RegisterFile\n\n# 対象範囲\n元コード全体は対象部分を理解するための文脈として参照してください。\n設計文書はtarget_symbolで指定した対象部分だけについて作成してください。\n対象外の関数やクラスは、対象部分との関係を説明する場合に限って記載してください。\n\n# 基本設計項目の出力構成（全条件共通・固定）\n\n## 責務\nRegisterFileクラスはRISC-Vシミュレータにおいてレジスタファイルを管理します。32個のレジスタを保持し、各レジスタへの読み書き操作を行います。\n\n## 公開インターフェース\n- `Immediate read(int id)`: 指定されたIDのレジスタ値を読み取ります。\n- `void write(int id, Immediate val)`: 指定されたIDのレジスタに値を書き込みます。\n- `void tick()`: レジスタファイルの状態を更新します。`next`配列の内容を`prev`配列にコピーします。\n- `void debug()`: レジスタファイルの現在の状態をデバッグ用に出力します。\n\n## 入力\n- `read(int id)`: レジスタID (`int`)\n- `write(int id, Immediate val)`: レジスタID (`int`) と書き込む値 (`Immediate`)\n\n## 出力\n- `read(int id)`: 指定されたレジスタの値 (`Immediate`)\n\n## 状態\n- `prev[REG_NUM]`: 前回のクロックサイクルでのレジスタ値を保持する配列。\n- `next[REG_NUM]`: 現在のクロックサイクルでのレジスタ値を保持する配列。\n\n## 処理手順\n1. コンストラクタで`prev`と`next`配列を初期化します。\n2. `write(int id, Immediate val)`メソッドが呼び出されると、指定されたIDの`next`配列に値を書き込みます。\n3. `tick()`メソッドが呼び出されると、`next`配列の内容を`prev`配列にコピーします。\n4. `read(int id)`メソッドが呼び出されると、指定されたIDの`prev`配列から値を読み取ります。ただし、レジスタIDが0の場合には常に0を返します。\n\n## 例外・失敗条件\n- レジスタIDが範囲外（0から31以外）である場合の動作は未定義です。\n- `Immediate`型の定義や制約については元コードからは不明瞭です。\n\n## 依存関係\n- `Common.h`: シミュレータ全体で使用される共通ヘッダファイルを想定しています。\n- `Register.hpp`: `Immediate`型が定義されていると推測されます。\n- `utils.h`: `debug_immediate()`関数が定義されていると推測されます。\n\n## 重要な不変条件\n- レジスタID0は常に0を保持します。\n- `tick()`メソッド呼び出し後、`prev`配列は直前のクロックサイクルの`next`配列の値を持ちます。\n\n# 固定インターフェース・スキャフォールド\nclass RegisterFile { // : public Tickable {\n    static const int REG_NUM = 32;\npublic:\n    Immediate prev[REG_NUM];\n    Immediate next[REG_NUM];\n\n    RegisterFile() ;\n\n    void tick() ;\n\n    Immediate read(int id) ;\n\n    void write(int id, Immediate val) ;\n\n    void debug() ;\n};\n\n\n# 依存情報\n#include \"Common.h\"\n#include \"Register.hpp\"\n#include <iostream>\n#include <iomanip>\n#include <vector>\n#include \"utils.h\"\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  }
+}
