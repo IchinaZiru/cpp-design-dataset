@@ -1,0 +1,163 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-memory-v3-formal",
+  "run_id": "riscv-simulator-memory-prompt-preserving-non-rag-formal-001",
+  "condition": "full_source_prompt_preserving_non_rag",
+  "granularity": "target_span",
+  "completed_at_utc": "2026-08-08T08:56:02.691251+00:00",
+  "overall_pass": true,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-08T08:55:54.529963+00:00",
+      "completed_at_utc": "2026-08-08T08:55:57.804018+00:00",
+      "elapsed_seconds": 3.2713238999713212,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-memory-prompt-preserving-non-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-memory-prompt-preserving-non-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-08T08:55:57.804172+00:00",
+      "completed_at_utc": "2026-08-08T08:56:01.727402+00:00",
+      "elapsed_seconds": 3.921562199946493,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-memory-prompt-preserving-non-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-memory-prompt-preserving-non-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Memory.StoreWord:Memory.StoreShort:Memory.StoreData:Memory.Utility'"
+      ],
+      "container_shell_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Memory.StoreWord:Memory.StoreShort:Memory.StoreData:Memory.Utility'",
+      "started_at_utc": "2026-08-08T08:56:01.727513+00:00",
+      "completed_at_utc": "2026-08-08T08:56:02.188465+00:00",
+      "elapsed_seconds": 0.45871599996462464,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-memory-prompt-preserving-non-rag-formal-001/direct_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-memory-prompt-preserving-non-rag-formal-001/direct_test.stderr.txt",
+      "counts": {
+        "ran": 4,
+        "passed": 4,
+        "failed": 0
+      }
+    },
+    "full_test": {
+      "stage": "full_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "./build/RISCV_Simulator_Test --gtest_color=no"
+      ],
+      "container_shell_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+      "started_at_utc": "2026-08-08T08:56:02.188878+00:00",
+      "completed_at_utc": "2026-08-08T08:56:02.650055+00:00",
+      "elapsed_seconds": 0.4596619999501854,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-memory-prompt-preserving-non-rag-formal-001/full_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-memory-prompt-preserving-non-rag-formal-001/full_test.stderr.txt",
+      "counts": {
+        "ran": 18,
+        "passed": 18,
+        "failed": 0
+      }
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "src/Common/Memory.hpp",
+        "original_hash": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec",
+        "restored_hash": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": "",
+    "original_hash": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec",
+    "restored_hash": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec"
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-08T08:55:54.432947+00:00",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "fence_language": "cpp",
+    "strict_format_pass": false,
+    "raw_sha256": "28c4c49b9b022c8f27e32ce19bc5cb392107931ecd19bd93162ec8519bcc9947",
+    "normalized_sha256": "87056a5392cb728183321a05d1882bd1e37e88a5a2fb55aa3c1bb40a13cfa5e3",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/riscv-simulator-memory-prompt-preserving-non-rag-formal-001"
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-memory-v3-formal",
+  "target_name": "Memory",
+  "condition": "full_source_prompt_preserving_detailed_design_rag",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "granularity": "target_span",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "src/Common/Memory.hpp"
+  ],
+  "source_files": [
+    "src/Common/Memory.hpp"
+  ],
+  "observation_file_hashes": {
+    "src/Common/Memory.hpp": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec"
+  },
+  "source_file_hashes": {
+    "src/Common/Memory.hpp": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec"
+  },
+  "prepared_at_utc": "2026-08-08T08:56:03.049896+00:00",
+  "target_source_file": "src/Common/Memory.hpp",
+  "replacement_scope": "target_span",
+  "locator": {
+    "kind": "class",
+    "symbol": "Memory"
+  },
+  "target_start_offset": 230,
+  "target_end_offset": 1534,
+  "target_sha256": "dc209000fb252e55a398cdc1fec1aff19cc445b21fe8152e0468d779b0ff1197"
+}
