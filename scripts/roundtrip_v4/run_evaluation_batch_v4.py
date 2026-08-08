@@ -167,9 +167,11 @@ def validate_plan(project_root: Path, manifest: dict[str, Any]) -> None:
             raise RuntimeError("Duplicate v4 run_id or experiment_id")
         seen_run_ids.add(run_id)
         seen_experiment_ids.add(experiment_id)
-        experiment_root = v2b.experiment_root_for(project_root, config)
-        if experiment_root.exists():
-            raise FileExistsError(f"Refusing to overwrite existing v4 artifact: {experiment_root}")
+        # Existing terminal artifacts are allowed here so an interrupted batch can
+        # be resumed safely. v2b.run_one() verifies the saved config, no-retry
+        # policy, source restoration, and terminal artifact before reusing it.
+        # A non-terminal/incomplete experiment directory will still fail inside
+        # run_one() rather than being overwritten or regenerated.
 
 
 def verify_runtime_preconditions_v4(project_root: Path, manifest: dict[str, Any]) -> None:
