@@ -1,0 +1,13 @@
+{
+  "started_at_utc": "2026-08-08T04:57:43.403049+00:00",
+  "elapsed_seconds": 144.57379880012013,
+  "done": true,
+  "done_reason": "stop",
+  "prompt_eval_count": 1559,
+  "eval_count": 1322,
+  "prompt_profile": "prompt-preserving-detailed-design-v3",
+  "num_ctx": 32768,
+  "num_predict": 16384,
+  "retry": false,
+  "automatic_repair": false
+}

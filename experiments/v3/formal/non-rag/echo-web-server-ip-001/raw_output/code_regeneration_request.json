@@ -1,0 +1,50 @@
+{
+  "model": "qwen2.5-coder:32b",
+  "system": "あなたはC++実装担当者です。設計文書と固定インターフェースだけを根拠に実装してください。元実装は与えられていません。公開インターフェースとファイル構成を変更しないでください。",
+  "prompt": "# 対象\n- target: ip\n- granularity: module_files\n- source_files: [\"include/ip.h\", \"src/ip/ip.cpp\"]\n\n# 出力規則\n出力は指定されたJSON Schemaに一致するJSONのみとし、Markdownコードフェンスを使用しないでください。source_filesにある各ファイルを完全な内容として1回ずつ返してください。pathはsource_filesの文字列をそのまま使用し、追加・省略・重複させないでください。C++コード中の改行や引用符はJSON文字列として正しくエスケープしてください。固定インターフェース・スキャフォールドに示された宣言とファイル構成を変更しないでください。\n\n# JSON Schema\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"files\": {\n      \"type\": \"array\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"path\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"include/ip.h\",\n              \"src/ip/ip.cpp\"\n            ]\n          },\n          \"content\": {\n            \"type\": \"string\",\n            \"minLength\": 1\n          }\n        },\n        \"required\": [\n          \"path\",\n          \"content\"\n        ],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\n    \"files\"\n  ],\n  \"additionalProperties\": false\n}\n\n# 設計文書\n## 責務\n`ip.h`と`ip.cpp`は、IPv4アドレスとIPv6アドレスを表す抽象クラス`IPAddr`とその派生クラス`IPv4Addr`、`IPv6Addr`の定義と実装を提供します。これらのクラスは、IPアドレスのバージョン、ソケットアドレスのサイズ、生のソケットアドレス、ポート番号、およびIPアドレス文字列を取得する機能を提供します。\n\n## 公開インターフェース\n- `class IPAddr`\n  - `virtual ~IPAddr() noexcept = default;`\n  - `virtual int Version() const noexcept = 0;`\n  - `virtual std::size_t Size() const noexcept = 0;`\n  - `virtual const sockaddr* Raw() const noexcept = 0;`\n  - `virtual std::uint16_t Port() const noexcept = 0;`\n  - `virtual std::string IPAddress() const noexcept = 0;`\n\n- `class IPv4Addr : public IPAddr`\n  - `explicit IPv4Addr(sockaddr_in addr);`\n  - `explicit IPv4Addr(std::string ip, std::uint16_t port);`\n  - `int Version() const noexcept override;`\n  - `std::size_t Size() const noexcept override;`\n  - `const sockaddr* Raw() const noexcept override;`\n  - `std::uint16_t Port() const noexcept override;`\n  - `std::string IPAddress() const noexcept override;`\n\n- `class IPv6Addr : public IPAddr`\n  - `explicit IPv6Addr(sockaddr_in6 addr);`\n  - `explicit IPv6Addr(std::string ip, std::uint16_t port);`\n  - `int Version() const noexcept override;`\n  - `std::size_t Size() const noexcept override;`\n  - `const sockaddr* Raw() const noexcept override;`\n  - `std::uint16_t Port() const noexcept override;`\n  - `std::string IPAddress() const noexcept override;`\n\n- `template <typename T> concept ValidIPAddr = std::same_as<T, IPv4Addr> || std::same_as<T, IPv6Addr>;`\n\n## 入力\n- `IPv4Addr`のコンストラクタ:\n  - `sockaddr_in addr`\n  - `std::string ip`, `std::uint16_t port`\n  \n- `IPv6Addr`のコンストラクタ:\n  - `sockaddr_in6 addr`\n  - `std::string ip`, `std::uint16_t port`\n\n## 出力\n- IPアドレスのバージョン (`int`)\n- ソケットアドレスのサイズ (`std::size_t`)\n- 生のソケットアドレス (`const sockaddr*`)\n- ポート番号 (`std::uint16_t`)\n- IPアドレス文字列 (`std::string`)\n\n## 状態\n- `IPv4Addr`\n  - `ip_`: IPv4アドレスを表す文字列\n  - `raw_`: IPv4アドレスを表す`sockaddr_in`構造体\n\n- `IPv6Addr`\n  - `ip_`: IPv6アドレスを表す文字列\n  - `raw_`: IPv6アドレスを表す`sockaddr_in6`構造体\n\n## 処理手順\n1. **IPv4Addrのコンストラクタ処理**:\n   - `sockaddr_in addr`を受け取り、内部メンバ変数`raw_`に設定する。\n   - `inet_ntop`を使用して、`raw_.sin_addr`からIPアドレス文字列を生成し、`ip_`に設定する。失敗した場合は例外を投げる。\n\n2. **IPv4Addrのコンストラクタ処理 (IPアドレスとポート番号)**:\n   - `std::string ip`, `std::uint16_t port`を受け取り、内部メンバ変数`ip_`に設定する。\n   - `raw_.sin_family`を`AF_INET`に設定し、`raw_.sin_port`をネットワークバイトオーダーに変換して設定する。\n   - `inet_pton`を使用して、`ip_`から`raw_.sin_addr`にIPv4アドレスを設定する。失敗した場合は例外を投げる。\n\n3. **IPv6Addrのコンストラクタ処理**:\n   - `sockaddr_in6 addr`を受け取り、内部メンバ変数`raw_`に設定する。\n   - `inet_ntop`を使用して、`raw_.sin6_addr`からIPアドレス文字列を生成し、`ip_`に設定する。失敗した場合は例外を投げる。\n\n4. **IPv6Addrのコンストラクタ処理 (IPアドレスとポート番号)**:\n   - `std::string ip`, `std::uint16_t port`を受け取り、内部メンバ変数`ip_`に設定する。\n   - `raw_.sin6_family`を`AF_INET6`に設定し、`raw_.sin6_port`をネットワークバイトオーダーに変換して設定する。\n   - `inet_pton`を使用して、`ip_`から`raw_.sin6_addr`にIPv6アドレスを設定する。失敗した場合は例外を投げる。\n\n## 例外・失敗条件\n- `inet_ntop`または`inet_pton`が失敗した場合、`ThrowLastSystemError()`関数を呼び出して例外を投げる。\n\n## 依存関係\n- `<concepts>`\n- `<cstdint>`\n- `<string>`\n- `<string_view>`\n- `<netinet/in.h>`\n- `\"util.h\"`\n- `<arpa/inet.h>`\n\n## 重要な不変条件\n- `IPv4Addr`と`IPv6Addr`のインスタンスは、それぞれ有効なIPアドレスとポート番号を持つこと。\n- `ip_`が設定された場合、`raw_`も適切に初期化されていること。\n\n# 固定インターフェース・スキャフォールド\n===== FILE: include/ip.h =====\n/**\n * @file ip.h\n * @brief The IP address interface.\n *\n * @author Zhenshuo Chen (chenzs108@outlook.com)\n * @par GitHub\n * https://github.com/Zhuagenborn\n * @version 1.0\n * @date 2022-06-06\n */\n\n#pragma once\n\n#include <concepts>\n#include <cstdint>\n#include <string>\n#include <string_view>\n\n#include <netinet/in.h>\n\n\nnamespace ws {\n\n//! The interface of IP address.\nclass IPAddr {\npublic:\n    virtual ~IPAddr() noexcept = default;\n\n    //! Get the IP version.\n    virtual int Version() const noexcept = 0;\n\n    //! Get the size of socket address.\n    virtual std::size_t Size() const noexcept = 0;\n\n    //! Get the socket address.\n    virtual const sockaddr* Raw() const noexcept = 0;\n\n    virtual std::uint16_t Port() const noexcept = 0;\n\n    virtual std::string IPAddress() const noexcept = 0;\n};\n\n//! The IPv4 address.\nclass IPv4Addr : public IPAddr {\npublic:\n    static constexpr int version {AF_INET};\n\n    static constexpr std::string_view loop_back {\"127.0.0.1\"};\n\n    static constexpr std::string_view any {\"0.0.0.0\"};\n\n    static constexpr std::size_t max_length {15};\n\n    using RawType = sockaddr_in;\n\n    explicit IPv4Addr(sockaddr_in addr);\n\n    explicit IPv4Addr(std::string ip, std::uint16_t port);\n\n    int Version() const noexcept override;\n\n    std::size_t Size() const noexcept override;\n\n    const sockaddr* Raw() const noexcept override;\n\n    std::uint16_t Port() const noexcept override;\n\n    std::string IPAddress() const noexcept override;\n\nprivate:\n    std::string ip_;\n    sockaddr_in raw_ {};\n};\n\n//! The IPv6 address.\nclass IPv6Addr : public IPAddr {\npublic:\n    static constexpr int version {AF_INET6};\n\n    static constexpr std::string_view loop_back {\"::1\"};\n\n    static constexpr std::string_view any {\"::\"};\n\n    static constexpr std::size_t max_length {45};\n\n    using RawType = sockaddr_in6;\n\n    explicit IPv6Addr(sockaddr_in6 addr);\n\n    explicit IPv6Addr(std::string ip, std::uint16_t port);\n\n    int Version() const noexcept override;\n\n    std::size_t Size() const noexcept override;\n\n    const sockaddr* Raw() const noexcept override;\n\n    std::uint16_t Port() const noexcept override;\n\n    std::string IPAddress() const noexcept override;\n\nprivate:\n    std::string ip_;\n    sockaddr_in6 raw_ {};\n};\n\ntemplate <typename T>\nconcept ValidIPAddr = std::same_as<T, IPv4Addr> || std::same_as<T, IPv6Addr>;\n\n}  // namespace ws\n\n\n# 依存情報\n#include <concepts>\n#include <cstdint>\n#include <string>\n#include <string_view>\n#include <netinet/in.h>\n#include \"ip.h\"\n#include \"util.h\"\n#include <arpa/inet.h>\n#include <array>\n\n",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1
+  },
+  "format": {
+    "type": "object",
+    "properties": {
+      "files": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "enum": [
+                "include/ip.h",
+                "src/ip/ip.cpp"
+              ]
+            },
+            "content": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "files"
+    ],
+    "additionalProperties": false
+  }
+}
