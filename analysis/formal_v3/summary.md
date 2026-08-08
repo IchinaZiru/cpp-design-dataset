@@ -1,7 +1,7 @@
 # Prompt-preserving Detailed-design RAG v3 formal results
 
-- Terminal runs: 20/34
-- Complete pairs: 10/17
+- Terminal runs: 26/34
+- Complete pairs: 13/17
 - Retry: none
 - Automatic repair: none
 
@@ -9,5 +9,5 @@
 
 - FAIL->PASS: 0
 - PASS->FAIL: 0
-- PASS->PASS: 1
-- FAIL->FAIL: 9
+- PASS->PASS: 2
+- FAIL->FAIL: 11
