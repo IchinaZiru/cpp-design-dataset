@@ -1,0 +1,116 @@
+{
+  "schema_version": "4.0",
+  "prompt_profile": "source-faithful-detailed-design-direct-include-v5",
+  "condition": "full_source_source_faithful_direct_include_rag_v5",
+  "validation_mode": "advisory_non_blocking",
+  "generated_design_unchanged": true,
+  "blocking_passed": true,
+  "advisory_passed": false,
+  "headings": [
+    {
+      "level": 1,
+      "name": "設計文書: `INIWriter::write` 関数"
+    },
+    {
+      "level": 2,
+      "name": "基本設計項目"
+    },
+    {
+      "level": 3,
+      "name": "責務"
+    },
+    {
+      "level": 3,
+      "name": "公開インターフェース"
+    },
+    {
+      "level": 3,
+      "name": "入力"
+    },
+    {
+      "level": 3,
+      "name": "出力"
+    },
+    {
+      "level": 3,
+      "name": "状態"
+    },
+    {
+      "level": 3,
+      "name": "処理手順"
+    },
+    {
+      "level": 3,
+      "name": "例外・失敗条件"
+    },
+    {
+      "level": 3,
+      "name": "依存関係"
+    },
+    {
+      "level": 3,
+      "name": "重要な不変条件"
+    },
+    {
+      "level": 2,
+      "name": "RAGによる追加詳細設計"
+    },
+    {
+      "level": 3,
+      "name": "クラス図"
+    },
+    {
+      "level": 3,
+      "name": "クラス・メソッド・インターフェース詳細"
+    },
+    {
+      "level": 3,
+      "name": "シーケンス図"
+    },
+    {
+      "level": 3,
+      "name": "メソッド仕様書"
+    },
+    {
+      "level": 4,
+      "name": "目的"
+    },
+    {
+      "level": 4,
+      "name": "引数"
+    },
+    {
+      "level": 4,
+      "name": "戻り値"
+    },
+    {
+      "level": 4,
+      "name": "動作"
+    },
+    {
+      "level": 4,
+      "name": "エラー処理"
+    },
+    {
+      "level": 3,
+      "name": "処理フロー図"
+    },
+    {
+      "level": 3,
+      "name": "状態遷移・副作用"
+    },
+    {
+      "level": 3,
+      "name": "データ変換・制約"
+    }
+  ],
+  "diagram_checks": {
+    "クラス図": true,
+    "シーケンス図": true,
+    "処理フロー図": false
+  },
+  "warnings": [
+    "処理フロー図: expected Mermaid type not detected; advisory only"
+  ],
+  "validated_at_utc": "2026-08-09T08:50:05.307183+00:00"
+}
