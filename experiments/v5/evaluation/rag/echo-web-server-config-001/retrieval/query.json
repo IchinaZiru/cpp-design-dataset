@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "echo-web-server-config",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "source_files": [
+    "include/config.h",
+    "src/config/config.cpp"
+  ],
+  "quoted_includes": [
+    {
+      "source_file": "include/config.h",
+      "line": 16,
+      "include": "util.h"
+    },
+    {
+      "source_file": "src/config/config.cpp",
+      "line": 1,
+      "include": "config.h"
+    }
+  ],
+  "query_generation": "deterministic_non_llm",
+  "target_specific_tuning": false
+}
