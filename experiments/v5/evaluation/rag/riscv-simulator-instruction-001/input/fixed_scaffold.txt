@@ -1,0 +1,76 @@
+===== FILE: src/Common/Instruction.hpp =====
+//
+// Created by Alex Chi on 2019-07-01.
+//
+
+#ifndef RISCV_SIMULATOR_INSTRUCTION_HPP
+#define RISCV_SIMULATOR_INSTRUCTION_HPP
+
+#include <utility>
+#include "Common.h"
+#include <string>
+#include <iostream>
+
+using Instruction = unsigned int;
+
+struct InstructionBase {
+    class InvalidAccess {
+    };
+
+    InstructionBase() ;
+
+    InstructionBase(unsigned) ;
+
+    static InstructionBase nop() ;
+
+    bool is_nop() ;
+
+    unsigned opcode, rs1, rs2, rd, funct3, funct7;
+    Immediate imm;
+    Instruction inst;
+    enum Type {
+        R, I, S, B, U, J
+    } t;
+
+    static constexpr unsigned int bin_mask(int digits) ;
+
+    static unsigned int get_digits(unsigned int n, int hi, int lo) ;
+
+    static unsigned int expand_digit(unsigned int digit, int lo) ;
+
+    bool is_valid(const std::string &key) ;
+
+    void verify(const std::string &key) ;;
+
+    void debug() ;
+
+    bool has_op1() ;
+
+    bool has_op2() ;
+};
+
+struct InstructionR : InstructionBase {
+    InstructionR(const Instruction &inst) ;
+};
+
+struct InstructionI : InstructionBase {
+    InstructionI(const Instruction &inst) ;
+};
+
+struct InstructionS : InstructionBase {
+    InstructionS(const Instruction &inst) ;
+};
+
+struct InstructionB : InstructionBase {
+    InstructionB(const Instruction &inst) ;
+};
+
+struct InstructionU : InstructionBase {
+    InstructionU(const Instruction &inst) ;
+};
+
+struct InstructionJ : InstructionBase {
+    InstructionJ(const Instruction &inst) ;
+};
+
+#endif //RISCV_SIMULATOR_INSTRUCTION_HPP
