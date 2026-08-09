@@ -1,0 +1,632 @@
+{
+  "schema_version": "6.0",
+  "protocol_id": "deterministic-exact-contract-v6-formal-001",
+  "result_classification": "formal_paired_v6",
+  "expected_pair_count": 17,
+  "pair_count": 17,
+  "config_count": 34,
+  "all_enabled": false,
+  "formal_result_eligible": true,
+  "design_prompt_profile": "source-faithful-detailed-design-v6",
+  "common_design_context_sha256": "b9c7cc591d3b96a2dc7655c02543523a451bf47b77e29cd2bd57ebc1751cd1b1",
+  "budget_rule": "assembled_code_regeneration_input_tokens + num_predict <= num_ctx",
+  "tokenizer": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "transformers_version": "4.57.6",
+  "preformal_budget_audit": "analysis/v6-preformal-budget-audit/summary.json",
+  "generated_files": [
+    "configs/roundtrip_v6/formal/non-rag/echo-web-server-block-deque.json",
+    "configs/roundtrip_v6/formal/rag/echo-web-server-block-deque.json",
+    "configs/roundtrip_v6/formal/non-rag/echo-web-server-buffer.json",
+    "configs/roundtrip_v6/formal/rag/echo-web-server-buffer.json",
+    "configs/roundtrip_v6/formal/non-rag/echo-web-server-config.json",
+    "configs/roundtrip_v6/formal/rag/echo-web-server-config.json",
+    "configs/roundtrip_v6/formal/non-rag/echo-web-server-heap-timer.json",
+    "configs/roundtrip_v6/formal/rag/echo-web-server-heap-timer.json",
+    "configs/roundtrip_v6/formal/non-rag/echo-web-server-http.json",
+    "configs/roundtrip_v6/formal/rag/echo-web-server-http.json",
+    "configs/roundtrip_v6/formal/non-rag/echo-web-server-io.json",
+    "configs/roundtrip_v6/formal/rag/echo-web-server-io.json",
+    "configs/roundtrip_v6/formal/non-rag/echo-web-server-ip.json",
+    "configs/roundtrip_v6/formal/rag/echo-web-server-ip.json",
+    "configs/roundtrip_v6/formal/non-rag/echo-web-server-log.json",
+    "configs/roundtrip_v6/formal/rag/echo-web-server-log.json",
+    "configs/roundtrip_v6/formal/non-rag/echo-web-server-thread-pool.json",
+    "configs/roundtrip_v6/formal/rag/echo-web-server-thread-pool.json",
+    "configs/roundtrip_v6/formal/non-rag/echo-web-server-util.json",
+    "configs/roundtrip_v6/formal/rag/echo-web-server-util.json",
+    "configs/roundtrip_v6/formal/non-rag/ini-cpp-inireader.json",
+    "configs/roundtrip_v6/formal/rag/ini-cpp-inireader.json",
+    "configs/roundtrip_v6/formal/non-rag/ini-cpp-iniwriter.json",
+    "configs/roundtrip_v6/formal/rag/ini-cpp-iniwriter.json",
+    "configs/roundtrip_v6/formal/non-rag/riscv-simulator-instruction.json",
+    "configs/roundtrip_v6/formal/rag/riscv-simulator-instruction.json",
+    "configs/roundtrip_v6/formal/non-rag/riscv-simulator-memory.json",
+    "configs/roundtrip_v6/formal/rag/riscv-simulator-memory.json",
+    "configs/roundtrip_v6/formal/non-rag/riscv-simulator-parser.json",
+    "configs/roundtrip_v6/formal/rag/riscv-simulator-parser.json",
+    "configs/roundtrip_v6/formal/non-rag/riscv-simulator-register.json",
+    "configs/roundtrip_v6/formal/rag/riscv-simulator-register.json",
+    "configs/roundtrip_v6/formal/non-rag/riscv-simulator-registerfile.json",
+    "configs/roundtrip_v6/formal/rag/riscv-simulator-registerfile.json"
+  ],
+  "targets": [
+    {
+      "pair_id": "echo-web-server-block-deque",
+      "pair_sequence": 1,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/echo-web-server-block-deque.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/echo-web-server-block-deque-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "e7169d6e5a07066f977de177c72ffd4d2b897bcd0d7cfd74637ca2c8ed17ae00",
+      "expected_rag_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+      "selected_paths": [],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/echo-web-server-block-deque.json",
+          "experiment_id": "v6/formal/non-rag/echo-web-server-block-deque-001",
+          "run_id": "echo-web-server-block-deque-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "c8997b5faa69b27bf7f2dead4c468358286b3be88f38b64eb804659434051326",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "258a14154649f766d597ebf0d2b360da09fac1af794618bd493057086ec9a034",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "258a14154649f766d597ebf0d2b360da09fac1af794618bd493057086ec9a034"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/echo-web-server-block-deque.json",
+          "experiment_id": "v6/formal/rag/echo-web-server-block-deque-001",
+          "run_id": "echo-web-server-block-deque-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "955bba024dc735c4e106845550fd24f0f91aa4a4765f1c7ba81c3af6f662760a",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "258a14154649f766d597ebf0d2b360da09fac1af794618bd493057086ec9a034",
+          "expected_dependency_contract_sha256": "5242ff359a12abbb6afb607e0fc75b35610aaeabb9956f3f51c25f94a0703e1a",
+          "expected_combined_contract_sha256": "6de5852d7fc6b7d2c7d766678e9c0e67959a70fa168a4a110a134231993aca24"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-buffer",
+      "pair_sequence": 2,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/echo-web-server-buffer.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/echo-web-server-buffer-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "7c0fb2b5ab5f454e7bf270e9e9c6d26e9e7f7a60215986b2ce9c91668014d2e9",
+      "expected_rag_context_sha256": "e891f01987e20d4be39709d48f5e7579bb93773e47b3a82c0961915cb51bd735",
+      "selected_paths": [
+        "include/io.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/echo-web-server-buffer.json",
+          "experiment_id": "v6/formal/non-rag/echo-web-server-buffer-001",
+          "run_id": "echo-web-server-buffer-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "05fa90792478f61900ec47cff1a2583cb967ea2cd04252593313d0e5fe6f3b91",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "27fa7899eec340f7970c359b558ac8dec30d6cb9ad8f42b8cbf5baabfa13054b",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "27fa7899eec340f7970c359b558ac8dec30d6cb9ad8f42b8cbf5baabfa13054b"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/echo-web-server-buffer.json",
+          "experiment_id": "v6/formal/rag/echo-web-server-buffer-001",
+          "run_id": "echo-web-server-buffer-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "a3220d2da880eda98e55f8494f22a21c00622286dfcbfe392fa867659a615125",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "27fa7899eec340f7970c359b558ac8dec30d6cb9ad8f42b8cbf5baabfa13054b",
+          "expected_dependency_contract_sha256": "7b070bd63d4f1395e66fc4c8aaef684c860c20b58495530af54ec96290bcf7e2",
+          "expected_combined_contract_sha256": "3c8e36cba892ae48def4b68ff5e3366b7c802a02f08dc20e6ff6e8fbbc38bc72"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-config",
+      "pair_sequence": 3,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/echo-web-server-config.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/echo-web-server-config-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "6a9aa75c0962f954726158ca8931d86ffbe29fb5d5820bfd460a00c5b0a6fe60",
+      "expected_rag_context_sha256": "9f8646040c51462d8241371994b165fe2d51bc82589ca8625a8941299ed6ac5d",
+      "selected_paths": [
+        "include/util.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/echo-web-server-config.json",
+          "experiment_id": "v6/formal/non-rag/echo-web-server-config-001",
+          "run_id": "echo-web-server-config-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "b35628adf067fd65fb464f59edbf7019e2e318d53ecf5425e99eef805d4d061e",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "e2dbbdb0f49736c4969accaad7f54b92062be09f7bb2796368fd16a13a4c2071",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "e2dbbdb0f49736c4969accaad7f54b92062be09f7bb2796368fd16a13a4c2071"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/echo-web-server-config.json",
+          "experiment_id": "v6/formal/rag/echo-web-server-config-001",
+          "run_id": "echo-web-server-config-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "4d9824b1f3b012a5974787cd889003891efe5d42f697197a07fc5def4b82258f",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "e2dbbdb0f49736c4969accaad7f54b92062be09f7bb2796368fd16a13a4c2071",
+          "expected_dependency_contract_sha256": "ab31dcdc8ca4b57b30c7711e94673b3d87b37415365f5981ca5ed89e8a583c7c",
+          "expected_combined_contract_sha256": "6332dd89d66b4067213f5f16da59e1e2f137c9f32d136d43d91824937f678de9"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-heap-timer",
+      "pair_sequence": 4,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/echo-web-server-heap-timer.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/echo-web-server-heap-timer-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "b30db91089564930825f1cbbcad6177f71bce9d0234684cc64085cb8302516cd",
+      "expected_rag_context_sha256": "e850902f505a868877deb54d6896b1b5b03549550bfc7afa665f68887d589743",
+      "selected_paths": [
+        "include/log.h",
+        "include/util.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/echo-web-server-heap-timer.json",
+          "experiment_id": "v6/formal/non-rag/echo-web-server-heap-timer-001",
+          "run_id": "echo-web-server-heap-timer-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "7fa6524e09ed306ee79391c0ec09ad95c2b1cf015b781af9d801a668b91f9116",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "cb0f3490df79835754d7b87279209e27e015c9f5e165c357bfd731c5da32e797",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "cb0f3490df79835754d7b87279209e27e015c9f5e165c357bfd731c5da32e797"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/echo-web-server-heap-timer.json",
+          "experiment_id": "v6/formal/rag/echo-web-server-heap-timer-001",
+          "run_id": "echo-web-server-heap-timer-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "857724478be4520b635f0d8d32ce95542cf252ae2b8b4e10a0a543cc2037a863",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "cb0f3490df79835754d7b87279209e27e015c9f5e165c357bfd731c5da32e797",
+          "expected_dependency_contract_sha256": "302f3daedab44f2acd11c454c99d88cb271b91bc859031d938e5f2498553d167",
+          "expected_combined_contract_sha256": "56e1cc7db69540587f1d051a2fa6c8ca56f6978d8cf7d87e56c51da6e948cbc8"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-http",
+      "pair_sequence": 5,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/echo-web-server-http.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/echo-web-server-http-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "5f1c4912c99d36cf894d57b4961b16961568991099d012aa8b9863086c0749b2",
+      "expected_rag_context_sha256": "95968626ee86e05f838b6ca1a79747526f0d538f0c5c7891d2948c1b83b74afd",
+      "selected_paths": [
+        "include/containers/buffer.h",
+        "include/ip.h",
+        "include/util.h",
+        "include/io.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/echo-web-server-http.json",
+          "experiment_id": "v6/formal/non-rag/echo-web-server-http-001",
+          "run_id": "echo-web-server-http-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "064c95e07c88a4b524f38179b516c4944e6dcf55b159f2011977f24340cb4b46",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "5b9411abc2751e6eed91d49fcf1deb5e05b1360f8928aaca68666f00456ef1aa",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "5b9411abc2751e6eed91d49fcf1deb5e05b1360f8928aaca68666f00456ef1aa"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/echo-web-server-http.json",
+          "experiment_id": "v6/formal/rag/echo-web-server-http-001",
+          "run_id": "echo-web-server-http-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "edb413f17214d1e9d8e05fdca881d89d29c56ad9d19cd6a434203d0b3ae70080",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "5b9411abc2751e6eed91d49fcf1deb5e05b1360f8928aaca68666f00456ef1aa",
+          "expected_dependency_contract_sha256": "b2a2518090a7efcf56168b8bde5ea263b0fa0fd07e268221f92ae5bf8bb77752",
+          "expected_combined_contract_sha256": "576a4a6672cd0d70d26e08ac7a60116f430728ba42e10ffd9cfe9f5f51745e9a"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-io",
+      "pair_sequence": 6,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/echo-web-server-io.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/echo-web-server-io-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "4f2eef4a11d1b8d880b59f8cad7fe29ca4bd2fdd5ddc29220e5a85bc3f8e75b1",
+      "expected_rag_context_sha256": "5f81965d08b0b0bdfaf8661332813b594cd144a24600c97329619b8a544a3316",
+      "selected_paths": [
+        "include/util.h",
+        "include/containers/buffer.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/echo-web-server-io.json",
+          "experiment_id": "v6/formal/non-rag/echo-web-server-io-001",
+          "run_id": "echo-web-server-io-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "97eca4a390e5d67e2dc36ecaf604ea21b11548b47633da45b35ed74febbe6247",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "1a53163bfdd3e3541ef69f84145238821aa7cffcb2b56cdd60e2796ffbe2b516",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "1a53163bfdd3e3541ef69f84145238821aa7cffcb2b56cdd60e2796ffbe2b516"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/echo-web-server-io.json",
+          "experiment_id": "v6/formal/rag/echo-web-server-io-001",
+          "run_id": "echo-web-server-io-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "0b8319c0e58781a857a22bd10fa3467c3bdf889a8afe61cca246e48fbe72c8e0",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "1a53163bfdd3e3541ef69f84145238821aa7cffcb2b56cdd60e2796ffbe2b516",
+          "expected_dependency_contract_sha256": "7ce5f4fda07bd8ba9183ccf3b42251b6f47f148a9d08b1f2ca0077e5ecb93ca6",
+          "expected_combined_contract_sha256": "337176e88e076233a86b912fb2698bd774b745a544d118ad082624e9b3c3b9a0"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-ip",
+      "pair_sequence": 7,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/echo-web-server-ip.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/echo-web-server-ip-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "af61a46c9bc70f18d5c6249a1f632fa98741dffc608921f729c43183606bd4a0",
+      "expected_rag_context_sha256": "9f8646040c51462d8241371994b165fe2d51bc82589ca8625a8941299ed6ac5d",
+      "selected_paths": [
+        "include/util.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/echo-web-server-ip.json",
+          "experiment_id": "v6/formal/non-rag/echo-web-server-ip-001",
+          "run_id": "echo-web-server-ip-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "dd45958ca4d43c6cd0e58695de31a4662a6cce69b38321bdf8bd7b05abfbc877",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "8e387bdada5d5e29a86db1e80fcbc4703e796e066130b769e80240750c67f3a2",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "8e387bdada5d5e29a86db1e80fcbc4703e796e066130b769e80240750c67f3a2"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/echo-web-server-ip.json",
+          "experiment_id": "v6/formal/rag/echo-web-server-ip-001",
+          "run_id": "echo-web-server-ip-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "b79b26233a5289fc2f3000fe57e9b1bdc2173af47a139465d950fb5ea11feb58",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "8e387bdada5d5e29a86db1e80fcbc4703e796e066130b769e80240750c67f3a2",
+          "expected_dependency_contract_sha256": "d11a7fbbf652f737e8cf56cdc8f3eec13d3c2329aa922756b43945d13e5edb00",
+          "expected_combined_contract_sha256": "d7885ed7ddfdec90fbdd8abc5573082d370b1866850047b46df7d904643959a0"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-log",
+      "pair_sequence": 8,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/echo-web-server-log.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/echo-web-server-log-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "5cde5c7c4e02f8a1bce805d07b46e72d012a3f28b5d3d8ad38dfa0d76540251b",
+      "expected_rag_context_sha256": "c4e413b512ae8c56f57c577e1b2b3b7702e7773b60c29951e5c26a5a37705040",
+      "selected_paths": [
+        "include/config.h",
+        "include/containers/block_deque.h",
+        "include/util.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/echo-web-server-log.json",
+          "experiment_id": "v6/formal/non-rag/echo-web-server-log-001",
+          "run_id": "echo-web-server-log-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "db19e9668ca289cfbd51d57c8e1c8fa4a0e97beb2ad18aa5b6ac4c91efe3bd1b",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "bf9259ee3e8a1c5578a8bcaeb0a7383edb8e904e07a7a226f5faccaa45b5e079",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "bf9259ee3e8a1c5578a8bcaeb0a7383edb8e904e07a7a226f5faccaa45b5e079"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/echo-web-server-log.json",
+          "experiment_id": "v6/formal/rag/echo-web-server-log-001",
+          "run_id": "echo-web-server-log-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "7c4b4c599e7193d10b7063aef0e89bd70c47507514ad099a0a01e11b1a137834",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "bf9259ee3e8a1c5578a8bcaeb0a7383edb8e904e07a7a226f5faccaa45b5e079",
+          "expected_dependency_contract_sha256": "8988c997e0897bdcdc7587f04897dcb6fcf0f6f823d38204fcb4ebf1540d7b07",
+          "expected_combined_contract_sha256": "7769c021d9e6556f7b8ebacec56b1fe8053f0321d02f46ee18d218c9ccb2866e"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-thread-pool",
+      "pair_sequence": 9,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/echo-web-server-thread-pool.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/echo-web-server-thread-pool-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "f1b59ff47b745128fc5b7680e5db72cf716bc12f5837022c09adccbf97bf352b",
+      "expected_rag_context_sha256": "e850902f505a868877deb54d6896b1b5b03549550bfc7afa665f68887d589743",
+      "selected_paths": [
+        "include/log.h",
+        "include/util.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/echo-web-server-thread-pool.json",
+          "experiment_id": "v6/formal/non-rag/echo-web-server-thread-pool-001",
+          "run_id": "echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "b5d6fe94cf5a33402afeec21ea647a6330a4aad770302f5a9a1a21dde9cee610",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "48fa921fb325fbd11dfbb12b1347cd737120b20277f72dce2df2c690ab159afb",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "48fa921fb325fbd11dfbb12b1347cd737120b20277f72dce2df2c690ab159afb"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/echo-web-server-thread-pool.json",
+          "experiment_id": "v6/formal/rag/echo-web-server-thread-pool-001",
+          "run_id": "echo-web-server-thread-pool-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "8fe747dafef05bcbdfe0ec0067e14bd5b5b08dfa2bddef03fec78d736a66a727",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "48fa921fb325fbd11dfbb12b1347cd737120b20277f72dce2df2c690ab159afb",
+          "expected_dependency_contract_sha256": "e12d3f5fc3d042d6638e93ccdafb62ffd9d03762c3600864ce1952ffcf0379d7",
+          "expected_combined_contract_sha256": "eabb9b3e8b802778a4058a7f1e80441ffd4d64d9170bc21067df6ecb5a42a367"
+        }
+      }
+    },
+    {
+      "pair_id": "echo-web-server-util",
+      "pair_sequence": 10,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/echo-web-server-util.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/echo-web-server-util-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "e9e6e43789ed2f7724380b0349b3148552ff8bc0ee8474573b68bca4eac1449b",
+      "expected_rag_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+      "selected_paths": [],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/echo-web-server-util.json",
+          "experiment_id": "v6/formal/non-rag/echo-web-server-util-001",
+          "run_id": "echo-web-server-util-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "aa1a4f62af4d8e8a1b48ba5737747c732df56a9493bb2e892c821f82160cc4bb",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "ce6c80dc4f3d64e258db7ef059bc95d11418d064656fe4738c7a415a047915e2",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "ce6c80dc4f3d64e258db7ef059bc95d11418d064656fe4738c7a415a047915e2"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/echo-web-server-util.json",
+          "experiment_id": "v6/formal/rag/echo-web-server-util-001",
+          "run_id": "echo-web-server-util-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "7a62f2500c813809480a693dbf89120bcddbfbc513c75ebea5b2e42f1ef6f9c2",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "ce6c80dc4f3d64e258db7ef059bc95d11418d064656fe4738c7a415a047915e2",
+          "expected_dependency_contract_sha256": "5242ff359a12abbb6afb607e0fc75b35610aaeabb9956f3f51c25f94a0703e1a",
+          "expected_combined_contract_sha256": "b93b4a37b8578d26257cfc93b779318b2f0017b54d34c309397acc32f2879e03"
+        }
+      }
+    },
+    {
+      "pair_id": "ini-cpp-inireader",
+      "pair_sequence": 11,
+      "granularity": "class_span",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/ini-cpp-inireader.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/ini-cpp-inireader-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "0cd8c477411484c3a5b93bc17c063e043b5bbe2463d20c9e9e9e8bfaf5b14bad",
+      "expected_rag_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+      "selected_paths": [],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/ini-cpp-inireader.json",
+          "experiment_id": "v6/formal/non-rag/ini-cpp-inireader-001",
+          "run_id": "ini-cpp-inireader-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "a93e0b70ae375a05e2555e2d021ad128b788a0d5805b674d3bdea3fff7d489bc",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "ec0ec76fd84355626c139c3203e7728335a6bdcbdd200d1e1db9e66c4b0cc0d6",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "ec0ec76fd84355626c139c3203e7728335a6bdcbdd200d1e1db9e66c4b0cc0d6"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/ini-cpp-inireader.json",
+          "experiment_id": "v6/formal/rag/ini-cpp-inireader-001",
+          "run_id": "ini-cpp-inireader-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "e650841c98d7ee7ac343479ab975689f436bc92ecfd3ec7a2bff98e5e5e35818",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "ec0ec76fd84355626c139c3203e7728335a6bdcbdd200d1e1db9e66c4b0cc0d6",
+          "expected_dependency_contract_sha256": "5242ff359a12abbb6afb607e0fc75b35610aaeabb9956f3f51c25f94a0703e1a",
+          "expected_combined_contract_sha256": "d3bd2bc5ffdecc4e8256893cf16f8beff77e664ec101a13754208022b382983e"
+        }
+      }
+    },
+    {
+      "pair_id": "ini-cpp-iniwriter",
+      "pair_sequence": 12,
+      "granularity": "function",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/ini-cpp-iniwriter.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/ini-cpp-iniwriter-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "c45662bd0c815eba133be46c0979c05246b380dc73d25076a784e35b3f396557",
+      "expected_rag_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+      "selected_paths": [],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/ini-cpp-iniwriter.json",
+          "experiment_id": "v6/formal/non-rag/ini-cpp-iniwriter-001",
+          "run_id": "ini-cpp-iniwriter-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "c3aae8357cff219246b5c0e919ca3c604519ee825682acca291175c484dbea82",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "56cfde7175734d95467d1dc81f6f59c9a8a77e2b9723777c82a16e6ba50d09cd",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "56cfde7175734d95467d1dc81f6f59c9a8a77e2b9723777c82a16e6ba50d09cd"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/ini-cpp-iniwriter.json",
+          "experiment_id": "v6/formal/rag/ini-cpp-iniwriter-001",
+          "run_id": "ini-cpp-iniwriter-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "ab8b3c063bb98e199d2b714159957486a3807c7e8b455ae5a246c7e9e7417260",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "56cfde7175734d95467d1dc81f6f59c9a8a77e2b9723777c82a16e6ba50d09cd",
+          "expected_dependency_contract_sha256": "5242ff359a12abbb6afb607e0fc75b35610aaeabb9956f3f51c25f94a0703e1a",
+          "expected_combined_contract_sha256": "47c0af7e9648149c26c20eed67a4cff7dd7d0139cb36302a10f1dcd47fde40ac"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-instruction",
+      "pair_sequence": 13,
+      "granularity": "module_files",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/riscv-simulator-instruction.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/riscv-simulator-instruction-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "09997d119968d32655306bfc3470b886ceea8267fce5274b368f84c75d367656",
+      "expected_rag_context_sha256": "9ceeeb5f0e5e0daa4fb3b8b42f7d92064cee764d9c5f89e1312873c70de44664",
+      "selected_paths": [
+        "src/Common/Common.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/riscv-simulator-instruction.json",
+          "experiment_id": "v6/formal/non-rag/riscv-simulator-instruction-001",
+          "run_id": "riscv-simulator-instruction-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "d814ebdf085a9cb2dc279172081082d0621f4982c38e82ff2982b780726b4f39",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "2289a632d9cd25a5b1df41a116d653e53b7dea9a7fa553f474e2ddea2c83551e",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "2289a632d9cd25a5b1df41a116d653e53b7dea9a7fa553f474e2ddea2c83551e"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/riscv-simulator-instruction.json",
+          "experiment_id": "v6/formal/rag/riscv-simulator-instruction-001",
+          "run_id": "riscv-simulator-instruction-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "6b54569273dd2015d61719f3a2b247631e5f07c1017846885b7daaa3df44d892",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "2289a632d9cd25a5b1df41a116d653e53b7dea9a7fa553f474e2ddea2c83551e",
+          "expected_dependency_contract_sha256": "5242ff359a12abbb6afb607e0fc75b35610aaeabb9956f3f51c25f94a0703e1a",
+          "expected_combined_contract_sha256": "0193b956679fa62d76efce2934b6be0e96f12753e463d258b154481bc07acdba"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-memory",
+      "pair_sequence": 14,
+      "granularity": "class_span",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/riscv-simulator-memory.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/riscv-simulator-memory-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "69926fa4fa0dfce181306b7b71a89f0ee3c5f48b40edb211eddb08dbbfeb8c9f",
+      "expected_rag_context_sha256": "9ceeeb5f0e5e0daa4fb3b8b42f7d92064cee764d9c5f89e1312873c70de44664",
+      "selected_paths": [
+        "src/Common/Common.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/riscv-simulator-memory.json",
+          "experiment_id": "v6/formal/non-rag/riscv-simulator-memory-001",
+          "run_id": "riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "f85fc68f213dc933343ec95fdddb1e56cd0056cf199bf5b73c356e349dc2b85a",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "7f6afe8465ca3bf6a3bfd2fff214c3add208096c299f3bef68135845d466b5d4",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "7f6afe8465ca3bf6a3bfd2fff214c3add208096c299f3bef68135845d466b5d4"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/riscv-simulator-memory.json",
+          "experiment_id": "v6/formal/rag/riscv-simulator-memory-001",
+          "run_id": "riscv-simulator-memory-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "82288dc0f08680ef75b7f9a51f58902c26f73b16908bb8e347b7673aa7ad97a9",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "7f6afe8465ca3bf6a3bfd2fff214c3add208096c299f3bef68135845d466b5d4",
+          "expected_dependency_contract_sha256": "5242ff359a12abbb6afb607e0fc75b35610aaeabb9956f3f51c25f94a0703e1a",
+          "expected_combined_contract_sha256": "ebba25202b37d124153d4fade4e0a4e7bcd667187f8ae9e708f84d6110a10869"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-parser",
+      "pair_sequence": 15,
+      "granularity": "class_span",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/riscv-simulator-parser.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/riscv-simulator-parser-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "4a6a7f62033a234066c3b3378647833078cb2e963df2f0e709f02643fa04f9ae",
+      "expected_rag_context_sha256": "aba14253c5390f362404210a5f48fcba87ab22f970f110f07e000e29d96591e8",
+      "selected_paths": [
+        "src/Common/Memory.hpp"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/riscv-simulator-parser.json",
+          "experiment_id": "v6/formal/non-rag/riscv-simulator-parser-001",
+          "run_id": "riscv-simulator-parser-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "c4c5e772e8d549fb75ce6ccc4619b6590fe33b036731f7e4f6b8e711dbe311bc",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "1b3aa3bcfadab84e43771d6555088013cbf8a68c0583f72fac36fbb98d1e87eb",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "1b3aa3bcfadab84e43771d6555088013cbf8a68c0583f72fac36fbb98d1e87eb"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/riscv-simulator-parser.json",
+          "experiment_id": "v6/formal/rag/riscv-simulator-parser-001",
+          "run_id": "riscv-simulator-parser-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "a60654d9bae4dacb0d673c7f77f48167f1122be91c96853620292c0b7e01c308",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "1b3aa3bcfadab84e43771d6555088013cbf8a68c0583f72fac36fbb98d1e87eb",
+          "expected_dependency_contract_sha256": "a06f4f2c324308469d902938df0c2d78255f3a04ee69b7a1484cb2c7854e5d81",
+          "expected_combined_contract_sha256": "8a894dd37f5dc1d45ab821f375c25c8da5cc07181fb9251196ed7aced5a89f6a"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-register",
+      "pair_sequence": 16,
+      "granularity": "class_span",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/riscv-simulator-register.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/riscv-simulator-register-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "a504c9ea0a69a0e0fed16fc620962b5e3c62f6e4d6e43870dbf16e6e2b9f7913",
+      "expected_rag_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+      "selected_paths": [],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/riscv-simulator-register.json",
+          "experiment_id": "v6/formal/non-rag/riscv-simulator-register-001",
+          "run_id": "riscv-simulator-register-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "9c9c775ee88624a3eab52f41218a453728c5260b7f49e2f70ca143f163bff36b",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "b93383405fd78910f92868d8b69fd47379e3ed53325ee05642b541dab25ab87b",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "b93383405fd78910f92868d8b69fd47379e3ed53325ee05642b541dab25ab87b"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/riscv-simulator-register.json",
+          "experiment_id": "v6/formal/rag/riscv-simulator-register-001",
+          "run_id": "riscv-simulator-register-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "5ddbddf3a335cc35aa66eb25f9d79c68a4a74552e64a1c150dd26a015e366f2e",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "b93383405fd78910f92868d8b69fd47379e3ed53325ee05642b541dab25ab87b",
+          "expected_dependency_contract_sha256": "5242ff359a12abbb6afb607e0fc75b35610aaeabb9956f3f51c25f94a0703e1a",
+          "expected_combined_contract_sha256": "373659fdc0643789d1fb35aac110c34d1f1ea84b245c8d938dfb0b64bea4d738"
+        }
+      }
+    },
+    {
+      "pair_id": "riscv-simulator-registerfile",
+      "pair_sequence": 17,
+      "granularity": "class_span",
+      "v5_source_config": "configs/roundtrip_v5/evaluation/rag/riscv-simulator-registerfile.json",
+      "v5_retrieval_manifest": "experiments/v5/evaluation/rag/riscv-simulator-registerfile-001/retrieval/retrieval_manifest.json",
+      "v5_retrieval_manifest_sha256": "5ebf458b72e72145649baa98b5e7469cc02133ef196ecbd19ffecbc57a57a235",
+      "expected_rag_context_sha256": "167be5a044f30a02c81197501fac8e30079e3f46045fc1770263b1742d21e568",
+      "selected_paths": [
+        "src/Common/Common.h",
+        "src/Common/Register.hpp",
+        "src/Common/utils.h"
+      ],
+      "conditions": {
+        "non_rag": {
+          "config_path": "configs/roundtrip_v6/formal/non-rag/riscv-simulator-registerfile.json",
+          "experiment_id": "v6/formal/non-rag/riscv-simulator-registerfile-001",
+          "run_id": "riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001",
+          "config_sha256": "5b032141399b9bdfeb98600c1a398cd1a4d470864b8a53711d00a20751f9f15c",
+          "contract_mode": "nonrag",
+          "expected_source_contract_sha256": "569e9a0462b2c60d2ac14c75a863faced0f176eab6705f193abbc5077f99da19",
+          "expected_dependency_contract_sha256": null,
+          "expected_combined_contract_sha256": "569e9a0462b2c60d2ac14c75a863faced0f176eab6705f193abbc5077f99da19"
+        },
+        "rag": {
+          "config_path": "configs/roundtrip_v6/formal/rag/riscv-simulator-registerfile.json",
+          "experiment_id": "v6/formal/rag/riscv-simulator-registerfile-001",
+          "run_id": "riscv-simulator-registerfile-deterministic-exact-contract-v6-rag-formal-001",
+          "config_sha256": "b409247028842ca9fe134bb6bf164dbf10b8d4cf26d1983fad56b042d12abb3b",
+          "contract_mode": "rag",
+          "expected_source_contract_sha256": "569e9a0462b2c60d2ac14c75a863faced0f176eab6705f193abbc5077f99da19",
+          "expected_dependency_contract_sha256": "0d519de626eb4b47e9fdee5be23cbaeb73f4ec6f6df3b95f152a2e70c849783e",
+          "expected_combined_contract_sha256": "e6a0582d6b8717fe12e9ffc8daf5fd124dd54fac9a2868b3f2499466450ad354"
+        }
+      }
+    }
+  ]
+}
