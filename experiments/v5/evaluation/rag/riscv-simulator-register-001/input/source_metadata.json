@@ -1,0 +1,32 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-register-v5-eval",
+  "target_name": "Register",
+  "condition": "full_source_source_faithful_direct_include_rag_v5",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "granularity": "target_span",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "src/Common/Register.hpp"
+  ],
+  "source_files": [
+    "src/Common/Register.hpp"
+  ],
+  "observation_file_hashes": {
+    "src/Common/Register.hpp": "57fb42ae07816f444301153cdea5bf943b873262ff992e454b894ff990ad8e34"
+  },
+  "source_file_hashes": {
+    "src/Common/Register.hpp": "57fb42ae07816f444301153cdea5bf943b873262ff992e454b894ff990ad8e34"
+  },
+  "prepared_at_utc": "2026-08-09T09:10:09.127824+00:00",
+  "target_source_file": "src/Common/Register.hpp",
+  "replacement_scope": "target_span",
+  "locator": {
+    "kind": "class",
+    "symbol": "Register"
+  },
+  "target_start_offset": 120,
+  "target_end_offset": 628,
+  "target_sha256": "21dc017aa68529c52f23b4f465ae528148498ab8f888ce669fe5a68f841d1fe9"
+}
