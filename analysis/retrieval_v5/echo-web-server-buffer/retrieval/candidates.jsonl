@@ -1,0 +1,2 @@
+{"candidate_paths": ["include/containers/buffer.h"], "include": "buffer.h", "line": 1, "resolution_rule": "unique_repository_suffix", "resolved_path": "include/containers/buffer.h", "source_file": "src/containers/buffer/buffer.cpp", "status": "target_source"}
+{"candidate_paths": ["include/io.h"], "include": "io.h", "line": 2, "resolution_rule": "unique_repository_suffix", "resolved_path": "include/io.h", "source_file": "src/containers/buffer/buffer.cpp", "status": "resolved_external"}

@@ -1,0 +1,3 @@
+{"candidate_paths": ["include/util.h"], "include": "util.h", "line": 17, "resolution_rule": "including_file_directory", "resolved_path": "include/util.h", "source_file": "include/io.h", "status": "resolved_external"}
+{"candidate_paths": ["include/io.h"], "include": "io.h", "line": 1, "resolution_rule": "unique_repository_suffix", "resolved_path": "include/io.h", "source_file": "src/io/io.cpp", "status": "target_source"}
+{"candidate_paths": ["include/containers/buffer.h"], "include": "containers/buffer.h", "line": 2, "resolution_rule": "unique_repository_suffix", "resolved_path": "include/containers/buffer.h", "source_file": "src/io/io.cpp", "status": "resolved_external"}

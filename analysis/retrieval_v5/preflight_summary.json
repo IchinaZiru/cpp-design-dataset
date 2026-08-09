@@ -1,0 +1,240 @@
+{
+  "schema_version": "1.0",
+  "llm_called": false,
+  "build_called": false,
+  "test_called": false,
+  "target_count": 17,
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "go_for_formal": true,
+  "go_criteria": [
+    "17 targets audited",
+    "no unresolved quoted include",
+    "no ambiguous repository-local include resolution",
+    "target source files excluded from retrieved context",
+    "selected repository files copied as whole files",
+    "retrieval is deterministic and non-LLM"
+  ],
+  "records": [
+    {
+      "pair_id": "echo-web-server-block-deque",
+      "quoted_include_count": 0,
+      "selected_file_count": 0,
+      "selected_paths": [],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+      "combined_context_bytes": 6970,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "echo-web-server-buffer",
+      "quoted_include_count": 2,
+      "selected_file_count": 1,
+      "selected_paths": [
+        "include/io.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "e891f01987e20d4be39709d48f5e7579bb93773e47b3a82c0961915cb51bd735",
+      "combined_context_bytes": 10385,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "echo-web-server-config",
+      "quoted_include_count": 2,
+      "selected_file_count": 1,
+      "selected_paths": [
+        "include/util.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "9f8646040c51462d8241371994b165fe2d51bc82589ca8625a8941299ed6ac5d",
+      "combined_context_bytes": 13764,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "echo-web-server-heap-timer",
+      "quoted_include_count": 2,
+      "selected_file_count": 2,
+      "selected_paths": [
+        "include/log.h",
+        "include/util.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "e850902f505a868877deb54d6896b1b5b03549550bfc7afa665f68887d589743",
+      "combined_context_bytes": 26021,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "echo-web-server-http",
+      "quoted_include_count": 15,
+      "selected_file_count": 4,
+      "selected_paths": [
+        "include/containers/buffer.h",
+        "include/ip.h",
+        "include/util.h",
+        "include/io.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "95968626ee86e05f838b6ca1a79747526f0d538f0c5c7891d2948c1b83b74afd",
+      "combined_context_bytes": 25786,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "echo-web-server-io",
+      "quoted_include_count": 3,
+      "selected_file_count": 2,
+      "selected_paths": [
+        "include/util.h",
+        "include/containers/buffer.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "5f81965d08b0b0bdfaf8661332813b594cd144a24600c97329619b8a544a3316",
+      "combined_context_bytes": 19830,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "echo-web-server-ip",
+      "quoted_include_count": 2,
+      "selected_file_count": 1,
+      "selected_paths": [
+        "include/util.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "9f8646040c51462d8241371994b165fe2d51bc82589ca8625a8941299ed6ac5d",
+      "combined_context_bytes": 13764,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "echo-web-server-log",
+      "quoted_include_count": 11,
+      "selected_file_count": 3,
+      "selected_paths": [
+        "include/config.h",
+        "include/containers/block_deque.h",
+        "include/util.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "c4e413b512ae8c56f57c577e1b2b3b7702e7773b60c29951e5c26a5a37705040",
+      "combined_context_bytes": 35069,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "echo-web-server-thread-pool",
+      "quoted_include_count": 3,
+      "selected_file_count": 2,
+      "selected_paths": [
+        "include/log.h",
+        "include/util.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "e850902f505a868877deb54d6896b1b5b03549550bfc7afa665f68887d589743",
+      "combined_context_bytes": 26021,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "echo-web-server-util",
+      "quoted_include_count": 1,
+      "selected_file_count": 0,
+      "selected_paths": [],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+      "combined_context_bytes": 6970,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "ini-cpp-inireader",
+      "quoted_include_count": 0,
+      "selected_file_count": 0,
+      "selected_paths": [],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+      "combined_context_bytes": 6970,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "ini-cpp-iniwriter",
+      "quoted_include_count": 0,
+      "selected_file_count": 0,
+      "selected_paths": [],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+      "combined_context_bytes": 6970,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "riscv-simulator-instruction",
+      "quoted_include_count": 1,
+      "selected_file_count": 1,
+      "selected_paths": [
+        "src/Common/Common.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "9ceeeb5f0e5e0daa4fb3b8b42f7d92064cee764d9c5f89e1312873c70de44664",
+      "combined_context_bytes": 7229,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "riscv-simulator-memory",
+      "quoted_include_count": 1,
+      "selected_file_count": 1,
+      "selected_paths": [
+        "src/Common/Common.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "9ceeeb5f0e5e0daa4fb3b8b42f7d92064cee764d9c5f89e1312873c70de44664",
+      "combined_context_bytes": 7229,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "riscv-simulator-parser",
+      "quoted_include_count": 1,
+      "selected_file_count": 1,
+      "selected_paths": [
+        "src/Common/Memory.hpp"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "aba14253c5390f362404210a5f48fcba87ab22f970f110f07e000e29d96591e8",
+      "combined_context_bytes": 8603,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "riscv-simulator-register",
+      "quoted_include_count": 0,
+      "selected_file_count": 0,
+      "selected_paths": [],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+      "combined_context_bytes": 6970,
+      "retrieval_complete": true
+    },
+    {
+      "pair_id": "riscv-simulator-registerfile",
+      "quoted_include_count": 3,
+      "selected_file_count": 3,
+      "selected_paths": [
+        "src/Common/Common.h",
+        "src/Common/Register.hpp",
+        "src/Common/utils.h"
+      ],
+      "unresolved_count": 0,
+      "ambiguous_count": 0,
+      "combined_context_sha256": "167be5a044f30a02c81197501fac8e30079e3f46045fc1770263b1742d21e568",
+      "combined_context_bytes": 8380,
+      "retrieval_complete": true
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+{"candidate_paths": ["include/ip.h"], "include": "ip.h", "line": 2, "resolution_rule": "unique_repository_suffix", "resolved_path": "include/ip.h", "source_file": "src/ip/ip.cpp", "status": "target_source"}
+{"candidate_paths": ["include/util.h"], "include": "util.h", "line": 3, "resolution_rule": "unique_repository_suffix", "resolved_path": "include/util.h", "source_file": "src/ip/ip.cpp", "status": "resolved_external"}

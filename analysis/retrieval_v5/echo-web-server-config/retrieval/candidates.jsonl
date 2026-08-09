@@ -1,0 +1,2 @@
+{"candidate_paths": ["include/util.h"], "include": "util.h", "line": 16, "resolution_rule": "including_file_directory", "resolved_path": "include/util.h", "source_file": "include/config.h", "status": "resolved_external"}
+{"candidate_paths": ["include/config.h"], "include": "config.h", "line": 1, "resolution_rule": "unique_repository_suffix", "resolved_path": "include/config.h", "source_file": "src/config/config.cpp", "status": "target_source"}

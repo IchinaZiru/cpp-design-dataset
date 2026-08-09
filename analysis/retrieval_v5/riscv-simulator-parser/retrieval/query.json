@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "riscv-simulator-parser",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "source_files": [
+    "src/Common/Parser.hpp"
+  ],
+  "quoted_includes": [
+    {
+      "source_file": "src/Common/Parser.hpp",
+      "line": 12,
+      "include": "Memory.hpp"
+    }
+  ],
+  "query_generation": "deterministic_non_llm",
+  "target_specific_tuning": false
+}

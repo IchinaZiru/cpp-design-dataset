@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "riscv-simulator-parser",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "quoted_includes_only": true,
+  "tracked_files_only": true,
+  "whole_file": true,
+  "one_hop": true,
+  "exclude_target_source_files": true,
+  "target_specific_tuning": false,
+  "selected_file_count": 1,
+  "selected_paths": [
+    "src/Common/Memory.hpp"
+  ],
+  "unresolved_count": 0,
+  "ambiguous_count": 0,
+  "combined_context_sha256": "aba14253c5390f362404210a5f48fcba87ab22f970f110f07e000e29d96591e8",
+  "combined_context_bytes": 8603,
+  "generic_knowledge_sha256": "280f38b01f3ba1906fe297a344b978fe5cbc4e325655316163412ddc90f3ca08"
+}
