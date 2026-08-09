@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "echo-web-server-io",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "source_files": [
+    "include/io.h",
+    "src/io/io.cpp"
+  ],
+  "quoted_includes": [
+    {
+      "source_file": "include/io.h",
+      "line": 17,
+      "include": "util.h"
+    },
+    {
+      "source_file": "src/io/io.cpp",
+      "line": 1,
+      "include": "io.h"
+    },
+    {
+      "source_file": "src/io/io.cpp",
+      "line": 2,
+      "include": "containers/buffer.h"
+    }
+  ],
+  "query_generation": "deterministic_non_llm",
+  "target_specific_tuning": false
+}
