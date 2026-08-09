@@ -1,4 +1,4 @@
-﻿# Deterministic Exact-Contract Round-Trip v6 Protocol
+# Deterministic Exact-Contract Round-Trip v6 Protocol
 
 ## 1. Status
 
@@ -364,33 +364,73 @@ No LLM, Docker, build, or test execution was performed by this dry run.
 
 ## 11. Context-budget status
 
-For 16 targets with available v5 regeneration prompt counts, the development
-audit found no conservative context-budget violation.
-
-`echo-web-server-log` remains **unknown**, not PASS, because the frozen v5 code
-regeneration timed out and did not provide a usable baseline prompt token
-count.
-
-Its development size audit recorded:
+The pre-formal context-budget rule is now fixed as:
 
 ```text
-original_design_chars       = 8917
-source_contract_chars       = 9761
-dependency_contract_chars   = 4385
-augmented_design_chars      = 23066
-augmented_design_utf8_bytes = 25554
-num_ctx                     = 32768
+assembled_code_regeneration_input_tokens + num_predict <= num_ctx
 ```
 
-Character or UTF-8 byte count must not be treated as an exact model token
-count.
+Apply this rule identically to all 17 targets and to both v6 conditions.
+The token counter is the `Qwen/Qwen2.5-Coder-32B-Instruct` tokenizer through
+`transformers` `apply_chat_template(..., add_generation_prompt=True)`.
 
-Therefore formal v6 remains disabled until a pre-formal prompt/context audit
-defines and applies one fixed budget rule to every target, including `log`.
+The pre-formal environment used `transformers==4.57.6`. The tokenizer/template
+was validated against all 17 saved v2 Ollama `prompt_eval_count` values and
+matched exactly:
 
-That budget rule may address mechanics only. It must not be tuned from formal
-PASS/FAIL outcomes.
+```text
+samples        = 17
+max_abs_delta  = 0
+mean_abs_delta = 0.0
+```
 
+The frozen v5 code-regeneration request could be reconstructed exactly for all
+16 targets that have a saved request. Token counts also matched the corresponding
+saved Ollama `prompt_eval_count` values for all 16. `echo-web-server-log` has no
+saved v5 code-regeneration request because that frozen v5 run timed out before a
+usable request/metadata pair was recorded; its request is therefore reconstructed
+with the same frozen v2/v5 prompt builder that matched the other 16 targets.
+
+A no-LLM sizing proxy used each frozen v5 design artifact plus the deterministic
+v6 contracts. It is not a v6 formal result and is not proof of the exact length
+of the future one-shot v6 design generation.
+
+```text
+source-contract proxy budget PASS = 17/17
+RAG-contract proxy budget PASS    = 17/17
+minimum source headroom after reserving num_predict = 5296 tokens
+minimum RAG headroom after reserving num_predict    = 4052 tokens
+```
+
+For `echo-web-server-log`:
+
+```text
+reconstructed v5 code-regeneration input = 8152 tokens
+source-contract proxy input              = 11088 tokens
+source headroom after num_predict reserve = 5296 tokens
+RAG-contract proxy input                 = 12332 tokens
+RAG headroom after num_predict reserve    = 4052 tokens
+```
+
+Therefore the prior `log` budget uncertainty is cleared for **pre-formal sizing**,
+and v6 may proceed to disabled configuration preparation. It is not cleared by
+character/byte counting; it is cleared by the validated Qwen2.5 tokenizer proxy.
+
+During the actual formal run, after the one-shot design generation and deterministic
+contract append, count the **actual assembled code-regeneration request** with the
+same tokenizer before making the code-regeneration LLM call. If the fixed rule
+fails, stop that target before code regeneration, preserve the generated design and
+all audit artifacts, and do not retry, shorten, repair, or regenerate it.
+
+Recorded no-LLM audit artifacts:
+
+```text
+analysis/v6-preformal-budget-audit/summary.json
+analysis/v6-preformal-budget-audit/v6_preformal_budget_audit.csv
+analysis/v6-preformal-budget-audit/audit_driver.py
+```
+
+The audit made no LLM, Ollama, Docker, build, or test call.
 ## 12. Formal preparation
 
 Before enabling any formal v6 target:
