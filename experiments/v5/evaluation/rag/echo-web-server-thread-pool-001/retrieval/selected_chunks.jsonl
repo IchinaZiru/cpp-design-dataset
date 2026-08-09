@@ -1,0 +1,2 @@
+{"bytes": 12604, "chunk_type": "whole_file_direct_include", "path": "include/log.h", "rank": 1, "selection_reason": "direct quoted include from target source", "sha256": "3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252", "whole_file": true}
+{"bytes": 7002, "chunk_type": "whole_file_direct_include", "path": "include/util.h", "rank": 2, "selection_reason": "direct quoted include from target source", "sha256": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85", "whole_file": true}
