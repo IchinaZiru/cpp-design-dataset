@@ -1,0 +1,12 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-log-v5-eval",
+  "run_id": "echo-web-server-log-source-faithful-direct-include-rag-v5-eval-001",
+  "condition": "full_source_source_faithful_direct_include_rag_v5",
+  "failed_stage": "code_regeneration",
+  "error_type": "TimeoutError",
+  "error": "timed out",
+  "recorded_at_utc": "2026-08-09T07:54:20.662566+00:00",
+  "retry_performed": false,
+  "automatic_repair_performed": false
+}
