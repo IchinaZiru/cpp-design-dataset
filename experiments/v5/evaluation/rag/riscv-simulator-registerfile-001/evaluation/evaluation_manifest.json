@@ -1,0 +1,107 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-registerfile-v5-eval",
+  "run_id": "riscv-simulator-registerfile-source-faithful-direct-include-rag-v5-eval-001",
+  "condition": "full_source_source_faithful_direct_include_rag_v5",
+  "granularity": "target_span",
+  "completed_at_utc": "2026-08-09T09:19:53.012046+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-09T09:19:48.557501+00:00",
+      "completed_at_utc": "2026-08-09T09:19:51.703442+00:00",
+      "elapsed_seconds": 3.143548300024122,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-source-faithful-direct-include-rag-v5-eval-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-source-faithful-direct-include-rag-v5-eval-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-09T09:19:51.703575+00:00",
+      "completed_at_utc": "2026-08-09T09:19:52.973331+00:00",
+      "elapsed_seconds": 1.2681388999335468,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-source-faithful-direct-include-rag-v5-eval-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-source-faithful-direct-include-rag-v5-eval-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "src/Common/RegisterFile.hpp",
+        "original_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+        "restored_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": "",
+    "original_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+    "restored_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110"
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-09T09:19:48.465105+00:00",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "fence_language": "cpp",
+    "strict_format_pass": false,
+    "raw_sha256": "b365f5e177f0c0c5a0a9f2a68bc879fbc954e3e1647edf43a52235448dff5137",
+    "normalized_sha256": "bfbc1b3e79f81d8b16777d543d2e052599317fb9ab6713f555167834b280597a",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/riscv-simulator-registerfile-source-faithful-direct-include-rag-v5-eval-001"
+}
