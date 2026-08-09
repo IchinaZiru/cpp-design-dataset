@@ -1,6 +1,6 @@
 {
   "schema_version": "6.0-formal",
-  "enabled": false,
+  "enabled": true,
   "pilot_only": false,
   "formal_result_eligible": true,
   "condition": "full_source_deterministic_exact_contract_v6_non_rag",
@@ -137,7 +137,7 @@
     "source_local_contract_common_to_both_conditions": true,
     "context_budget_rule": "assembled_code_regeneration_input_tokens + num_predict <= num_ctx",
     "context_budget_tokenizer": "Qwen/Qwen2.5-Coder-32B-Instruct",
-    "formal_enablement_state": "disabled_preparation",
+    "formal_enablement_state": "enabled_formal",
     "dependency_api_contract_required": false,
     "repository_retrieval_during_design_generation": false
   },
