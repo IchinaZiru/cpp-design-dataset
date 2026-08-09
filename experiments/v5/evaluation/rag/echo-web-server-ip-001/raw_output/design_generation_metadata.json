@@ -1,0 +1,13 @@
+{
+  "started_at_utc": "2026-08-09T07:05:03.560581+00:00",
+  "elapsed_seconds": 606.6576914000325,
+  "done": true,
+  "done_reason": "stop",
+  "prompt_eval_count": 5288,
+  "eval_count": 4187,
+  "prompt_profile": "source-faithful-detailed-design-direct-include-v5",
+  "num_ctx": 32768,
+  "num_predict": 16384,
+  "retry": false,
+  "automatic_repair": false
+}
