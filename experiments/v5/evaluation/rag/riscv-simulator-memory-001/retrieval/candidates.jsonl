@@ -1,0 +1,1 @@
+{"candidate_paths": ["src/Common/Common.h"], "include": "Common.h", "line": 8, "resolution_rule": "including_file_directory", "resolved_path": "src/Common/Common.h", "source_file": "src/Common/Memory.hpp", "status": "resolved_external"}
