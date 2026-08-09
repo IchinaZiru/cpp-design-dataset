@@ -1,0 +1,163 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-parser-v5-eval",
+  "run_id": "riscv-simulator-parser-source-faithful-direct-include-rag-v5-eval-001",
+  "condition": "full_source_source_faithful_direct_include_rag_v5",
+  "granularity": "target_span",
+  "completed_at_utc": "2026-08-09T09:10:06.213768+00:00",
+  "overall_pass": true,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-09T09:09:57.922416+00:00",
+      "completed_at_utc": "2026-08-09T09:10:01.836055+00:00",
+      "elapsed_seconds": 3.9110761997289956,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-parser-source-faithful-direct-include-rag-v5-eval-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-parser-source-faithful-direct-include-rag-v5-eval-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-09T09:10:01.836212+00:00",
+      "completed_at_utc": "2026-08-09T09:10:05.325367+00:00",
+      "elapsed_seconds": 3.4877463998273015,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-parser-source-faithful-direct-include-rag-v5-eval-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-parser-source-faithful-direct-include-rag-v5-eval-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Parser.Hex:Parser.Parse:Parser.ParseHex'"
+      ],
+      "container_shell_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Parser.Hex:Parser.Parse:Parser.ParseHex'",
+      "started_at_utc": "2026-08-09T09:10:05.325509+00:00",
+      "completed_at_utc": "2026-08-09T09:10:05.734682+00:00",
+      "elapsed_seconds": 0.4080568002536893,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-parser-source-faithful-direct-include-rag-v5-eval-001/direct_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-parser-source-faithful-direct-include-rag-v5-eval-001/direct_test.stderr.txt",
+      "counts": {
+        "ran": 3,
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    "full_test": {
+      "stage": "full_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "./build/RISCV_Simulator_Test --gtest_color=no"
+      ],
+      "container_shell_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+      "started_at_utc": "2026-08-09T09:10:05.734983+00:00",
+      "completed_at_utc": "2026-08-09T09:10:06.173025+00:00",
+      "elapsed_seconds": 0.43682429986074567,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-parser-source-faithful-direct-include-rag-v5-eval-001/full_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-parser-source-faithful-direct-include-rag-v5-eval-001/full_test.stderr.txt",
+      "counts": {
+        "ran": 18,
+        "passed": 18,
+        "failed": 0
+      }
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "src/Common/Parser.hpp",
+        "original_hash": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0",
+        "restored_hash": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": "",
+    "original_hash": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0",
+    "restored_hash": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0"
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-09T09:09:57.827863+00:00",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "fence_language": "cpp",
+    "strict_format_pass": false,
+    "raw_sha256": "a57f8abe1275df1427e9c13e9c92e513c41d0561897d257640aef39da0c6864e",
+    "normalized_sha256": "3dc8e21943ca64f0f728f730e57c2eba033c7e41aa0012b49bd97c997ccdd5d6",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/riscv-simulator-parser-source-faithful-direct-include-rag-v5-eval-001"
+}
