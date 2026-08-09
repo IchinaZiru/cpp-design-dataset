@@ -1,0 +1,385 @@
+class INIReader {
+   public:
+    // Empty Constructor
+    INIReader() = default;
+
+    /**
+     * @brief Construct an INIReader object from a file name
+     * @param filename The name of the INI file to parse
+     * @throws std::runtime_error if there is an error parsing the INI file
+     */
+    INIReader(const std::string& filename) {
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            _error = -1;
+            throw std::runtime_error("Failed to open file: " + filename);
+        }
+        Parse(std::string_view((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()));
+    }
+
+    /**
+     * @brief Construct an INIReader object from a file pointer
+     * @param file A pointer to the INI file to parse
+     * @throws std::runtime_error if there is an error parsing the INI file
+     */
+    INIReader(std::FILE* file) {
+        if (!file) {
+            _error = -1;
+            throw std::runtime_error("Failed to open file pointer");
+        }
+        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        Parse(content);
+    }
+
+    /**
+     * @brief Return the result of the parse, i.e., 0 on success
+     * @throws std::runtime_error on file open or parse error
+     */
+    int ParseError() const {
+        if (_error < 0) {
+            throw std::runtime_error("File open error");
+        } else if (_error > 0) {
+            throw std::runtime_error("Parse error at line: " + std::to_string(_error));
+        }
+        return _error;
+    }
+
+    /**
+     * @brief Return the list of sections found in ini file
+     * @return The list of sections found in ini file
+     */
+    std::set<std::string> Sections() const {
+        std::set<std::string> sections;
+        for (const auto& pair : _values) {
+            sections.insert(pair.first);
+        }
+        return sections;
+    }
+
+    /**
+     * @brief Return the list of keys in the given section
+     * @param section The section name
+     * @return The list of keys in the given section
+     */
+    std::set<std::string> Keys(const std::string& section) const {
+        auto it = _values.find(section);
+        if (it == _values.end()) {
+            throw std::runtime_error("Section not found: " + section);
+        }
+        std::set<std::string> keys;
+        for (const auto& pair : it->second) {
+            keys.insert(pair.first);
+        }
+        return keys;
+    }
+
+    /**
+     * @brief Get the map representing the values in a section of the INI file
+     * @param section The name of the section to retrieve
+     * @return The map representing the values in the given section
+     * @throws std::runtime_error if the section is not found
+     */
+    std::unordered_map<std::string, std::string> Get(
+        const std::string& section) const {
+        auto it = _values.find(section);
+        if (it == _values.end()) {
+            throw std::runtime_error("Section not found: " + section);
+        }
+        return it->second;
+    }
+
+    /**
+     * @brief Return the value of the given key in the given section
+     * @param section The section name
+     * @param name The key name
+     * @return The value of the given key in the given section
+     * @throws std::runtime_error if the section/key is not found or the
+     * value cannot be parsed to type T
+     */
+    template <typename T = std::string>
+    T Get(const std::string& section, const std::string& name) const {
+        return Converter<T>(FindEntry(section, name));
+    }
+
+    /**
+     * @brief Return the value of the given key in the given section, return
+     * default if not found
+     * @param section The section name
+     * @param name The key name
+     * @param default_v The default value
+     * @return The value of the given key in the given section, return default
+     * if not found
+     */
+    template <typename T>
+    T Get(const std::string& section, const std::string& name,
+          T&& default_v) const {
+        auto it = _values.find(section);
+        if (it == _values.end() || it->second.find(name) == it->second.end()) {
+            return std::forward<T>(default_v);
+        }
+        return Converter<T>(it->second.at(name));
+    }
+
+    /**
+     * @brief Return the value array of the given key in the given section.
+     * @param section The section name
+     * @param name The key name
+     * @return The value array of the given key in the given section.
+     *
+     * For example:
+     * ```ini
+     * [section]
+     * key = 1 2 3 4
+     * ```
+     * ```cpp
+     * const auto vs = ini.GetVector<int>("section", "key");
+     * // vs = {1, 2, 3, 4}
+     * ```
+     */
+    template <typename T = std::string>
+    std::vector<T> GetVector(const std::string& section,
+                             const std::string& name) const {
+        std::istringstream iss(FindEntry(section, name));
+        std::vector<std::string> parts((std::istream_iterator<std::string>(iss)),
+                                        std::istream_iterator<std::string>());
+        std::vector<T> result;
+        for (const auto& part : parts) {
+            result.push_back(Converter<T>(part));
+        }
+        return result;
+    }
+
+    /**
+     * @brief Return the value array of the given key in the given section,
+     * return default if not found
+     * @param section The section name
+     * @param name The key name
+     * @param default_v The default value
+     * @return The value array of the given key in the given section, return
+     * default if not found
+     *
+     * @see INIReader::GetVector
+     */
+    template <typename T>
+    std::vector<T> GetVector(const std::string& section,
+                             const std::string& name,
+                             const std::vector<T>& default_v) const {
+        auto it = _values.find(section);
+        if (it == _values.end() || it->second.find(name) == it->second.end()) {
+            return default_v;
+        }
+        std::istringstream iss(it->second.at(name));
+        std::vector<std::string> parts((std::istream_iterator<std::string>(iss)),
+                                        std::istream_iterator<std::string>());
+        std::vector<T> result;
+        for (const auto& part : parts) {
+            result.push_back(Converter<T>(part));
+        }
+        return result;
+    }
+
+    /**
+     * @brief Insert a key-value pair into the INI file
+     * @param section The section name
+     * @param name The key name
+     * @param v The value to insert
+     * @throws std::runtime_error if the key already exists in the section
+     */
+    template <typename T = std::string>
+    void InsertEntry(const std::string& section, const std::string& name,
+                     const T& v) {
+        auto& sec = _values[section];
+        if (sec.find(name) != sec.end()) {
+            throw std::runtime_error("Key already exists: " + name);
+        }
+        sec[name] = V2String(v);
+    }
+
+    /**
+     * @brief Insert a vector of values into the INI file
+     * @param section The section name
+     * @param name The key name
+     * @param vs The vector of values to insert
+     * @throws std::runtime_error if the key already exists in the section
+     */
+    template <typename T = std::string>
+    void InsertEntry(const std::string& section, const std::string& name,
+                     const std::vector<T>& vs) {
+        auto& sec = _values[section];
+        if (sec.find(name) != sec.end()) {
+            throw std::runtime_error("Key already exists: " + name);
+        }
+        sec[name] = Vec2String(vs);
+    }
+
+    /**
+     * @brief Update a key-value pair in the INI file
+     * @param section The section name
+     * @param name The key name
+     * @param v The new value to set
+     * @throws std::runtime_error if the key does not exist in the section
+     */
+    template <typename T = std::string>
+    void UpdateEntry(const std::string& section, const std::string& name,
+                     const T& v) {
+        FindEntry(section, name) = V2String(v);
+    }
+
+    /**
+     * @brief Update a vector of values in the INI file
+     * @param section The section name
+     * @param name The key name
+     * @param vs The new vector of values to set
+     * @throws std::runtime_error if the key does not exist in the section
+     */
+    template <typename T = std::string>
+    void UpdateEntry(const std::string& section, const std::string& name,
+                     const std::vector<T>& vs) {
+        FindEntry(section, name) = Vec2String(vs);
+    }
+
+   protected:
+    /// Parse result: 0 on success, -1 on file open error, otherwise the
+    /// number of the first faulty line.
+    int _error = 0;
+    /// Parsed content, as _values[section][name] = value.
+    std::unordered_map<std::string,
+                       std::unordered_map<std::string, std::string>>
+        _values;
+
+    /// Parse `s` as a `T`; throws std::runtime_error on failure.
+    template <typename T>
+    T Converter(const std::string& s) const {
+        if constexpr (std::is_same_v<T, bool>) {
+            return BoolConverter(s);
+        } else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
+            T value;
+            auto [ptr, ec] = std::from_chars(s.data(), s.data() + s.size(), value);
+            if (ec != std::errc()) {
+                throw std::runtime_error("Failed to convert to integral type: " + s);
+            }
+            return value;
+        } else if constexpr (std::is_floating_point_v<T>) {
+            T value;
+            auto [ptr, ec] = std::from_chars(s.data(), s.data() + s.size(), value);
+            if (ec != std::errc()) {
+                throw std::runtime_error("Failed to convert to floating point type: " + s);
+            }
+            return value;
+        } else {
+            return static_cast<T>(s);
+        }
+    }
+
+    /// Parse a boolean token: 1/0/true/false/yes/no/on/off, case-insensitive;
+    /// throws std::runtime_error on anything else.
+    bool BoolConverter(std::string s) const {
+        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+        if (s == "1" || s == "true" || s == "yes" || s == "on") {
+            return true;
+        } else if (s == "0" || s == "false" || s == "no" || s == "off") {
+            return false;
+        }
+        throw std::runtime_error("Failed to convert to boolean: " + s);
+    }
+
+    /// Serialize a value with operator<<.
+    template <typename T>
+    std::string V2String(const T& v) const {
+        std::ostringstream oss;
+        oss << v;
+        return oss.str();
+    }
+
+    /// Serialize a vector as space-separated values.
+    template <typename T>
+    std::string Vec2String(const std::vector<T>& v) const {
+        std::ostringstream oss;
+        for (size_t i = 0; i < v.size(); ++i) {
+            if (i > 0) {
+                oss << " ";
+            }
+            oss << V2String(v[i]);
+        }
+        return oss.str();
+    }
+
+   private:
+    const std::unordered_map<std::string, std::string>& GetSection(
+        const std::string& section) const {
+        auto it = _values.find(section);
+        if (it == _values.end()) {
+            throw std::runtime_error("Section not found: " + section);
+        }
+        return it->second;
+    }
+
+    std::string& FindEntry(const std::string& section,
+                           const std::string& name) const {
+        auto& sec = GetSection(section);
+        auto it = sec.find(name);
+        if (it == sec.end()) {
+            throw std::runtime_error("Key not found: " + name);
+        }
+        return it->second;
+    }
+
+    /* Parse the whole ini content. Grammar:
+       - `[section]` lines open a section; text after ']' is ignored
+       - `name = value` or `name : value` pairs, whitespace-trimmed
+       - lines starting with ';' or '#' are comments
+       - a ';' preceded by whitespace starts an inline comment
+       Records the first faulty line in _error and stops there. Throws on
+       duplicate keys. */
+    void Parse(std::string_view content) {
+        std::istringstream iss(std::string(content));
+        std::string line;
+        size_t line_number = 0;
+        std::string current_section;
+
+        while (std::getline(iss, line)) {
+            ++line_number;
+            // Trim whitespace
+            line.erase(0, line.find_first_not_of(" \t"));
+            line.erase(line.find_last_not_of(" \t") + 1);
+
+            if (line.empty() || line[0] == ';' || line[0] == '#') {
+                continue; // Skip comments and empty lines
+            }
+
+            if (line[0] == '[') {
+                size_t end = line.find(']');
+                if (end == std::string::npos) {
+                    _error = line_number;
+                    throw std::runtime_error("Malformed section header at line: " + std::to_string(line_number));
+                }
+                current_section = line.substr(1, end - 1);
+                continue; // Start a new section
+            }
+
+            size_t delimiter_pos = line.find_first_of("=: ");
+            if (delimiter_pos == std::string::npos) {
+                _error = line_number;
+                throw std::runtime_error("Malformed key-value pair at line: " + std::to_string(line_number));
+            }
+            std::string name = line.substr(0, delimiter_pos);
+            std::string value = line.substr(delimiter_pos + 1);
+
+            // Trim whitespace around the value
+            value.erase(0, value.find_first_not_of(" \t"));
+            value.erase(value.find_last_not_of(" \t") + 1);
+
+            if (current_section.empty()) {
+                _error = line_number;
+                throw std::runtime_error("Key-value pair outside section at line: " + std::to_string(line_number));
+            }
+
+            auto& sec = _values[current_section];
+            if (sec.find(name) != sec.end()) {
+                _error = line_number;
+                throw std::runtime_error("Duplicate key in section '" + current_section + "' at line: " + std::to_string(line_number));
+            }
+            sec[name] = value;
+        }
+    }
+};

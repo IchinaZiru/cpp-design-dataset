@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "ini-cpp-inireader",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "source_files": [
+    "ini/ini.h"
+  ],
+  "quoted_includes": [],
+  "query_generation": "deterministic_non_llm",
+  "target_specific_tuning": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "ini-cpp-inireader",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+  "quoted_includes_only": true,
+  "tracked_files_only": true,
+  "whole_file": true,
+  "one_hop": true,
+  "exclude_target_source_files": true,
+  "target_specific_tuning": false,
+  "selected_file_count": 0,
+  "selected_paths": [],
+  "unresolved_count": 0,
+  "ambiguous_count": 0,
+  "combined_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+  "combined_context_bytes": 6970,
+  "generic_knowledge_sha256": "280f38b01f3ba1906fe297a344b978fe5cbc4e325655316163412ddc90f3ca08"
+}
