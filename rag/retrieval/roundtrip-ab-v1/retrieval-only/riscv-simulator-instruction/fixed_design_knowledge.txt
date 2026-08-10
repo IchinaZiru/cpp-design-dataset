@@ -1,6 +1,3 @@
-RAG_CONTEXT v2
-
-===== BEGIN FIXED V4/V5 DESIGN KNOWLEDGE =====
 # RAGによる追加詳細設計（内容必須・Markdown階層は柔軟）
 基本9項目に加えて、以下7項目の内容を設計文書に含めてください。
 `追加詳細設計情報`というまとめ見出しを使用しても構いませんが、見出しlevel、順序、追加見出しは固定しません。
@@ -124,22 +121,3 @@ v3のクラス図・インターフェース詳細・シーケンス図・メソ
 入力から出力への変換、型変換、加工規則、値域、境界値、単位、精度、encoding、検証条件、特殊値・欠損値の扱いを表形式で記述する。
 bit幅、符号、byte数、index、offset、アドレス増分など、再実装結果を左右する具体値は正確に保持する。
 ----- END RETRIEVED CONTEXT -----
-===== END FIXED V4/V5 DESIGN KNOWLEDGE =====
-
-===== BEGIN DIRECT DEPENDENCY HEADER CONTEXT =====
-### PATH: src/Common/Common.h
-```cpp
-//
-// Created by Alex Chi on 2019-07-02.
-//
-
-#ifndef RISCV_SIMULATOR_COMMON_H
-#define RISCV_SIMULATOR_COMMON_H
-
-using Immediate = unsigned int;
-using SImmediate = int;
-
-#endif //RISCV_SIMULATOR_COMMON_H
-```
-
-===== END DIRECT DEPENDENCY HEADER CONTEXT =====

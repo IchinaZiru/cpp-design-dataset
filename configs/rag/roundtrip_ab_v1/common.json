@@ -1,6 +1,16 @@
 {
   "artifact_schema_version": "roundtrip-design-only-ab-common-v1",
-  "condition_difference": "Condition B alone receives deterministic RAG_CONTEXT; the base design prompt and all generation settings are identical.",
+  "condition_difference": "Condition B alone receives deterministic RAG_CONTEXT containing the verbatim fixed V4/V5 design guidance and direct dependency declarations; the base design prompt and all generation settings are identical.",
+  "design_knowledge": {
+    "content_sha256": "13ffffe8c5c76b6493f36be79c56332ee2cd8ccfcf9b38685edfd6ab4137636f",
+    "mode": "fixed-v4-v5-verbatim-all-targets-v1",
+    "path": "configs/rag/roundtrip_ab_v1/prompts/fixed_v4_v5_design_knowledge.txt",
+    "source_feature_selection": false,
+    "top_k_selection": false,
+    "verbatim_prompt_builder_commit": "dd140245ab278636261bc46a0c5fbdb919ef9932",
+    "verbatim_v4_request_commit": "bd7bf7bf399130ef739793fe44a71de61dff0209",
+    "verbatim_v5_request_commit": "d99c627339b9878dc944d91bfc638869ebe94a66"
+  },
   "formal_execution_authorized": false,
   "generation": {
     "endpoint": "http://localhost:11434/api/generate",
@@ -49,5 +59,5 @@
   },
   "protocol_id": "design-only-roundtrip-ab-v1",
   "status": "pilot_not_frozen",
-  "version": "1.0-prepilot"
+  "version": "1.1-prepilot"
 }

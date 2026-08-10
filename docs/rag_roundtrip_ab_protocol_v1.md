@@ -20,14 +20,16 @@ Project-local dependency headers are not expanded.
 
 Condition B uses the byte-identical common prompt, target-owned inputs, model, and generation options used by Condition A. Its sole additional input is `RAG_CONTEXT`, composed deterministically from:
 
-1. retrieved general design-specification knowledge from `design_knowledge_index_v1.json`;
+1. the complete fixed V4/V5 expanded-design guidance from `prompts/fixed_v4_v5_design_knowledge.txt`;
 2. declaration-oriented content from directly referenced project-local dependency headers.
 
-The knowledge entries are retrieval records, not text embedded in a B-only prompt. The target-owned header is excluded from dependency retrieval because it is already common A/B input.
+The fixed guidance is used byte-for-byte for every target. It is not summarized, rewritten, ranked, selected by source features, or limited by Top-K. The removed seven-entry `design_knowledge_index_v1.json` mechanism is not part of this protocol. The target-owned header is excluded from dependency retrieval because it is already common A/B input.
+
+The fixed guidance is the exact V4 prompt section beginning with `# RAGによる追加詳細設計（内容必須・Markdown階層は柔軟）` and ending with `----- END RETRIEVED CONTEXT -----`. Its canonical content SHA-256 is `13ffffe8c5c76b6493f36be79c56332ee2cd8ccfcf9b38685edfd6ab4137636f`. The wording is copied from the actual V4 request recorded at commit `bd7bf7bf399130ef739793fe44a71de61dff0209`; V5 commit `d99c627339b9878dc944d91bfc638869ebe94a66` retained the same V4 prompt/guidance and added direct-include repository context only. The prompt builder that defines the section is frozen at `dd140245ab278636261bc46a0c5fbdb919ef9932`.
 
 ## Common design prompt
 
-The canonical prompt is `configs/rag/roundtrip_ab_v1/prompts/design_generation.txt`. No fixed list of V1-V6 design sections is appended to either condition. Input units and the optional RAG context are protocol envelopes around the same prompt.
+The canonical common prompt is `configs/rag/roundtrip_ab_v1/prompts/design_generation.txt`. It is byte-identical between A and B. Condition A receives no fixed design-section list. Condition B receives the verbatim V4/V5 expanded-design guidance only inside `RAG_CONTEXT`; this is the treatment, not a change to the common prompt. Input units and the optional RAG context are protocol envelopes around the same prompt.
 
 ## Target-owned boundary
 
@@ -59,6 +61,8 @@ Each condition permits one design-generation request and one code-generation req
 ## Retrieval leakage rules
 
 Dependency retrieval excludes target-owned inputs and paths containing tests, benchmarks, build output, generated output, experiments, reports, logs, or previous LLM artifacts. Only project-local quoted includes are eligible. Retrieved headers are normalized to declarations; callable bodies are not included. Every selected item records path, source SHA-256, normalized SHA-256, and selection reason.
+
+The two RAG components are serialized in separate delimited sections: `FIXED V4/V5 DESIGN KNOWLEDGE` and `DIRECT DEPENDENCY HEADER CONTEXT`. Only dependency headers are target-dependent. The fixed design knowledge and its content SHA-256 must be identical for every target.
 
 ## Pilot gates
 

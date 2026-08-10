@@ -33,9 +33,12 @@
       "src",
       "src/Common"
     ],
-    "knowledge_index_path": "configs/rag/roundtrip_ab_v1/design_knowledge_index_v1.json",
-    "knowledge_index_sha256": "6734019e18a78fe1ec299e4ebb3ee74063c4bc24509b98b7c46288172609a6f5",
+    "design_knowledge_mode": "fixed-v4-v5-verbatim-all-targets-v1",
+    "fixed_design_knowledge_content_sha256": "13ffffe8c5c76b6493f36be79c56332ee2cd8ccfcf9b38685edfd6ab4137636f",
+    "fixed_design_knowledge_path": "configs/rag/roundtrip_ab_v1/prompts/fixed_v4_v5_design_knowledge.txt",
+    "fixed_design_knowledge_sha256": "72f781bedcb5cbd7d3caf7498440f9ed7023ac2ab61ba36c090e6fdcaadf9d5c",
     "maximum_dependency_headers": 16,
+    "source_feature_selection": false,
     "target_specific_manual_query": false
   },
   "stage": "retrieval_only_gate",

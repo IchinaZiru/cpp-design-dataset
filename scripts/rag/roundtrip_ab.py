@@ -66,7 +66,7 @@ class TargetInput:
 class RetrievalBundle:
     context: str
     query: dict[str, Any]
-    knowledge_records: tuple[dict[str, Any], ...]
+    fixed_design_knowledge: str
     dependency_records: tuple[dict[str, Any], ...]
     manifest: dict[str, Any]
 
@@ -231,68 +231,40 @@ def load_target_inputs(
     return tuple(records)
 
 
-def extract_source_features(inputs: Sequence[TargetInput]) -> tuple[str, ...]:
-    text = "\n".join(item.content for item in inputs)
-    tests = {
-        "alias": r"\b(?:using|typedef)\b",
-        "assignment": r"(?<![=!<>])=(?!=)",
-        "bitwise": r"(?:<<|>>|\||&|\^)",
-        "branch": r"\b(?:if|else|switch|case)\b",
-        "call": r"\b[A-Za-z_]\w*\s*\(",
-        "cast": r"\b(?:static_cast|reinterpret_cast|const_cast|dynamic_cast)\b",
-        "class": r"\bclass\b",
-        "concept": r"\b(?:concept|requires)\b",
-        "constant": r"\b(?:constexpr|const)\b|\b0[xX][0-9A-Fa-f]+\b|\b0[bB][01]+\b",
-        "constructor": r"\b[A-Za-z_]\w*\s*\([^;{}]*\)\s*(?::|\{)",
-        "dependency": r"^\s*#\s*include\s*\"",
-        "enum": r"\benum(?:\s+class)?\b",
-        "exception": r"\b(?:throw|try|catch)\b",
-        "function": r"\b[A-Za-z_]\w*\s*\([^;{}]*\)\s*(?:const\s*)?(?:noexcept\s*)?[;{]",
-        "inheritance": r"\b(?:class|struct)\s+\w+[^\n{]*:\s*(?:public|protected|private)",
-        "loop": r"\b(?:for|while|do)\b",
-        "member": r"\b(?:class|struct)\b",
-        "method": r"\b[A-Za-z_]\w*::[A-Za-z_]\w*\s*\(",
-        "shift": r"(?:<<|>>)",
-        "struct": r"\bstruct\b",
-        "template": r"\btemplate\s*<",
-        "throw": r"\bthrow\b",
-        "transformation": r"(?:<<|>>|static_cast|reinterpret_cast)",
+def load_fixed_design_knowledge(
+    config: Mapping[str, Any], project_root: Path
+) -> str:
+    retrieval = _mapping(config.get("retrieval"), "retrieval")
+    if retrieval.get("design_knowledge_mode") != "fixed-v4-v5-verbatim-all-targets-v1":
+        raise RoundtripABError("design knowledge must use the frozen V4/V5 verbatim mode")
+    if retrieval.get("source_feature_selection") is not False:
+        raise RoundtripABError("source-feature knowledge selection must be disabled")
+    prohibited = {
+        "knowledge_index_path",
+        "knowledge_index_sha256",
+        "knowledge_top_k",
+        "pilot_top_k",
     }
-    features = {"always"}
-    for name, pattern in tests.items():
-        if re.search(pattern, text, flags=re.MULTILINE):
-            features.add(name)
-    return tuple(sorted(features))
-
-
-def retrieve_design_knowledge(
-    index: Mapping[str, Any], features: Sequence[str]
-) -> tuple[dict[str, Any], ...]:
-    entries = index.get("entries")
-    if not isinstance(entries, list):
-        raise RoundtripABError("knowledge index entries are missing")
-    feature_set = set(features)
-    ranked: list[tuple[int, int, str, dict[str, Any]]] = []
-    for value in entries:
-        entry = dict(_mapping(value, "knowledge entry"))
-        triggers = set(str(item) for item in entry.get("triggers", []))
-        matched = sorted(feature_set & triggers)
-        if not matched:
-            continue
-        record = {
-            "entry_id": str(entry["entry_id"]),
-            "matched_triggers": matched,
-            "priority": int(entry["priority"]),
-            "text": str(entry["text"]),
-            "text_sha256": sha256_bytes(str(entry["text"]).encode("utf-8")),
-        }
-        ranked.append((-len(matched), int(entry["priority"]), str(entry["entry_id"]), record))
-    ranked.sort(key=lambda item: item[:3])
-    retrieval = _mapping(index.get("retrieval"), "knowledge retrieval")
-    top_k = int(retrieval.get("pilot_top_k", 0))
-    if top_k <= 0:
-        raise RoundtripABError("knowledge pilot_top_k must be positive")
-    return tuple(item[3] for item in ranked[:top_k])
+    present = sorted(prohibited & set(retrieval))
+    if present:
+        raise RoundtripABError(
+            "knowledge index/Top-K fields are prohibited: " + ", ".join(present)
+        )
+    path = resolve_project_path(
+        project_root,
+        str(retrieval["fixed_design_knowledge_path"]),
+        field="fixed design knowledge",
+    )
+    expected_file_hash = str(retrieval.get("fixed_design_knowledge_sha256", ""))
+    if sha256_file(path) != expected_file_hash:
+        raise RoundtripABError("fixed design knowledge file SHA-256 mismatch")
+    text = read_prompt(path)
+    expected_content_hash = str(
+        retrieval.get("fixed_design_knowledge_content_sha256", "")
+    )
+    if sha256_bytes(text.encode("utf-8")) != expected_content_hash:
+        raise RoundtripABError("fixed design knowledge content SHA-256 mismatch")
+    return text
 
 
 def _quoted_includes(text: str) -> tuple[str, ...]:
@@ -388,19 +360,20 @@ def retrieve_dependency_headers(
 
 
 def compose_rag_context(
-    knowledge: Sequence[Mapping[str, Any]],
+    fixed_design_knowledge: str,
     dependencies: Sequence[Mapping[str, Any]],
 ) -> str:
-    parts = ["RAG_CONTEXT v1", "", "## Retrieved design-specification knowledge"]
-    for record in knowledge:
-        parts.extend(
-            [
-                f"### {record['entry_id']}",
-                str(record["text"]),
-                "",
-            ]
-        )
-    parts.append("## Retrieved project-local dependency declarations")
+    if not fixed_design_knowledge:
+        raise RoundtripABError("fixed V4/V5 design knowledge is empty")
+    parts = [
+        "RAG_CONTEXT v2",
+        "",
+        "===== BEGIN FIXED V4/V5 DESIGN KNOWLEDGE =====",
+        fixed_design_knowledge,
+        "===== END FIXED V4/V5 DESIGN KNOWLEDGE =====",
+        "",
+        "===== BEGIN DIRECT DEPENDENCY HEADER CONTEXT =====",
+    ]
     for record in dependencies:
         parts.extend(
             [
@@ -411,6 +384,7 @@ def compose_rag_context(
                 "",
             ]
         )
+    parts.append("===== END DIRECT DEPENDENCY HEADER CONTEXT =====")
     return "\n".join(parts).rstrip() + "\n"
 
 
@@ -421,18 +395,10 @@ def build_retrieval_bundle(
 ) -> RetrievalBundle:
     validate_target_config(config)
     inputs = load_target_inputs(config, repository_root)
-    features = extract_source_features(inputs)
     retrieval = _mapping(config.get("retrieval"), "retrieval")
-    index_path = resolve_project_path(
-        project_root, str(retrieval["knowledge_index_path"]), field="knowledge index"
-    )
-    expected_index_hash = str(retrieval.get("knowledge_index_sha256", ""))
-    if sha256_file(index_path) != expected_index_hash:
-        raise RoundtripABError("knowledge index SHA-256 mismatch")
     if retrieval.get("target_specific_manual_query") is not False:
         raise RoundtripABError("target-specific manual query is prohibited")
-    index = load_json(index_path)
-    knowledge = retrieve_design_knowledge(index, features)
+    knowledge = load_fixed_design_knowledge(config, project_root)
     dependencies = retrieve_dependency_headers(config, repository_root, inputs)
     context = compose_rag_context(knowledge, dependencies)
     expected = retrieval.get("expected_evidence", [])
@@ -478,32 +444,43 @@ def build_retrieval_bundle(
     )
     status = "pass" if all(item["passed"] for item in checks) and not leakage_failed else "fail"
     query = {
-        "artifact_schema_version": "roundtrip-ab-retrieval-query-v1",
+        "artifact_schema_version": "roundtrip-ab-retrieval-query-v2",
         "target_id": config["target_id"],
-        "features": list(features),
+        "design_knowledge_mode": retrieval["design_knowledge_mode"],
+        "fixed_design_knowledge_content_sha256": sha256_bytes(
+            knowledge.encode("utf-8")
+        ),
+        "knowledge_top_k_used": False,
         "manual_query_used": False,
+        "source_feature_selection_used": False,
         "target_specific_override_used": False,
     }
     manifest = {
-        "artifact_schema_version": "roundtrip-ab-retrieval-manifest-v1",
+        "artifact_schema_version": "roundtrip-ab-retrieval-manifest-v2",
         "condition": "B",
         "context_bytes": len(context.encode("utf-8")),
         "context_characters": len(context),
         "context_sha256": sha256_bytes(context.encode("utf-8")),
         "dependency_header_count": len(dependencies),
+        "design_knowledge_mode": retrieval["design_knowledge_mode"],
         "deterministic": True,
         "expected_evidence": checks,
-        "knowledge_record_count": len(knowledge),
+        "fixed_design_knowledge_bytes": len(knowledge.encode("utf-8")),
+        "fixed_design_knowledge_content_sha256": sha256_bytes(
+            knowledge.encode("utf-8")
+        ),
+        "knowledge_top_k_used": False,
         "leakage": leakage,
         "llm_call_count": 0,
         "generation_server_contacted": False,
+        "source_feature_selection_used": False,
         "status": status,
         "target_id": config["target_id"],
     }
     return RetrievalBundle(
         context=context,
         query=query,
-        knowledge_records=tuple(dict(item) for item in knowledge),
+        fixed_design_knowledge=knowledge,
         dependency_records=tuple(dict(item) for item in dependencies),
         manifest=manifest,
     )
@@ -781,8 +758,8 @@ def write_retrieval_bundle(output_root: Path, bundle: RetrievalBundle) -> None:
         raise RoundtripABError(f"retrieval output already exists: {output_root}")
     _write_exclusive(output_root / "query.json", canonical_json_bytes(bundle.query))
     _write_exclusive(
-        output_root / "knowledge_selected.jsonl",
-        canonical_jsonl_bytes(bundle.knowledge_records),
+        output_root / "fixed_design_knowledge.txt",
+        (bundle.fixed_design_knowledge.rstrip("\n") + "\n").encode("utf-8"),
     )
     _write_exclusive(
         output_root / "dependency_headers.jsonl",
@@ -795,8 +772,8 @@ def write_retrieval_bundle(output_root: Path, bundle: RetrievalBundle) -> None:
         "dependency_headers.jsonl": sha256_bytes(
             canonical_jsonl_bytes(bundle.dependency_records)
         ),
-        "knowledge_selected.jsonl": sha256_bytes(
-            canonical_jsonl_bytes(bundle.knowledge_records)
+        "fixed_design_knowledge.txt": sha256_bytes(
+            (bundle.fixed_design_knowledge.rstrip("\n") + "\n").encode("utf-8")
         ),
         "query.json": sha256_bytes(canonical_json_bytes(bundle.query)),
     }

@@ -71,11 +71,14 @@ def _minimal_config(repository_path: str = "repo") -> dict[str, object]:
         ],
         "retrieval": {
             "include_roots": ["include", "src"],
-            "knowledge_index_path": (
-                "configs/rag/roundtrip_ab_v1/design_knowledge_index_v1.json"
+            "design_knowledge_mode": "fixed-v4-v5-verbatim-all-targets-v1",
+            "fixed_design_knowledge_path": (
+                "configs/rag/roundtrip_ab_v1/prompts/"
+                "fixed_v4_v5_design_knowledge.txt"
             ),
             "maximum_dependency_headers": 8,
             "expected_evidence": [],
+            "source_feature_selection": False,
             "target_specific_manual_query": False,
         },
         "one_shot": {
@@ -133,12 +136,16 @@ def _make_execution_fixture(tmp_path: Path) -> tuple[dict[str, object], dict[str
     common_path = tmp_path / "common.json"
     common_path.write_text(json.dumps(common), encoding="utf-8")
 
-    index_source = (
+    knowledge_source = (
         PROJECT_ROOT
-        / "configs/rag/roundtrip_ab_v1/design_knowledge_index_v1.json"
+        / "configs/rag/roundtrip_ab_v1/prompts/"
+        "fixed_v4_v5_design_knowledge.txt"
     )
-    index_path = tmp_path / "knowledge.json"
-    index_path.write_bytes(index_source.read_bytes())
+    knowledge_path = tmp_path / "fixed_design_knowledge.txt"
+    knowledge_path.write_bytes(knowledge_source.read_bytes())
+    knowledge_text = knowledge_path.read_text(encoding="utf-8").replace(
+        "\r\n", "\n"
+    ).rstrip("\n")
     original_bytes = original.encode("utf-8")
     command = [sys.executable, "-c", "raise SystemExit(0)"]
     config = _minimal_config()
@@ -147,9 +154,14 @@ def _make_execution_fixture(tmp_path: Path) -> tuple[dict[str, object], dict[str
         original_bytes
     )
     config["target_owned_inputs"][0]["replacement_required"] = True
-    config["retrieval"]["knowledge_index_path"] = "knowledge.json"
-    config["retrieval"]["knowledge_index_sha256"] = sha256_bytes(
-        index_path.read_bytes()
+    config["retrieval"]["fixed_design_knowledge_path"] = (
+        "fixed_design_knowledge.txt"
+    )
+    config["retrieval"]["fixed_design_knowledge_sha256"] = sha256_bytes(
+        knowledge_path.read_bytes()
+    )
+    config["retrieval"]["fixed_design_knowledge_content_sha256"] = sha256_bytes(
+        knowledge_text.encode("utf-8")
     )
     config["replacement_units"] = [
         {
@@ -214,6 +226,87 @@ def test_canonical_minimal_prompt_matches_new_protocol_text() -> None:
         "再実装できるように、詳細な設計仕様書を作成してください。\n\n"
         "入力から確認できない情報は推測しないでください。"
     )
+
+
+def test_fixed_v4_v5_design_knowledge_is_verbatim_and_not_ranked() -> None:
+    path = (
+        PROJECT_ROOT
+        / "configs/rag/roundtrip_ab_v1/prompts/"
+        "fixed_v4_v5_design_knowledge.txt"
+    )
+    text = path.read_text(encoding="utf-8").replace("\r\n", "\n").rstrip("\n")
+
+    assert sha256_bytes(text.encode("utf-8")) == (
+        "13ffffe8c5c76b6493f36be79c56332ee2cd8ccfcf9b38685edfd6ab4137636f"
+    )
+    assert text.startswith("# RAGによる追加詳細設計（内容必須・Markdown階層は柔軟）")
+    assert "# 汎用詳細設計知識 v4" in text
+    assert "- クラス図" in text
+    assert "- データ変換・制約" in text
+    assert not (
+        PROJECT_ROOT
+        / "configs/rag/roundtrip_ab_v1/design_knowledge_index_v1.json"
+    ).exists()
+
+
+def test_all_targets_use_same_fixed_knowledge_without_source_feature_top_k() -> None:
+    bundles = []
+    for relative in (
+        "configs/rag/roundtrip_ab_v1/retrieval_pilots/"
+        "riscv-simulator-instruction.json",
+        "configs/rag/roundtrip_ab_v1/retrieval_pilots/echo-web-server-io.json",
+    ):
+        config = load_json(PROJECT_ROOT / relative)
+        retrieval = config["retrieval"]
+        assert retrieval["source_feature_selection"] is False
+        assert "knowledge_index_path" not in retrieval
+        assert "knowledge_index_sha256" not in retrieval
+        assert "knowledge_top_k" not in retrieval
+        repository = resolve_repository_root(config, PROJECT_ROOT)
+        bundles.append(build_retrieval_bundle(config, PROJECT_ROOT, repository))
+
+    assert bundles[0].fixed_design_knowledge == bundles[1].fixed_design_knowledge
+    for bundle in bundles:
+        assert bundle.query["source_feature_selection_used"] is False
+        assert bundle.query["knowledge_top_k_used"] is False
+        assert bundle.manifest["source_feature_selection_used"] is False
+        assert bundle.manifest["knowledge_top_k_used"] is False
+
+
+def test_retrieval_rejects_fixed_knowledge_hash_mismatch() -> None:
+    config = load_json(
+        PROJECT_ROOT
+        / "configs/rag/roundtrip_ab_v1/retrieval_pilots/"
+        "riscv-simulator-instruction.json"
+    )
+    config["retrieval"]["fixed_design_knowledge_sha256"] = "0" * 64
+    repository = resolve_repository_root(config, PROJECT_ROOT)
+
+    with pytest.raises(RoundtripABError, match="file SHA-256 mismatch"):
+        build_retrieval_bundle(config, PROJECT_ROOT, repository)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("source_feature_selection", True),
+        ("knowledge_top_k", 5),
+        ("knowledge_index_path", "prohibited.json"),
+    ],
+)
+def test_retrieval_rejects_feature_or_top_k_knowledge_selection(
+    field: str, value: object
+) -> None:
+    config = load_json(
+        PROJECT_ROOT
+        / "configs/rag/roundtrip_ab_v1/retrieval_pilots/"
+        "echo-web-server-io.json"
+    )
+    config["retrieval"][field] = value
+    repository = resolve_repository_root(config, PROJECT_ROOT)
+
+    with pytest.raises(RoundtripABError):
+        build_retrieval_bundle(config, PROJECT_ROOT, repository)
 
 
 def test_condition_a_rejects_rag_context() -> None:
@@ -351,7 +444,7 @@ def test_real_retrieval_only_gate_finds_required_dependency(
     assert first.manifest["generation_server_contacted"] is False
     assert first.context == second.context
     assert first.query == second.query
-    assert first.knowledge_records == second.knowledge_records
+    assert first.fixed_design_knowledge == second.fixed_design_knowledge
     assert first.dependency_records == second.dependency_records
     assert first.manifest == second.manifest
     assert first.manifest["context_sha256"] == second.manifest["context_sha256"]
