@@ -638,13 +638,25 @@ def _common_paths(common: Mapping[str, Any], project_root: Path) -> dict[str, Pa
 
 def load_common_config(path: Path, project_root: Path) -> dict[str, Any]:
     common = load_json(path)
-    if common.get("artifact_schema_version") != "roundtrip-design-only-ab-common-v1":
+    schema = common.get("artifact_schema_version")
+    if schema not in {
+        "roundtrip-design-only-ab-common-v1",
+        "roundtrip-design-only-ab-common-v2",
+    }:
         raise RoundtripABError("common config schema differs")
     if common.get("formal_execution_authorized") is not False:
         raise RoundtripABError("common formal execution must remain unauthorized")
     generation = _mapping(common.get("generation"), "common.generation")
     if generation.get("stream") is not False:
         raise RoundtripABError("streaming generation is prohibited")
+    if schema == "roundtrip-design-only-ab-common-v2":
+        # Compatibility for read-only inspection of the immutable v1
+        # development artifacts.  All new development/formal execution uses
+        # roundtrip_ab_formal.py and its stage-specific option validation.
+        common = copy.deepcopy(common)
+        common["generation"]["options"] = dict(
+            _mapping(generation.get("design_options"), "generation.design_options")
+        )
     paths = _common_paths(common, project_root)
     prompts = _mapping(common.get("prompts"), "common.prompts")
     for name, resolved in paths.items():
@@ -1115,10 +1127,12 @@ def _ollama_text(response_bytes: bytes, stage: str) -> str:
 def _render_command(
     command: Sequence[str], repository_root: Path, workspace: Path
 ) -> list[str]:
+    project_root = repository_root.parent.parent
     return [
         str(item)
         .replace("<REPOSITORY_ROOT>", str(repository_root))
         .replace("<EVALUATION_WORKSPACE>", str(workspace))
+        .replace("<PROJECT_ROOT>", str(project_root))
         for item in command
     ]
 

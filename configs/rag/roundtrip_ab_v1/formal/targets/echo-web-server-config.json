@@ -1,0 +1,162 @@
+{
+  "artifact_schema_version": "roundtrip-design-only-ab-target-v2",
+  "execution": {
+    "commands": {
+      "build": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/project,readonly",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build /evaluation/build --parallel"
+      ],
+      "configure": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/project,readonly",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake -S /source -B /evaluation/build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/project/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "direct_test": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/project,readonly",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "exe=$(find /evaluation/build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='ConfigurationVariableConverterTest.Number:ConfigurationVariableConverterTest.String:ConfigurationVariableConverterTest.List:ConfigurationVariableConverterTest.Set:ConfigurationVariableConverterTest.Map:ConfigurationVariableTest.Construction:ConfigurationVariableTest.ConvertedFromString:ConfigurationVariableTest.Listen:ConfigurationTest.Lookup:ConfigurationTest.Visit'"
+      ],
+      "full_test": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/project,readonly",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "ctest --test-dir /evaluation/build --output-on-failure"
+      ]
+    },
+    "enabled": false,
+    "expected_direct_tests": 10,
+    "expected_full_tests": 63,
+    "output_root": "experiments/rag/roundtrip-ab-v1/formal/echo-web-server-config",
+    "plan_root": "reports/rag/roundtrip-ab-v1/formal/echo-web-server-config/plan",
+    "stage_order": [
+      "configure",
+      "build",
+      "direct_test",
+      "full_test"
+    ],
+    "stage_timeouts_seconds": {
+      "build": 600,
+      "configure": 300,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "formal_execution_authorized": false,
+  "formal_target_member": true,
+  "freeze_evidence": {
+    "legacy_formal_config_path": "configs/rag/targets/echo-web-server-config.json",
+    "legacy_formal_config_sha256": "c49c13899ec83b3f1a827f0e5a780e38c864d1e69e25f672a69037689a716a2b",
+    "source_metadata_path": "experiments/echo-web-server-config-roundtrip-002/input/source_metadata.json",
+    "source_metadata_sha256": "60c5281810735e544dffd97e9d395ebe9e3dc9cd13ecdca24d915d4199343233"
+  },
+  "granularity": "module_files",
+  "one_shot": {
+    "automatic_repair": false,
+    "code_generation_count": 1,
+    "design_generation_count": 1,
+    "manual_patch": false,
+    "overwrite": false,
+    "retry": false
+  },
+  "replacement_units": [
+    {
+      "content_sha256": "91319999d37bb0cec369b2abb3b7f3bad474a8f763f18f6252f2fb42a9bff2be",
+      "file_id": "F01",
+      "path": "include/config.h",
+      "scope": "full_file",
+      "source_file_sha256": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc",
+      "unit_id": "U01"
+    },
+    {
+      "content_sha256": "387412ae5c89533861063cbc727023c4b8145697a34c4172d56cf3e9cdd3c231",
+      "file_id": "F02",
+      "path": "src/config/config.cpp",
+      "scope": "full_file",
+      "source_file_sha256": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a",
+      "unit_id": "U02"
+    }
+  ],
+  "repository": {
+    "commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+    "external": false,
+    "id": "Echo-Web-Server",
+    "path": "repos/Echo-Web-Server"
+  },
+  "retrieval": {
+    "dependency_header_mode": "direct-project-local-quoted-include-whole-file-one-hop-v1",
+    "dependency_header_normalization": "utf8-bom-aware-newlines-to-lf-v1",
+    "expected_evidence": [],
+    "include_roots": [
+      "include",
+      "src"
+    ],
+    "maximum_dependency_headers": 64,
+    "source_feature_selection": false,
+    "target_specific_manual_query": false,
+    "target_specific_override": false
+  },
+  "stage": "formal_freeze_candidate_disabled",
+  "target_id": "echo-web-server-config",
+  "target_owned_inputs": [
+    {
+      "content_sha256": "91319999d37bb0cec369b2abb3b7f3bad474a8f763f18f6252f2fb42a9bff2be",
+      "file_id": "F01",
+      "path": "include/config.h",
+      "replacement_required": true,
+      "role": "complete target-owned implementation/declaration file",
+      "scope": "full_file",
+      "source_file_sha256": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc",
+      "unit_id": "U01"
+    },
+    {
+      "content_sha256": "387412ae5c89533861063cbc727023c4b8145697a34c4172d56cf3e9cdd3c231",
+      "file_id": "F02",
+      "path": "src/config/config.cpp",
+      "replacement_required": true,
+      "role": "complete target-owned implementation/declaration file",
+      "scope": "full_file",
+      "source_file_sha256": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a",
+      "unit_id": "U02"
+    }
+  ]
+}

@@ -1,40 +1,51 @@
 {
-  "artifact_schema_version": "roundtrip-design-only-ab-common-v1",
-  "condition_difference": "Condition B alone receives deterministic RAG_CONTEXT containing the verbatim fixed V4/V5 design guidance, generic round-trip completeness knowledge, and complete one-hop direct project-local quoted-include dependency headers; the base design prompt and all generation settings are identical.",
+  "artifact_schema_version": "roundtrip-design-only-ab-common-v2",
   "code_generation_unit_contract": {
     "allowed_nonsemantic_input": "opaque replacement unit identifiers only",
     "effective_schema_mode": "exact-replacement-unit-ids-and-count-v1",
     "reference_only_unit_generation": false,
     "surrounding_code_duplication": false
   },
-  "design_knowledge": {
-    "content_sha256": "13ffffe8c5c76b6493f36be79c56332ee2cd8ccfcf9b38685edfd6ab4137636f",
-    "mode": "fixed-v4-v5-verbatim-all-targets-v1",
-    "path": "configs/rag/roundtrip_ab_v1/prompts/fixed_v4_v5_design_knowledge.txt",
-    "source_feature_selection": false,
-    "top_k_selection": false,
-    "verbatim_prompt_builder_commit": "dd140245ab278636261bc46a0c5fbdb919ef9932",
-    "verbatim_v4_request_commit": "bd7bf7bf399130ef739793fe44a71de61dff0209",
-    "verbatim_v5_request_commit": "d99c627339b9878dc944d91bfc638869ebe94a66"
+  "common_design_knowledge": {
+    "detailed_design_guidance": {
+      "content_sha256": "13ffffe8c5c76b6493f36be79c56332ee2cd8ccfcf9b38685edfd6ab4137636f",
+      "file_sha256": "72f781bedcb5cbd7d3caf7498440f9ed7023ac2ab61ba36c090e6fdcaadf9d5c",
+      "path": "configs/rag/roundtrip_ab_v1/prompts/fixed_v4_v5_design_knowledge.txt"
+    },
+    "instruction_specific_information_prohibited": true,
+    "mode": "common-fixed-v4-v5-plus-roundtrip-v1",
+    "roundtrip_completeness": {
+      "content_sha256": "52f6345993e5eefcd55b116319e7a5eb51e0bc5653a3e7c3c88eb5ea8d2d093b",
+      "file_sha256": "d64a7654f4fcad6614d140baa9e51ecba474303229e02e63020260c2b6c1234d",
+      "path": "configs/rag/roundtrip_ab_v1/prompts/roundtrip_completeness_knowledge_v1.txt"
+    },
+    "target_override_allowed": false
   },
-  "development_freeze": {
-    "excluded_target_ids": [
-      "riscv-simulator-instruction"
-    ],
-    "formal_target_count": 16,
-    "gate_run_id": "riscv-simulator-instruction-ab-v1-dev04",
-    "roundtrip_completeness_content_sha256": "52f6345993e5eefcd55b116319e7a5eb51e0bc5653a3e7c3c88eb5ea8d2d093b",
-    "roundtrip_completeness_file_sha256": "d64a7654f4fcad6614d140baa9e51ecba474303229e02e63020260c2b6c1234d"
-  },
+  "condition_difference": "Condition B alone receives deterministic target-specific repository context containing complete one-hop direct project-local quoted-include dependency headers. The base prompt, target source, generic design knowledge, model, and generation settings are identical.",
   "formal_execution_authorized": false,
+  "formal_freeze_candidate": {
+    "development_runs_are_formal_results": false,
+    "formal_completed_target_count": 0,
+    "formal_target_count": 17,
+    "manifest_path": "configs/rag/roundtrip_ab_v1/formal/evaluation_manifest.json"
+  },
   "generation": {
     "endpoint": "http://localhost:11434/api/generate",
     "headers": {
       "Content-Type": "application/json"
     },
     "model": "qwen2.5-coder:32b",
-    "options": {
-      "num_ctx": 16384,
+    "code_options": {
+      "num_ctx": 32768,
+      "num_predict": 16384,
+      "repeat_penalty": 1.1,
+      "seed": 42,
+      "temperature": 0,
+      "top_k": 40,
+      "top_p": 0.9
+    },
+    "design_options": {
+      "num_ctx": 32768,
       "num_predict": 8192,
       "repeat_penalty": 1.1,
       "seed": 42,
@@ -43,7 +54,7 @@
       "top_p": 0.9
     },
     "stream": false,
-    "timeout_seconds": 1800
+    "timeout_seconds": 3600
   },
   "input_isolation": {
     "code_generation_allowed_semantic_inputs": [
@@ -55,11 +66,14 @@
       "RAG context",
       "dependency header",
       "fixed scaffold",
-      "separate include list",
+      "source-derived include list",
       "tests",
+      "expected output",
       "build result",
+      "error feedback",
       "previous generated artifacts",
-      "repository access"
+      "repository access",
+      "separate include list"
     ]
   },
   "prompts": {
@@ -73,6 +87,6 @@
     "design_generation_sha256": "22736c6e9f4c9bad283a8e060fb5cff3cc0a80e4bc2fdebab9c4e94cf9d351e1"
   },
   "protocol_id": "design-only-roundtrip-ab-v1",
-  "status": "frozen_after_instruction_development_gate",
-  "version": "1.8-frozen-16"
+  "status": "formal-17-freeze-candidate-after-context-preflight",
+  "version": "2.0-freeze-candidate-17"
 }

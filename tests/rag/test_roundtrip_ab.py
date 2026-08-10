@@ -685,21 +685,16 @@ def test_instruction_development_config_is_formal_excluded_full_file() -> None:
     )
 
 
-def test_frozen_common_excludes_instruction_and_declares_16_formal_targets() -> None:
+def test_frozen_common_declares_all_17_formal_targets_as_not_started() -> None:
     common = load_common_config(COMMON_PATH, PROJECT_ROOT)
-    freeze = common["development_freeze"]
+    freeze = common["formal_freeze_candidate"]
 
-    assert common["status"] == "frozen_after_instruction_development_gate"
-    assert common["version"] == "1.8-frozen-16"
-    assert freeze["formal_target_count"] == 16
-    assert freeze["excluded_target_ids"] == ["riscv-simulator-instruction"]
-    assert freeze["gate_run_id"] == "riscv-simulator-instruction-ab-v1-dev04"
-    retrieval_config = load_json(
-        PROJECT_ROOT
-        / "configs/rag/roundtrip_ab_v1/retrieval_pilots/"
-        "riscv-simulator-instruction.json"
-    )
-    assert retrieval_config["formal_target_member"] is False
+    assert common["status"] == "formal-17-freeze-candidate-after-context-preflight"
+    assert common["version"] == "2.0-freeze-candidate-17"
+    assert freeze["formal_target_count"] == 17
+    assert freeze["formal_completed_target_count"] == 0
+    assert freeze["development_runs_are_formal_results"] is False
+    assert common["formal_execution_authorized"] is False
 
 
 def test_codegen_prompt_requires_complete_full_file_units() -> None:

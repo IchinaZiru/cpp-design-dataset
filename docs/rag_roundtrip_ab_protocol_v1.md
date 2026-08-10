@@ -1,100 +1,63 @@
-# Design-only C++ Round-trip A/B Protocol v1
+# Design-only C++ Round-trip A/B Protocol v2 freeze candidate
 
-Status: frozen after the formal-excluded Instruction development gate. Formal 16-target generation is not yet authorized.
+Status: formal execution is not authorized and no formal target has been generated (`0/17`). Instruction dev01-dev05 are development evidence only and are not formal results.
 
-## Research comparison
+## Frozen comparison
 
-The experiment compares two newly generated conditions over the same target-owned implementation/declaration inputs. Historical V1-V6 outputs and the frozen 6/17 non-RAG result are read-only references, not the control for this experiment.
+Both conditions receive the same target-owned implementation/declaration, minimal base design prompt, generic V4/V5 detailed-design guidance, generic round-trip completeness knowledge, model, deterministic generation parameters, context settings, code-generation protocol, replacement boundary, evaluation commands, and one-shot policy.
 
-### Condition A: non-RAG
+- Condition A receives no target-specific repository retrieval context.
+- Condition B alone receives `RAG_CONTEXT` containing complete one-hop project-local dependency headers selected from direct quoted includes in the target-owned inputs.
 
-Design generation receives only:
+Thus the primary A/B difference is the presence or absence of target-specific repository context. Generic design knowledge is not a treatment difference. It is frozen centrally in `configs/rag/roundtrip_ab_v1/common.json`; target configs may neither omit nor replace it.
 
-- target implementation;
-- target-owned header/declaration;
-- the common minimal design-generation prompt.
+The V4/V5 guidance is copied verbatim from the prior experiment wording. It is not summarized, rewritten, ranked, feature-selected, or Top-K selected. The round-trip completeness knowledge contains no Instruction implementation facts. The runner verifies both file and normalized-content SHA-256 values before request construction.
 
-Project-local dependency headers are not expanded.
+## Target-owned and retrieval boundaries
 
-### Condition B: RAG
+The same target implementation and target-owned declaration are supplied to A and B. A target may be a complete file, several module files, a complete class span, or a complete function-definition span. Replacement units and their source hashes/byte boundaries are frozen before execution.
 
-Condition B uses the byte-identical common prompt, target-owned inputs, model, and generation options used by Condition A. Its sole additional input is `RAG_CONTEXT`, composed deterministically from:
+Dependency retrieval is deterministic and one-hop only. Eligible items are direct project-local quoted includes (`#include "..."`); system includes are excluded. Target-owned files and paths containing tests, benchmarks, build output, generated output, experiments, reports, or logs are excluded. Selected dependency headers are injected in full. Includes, comments, callable bodies, concepts, requires-clauses, and templates are not removed or rewritten. Only UTF-8 BOM handling and newline normalization are permitted. Path, source SHA-256, normalized content SHA-256, and the exact context are saved.
 
-1. the complete fixed V4/V5 expanded-design guidance from `prompts/fixed_v4_v5_design_knowledge.txt`;
-2. complete content from directly referenced project-local dependency headers;
-3. generic round-trip completeness knowledge from `prompts/roundtrip_completeness_knowledge_v1.txt` while development tuning is active.
+Target-specific manual queries, prompt changes, knowledge replacement, retrieval Top-K changes, and per-target generation settings are prohibited.
 
-The fixed guidance is used byte-for-byte for every target. It is not summarized, rewritten, ranked, selected by source features, or limited by Top-K. The removed seven-entry `design_knowledge_index_v1.json` mechanism is not part of this protocol. The target-owned header is excluded from dependency retrieval because it is already common A/B input.
+## Shared generation settings
 
-The completeness knowledge contains no target implementation facts. It requires a reconstruction ledger covering the exact file skeleton, complete declaration/callable inventory, exact signatures and statements, and dependency provenance. Dependency declarations remain reference information reached through their original include and must not be copied into the replacement target. This knowledge was introduced after the development target showed that the V4/V5 diagram-and-summary sections could omit the file prologue, constructors, and dependency boundary even when the source and dependency header were present.
+The model is `qwen2.5-coder:32b`, whose frozen model evidence records a native context length of 32,768 tokens. Exact local Qwen tokenizer preflight over all 17 targets produced a largest Condition-B design input of 20,578 tokens (`echo-web-server-log`). The common settings are therefore:
 
-The fixed guidance is the exact V4 prompt section beginning with `# RAGによる追加詳細設計（内容必須・Markdown階層は柔軟）` and ending with `----- END RETRIEVED CONTEXT -----`. Its canonical content SHA-256 is `13ffffe8c5c76b6493f36be79c56332ee2cd8ccfcf9b38685edfd6ab4137636f`. The wording is copied from the actual V4 request recorded at commit `bd7bf7bf399130ef739793fe44a71de61dff0209`; V5 commit `d99c627339b9878dc944d91bfc638869ebe94a66` retained the same V4 prompt/guidance and added direct-include repository context only. The prompt builder that defines the section is frozen at `dd140245ab278636261bc46a0c5fbdb919ef9932`.
+- design generation: `num_ctx=32768`, `num_predict=8192`;
+- code generation: `num_ctx=32768`, `num_predict=16384`;
+- both stages: seed 42, temperature 0, top-k 40, top-p 0.9, repeat penalty 1.1;
+- settings are identical for A/B and are not adjustable per target.
 
-## Common design prompt
+The design maximum for the largest B request remains below the native context limit. Code preflight conservatively reserves a final design document up to the full design output allowance before adding the code-output allowance.
 
-The canonical common prompt is `configs/rag/roundtrip_ab_v1/prompts/design_generation.txt`. It is byte-identical between A and B. Condition A receives no fixed design-section list. Condition B receives its fixed design knowledge only inside `RAG_CONTEXT`; this is the treatment, not a change to the common prompt. Input units and the optional RAG context are protocol envelopes around the same prompt.
+## Design-only code regeneration
 
-## Target-owned boundary
+The final design specification is the only target-specific semantic input to code generation. Code generation must not receive original source, target-owned headers, dependency headers, raw RAG context, a fixed scaffold, a source-derived include list, tests, expected outputs, build results, error feedback, previous generated code, or repository access.
 
-Target-owned inputs are frozen explicitly per target. A function/class span may include frozen same-translation-unit support definitions that it directly consumes, such as a file-local constant or lookup table. Such support inputs are marked `replacement_required=false`, are byte-identical common inputs for A and B, and are never treated as RAG evidence or regenerated. A project-local header included by those files is a dependency and is not recursively added to Condition A. Direct dependency retrieval is rule-based, has no target-specific manual query, excludes target-owned files, and serializes the complete header content with path, source SHA-256, normalized content SHA-256, and byte length.
+Only generic instructions, the JSON Schema, and opaque replacement unit IDs are additional non-semantic protocol inputs. Output IDs and count are schema-constrained and independently validated. A function unit is a complete function definition including return type, qualified/name spelling, parameters, qualifiers, and body; a class span is the complete class/struct definition; full-file/module units are complete files.
 
-## Code regeneration isolation
+## INIWriter correction
 
-Condition A and B use the same code-generation prompts, model options, and JSON Schema. The final design specification is the only semantic input. The code-generation request must not load or inject:
+The prior function-body-only boundary depended on a fixed scaffold and used a stale source hash. It is not reused. The new Design-Only target replaces the complete current `INIWriter::write` inline member definition, including its documentation, full signature, default argument, braces, and body, in `ini/ini.h`. The current file SHA-256 is `30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1`. Exact byte offsets and span hashes are frozen in the target config and are identical for A/B. Historical V1-V6 artifacts remain unchanged.
 
-- original target source or target-owned headers;
-- RAG context or dependency headers;
-- fixed scaffold or a separate include list;
-- tests, build results, previous generated artifacts, or repository access.
+## Formal population and development gate
 
-The design-input envelope partitions opaque IDs into `REPLACEMENT UNITS` (`replacement_required=true`) and `REFERENCE-ONLY INPUTS` (`replacement_required=false`). Reference-only inputs must be described as already-existing surrounding code and must not be regenerated.
+The formal evaluation manifest freezes 17 targets: ten Echo-Web-Server targets, INIWriter and INIReader, and Instruction, Memory, Parser, Register, and RegisterFile. Instruction is a formal target and will be newly generated after freeze. Existing dev01-dev04 results are not reused. The post-context-setting Instruction run is dev05 and also remains formal-excluded development evidence.
 
-Before code generation, the runner specializes the common JSON Schema with only the opaque `(file_id, unit_id)` identifiers of the replacement units. These identifiers and the schema are non-semantic protocol metadata: no repository path, span, source, header content, signature, include list, or scaffold is added. The effective schema fixes the output item count and allowed unit IDs. The runner independently validates the exact ID set after generation.
+Before authorization, dev05 must demonstrate request fit, complete B context, non-truncated design/code responses, design-only isolation, replacement/restoration, and end-to-end configure/build/direct/full-test execution. Generic settings may change only before this development gate is accepted; target-specific tuning remains prohibited.
 
-Each generated `content` must contain only the complete frozen replacement unit. It must not duplicate surrounding includes, namespace wrappers, reference-only constants/types/helpers, or other units. Repository paths and replacement spans remain private runner data.
+## One-shot formal execution
 
-## Replacement granularity
+Formal execution uses `scripts/rag/run_roundtrip_ab_formal.py`, not the development runner. It verifies the frozen 17-target allowlist, manifest hash, common-config hash, common-knowledge hashes, target-config hash, repository commit, source hashes, and absence of the condition output directory. A separate authorization artifact is initially `authorized=false`; plan/preflight cannot contact the generation server.
 
-- `function`: replace the complete frozen function definition span.
-- `class_span`: replace the complete frozen class/struct span.
-- `module_files`: replace the complete frozen target files.
+For each target/condition the runner permits exactly one design request and one code request. The attempt marker is written before contact. Retry, repair, manual patch, feedback regeneration, overwrite, and reuse of a failed run ID are unavailable. Formal A and B must both be new executions.
 
-Backups and SHA-256 values are recorded before replacement. Restoration runs after success, failure, exception, or timeout, and exact restored bytes are verified.
+## Artifacts and restoration
 
-## One-shot rules
+Each execution preserves common/target snapshots, actual design prompt/request/response/final design, retrieval query/candidates/exact applied context/manifest, actual code prompt/request/response/generated units, evaluation stage results, restoration result, artifact SHA-256 map, and aggregate-run entry. Condition A stores an explicit empty/not-applied RAG artifact.
 
-Each condition permits one design-generation request and one code-generation request. Attempt evidence is created before contact. Empty, truncated, invalid-JSON, schema-invalid, missing-unit, build, or test failures are terminal for that run ID. Retry, automatic repair, manual patch, overwrite, and feedback-based regeneration are prohibited.
+Exact source restoration is attempted after success, stage failure, timeout, or exception. Restoration failure is itself recorded as terminal failure evidence. The source cannot be treated as restored merely because the main evaluation failed.
 
-## Retrieval leakage rules
-
-Dependency retrieval is one-hop from target-owned inputs and excludes target-owned inputs and paths containing tests, benchmarks, build output, generated output, experiments, reports, logs, or previous LLM artifacts. Only project-local quoted includes (`#include "..."`) are eligible; system includes (`#include <...>`) are not retrieved. No recursive include expansion is performed.
-
-Each selected dependency header is included in full. The protocol does not summarize, extract, sanitize, or rewrite header content. It does not remove `#include` directives, comments, callable bodies, concepts, requires-clauses, or templates. The only permitted transformation is mechanical UTF-8 BOM handling and CRLF/CR-to-LF newline normalization. Every selected item records its path, original source SHA-256, source byte length, actual context-content SHA-256, context-content byte length, normalization identifier, and selection reason.
-
-The two RAG components are serialized in separate delimited sections: `FIXED V4/V5 DESIGN KNOWLEDGE` and `DIRECT DEPENDENCY HEADER CONTEXT`. Only dependency headers are target-dependent. The fixed design knowledge and its content SHA-256 must be identical for every target.
-
-## Pilot gates
-
-Before any formal 16-target generation:
-
-1. retrieval-only `riscv-simulator-instruction` must retrieve the direct definition of `Immediate` through generic rules;
-2. retrieval-only `echo-web-server-io` must retrieve the `Buffer` dependency interface through generic rules;
-3. one formal-excluded pilot must exercise A/B design generation, design-only code regeneration, JSON validation, replacement, configure/build/test, and restoration;
-4. the prompt-isolation, leakage, determinism, serialization, replacement, and restoration tests must pass.
-
-`riscv-simulator-instruction` is the sole development/tuning target and is excluded from the final formal population. Conditions A and B are both recorded for this target. A is retained unchanged as the minimal non-RAG comparator. Generic Condition-B retrieval/design rules may be revised between versioned, non-overwriting development runs until configure, build, direct tests, and the full test suite pass. No Instruction-specific implementation fact may be hard-coded into a reusable prompt or retrieval rule. After the B rules are frozen, they are applied without target-specific adjustment to the remaining 16 untouched formal targets.
-
-Prompt and retrieval settings are frozen only after these gates pass. Formal results must never be used for target-specific tuning.
-
-## Artifact separation
-
-New artifacts use only these roots:
-
-```text
-configs/rag/roundtrip_ab_v1/
-rag/retrieval/roundtrip-ab-v1/
-reports/rag/roundtrip-ab-v1/
-experiments/rag/roundtrip-ab-v1/
-```
-
-Existing V1-V6, frozen non-RAG, prior RAG formal, retrieval-v2, and fixed result artifacts are never overwritten or edited.
+New files remain under `configs/rag/roundtrip_ab_v1`, `reports/rag/roundtrip-ab-v1`, `rag/retrieval/roundtrip-ab-v1`, and `experiments/rag/roundtrip-ab-v1`. Existing V1-V6, fixed non-RAG results, prior RAG formal results, retrieval-v2 artifacts, and Instruction development histories are not overwritten.

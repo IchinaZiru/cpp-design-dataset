@@ -1,0 +1,789 @@
+{
+  "artifact_schema_version": "roundtrip-ab-formal-evaluation-manifest-v1",
+  "common_config_path": "configs/rag/roundtrip_ab_v1/common.json",
+  "common_config_sha256": "17fdba9554d48b2211ddb00da99bf9d78a354f60436764eaae0a5432be53239b",
+  "development_history_is_formal_result": false,
+  "formal_completed_target_count": 0,
+  "formal_execution_started": false,
+  "formal_target_count": 17,
+  "instruction_development_results_reused": false,
+  "targets": [
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 4,
+        "expected_full_tests": 63,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "d113c9b83e793ceb3a0be2b555cc22f83913acab413e9482441c4f170930b3ad",
+          "file_id": "F01",
+          "path": "include/containers/block_deque.h",
+          "scope": "full_file",
+          "source_file_sha256": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e",
+          "unit_id": "U01"
+        }
+      ],
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "source_files": [
+        {
+          "path": "include/containers/block_deque.h",
+          "sha256": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/echo-web-server-block-deque.json",
+      "target_config_sha256": "6c20c45a80b88c5ed5530e7aafa52f21f0a55975c523be5f2ca0021cfc73d969",
+      "target_id": "echo-web-server-block-deque"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 6,
+        "expected_full_tests": 63,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "8f0b0648f537d9c07ca6323e8f3d6c2a7400651d4319a96f683a60c64b6473d8",
+          "file_id": "F01",
+          "path": "include/containers/buffer.h",
+          "scope": "full_file",
+          "source_file_sha256": "94807866681c70598b716d810ffd2bfe0d9cf3406f459b51f2d33013c37b9a09",
+          "unit_id": "U01"
+        },
+        {
+          "content_sha256": "78e46902cd9b4706d24be0611df706feaf5b8e4b9b784347d68ecc8d8b6d9bb7",
+          "file_id": "F02",
+          "path": "src/containers/buffer/buffer.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "0d3f0824f3c63439d05e34d2e22dd1bc1c45c4bb0e3bd4c842ffc4ca1d56bc2b",
+          "unit_id": "U02"
+        }
+      ],
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "source_files": [
+        {
+          "path": "include/containers/buffer.h",
+          "sha256": "94807866681c70598b716d810ffd2bfe0d9cf3406f459b51f2d33013c37b9a09"
+        },
+        {
+          "path": "src/containers/buffer/buffer.cpp",
+          "sha256": "0d3f0824f3c63439d05e34d2e22dd1bc1c45c4bb0e3bd4c842ffc4ca1d56bc2b"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/echo-web-server-buffer.json",
+      "target_config_sha256": "5643140f5990706924c6a2f31d9d3537ebf6796911ba2d9824181213620c5e31",
+      "target_id": "echo-web-server-buffer"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 10,
+        "expected_full_tests": 63,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "91319999d37bb0cec369b2abb3b7f3bad474a8f763f18f6252f2fb42a9bff2be",
+          "file_id": "F01",
+          "path": "include/config.h",
+          "scope": "full_file",
+          "source_file_sha256": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc",
+          "unit_id": "U01"
+        },
+        {
+          "content_sha256": "387412ae5c89533861063cbc727023c4b8145697a34c4172d56cf3e9cdd3c231",
+          "file_id": "F02",
+          "path": "src/config/config.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a",
+          "unit_id": "U02"
+        }
+      ],
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "source_files": [
+        {
+          "path": "include/config.h",
+          "sha256": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc"
+        },
+        {
+          "path": "src/config/config.cpp",
+          "sha256": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/echo-web-server-config.json",
+      "target_config_sha256": "3b08c46ac79ca7870a3518a49def12f11e13a027d20583ba6d62859ffd9497b2",
+      "target_id": "echo-web-server-config"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 8,
+        "expected_full_tests": 63,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "f3bb35fe0aaa3d971b57d392471e60afa6e64b78cba7ebc4fdd24bb8ef94d2d8",
+          "file_id": "F01",
+          "path": "include/containers/heap_timer.h",
+          "scope": "full_file",
+          "source_file_sha256": "d89dcc16bafd792ea0d76ac99ae2fdea68374391f952f85caf6c8dcfb88cf56a",
+          "unit_id": "U01"
+        }
+      ],
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "source_files": [
+        {
+          "path": "include/containers/heap_timer.h",
+          "sha256": "d89dcc16bafd792ea0d76ac99ae2fdea68374391f952f85caf6c8dcfb88cf56a"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/echo-web-server-heap-timer.json",
+      "target_config_sha256": "757a55e71a29c9b05921faf8201388e9319049ecd37dddbe830ff9e120d3cfb3",
+      "target_id": "echo-web-server-heap-timer"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 9,
+        "expected_full_tests": 63,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "0b11e35f35439d3dd80fd35dcc80e9e035a052cfcb75469a89e229512c5933d6",
+          "file_id": "F01",
+          "path": "include/http.h",
+          "scope": "full_file",
+          "source_file_sha256": "943fde3d6548c12620e27563a00dc121550891651da3e61d2958db94ebb664bd",
+          "unit_id": "U01"
+        },
+        {
+          "content_sha256": "fcde3d290f963dd29d7977f858b07a637636b9386eddee25a2a95c05753ca2fb",
+          "file_id": "F02",
+          "path": "src/http/http.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "fd61a787220a54ae758bbb7c826d34ab15867968d055d10db9c8383e497bbf57",
+          "unit_id": "U02"
+        },
+        {
+          "content_sha256": "c3077bb58542e4bb6d19d5499931690844d10d8172a7ad48e4ee297e1820bec2",
+          "file_id": "F03",
+          "path": "src/http/request.h",
+          "scope": "full_file",
+          "source_file_sha256": "738a5489150f0ab537281f6832127e784e08e009f2db3338751ca362500e3ef6",
+          "unit_id": "U03"
+        },
+        {
+          "content_sha256": "f168535ce69953aff0d82f76b7fbe2253975eee9201090effc40ab5800d2e3f0",
+          "file_id": "F04",
+          "path": "src/http/request.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "551325144379c1297b7744acb813598cd27fdaf8ac21e39f0e3726f4ef1ae63c",
+          "unit_id": "U04"
+        },
+        {
+          "content_sha256": "d19647d9230979af82bd3547ca5e58d980fee5415d1d42c98b493a52bbec1e8c",
+          "file_id": "F05",
+          "path": "src/http/response.h",
+          "scope": "full_file",
+          "source_file_sha256": "e159547a5f019e824d01facd977c9c2070a2b415db56b851a001608fb867aefc",
+          "unit_id": "U05"
+        },
+        {
+          "content_sha256": "f718b947c4991f44b1bd59b05e605060496eaca35feebb1bd085408b3de8ec6c",
+          "file_id": "F06",
+          "path": "src/http/response.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "342a541c43e04792db14ef98886653086961d23a04ef76c039c4ff4f946a014d",
+          "unit_id": "U06"
+        }
+      ],
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "source_files": [
+        {
+          "path": "include/http.h",
+          "sha256": "943fde3d6548c12620e27563a00dc121550891651da3e61d2958db94ebb664bd"
+        },
+        {
+          "path": "src/http/http.cpp",
+          "sha256": "fd61a787220a54ae758bbb7c826d34ab15867968d055d10db9c8383e497bbf57"
+        },
+        {
+          "path": "src/http/request.h",
+          "sha256": "738a5489150f0ab537281f6832127e784e08e009f2db3338751ca362500e3ef6"
+        },
+        {
+          "path": "src/http/request.cpp",
+          "sha256": "551325144379c1297b7744acb813598cd27fdaf8ac21e39f0e3726f4ef1ae63c"
+        },
+        {
+          "path": "src/http/response.h",
+          "sha256": "e159547a5f019e824d01facd977c9c2070a2b415db56b851a001608fb867aefc"
+        },
+        {
+          "path": "src/http/response.cpp",
+          "sha256": "342a541c43e04792db14ef98886653086961d23a04ef76c039c4ff4f946a014d"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/echo-web-server-http.json",
+      "target_config_sha256": "e3b2afd684e75a1829384d75a04ba6528a6c096b53903cb15e038e32bb55445f",
+      "target_id": "echo-web-server-http"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 2,
+        "expected_full_tests": 63,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "c17433f843772db49f268a1cbc452b2996ce8b1484ede3b651d3525a6b67360c",
+          "file_id": "F01",
+          "path": "include/io.h",
+          "scope": "full_file",
+          "source_file_sha256": "760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241",
+          "unit_id": "U01"
+        },
+        {
+          "content_sha256": "8de04fbd253a977693aef5e0280c6b857ae7feefddc280a6a620f6390edfaf07",
+          "file_id": "F02",
+          "path": "src/io/io.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "3b651a328148eb1dd0151f1b889524a4ee624d3d2c549d57a22e021f179a0975",
+          "unit_id": "U02"
+        }
+      ],
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "source_files": [
+        {
+          "path": "include/io.h",
+          "sha256": "760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241"
+        },
+        {
+          "path": "src/io/io.cpp",
+          "sha256": "3b651a328148eb1dd0151f1b889524a4ee624d3d2c549d57a22e021f179a0975"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/echo-web-server-io.json",
+      "target_config_sha256": "d6bc1bb6675dafe7bb4ec14b18c642c488d1da89a54dd3f97f06e2ece75332c0",
+      "target_id": "echo-web-server-io"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 5,
+        "expected_full_tests": 63,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "6a2d6d8f9dac2133366304948e58212d248c04ef9714e2088a41fbadf70b23d0",
+          "file_id": "F01",
+          "path": "include/ip.h",
+          "scope": "full_file",
+          "source_file_sha256": "82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1",
+          "unit_id": "U01"
+        },
+        {
+          "content_sha256": "5adf7e6a622ab7de53b663f906453446b65e5e085e3b36fa71d74c8fb5524047",
+          "file_id": "F02",
+          "path": "src/ip/ip.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "b61e08ee3f4d11802b86ff445586120f1d0ca48ede8fb22b0b39cc4841b0f9d7",
+          "unit_id": "U02"
+        }
+      ],
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "source_files": [
+        {
+          "path": "include/ip.h",
+          "sha256": "82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1"
+        },
+        {
+          "path": "src/ip/ip.cpp",
+          "sha256": "b61e08ee3f4d11802b86ff445586120f1d0ca48ede8fb22b0b39cc4841b0f9d7"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/echo-web-server-ip.json",
+      "target_config_sha256": "aef59eb7153585d8ab1c2e602aa566edcc3283cc8b55cfc94eea29ae8060d790",
+      "target_id": "echo-web-server-ip"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 9,
+        "expected_full_tests": 63,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "999293a0df49ea566f60fd53d5300e62caae989b9c72433cc49ec5e67cc3e44a",
+          "file_id": "F01",
+          "path": "include/log.h",
+          "scope": "full_file",
+          "source_file_sha256": "3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252",
+          "unit_id": "U01"
+        },
+        {
+          "content_sha256": "16b13ff09f1dc34e276c85fb8ca4e536847f3caea4b1c964b540825ceb2c01f6",
+          "file_id": "F02",
+          "path": "src/log/log.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "54510f48ccd408758165fb76e6a524c7ff6768b42c5f3a078e549aa10ccdb530",
+          "unit_id": "U02"
+        },
+        {
+          "content_sha256": "fb1b359e4465670b56f358a3ccd00e906f67d29c1f1a746993d11e10a67ff245",
+          "file_id": "F03",
+          "path": "src/log/appender.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "9d0e67f123b05b34389be66dcc4c8b763ab1da000655363ca51cb73944ca9854",
+          "unit_id": "U03"
+        },
+        {
+          "content_sha256": "80e3129b25be98d98ac2459d1236999067f24ada91ad31ad460efa0ac86961f5",
+          "file_id": "F04",
+          "path": "src/log/field.h",
+          "scope": "full_file",
+          "source_file_sha256": "618df402e2d9d192a792255076b8fb3061619e4d5b1c11d944039dcccf08c73e",
+          "unit_id": "U04"
+        },
+        {
+          "content_sha256": "b1cf708a7c083b7c529177b89da0b5b471a1fc928ae20145becd3838b367c447",
+          "file_id": "F05",
+          "path": "src/log/field.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "6d5e70b9528d625b378d63980209b4bc33cdb602502ca7d7ddf9b21a8b0ecac1",
+          "unit_id": "U05"
+        },
+        {
+          "content_sha256": "b7375ceac327e74bcd9485ffcc3969ee1f5d963ca39921855d1f68c5be7e8225",
+          "file_id": "F06",
+          "path": "src/log/config_init.h",
+          "scope": "full_file",
+          "source_file_sha256": "f5a38c8d7461b5711d11500234e2749bc0558448d251b05becddcc5fbaa1f2b7",
+          "unit_id": "U06"
+        },
+        {
+          "content_sha256": "f07ebe71f315c97828f044817ab95e0911cec53adb3bd61cba54e94c77650afc",
+          "file_id": "F07",
+          "path": "src/log/config_init.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "9da465bee8e5c1c315242122a14794005138db7254c793a0eeb6576823905355",
+          "unit_id": "U07"
+        }
+      ],
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "source_files": [
+        {
+          "path": "include/log.h",
+          "sha256": "3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252"
+        },
+        {
+          "path": "src/log/log.cpp",
+          "sha256": "54510f48ccd408758165fb76e6a524c7ff6768b42c5f3a078e549aa10ccdb530"
+        },
+        {
+          "path": "src/log/appender.cpp",
+          "sha256": "9d0e67f123b05b34389be66dcc4c8b763ab1da000655363ca51cb73944ca9854"
+        },
+        {
+          "path": "src/log/field.h",
+          "sha256": "618df402e2d9d192a792255076b8fb3061619e4d5b1c11d944039dcccf08c73e"
+        },
+        {
+          "path": "src/log/field.cpp",
+          "sha256": "6d5e70b9528d625b378d63980209b4bc33cdb602502ca7d7ddf9b21a8b0ecac1"
+        },
+        {
+          "path": "src/log/config_init.h",
+          "sha256": "f5a38c8d7461b5711d11500234e2749bc0558448d251b05becddcc5fbaa1f2b7"
+        },
+        {
+          "path": "src/log/config_init.cpp",
+          "sha256": "9da465bee8e5c1c315242122a14794005138db7254c793a0eeb6576823905355"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/echo-web-server-log.json",
+      "target_config_sha256": "a33c549257f65a732328e0b7e164876fcd966b1076ab93aebb516a5b53a6e887",
+      "target_id": "echo-web-server-log"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 1,
+        "expected_full_tests": 63,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "2480e091de06ea7412f161d26249af421519ede6c6044a26605211bb6f2b739c",
+          "file_id": "F01",
+          "path": "include/containers/thread_pool.h",
+          "scope": "full_file",
+          "source_file_sha256": "ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c",
+          "unit_id": "U01"
+        },
+        {
+          "content_sha256": "3ad7703fb87464f6360e29e5091112c8ee14d2e9a9237765ef22b7ad7188990f",
+          "file_id": "F02",
+          "path": "src/containers/thread_pool/thread_pool.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6",
+          "unit_id": "U02"
+        }
+      ],
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "source_files": [
+        {
+          "path": "include/containers/thread_pool.h",
+          "sha256": "ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c"
+        },
+        {
+          "path": "src/containers/thread_pool/thread_pool.cpp",
+          "sha256": "234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/echo-web-server-thread-pool.json",
+      "target_config_sha256": "18842be352f83028d893af830355856ca456c13783d60f3da0eddc3cbcc8ee7d",
+      "target_id": "echo-web-server-thread-pool"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 9,
+        "expected_full_tests": 63,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "b55d0fd816eb63e37e57892a9a362293851d5f6702d3784aa3a82055c4753270",
+          "file_id": "F01",
+          "path": "include/util.h",
+          "scope": "full_file",
+          "source_file_sha256": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85",
+          "unit_id": "U01"
+        },
+        {
+          "content_sha256": "4cdfdf301617db6c02e60b6fa10dfdf75e69dc674c24d06aa37c97db156a1e48",
+          "file_id": "F02",
+          "path": "src/util/util.cpp",
+          "scope": "full_file",
+          "source_file_sha256": "6400c263f1a882b68c6f5197ced15ba20327030490833df54b118ab57516ff44",
+          "unit_id": "U02"
+        }
+      ],
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "source_files": [
+        {
+          "path": "include/util.h",
+          "sha256": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85"
+        },
+        {
+          "path": "src/util/util.cpp",
+          "sha256": "6400c263f1a882b68c6f5197ced15ba20327030490833df54b118ab57516ff44"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/echo-web-server-util.json",
+      "target_config_sha256": "18453962ace5c996b1680df84ee80ffae830ef121bbdd43a14b8a5c0d4300fe9",
+      "target_id": "echo-web-server-util"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 3,
+        "expected_full_tests": 27,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "function",
+      "replacement_units": [
+        {
+          "content_sha256": "84fd7a9c8eeebe0b482e0780888817c3493b897c4bba65487f8cbbbf518e60c5",
+          "end_byte": 19956,
+          "file_id": "F01",
+          "path": "ini/ini.h",
+          "scope": "byte_span",
+          "source_file_sha256": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+          "start_byte": 18848,
+          "unit_id": "U01"
+        }
+      ],
+      "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+      "source_files": [
+        {
+          "path": "ini/ini.h",
+          "sha256": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/ini-cpp-ini-writer.json",
+      "target_config_sha256": "cc60cf65ac07c5b3e5afa85e2eb5c6e983173b262faac645159520f6e03078aa",
+      "target_id": "ini-cpp-ini-writer"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 24,
+        "expected_full_tests": 27,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "class_span",
+      "replacement_units": [
+        {
+          "content_sha256": "d7258f7f897131089feb34cc27d3c517117fda0e847c0127db383e57d5a466e6",
+          "end_byte": 18713,
+          "file_id": "F01",
+          "path": "ini/ini.h",
+          "scope": "byte_span",
+          "source_file_sha256": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1",
+          "start_byte": 3451,
+          "unit_id": "U01"
+        }
+      ],
+      "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+      "source_files": [
+        {
+          "path": "ini/ini.h",
+          "sha256": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/ini-cpp-inireader.json",
+      "target_config_sha256": "4c70e9d5daf758ddee6df3006b64d0071bccef8ad60911fd945f0e158121d971",
+      "target_id": "ini-cpp-inireader"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 7,
+        "expected_full_tests": 18,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "module_files",
+      "replacement_units": [
+        {
+          "content_sha256": "f1a2a6bfb8f5588fb1fd14fad5eac65c4eedb31b0d10febe9aade2084baa4cfd",
+          "file_id": "F01",
+          "path": "src/Common/Instruction.hpp",
+          "scope": "full_file",
+          "source_file_sha256": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9",
+          "unit_id": "U01"
+        }
+      ],
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "source_files": [
+        {
+          "path": "src/Common/Instruction.hpp",
+          "sha256": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/riscv-simulator-instruction.json",
+      "target_config_sha256": "0411f61d2718158b6380760563a3d007f1ad2c661663de22c0c3db64b8261a1c",
+      "target_id": "riscv-simulator-instruction"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 4,
+        "expected_full_tests": 18,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "class_span",
+      "replacement_units": [
+        {
+          "content_sha256": "2adc41e0a6ee488df35e25e084717efb530282abb9a16f7b5e0cb4020fb270f0",
+          "end_byte": 1594,
+          "file_id": "F01",
+          "path": "src/Common/Memory.hpp",
+          "scope": "byte_span",
+          "source_file_sha256": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec",
+          "start_byte": 244,
+          "unit_id": "U01"
+        }
+      ],
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "source_files": [
+        {
+          "path": "src/Common/Memory.hpp",
+          "sha256": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/riscv-simulator-memory.json",
+      "target_config_sha256": "15ad6648d42270c61569ebad26c535c4c1e483c388fad79a188738105f590a8d",
+      "target_id": "riscv-simulator-memory"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 3,
+        "expected_full_tests": 18,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "class_span",
+      "replacement_units": [
+        {
+          "content_sha256": "f82a61de0a163c874f687e8ae3f57b9fef4adb312ed46c85b37d96c255c90b51",
+          "end_byte": 1387,
+          "file_id": "F01",
+          "path": "src/Common/Parser.hpp",
+          "scope": "byte_span",
+          "source_file_sha256": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0",
+          "start_byte": 228,
+          "unit_id": "U01"
+        }
+      ],
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "source_files": [
+        {
+          "path": "src/Common/Parser.hpp",
+          "sha256": "ae389882044901b112383fd6330ef7002db3fcd9e79af61649f3d293f05baae0"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/riscv-simulator-parser.json",
+      "target_config_sha256": "11242e2fa2024b4152540dfca78a3e1ce0af808499fbd211ba3de4bf48182bdb",
+      "target_id": "riscv-simulator-parser"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 2,
+        "expected_full_tests": 18,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "class_span",
+      "replacement_units": [
+        {
+          "content_sha256": "33b24e2c7a9f1fff6db9fa042deb3900cfedc98904fb40bd900dbf03e002a6e7",
+          "end_byte": 659,
+          "file_id": "F01",
+          "path": "src/Common/Register.hpp",
+          "scope": "byte_span",
+          "source_file_sha256": "57fb42ae07816f444301153cdea5bf943b873262ff992e454b894ff990ad8e34",
+          "start_byte": 149,
+          "unit_id": "U01"
+        }
+      ],
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "source_files": [
+        {
+          "path": "src/Common/Register.hpp",
+          "sha256": "57fb42ae07816f444301153cdea5bf943b873262ff992e454b894ff990ad8e34"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/riscv-simulator-register.json",
+      "target_config_sha256": "65437d6e716f775742152498d0a16a55fcc3a88588e2e7c0843911455b5f9f2b",
+      "target_id": "riscv-simulator-register"
+    },
+    {
+      "build_test_conditions": {
+        "expected_direct_tests": 1,
+        "expected_full_tests": 18,
+        "stage_order": [
+          "configure",
+          "build",
+          "direct_test",
+          "full_test"
+        ]
+      },
+      "replacement_granularity": "class_span",
+      "replacement_units": [
+        {
+          "content_sha256": "ab9b4d25859153cb15176bb1d2e2762db782f294bd76d37a8480a78a1deb1b03",
+          "end_byte": 1643,
+          "file_id": "F01",
+          "path": "src/Common/RegisterFile.hpp",
+          "scope": "byte_span",
+          "source_file_sha256": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+          "start_byte": 265,
+          "unit_id": "U01"
+        }
+      ],
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "source_files": [
+        {
+          "path": "src/Common/RegisterFile.hpp",
+          "sha256": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110"
+        }
+      ],
+      "target_config_path": "configs/rag/roundtrip_ab_v1/formal/targets/riscv-simulator-registerfile.json",
+      "target_config_sha256": "64d7ed89142d9db424f40e253153379e78aa7c55e34046b0004b27375f012a16",
+      "target_id": "riscv-simulator-registerfile"
+    }
+  ]
+}
