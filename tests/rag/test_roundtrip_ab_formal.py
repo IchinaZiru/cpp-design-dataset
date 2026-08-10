@@ -52,7 +52,7 @@ def test_all_targets_bind_common_knowledge_and_prohibit_target_overrides() -> No
             validate_target_v2(changed)
 
 
-def test_a_b_share_prompt_knowledge_model_and_options_b_only_adds_repository_context() -> None:
+def test_a_is_minimal_and_b_adds_treatment_knowledge_and_repository_context() -> None:
     common = load_common_v2(COMMON_PATH, ROOT)
     config = load_json(ROOT / "configs/rag/roundtrip_ab_v1/formal/targets/riscv-simulator-instruction.json")
     repository = resolve_repository_root(config, ROOT)
@@ -63,9 +63,15 @@ def test_a_b_share_prompt_knowledge_model_and_options_b_only_adds_repository_con
     assert a.payload["model"] == b.payload["model"]
     assert a.payload["options"] == b.payload["options"]
     assert a.audit["base_prompt_sha256"] == b.audit["base_prompt_sha256"]
-    assert a.audit["common_knowledge_sha256"] == b.audit["common_knowledge_sha256"]
-    assert "BEGIN COMMON GENERIC DESIGN KNOWLEDGE" in a.prompt
-    assert "BEGIN COMMON GENERIC DESIGN KNOWLEDGE" in b.prompt
+    assert a.audit["treatment_knowledge_sha256"] == b.audit["treatment_knowledge_sha256"]
+    assert a.audit["treatment_knowledge_injected"] is False
+    assert b.audit["treatment_knowledge_injected"] is True
+    assert "BEGIN TREATMENT DESIGN KNOWLEDGE" not in a.prompt
+    assert "V4/V5 DETAILED-DESIGN GUIDANCE" not in a.prompt
+    assert "ROUND-TRIP COMPLETENESS KNOWLEDGE" not in a.prompt
+    assert "BEGIN TREATMENT DESIGN KNOWLEDGE" in b.prompt
+    assert "V4/V5 DETAILED-DESIGN GUIDANCE" in b.prompt
+    assert "ROUND-TRIP COMPLETENESS KNOWLEDGE" in b.prompt
     assert "BEGIN RAG_CONTEXT" not in a.prompt
     assert retrieval.context not in a.prompt
     assert retrieval.context in b.prompt

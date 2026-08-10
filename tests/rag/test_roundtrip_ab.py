@@ -685,12 +685,12 @@ def test_instruction_development_config_is_formal_excluded_full_file() -> None:
     )
 
 
-def test_frozen_common_declares_all_17_formal_targets_as_not_started() -> None:
+def test_repaired_common_declares_all_17_formal_targets_as_not_started() -> None:
     common = load_common_config(COMMON_PATH, PROJECT_ROOT)
     freeze = common["formal_freeze_candidate"]
 
-    assert common["status"] == "formal-17-freeze-candidate-after-context-preflight"
-    assert common["version"] == "2.0-freeze-candidate-17"
+    assert common["status"] == "intended-ab-repair-candidate-pilot-pending"
+    assert common["version"] == "2.1-intended-ab-composite-treatment"
     assert freeze["formal_target_count"] == 17
     assert freeze["formal_completed_target_count"] == 0
     assert freeze["development_runs_are_formal_results"] is False

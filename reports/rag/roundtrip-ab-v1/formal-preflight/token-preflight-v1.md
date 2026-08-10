@@ -8,22 +8,22 @@ LLM calls: 0
 
 | Target | A input | A total | A remain | B input | B total | B remain | Code input upper | Code total | Code remain | Risk |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|:---:|
-| echo-web-server-block-deque | 4532 | 12724 | 20044 | 4555 | 12747 | 20021 | 9525 | 25909 | 6859 | no |
-| echo-web-server-buffer | 5698 | 13890 | 18878 | 6687 | 14879 | 17889 | 9525 | 25909 | 6859 | no |
-| echo-web-server-config | 7121 | 15313 | 17455 | 8913 | 17105 | 15663 | 9525 | 25909 | 6859 | no |
-| echo-web-server-heap-timer | 6232 | 14424 | 18344 | 11005 | 19197 | 13571 | 9525 | 25909 | 6859 | no |
-| echo-web-server-http | 10883 | 19075 | 13693 | 15916 | 24108 | 8660 | 9525 | 25909 | 6859 | no |
-| echo-web-server-io | 4349 | 12541 | 20227 | 7647 | 15839 | 16929 | 9525 | 25909 | 6859 | no |
-| echo-web-server-ip | 4138 | 12330 | 20438 | 5930 | 14122 | 18646 | 9525 | 25909 | 6859 | no |
-| echo-web-server-log | 13530 | 21722 | 11046 | 20578 | 28770 | 3998 | 9525 | 25909 | 6859 | no |
-| echo-web-server-thread-pool | 4001 | 12193 | 20575 | 8774 | 16966 | 15802 | 9525 | 25909 | 6859 | no |
-| echo-web-server-util | 6025 | 14217 | 18551 | 6048 | 14240 | 18528 | 9525 | 25909 | 6859 | no |
-| ini-cpp-ini-writer | 3184 | 11376 | 21392 | 3207 | 11399 | 21369 | 9525 | 25909 | 6859 | no |
-| ini-cpp-inireader | 6388 | 14580 | 18188 | 6411 | 14603 | 18165 | 9525 | 25909 | 6859 | no |
-| riscv-simulator-instruction | 4707 | 12899 | 19869 | 4954 | 13146 | 19622 | 9525 | 25909 | 6859 | no |
-| riscv-simulator-memory | 3269 | 11461 | 21307 | 3516 | 11708 | 21060 | 9525 | 25909 | 6859 | no |
-| riscv-simulator-parser | 3210 | 11402 | 21366 | 3807 | 11999 | 20769 | 9525 | 25909 | 6859 | no |
-| riscv-simulator-register | 3087 | 11279 | 21489 | 3110 | 11302 | 21466 | 9525 | 25909 | 6859 | no |
-| riscv-simulator-registerfile | 3349 | 11541 | 21227 | 4187 | 12379 | 20389 | 9525 | 25909 | 6859 | no |
+| echo-web-server-block-deque | 2023 | 10215 | 22553 | 4557 | 12749 | 20019 | 9525 | 25909 | 6859 | no |
+| echo-web-server-buffer | 3189 | 11381 | 21387 | 6689 | 14881 | 17887 | 9525 | 25909 | 6859 | no |
+| echo-web-server-config | 4612 | 12804 | 19964 | 8915 | 17107 | 15661 | 9525 | 25909 | 6859 | no |
+| echo-web-server-heap-timer | 3723 | 11915 | 20853 | 11007 | 19199 | 13569 | 9525 | 25909 | 6859 | no |
+| echo-web-server-http | 8374 | 16566 | 16202 | 15918 | 24110 | 8658 | 9525 | 25909 | 6859 | no |
+| echo-web-server-io | 1840 | 10032 | 22736 | 7649 | 15841 | 16927 | 9525 | 25909 | 6859 | no |
+| echo-web-server-ip | 1629 | 9821 | 22947 | 5932 | 14124 | 18644 | 9525 | 25909 | 6859 | no |
+| echo-web-server-log | 11021 | 19213 | 13555 | 20580 | 28772 | 3996 | 9525 | 25909 | 6859 | no |
+| echo-web-server-thread-pool | 1492 | 9684 | 23084 | 8776 | 16968 | 15800 | 9525 | 25909 | 6859 | no |
+| echo-web-server-util | 3516 | 11708 | 21060 | 6050 | 14242 | 18526 | 9525 | 25909 | 6859 | no |
+| ini-cpp-ini-writer | 690 | 8882 | 23886 | 3224 | 11416 | 21352 | 9525 | 25909 | 6859 | no |
+| ini-cpp-inireader | 3879 | 12071 | 20697 | 6413 | 14605 | 18163 | 9525 | 25909 | 6859 | no |
+| riscv-simulator-instruction | 2198 | 10390 | 22378 | 4956 | 13148 | 19620 | 9525 | 25909 | 6859 | no |
+| riscv-simulator-memory | 760 | 8952 | 23816 | 3518 | 11710 | 21058 | 9525 | 25909 | 6859 | no |
+| riscv-simulator-parser | 701 | 8893 | 23875 | 3809 | 12001 | 20767 | 9525 | 25909 | 6859 | no |
+| riscv-simulator-register | 578 | 8770 | 23998 | 3112 | 11304 | 21464 | 9525 | 25909 | 6859 | no |
+| riscv-simulator-registerfile | 840 | 9032 | 23736 | 4189 | 12381 | 20387 | 9525 | 25909 | 6859 | no |
 
 Code-generation input is a conservative upper bound: the final design document is reserved up to num_predict tokens, plus the shared code prompt/system/template overhead. The model was not contacted.

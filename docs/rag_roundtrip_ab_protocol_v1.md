@@ -1,15 +1,15 @@
-# Design-only C++ Round-trip A/B Protocol v2 freeze candidate
+# Design-only C++ Round-trip A/B Protocol v2.1 intended comparison repair
 
-Status: formal execution is not authorized and no formal target has been generated (`0/17`). Instruction dev01-dev05 are development evidence only and are not formal results.
+Status: the first authorized campaign is excluded because Condition A incorrectly received treatment-only detailed-design knowledge. Its artifacts are preserved and are not formal results. The repaired formal campaign remains unauthorized at `0/17` until a formal-excluded pilot is accepted.
 
 ## Frozen comparison
 
-Both conditions receive the same target-owned implementation/declaration, minimal base design prompt, generic V4/V5 detailed-design guidance, generic round-trip completeness knowledge, model, deterministic generation parameters, context settings, code-generation protocol, replacement boundary, evaluation commands, and one-shot policy.
+Both conditions receive the same target-owned implementation/declaration, minimal base design prompt, model, deterministic generation parameters, context settings, code-generation protocol, replacement boundary, evaluation commands, and one-shot policy.
 
-- Condition A receives no target-specific repository retrieval context.
-- Condition B alone receives `RAG_CONTEXT` containing complete one-hop project-local dependency headers selected from direct quoted includes in the target-owned inputs.
+- Condition A is the normal/minimal baseline: minimal base design prompt + target-owned source only. It does not receive V4/V5 detailed-design guidance, round-trip completeness knowledge, or repository retrieval context.
+- Condition B is the proposed composite treatment: it receives the same base prompt and target-owned source plus the frozen V4/V5 detailed-design guidance, frozen round-trip completeness knowledge, and `RAG_CONTEXT` containing complete one-hop project-local dependency headers selected from direct quoted includes in the target-owned inputs.
 
-Thus the primary A/B difference is the presence or absence of target-specific repository context. Generic design knowledge is not a treatment difference. It is frozen centrally in `configs/rag/roundtrip_ab_v1/common.json`; target configs may neither omit nor replace it.
+Therefore this experiment estimates the effect of the complete proposed method relative to the minimal baseline; it does not isolate retrieval alone. Treatment knowledge is frozen centrally in `configs/rag/roundtrip_ab_v1/common.json`, injected only into Condition B, and cannot be overridden per target.
 
 The V4/V5 guidance is copied verbatim from the prior experiment wording. It is not summarized, rewritten, ranked, feature-selected, or Top-K selected. The round-trip completeness knowledge contains no Instruction implementation facts. The runner verifies both file and normalized-content SHA-256 values before request construction.
 

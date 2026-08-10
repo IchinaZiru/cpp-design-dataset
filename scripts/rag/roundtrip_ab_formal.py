@@ -118,7 +118,9 @@ def load_common_v2(path: Path, project_root: Path) -> dict[str, Any]:
 
     knowledge = _mapping(common.get("common_design_knowledge"), "common_design_knowledge")
     if knowledge.get("mode") != GENERIC_KNOWLEDGE_MODE:
-        raise RoundtripABError("common design knowledge mode differs")
+        raise RoundtripABError("treatment design knowledge mode differs")
+    if knowledge.get("injection_conditions") != ["B"]:
+        raise RoundtripABError("treatment design knowledge must be injected only into Condition B")
     _verify_file_and_content(
         project_root,
         _mapping(knowledge.get("detailed_design_guidance"), "detailed_design_guidance"),
@@ -325,18 +327,19 @@ def build_design_request_v2(
     base_path = resolve_project_path(project_root, str(prompts["design_generation"]), field="design prompt")
     base = read_prompt(base_path)
     knowledge = load_common_knowledge(common, project_root)
-    common_knowledge = (
-        "===== BEGIN COMMON GENERIC DESIGN KNOWLEDGE =====\n"
+    treatment_knowledge = (
+        "===== BEGIN TREATMENT DESIGN KNOWLEDGE =====\n"
         "----- BEGIN V4/V5 DETAILED-DESIGN GUIDANCE -----\n"
         + knowledge["detailed_design_guidance"]
         + "\n----- END V4/V5 DETAILED-DESIGN GUIDANCE -----\n\n"
         "----- BEGIN ROUND-TRIP COMPLETENESS KNOWLEDGE -----\n"
         + knowledge["roundtrip_completeness"]
         + "\n----- END ROUND-TRIP COMPLETENESS KNOWLEDGE -----\n"
-        "===== END COMMON GENERIC DESIGN KNOWLEDGE ====="
+        "===== END TREATMENT DESIGN KNOWLEDGE ====="
     )
-    parts = [base, "", common_knowledge, "", _input_envelope(inputs)]
+    parts = [base, "", _input_envelope(inputs)]
     if condition == "B":
+        parts.extend(["", treatment_knowledge])
         parts.extend(["", "===== BEGIN RAG_CONTEXT =====", str(repository_context).rstrip(), "===== END RAG_CONTEXT ====="])
     prompt = "\n".join(parts).rstrip() + "\n"
     generation = _mapping(common.get("generation"), "common.generation")
@@ -349,7 +352,8 @@ def build_design_request_v2(
     audit = {
         "artifact_schema_version": "roundtrip-ab-design-request-audit-v2",
         "base_prompt_sha256": sha256_bytes(base.encode("utf-8")),
-        "common_knowledge_sha256": sha256_bytes(common_knowledge.encode("utf-8")),
+        "treatment_knowledge_sha256": sha256_bytes(treatment_knowledge.encode("utf-8")),
+        "treatment_knowledge_injected": condition == "B",
         "condition": condition,
         "fixed_scaffold_loaded": False,
         "prompt_sha256": sha256_bytes(prompt.encode("utf-8")),
@@ -375,11 +379,15 @@ def build_plan_v2(
     for key in ("model", "options", "stream"):
         if a.payload[key] != b.payload[key]:
             raise RoundtripABError(f"A/B generation field differs: {key}")
-    if a.audit["base_prompt_sha256"] != b.audit["base_prompt_sha256"] or a.audit["common_knowledge_sha256"] != b.audit["common_knowledge_sha256"]:
-        raise RoundtripABError("A/B common design inputs differ")
+    if a.audit["base_prompt_sha256"] != b.audit["base_prompt_sha256"]:
+        raise RoundtripABError("A/B base design prompt differs")
+    if a.audit["treatment_knowledge_sha256"] != b.audit["treatment_knowledge_sha256"]:
+        raise RoundtripABError("A/B treatment knowledge source differs")
+    if a.audit["treatment_knowledge_injected"] is not False or b.audit["treatment_knowledge_injected"] is not True:
+        raise RoundtripABError("treatment knowledge must be injected only into Condition B")
     return {
         "artifact_schema_version": "roundtrip-ab-plan-v2",
-        "a_b_primary_difference": "target-specific repository dependency context is present only in B",
+        "a_b_primary_difference": "Condition B adds fixed V4/V5 detailed-design guidance, round-trip completeness knowledge, and target-specific repository dependency context; Condition A uses only the minimal base design prompt plus target-owned source",
         "code_generation_semantic_input": "final_design_specification_only",
         "conditions": {
             condition: {
