@@ -1,0 +1,1 @@
+{"artifact_schema_version":"roundtrip-ab-retrieval-query-v1","features":["alias","always","assignment","bitwise","branch","call","class","constant","constructor","dependency","enum","exception","function","member","shift","struct","throw","transformation"],"manual_query_used":false,"target_id":"riscv-simulator-instruction","target_specific_override_used":false}

@@ -1,0 +1,1 @@
+{"artifact_schema_version":"roundtrip-ab-retrieval-query-v1","features":["always","assignment","bitwise","branch","call","class","constant","constructor","dependency","function","inheritance","loop","member","method","shift","transformation"],"manual_query_used":false,"target_id":"echo-web-server-io","target_specific_override_used":false}

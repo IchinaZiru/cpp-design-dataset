@@ -1,0 +1,53 @@
+{
+  "artifact_schema_version": "roundtrip-design-only-ab-common-v1",
+  "condition_difference": "Condition B alone receives deterministic RAG_CONTEXT; the base design prompt and all generation settings are identical.",
+  "formal_execution_authorized": false,
+  "generation": {
+    "endpoint": "http://localhost:11434/api/generate",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "model": "qwen2.5-coder:32b",
+    "options": {
+      "num_ctx": 16384,
+      "num_predict": 8192,
+      "repeat_penalty": 1.1,
+      "seed": 42,
+      "temperature": 0,
+      "top_k": 40,
+      "top_p": 0.9
+    },
+    "stream": false,
+    "timeout_seconds": 1800
+  },
+  "input_isolation": {
+    "code_generation_allowed_semantic_inputs": [
+      "final design specification"
+    ],
+    "code_generation_forbidden_inputs": [
+      "original target source",
+      "target-owned header",
+      "RAG context",
+      "dependency header",
+      "fixed scaffold",
+      "separate include list",
+      "tests",
+      "build result",
+      "previous generated artifacts",
+      "repository access"
+    ]
+  },
+  "prompts": {
+    "code_generation_schema": "configs/rag/roundtrip_ab_v1/code_generation_schema.json",
+    "code_generation_schema_sha256": "05776575cce2372e90bd87fe8301c2b85e8d20ab611c244ee798d3c2e33cb44b",
+    "code_generation_system": "configs/rag/roundtrip_ab_v1/prompts/code_generation_system.txt",
+    "code_generation_system_sha256": "43348493c16d845b376608404ddd1bc2d34628d022399f923441fffb54f1cdee",
+    "code_generation_user": "configs/rag/roundtrip_ab_v1/prompts/code_generation_user.txt",
+    "code_generation_user_sha256": "1225cb806a3c93e837de6dcbc99a39a7d6485fdd86c0c8015c4070261ab0b4b1",
+    "design_generation": "configs/rag/roundtrip_ab_v1/prompts/design_generation.txt",
+    "design_generation_sha256": "22736c6e9f4c9bad283a8e060fb5cff3cc0a80e4bc2fdebab9c4e94cf9d351e1"
+  },
+  "protocol_id": "design-only-roundtrip-ab-v1",
+  "status": "pilot_not_frozen",
+  "version": "1.0-prepilot"
+}

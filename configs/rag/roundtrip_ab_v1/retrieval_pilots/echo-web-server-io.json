@@ -1,0 +1,62 @@
+{
+  "artifact_schema_version": "roundtrip-design-only-ab-target-v1",
+  "execution": {
+    "enabled": false
+  },
+  "formal_execution_authorized": false,
+  "formal_target_member": true,
+  "one_shot": {
+    "automatic_repair": false,
+    "code_generation_count": 1,
+    "design_generation_count": 1,
+    "manual_patch": false,
+    "overwrite": false,
+    "retry": false
+  },
+  "output": {
+    "retrieval_root": "rag/retrieval/roundtrip-ab-v1/retrieval-only/echo-web-server-io"
+  },
+  "repository": {
+    "commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+    "external": false,
+    "id": "Echo-Web-Server",
+    "path": "repos/Echo-Web-Server"
+  },
+  "retrieval": {
+    "expected_evidence": [
+      {
+        "path": "include/containers/buffer.h",
+        "symbol": "class Buffer"
+      }
+    ],
+    "include_roots": [
+      "include",
+      "src",
+      "src/io"
+    ],
+    "knowledge_index_path": "configs/rag/roundtrip_ab_v1/design_knowledge_index_v1.json",
+    "knowledge_index_sha256": "6734019e18a78fe1ec299e4ebb3ee74063c4bc24509b98b7c46288172609a6f5",
+    "maximum_dependency_headers": 16,
+    "target_specific_manual_query": false
+  },
+  "stage": "retrieval_only_gate",
+  "target_id": "echo-web-server-io",
+  "target_owned_inputs": [
+    {
+      "file_id": "F01",
+      "path": "include/io.h",
+      "role": "target-owned public header and declaration",
+      "scope": "full_file",
+      "source_file_sha256": "760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241",
+      "unit_id": "U01"
+    },
+    {
+      "file_id": "F02",
+      "path": "src/io/io.cpp",
+      "role": "target implementation",
+      "scope": "full_file",
+      "source_file_sha256": "3b651a328148eb1dd0151f1b889524a4ee624d3d2c549d57a22e021f179a0975",
+      "unit_id": "U02"
+    }
+  ]
+}

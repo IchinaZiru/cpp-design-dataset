@@ -1,0 +1,53 @@
+{
+  "artifact_schema_version": "roundtrip-design-only-ab-target-v1",
+  "execution": {
+    "enabled": false
+  },
+  "formal_execution_authorized": false,
+  "formal_target_member": true,
+  "one_shot": {
+    "automatic_repair": false,
+    "code_generation_count": 1,
+    "design_generation_count": 1,
+    "manual_patch": false,
+    "overwrite": false,
+    "retry": false
+  },
+  "output": {
+    "retrieval_root": "rag/retrieval/roundtrip-ab-v1/retrieval-only/riscv-simulator-instruction"
+  },
+  "repository": {
+    "commit": "8989a09c357a69b68612f653380d60816f5176c2",
+    "external": false,
+    "id": "RISCV-Simulator",
+    "path": "repos/RISCV-Simulator"
+  },
+  "retrieval": {
+    "expected_evidence": [
+      {
+        "path": "src/Common/Common.h",
+        "symbol": "using Immediate"
+      }
+    ],
+    "include_roots": [
+      "src",
+      "src/Common"
+    ],
+    "knowledge_index_path": "configs/rag/roundtrip_ab_v1/design_knowledge_index_v1.json",
+    "knowledge_index_sha256": "6734019e18a78fe1ec299e4ebb3ee74063c4bc24509b98b7c46288172609a6f5",
+    "maximum_dependency_headers": 16,
+    "target_specific_manual_query": false
+  },
+  "stage": "retrieval_only_gate",
+  "target_id": "riscv-simulator-instruction",
+  "target_owned_inputs": [
+    {
+      "file_id": "F01",
+      "role": "header-only target implementation and declaration",
+      "scope": "full_file",
+      "source_file_sha256": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9",
+      "path": "src/Common/Instruction.hpp",
+      "unit_id": "U01"
+    }
+  ]
+}

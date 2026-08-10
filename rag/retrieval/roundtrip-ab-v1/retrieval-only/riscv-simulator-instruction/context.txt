@@ -1,0 +1,33 @@
+RAG_CONTEXT v1
+
+## Retrieved design-specification knowledge
+### K04-state-transition
+状態を持つ対象では、各memberの意味、初期状態、更新条件、precondition/postcondition、不変条件、lifetime、ownership、mutation、lock/notify等の副作用を明示する。
+
+### K01-symbol-contract
+再実装に必要なsymbol contractとして、namespace、class/struct/function名、完全なsignature、引数型、戻り値型、template parameter、既定値、const・volatile・参照・noexcept・override等の修飾を、入力で確認できる範囲で省略せず設計仕様へ保持する。
+
+### K02-type-relationship
+型に関する再実装知識として、using/typedef、enumと列挙値、nested type、継承、包含、concept/requires、型変換、および関連型同士の関係を明示する。
+
+### K03-control-flow
+処理手順を要約し過ぎず、分岐式、比較対象、反復条件、処理順序、early return、具体的な定数・bit範囲・境界条件を、入力で確認できる範囲で保持する。
+
+### K06-error-edge
+例外、エラー値、無効入力、空・最大・最小値、overflow/underflow、timeout、resource failureなど、観測可能な異常系とedge caseを入力の根拠に沿って記録する。
+
+## Retrieved project-local dependency declarations
+### PATH: src/Common/Common.h
+```cpp
+//
+// Created by Alex Chi on 2019-07-02.
+//
+
+#ifndef RISCV_SIMULATOR_COMMON_H
+#define RISCV_SIMULATOR_COMMON_H
+
+using Immediate = unsigned int;
+using SImmediate = int;
+
+#endif //RISCV_SIMULATOR_COMMON_H
+```
