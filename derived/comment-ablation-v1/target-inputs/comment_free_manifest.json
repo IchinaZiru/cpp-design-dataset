@@ -1,0 +1,534 @@
+{
+  "artifact_schema_version": "comment-ablation-target-inputs-v1",
+  "source_manifest": "configs/rag/roundtrip_ab_v1/formal/evaluation_manifest.json",
+  "target_count": 17,
+  "targets": [
+    {
+      "target_id": "echo-web-server-block-deque",
+      "repository": "Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "include/containers/block_deque.h",
+          "scope": "full_file",
+          "source_sha256": "fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e",
+          "comment_free_sha256": "3f80dc7de1aecf8a40359491a62ab365a725dec035805515fcd831e037a75d0d",
+          "line_comments_removed": 16,
+          "block_comments_removed": 5,
+          "total_comments_removed": 21,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-block-deque/F01_U01.h"
+        }
+      ]
+    },
+    {
+      "target_id": "echo-web-server-buffer",
+      "repository": "Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "include/containers/buffer.h",
+          "scope": "full_file",
+          "source_sha256": "94807866681c70598b716d810ffd2bfe0d9cf3406f459b51f2d33013c37b9a09",
+          "comment_free_sha256": "2ae69330c1b2ae73fd38a2f015040ef64d68aae63026cf656d05ce92bf56db97",
+          "line_comments_removed": 35,
+          "block_comments_removed": 5,
+          "total_comments_removed": 40,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-buffer/F01_U01.h"
+        },
+        {
+          "file_id": "F02",
+          "unit_id": "U02",
+          "original_path": "src/containers/buffer/buffer.cpp",
+          "scope": "full_file",
+          "source_sha256": "0d3f0824f3c63439d05e34d2e22dd1bc1c45c4bb0e3bd4c842ffc4ca1d56bc2b",
+          "comment_free_sha256": "8fa525e18073958e4d06de9a5607eb6ba1bec0d1d87bc1301a39ab134013b915",
+          "line_comments_removed": 1,
+          "block_comments_removed": 0,
+          "total_comments_removed": 1,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-buffer/F02_U02.cpp"
+        }
+      ]
+    },
+    {
+      "target_id": "echo-web-server-config",
+      "repository": "Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "include/config.h",
+          "scope": "full_file",
+          "source_sha256": "8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc",
+          "comment_free_sha256": "81ca9c3b4359ef20ec2c0658f70861f69f7719dacb9fde3077bfbd2e645cfd74",
+          "line_comments_removed": 26,
+          "block_comments_removed": 11,
+          "total_comments_removed": 37,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-config/F01_U01.h"
+        },
+        {
+          "file_id": "F02",
+          "unit_id": "U02",
+          "original_path": "src/config/config.cpp",
+          "scope": "full_file",
+          "source_sha256": "1e33dcd9bcd1ee3f721b55c995e00b1b13ac134c45d1f229452c585fba44408a",
+          "comment_free_sha256": "1882b8a36a73ea37eb5889f96cdd7c705af730d4de8d7b8e87274b22065879a9",
+          "line_comments_removed": 3,
+          "block_comments_removed": 1,
+          "total_comments_removed": 4,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-config/F02_U02.cpp"
+        }
+      ]
+    },
+    {
+      "target_id": "echo-web-server-heap-timer",
+      "repository": "Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "include/containers/heap_timer.h",
+          "scope": "full_file",
+          "source_sha256": "d89dcc16bafd792ea0d76ac99ae2fdea68374391f952f85caf6c8dcfb88cf56a",
+          "comment_free_sha256": "48cc8a50aacaa640f6a1dc40b96bd468511adb4a1e0c3be7a6c34435d0d17500",
+          "line_comments_removed": 18,
+          "block_comments_removed": 16,
+          "total_comments_removed": 34,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-heap-timer/F01_U01.h"
+        }
+      ]
+    },
+    {
+      "target_id": "echo-web-server-http",
+      "repository": "Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "include/http.h",
+          "scope": "full_file",
+          "source_sha256": "943fde3d6548c12620e27563a00dc121550891651da3e61d2958db94ebb664bd",
+          "comment_free_sha256": "92e1acb5f28436d57d840c4db3e1c05e659034e18c130fd938f16064f62a192b",
+          "line_comments_removed": 19,
+          "block_comments_removed": 9,
+          "total_comments_removed": 28,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-http/F01_U01.h"
+        },
+        {
+          "file_id": "F02",
+          "unit_id": "U02",
+          "original_path": "src/http/http.cpp",
+          "scope": "full_file",
+          "source_sha256": "fd61a787220a54ae758bbb7c826d34ab15867968d055d10db9c8383e497bbf57",
+          "comment_free_sha256": "9b971bbb635ba428baf6fcf96411b7bf353e8ef16132cf91f00c56eb2eabcf0b",
+          "line_comments_removed": 2,
+          "block_comments_removed": 0,
+          "total_comments_removed": 2,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-http/F02_U02.cpp"
+        },
+        {
+          "file_id": "F03",
+          "unit_id": "U03",
+          "original_path": "src/http/request.h",
+          "scope": "full_file",
+          "source_sha256": "738a5489150f0ab537281f6832127e784e08e009f2db3338751ca362500e3ef6",
+          "comment_free_sha256": "aac6890a6b7415d2881959099b39c2fe404405d32bb8e0fb2a005078c7fc712f",
+          "line_comments_removed": 9,
+          "block_comments_removed": 5,
+          "total_comments_removed": 14,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-http/F03_U03.h"
+        },
+        {
+          "file_id": "F04",
+          "unit_id": "U04",
+          "original_path": "src/http/request.cpp",
+          "scope": "full_file",
+          "source_sha256": "551325144379c1297b7744acb813598cd27fdaf8ac21e39f0e3726f4ef1ae63c",
+          "comment_free_sha256": "ca7dee00ff5f4b58ef64dc6737830f2c80493d08a2551caf8d685d22e09f63d3",
+          "line_comments_removed": 8,
+          "block_comments_removed": 5,
+          "total_comments_removed": 13,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-http/F04_U04.cpp"
+        },
+        {
+          "file_id": "F05",
+          "unit_id": "U05",
+          "original_path": "src/http/response.h",
+          "scope": "full_file",
+          "source_sha256": "e159547a5f019e824d01facd977c9c2070a2b415db56b851a001608fb867aefc",
+          "comment_free_sha256": "7284647349c180632161c8dc0f500ce3c1edd9c466f1253bae86de0325637835",
+          "line_comments_removed": 11,
+          "block_comments_removed": 6,
+          "total_comments_removed": 17,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-http/F05_U05.h"
+        },
+        {
+          "file_id": "F06",
+          "unit_id": "U06",
+          "original_path": "src/http/response.cpp",
+          "scope": "full_file",
+          "source_sha256": "342a541c43e04792db14ef98886653086961d23a04ef76c039c4ff4f946a014d",
+          "comment_free_sha256": "fd28db57f5b7a7b5271b90d06ef72776e80dc0a171d4e60faa31d07a63f64fb4",
+          "line_comments_removed": 5,
+          "block_comments_removed": 0,
+          "total_comments_removed": 5,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-http/F06_U06.cpp"
+        }
+      ]
+    },
+    {
+      "target_id": "echo-web-server-io",
+      "repository": "Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "include/io.h",
+          "scope": "full_file",
+          "source_sha256": "760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241",
+          "comment_free_sha256": "9cc5426d54842b53a288973ce51ca9b1e6e4bec51e4124177905123a1f5bc0ec",
+          "line_comments_removed": 9,
+          "block_comments_removed": 4,
+          "total_comments_removed": 13,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-io/F01_U01.h"
+        },
+        {
+          "file_id": "F02",
+          "unit_id": "U02",
+          "original_path": "src/io/io.cpp",
+          "scope": "full_file",
+          "source_sha256": "3b651a328148eb1dd0151f1b889524a4ee624d3d2c549d57a22e021f179a0975",
+          "comment_free_sha256": "48dcec9c87981a9baf2365afe29c9f6f04ea455d493a3b0256979f7b556e00d0",
+          "line_comments_removed": 5,
+          "block_comments_removed": 0,
+          "total_comments_removed": 5,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-io/F02_U02.cpp"
+        }
+      ]
+    },
+    {
+      "target_id": "echo-web-server-ip",
+      "repository": "Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "include/ip.h",
+          "scope": "full_file",
+          "source_sha256": "82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1",
+          "comment_free_sha256": "36259f807db103cf835d4f5e72d07fde8b1858f23f46a799e7ec22ebc00621f1",
+          "line_comments_removed": 7,
+          "block_comments_removed": 1,
+          "total_comments_removed": 8,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-ip/F01_U01.h"
+        },
+        {
+          "file_id": "F02",
+          "unit_id": "U02",
+          "original_path": "src/ip/ip.cpp",
+          "scope": "full_file",
+          "source_sha256": "b61e08ee3f4d11802b86ff445586120f1d0ca48ede8fb22b0b39cc4841b0f9d7",
+          "comment_free_sha256": "7fb6f1d36dfd359ec1ac6586be03c9e91ef417f72bb5e4cb0770d27a7e1ea4d9",
+          "line_comments_removed": 1,
+          "block_comments_removed": 0,
+          "total_comments_removed": 1,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-ip/F02_U02.cpp"
+        }
+      ]
+    },
+    {
+      "target_id": "echo-web-server-log",
+      "repository": "Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "include/log.h",
+          "scope": "full_file",
+          "source_sha256": "3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252",
+          "comment_free_sha256": "4bc8c54662efb0a8dbbc8230bad693bdb47a57bce12f555dc30ba726cb653c02",
+          "line_comments_removed": 19,
+          "block_comments_removed": 17,
+          "total_comments_removed": 36,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-log/F01_U01.h"
+        },
+        {
+          "file_id": "F02",
+          "unit_id": "U02",
+          "original_path": "src/log/log.cpp",
+          "scope": "full_file",
+          "source_sha256": "54510f48ccd408758165fb76e6a524c7ff6768b42c5f3a078e549aa10ccdb530",
+          "comment_free_sha256": "5381a3e897e8a6d6a082b4e5388ca8c0dd5a06d8ce65b6acaa8f5a50c1c69f53",
+          "line_comments_removed": 3,
+          "block_comments_removed": 0,
+          "total_comments_removed": 3,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-log/F02_U02.cpp"
+        },
+        {
+          "file_id": "F03",
+          "unit_id": "U03",
+          "original_path": "src/log/appender.cpp",
+          "scope": "full_file",
+          "source_sha256": "9d0e67f123b05b34389be66dcc4c8b763ab1da000655363ca51cb73944ca9854",
+          "comment_free_sha256": "6d755bfb588e665d0fde1153ec02a4675248dd0977cf952e5003fe2c790412cf",
+          "line_comments_removed": 1,
+          "block_comments_removed": 0,
+          "total_comments_removed": 1,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-log/F03_U03.cpp"
+        },
+        {
+          "file_id": "F04",
+          "unit_id": "U04",
+          "original_path": "src/log/field.h",
+          "scope": "full_file",
+          "source_sha256": "618df402e2d9d192a792255076b8fb3061619e4d5b1c11d944039dcccf08c73e",
+          "comment_free_sha256": "ed784a944aa7e331bd89cbecb8bdd434e9c76bf83c6269320f212a0e33fc05c1",
+          "line_comments_removed": 4,
+          "block_comments_removed": 4,
+          "total_comments_removed": 8,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-log/F04_U04.h"
+        },
+        {
+          "file_id": "F05",
+          "unit_id": "U05",
+          "original_path": "src/log/field.cpp",
+          "scope": "full_file",
+          "source_sha256": "6d5e70b9528d625b378d63980209b4bc33cdb602502ca7d7ddf9b21a8b0ecac1",
+          "comment_free_sha256": "2b6b668d979a7e9bf5ec0e7e94dc0c51911881855877604a664f02d8621b8ae2",
+          "line_comments_removed": 1,
+          "block_comments_removed": 0,
+          "total_comments_removed": 1,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-log/F05_U05.cpp"
+        },
+        {
+          "file_id": "F06",
+          "unit_id": "U06",
+          "original_path": "src/log/config_init.h",
+          "scope": "full_file",
+          "source_sha256": "f5a38c8d7461b5711d11500234e2749bc0558448d251b05becddcc5fbaa1f2b7",
+          "comment_free_sha256": "6d10aa1733dc617cd08ca8b18771c1020f701ec65bad5bac385c3232ad138a5a",
+          "line_comments_removed": 10,
+          "block_comments_removed": 2,
+          "total_comments_removed": 12,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-log/F06_U06.h"
+        },
+        {
+          "file_id": "F07",
+          "unit_id": "U07",
+          "original_path": "src/log/config_init.cpp",
+          "scope": "full_file",
+          "source_sha256": "9da465bee8e5c1c315242122a14794005138db7254c793a0eeb6576823905355",
+          "comment_free_sha256": "e11623900fd329f4f90c646d0bb8468e62c13b142fd33642be6f583af3a35601",
+          "line_comments_removed": 4,
+          "block_comments_removed": 0,
+          "total_comments_removed": 4,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-log/F07_U07.cpp"
+        }
+      ]
+    },
+    {
+      "target_id": "echo-web-server-thread-pool",
+      "repository": "Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "include/containers/thread_pool.h",
+          "scope": "full_file",
+          "source_sha256": "ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c",
+          "comment_free_sha256": "54637a175516937b9fb47454b26395b5ba0504e644d950495986920b1855639c",
+          "line_comments_removed": 4,
+          "block_comments_removed": 4,
+          "total_comments_removed": 8,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-thread-pool/F01_U01.h"
+        },
+        {
+          "file_id": "F02",
+          "unit_id": "U02",
+          "original_path": "src/containers/thread_pool/thread_pool.cpp",
+          "scope": "full_file",
+          "source_sha256": "234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6",
+          "comment_free_sha256": "d71490a6cf807999891886b74797057fbf3297919a44e3220c745dad3b2947aa",
+          "line_comments_removed": 5,
+          "block_comments_removed": 0,
+          "total_comments_removed": 5,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-thread-pool/F02_U02.cpp"
+        }
+      ]
+    },
+    {
+      "target_id": "echo-web-server-util",
+      "repository": "Echo-Web-Server",
+      "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "include/util.h",
+          "scope": "full_file",
+          "source_sha256": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85",
+          "comment_free_sha256": "b5f006f1811e55e9b8ddfebd793b9ec0b4cf4ec01cbbae9bcd2f14da234eb030",
+          "line_comments_removed": 16,
+          "block_comments_removed": 14,
+          "total_comments_removed": 30,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-util/F01_U01.h"
+        },
+        {
+          "file_id": "F02",
+          "unit_id": "U02",
+          "original_path": "src/util/util.cpp",
+          "scope": "full_file",
+          "source_sha256": "6400c263f1a882b68c6f5197ced15ba20327030490833df54b118ab57516ff44",
+          "comment_free_sha256": "7507ff82ffc97409192a48a18e64c26017cd2de91736595307fde37396a145af",
+          "line_comments_removed": 1,
+          "block_comments_removed": 0,
+          "total_comments_removed": 1,
+          "output_path": "derived/comment-ablation-v1/target-inputs/echo-web-server-util/F02_U02.cpp"
+        }
+      ]
+    },
+    {
+      "target_id": "ini-cpp-ini-writer",
+      "repository": "ini-cpp",
+      "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "ini/ini.h",
+          "scope": "byte_span",
+          "source_sha256": "90407c8d23949eb4c667fdb7eee44bb469210856be888af42fd909ad6107a32b",
+          "comment_free_sha256": "3d18d860a46b4bbbd4ec1005dd4e048ed9d1bebdc5caca0e095104652ef1e7b0",
+          "line_comments_removed": 0,
+          "block_comments_removed": 1,
+          "total_comments_removed": 1,
+          "output_path": "derived/comment-ablation-v1/target-inputs/ini-cpp-ini-writer/F01_U01.h"
+        }
+      ]
+    },
+    {
+      "target_id": "ini-cpp-inireader",
+      "repository": "ini-cpp",
+      "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "ini/ini.h",
+          "scope": "byte_span",
+          "source_sha256": "d7258f7f897131089feb34cc27d3c517117fda0e847c0127db383e57d5a466e6",
+          "comment_free_sha256": "5d120a79cd3598e9da75d405c53c6517598b4e4ad97004220de9f80b584dd13e",
+          "line_comments_removed": 9,
+          "block_comments_removed": 20,
+          "total_comments_removed": 29,
+          "output_path": "derived/comment-ablation-v1/target-inputs/ini-cpp-inireader/F01_U01.h"
+        }
+      ]
+    },
+    {
+      "target_id": "riscv-simulator-instruction",
+      "repository": "RISCV-Simulator",
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "src/Common/Instruction.hpp",
+          "scope": "full_file",
+          "source_sha256": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9",
+          "comment_free_sha256": "3d0dc1e79ff432089df46f995a618992607d441b3283809a81fc9ee122b97526",
+          "line_comments_removed": 4,
+          "block_comments_removed": 0,
+          "total_comments_removed": 4,
+          "output_path": "derived/comment-ablation-v1/target-inputs/riscv-simulator-instruction/F01_U01.hpp"
+        }
+      ]
+    },
+    {
+      "target_id": "riscv-simulator-memory",
+      "repository": "RISCV-Simulator",
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "src/Common/Memory.hpp",
+          "scope": "byte_span",
+          "source_sha256": "2adc41e0a6ee488df35e25e084717efb530282abb9a16f7b5e0cb4020fb270f0",
+          "comment_free_sha256": "f2f826e3c01935d300680c9eeab6a4f2c57aab8c5d33fd804c43c17a06dce4de",
+          "line_comments_removed": 3,
+          "block_comments_removed": 0,
+          "total_comments_removed": 3,
+          "output_path": "derived/comment-ablation-v1/target-inputs/riscv-simulator-memory/F01_U01.hpp"
+        }
+      ]
+    },
+    {
+      "target_id": "riscv-simulator-parser",
+      "repository": "RISCV-Simulator",
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "src/Common/Parser.hpp",
+          "scope": "byte_span",
+          "source_sha256": "f82a61de0a163c874f687e8ae3f57b9fef4adb312ed46c85b37d96c255c90b51",
+          "comment_free_sha256": "f82a61de0a163c874f687e8ae3f57b9fef4adb312ed46c85b37d96c255c90b51",
+          "line_comments_removed": 0,
+          "block_comments_removed": 0,
+          "total_comments_removed": 0,
+          "output_path": "derived/comment-ablation-v1/target-inputs/riscv-simulator-parser/F01_U01.hpp"
+        }
+      ]
+    },
+    {
+      "target_id": "riscv-simulator-register",
+      "repository": "RISCV-Simulator",
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "src/Common/Register.hpp",
+          "scope": "byte_span",
+          "source_sha256": "33b24e2c7a9f1fff6db9fa042deb3900cfedc98904fb40bd900dbf03e002a6e7",
+          "comment_free_sha256": "e22b92e02138a90ac51014522deafc5b373dfb44df0434c153bf525d699bc07c",
+          "line_comments_removed": 1,
+          "block_comments_removed": 0,
+          "total_comments_removed": 1,
+          "output_path": "derived/comment-ablation-v1/target-inputs/riscv-simulator-register/F01_U01.hpp"
+        }
+      ]
+    },
+    {
+      "target_id": "riscv-simulator-registerfile",
+      "repository": "RISCV-Simulator",
+      "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+      "units": [
+        {
+          "file_id": "F01",
+          "unit_id": "U01",
+          "original_path": "src/Common/RegisterFile.hpp",
+          "scope": "byte_span",
+          "source_sha256": "ab9b4d25859153cb15176bb1d2e2762db782f294bd76d37a8480a78a1deb1b03",
+          "comment_free_sha256": "600724a5c31440218284e6dc74cead5b019c793812c205f93b54e991b0dfe4e9",
+          "line_comments_removed": 1,
+          "block_comments_removed": 0,
+          "total_comments_removed": 1,
+          "output_path": "derived/comment-ablation-v1/target-inputs/riscv-simulator-registerfile/F01_U01.hpp"
+        }
+      ]
+    }
+  ]
+}

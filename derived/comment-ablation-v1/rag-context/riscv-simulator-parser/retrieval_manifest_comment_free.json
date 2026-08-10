@@ -1,0 +1,31 @@
+{
+  "artifact_schema_version": "comment-ablation-rag-retrieval-manifest-v1",
+  "target_id": "riscv-simulator-parser",
+  "condition": "B-comment-free",
+  "status": "pass",
+  "selection_frozen_from_formal_r2": true,
+  "source_formal_r2_retrieval_manifest_sha256": "46d17760ebd94cc44e0f5379d82695bd5cff1433d4e137104cbe5f419c4cff6d",
+  "source_formal_r2_actual_rag_context_sha256": "ca51da4a682aea31bf4f3486339c59c4680f891ed60d46605919786e7267802c",
+  "dependency_header_mode": "direct-project-local-quoted-include-whole-file-one-hop-v1",
+  "dependency_header_count": 1,
+  "comments_removed": 7,
+  "query_unchanged_from_formal_r2": true,
+  "artifact_hashes": {
+    "query.json": "a75cd1be29d9d617975011607b9ec73a801b4d47a4b0e2ec9e4753135c50a182",
+    "candidates_selected_comment_free.jsonl": "180999b4bed18983b578ae2fb9d1f8fc4494c1b3d1a00ae7c64d41de6610116d",
+    "actual_rag_context_comment_free.txt": "641209e195dff1e999983edba057eeb0c297b6dece02df75d1336f76eadbab4e"
+  },
+  "context_bytes": 1938,
+  "context_sha256": "641209e195dff1e999983edba057eeb0c297b6dece02df75d1336f76eadbab4e",
+  "dependencies": [
+    {
+      "path": "src/Common/Memory.hpp",
+      "source_sha256": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec",
+      "source_formal_r2_content_sha256": "3005c55eeeddb68ef003d69c127a1625ef1c218e6ca2462f3d4c4365b416198f",
+      "comment_free_content_sha256": "273c4ebb168992e892ef84ee23352880cf9dad8bb097036fe058fd36e5e60402",
+      "line_comments_removed": 7,
+      "block_comments_removed": 0,
+      "total_comments_removed": 7
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "artifact_schema_version": "comment-ablation-rag-retrieval-manifest-v1",
+  "target_id": "riscv-simulator-registerfile",
+  "condition": "B-comment-free",
+  "status": "pass",
+  "selection_frozen_from_formal_r2": true,
+  "source_formal_r2_retrieval_manifest_sha256": "5dab7a3235d200f8eecf3a11152311b2d401b4c2c97b43530f887afc6148677a",
+  "source_formal_r2_actual_rag_context_sha256": "6b82ac7ccca37e62ec42dac84194a460e26c70ddd419b8bd5e96f29b62b35fc9",
+  "dependency_header_mode": "direct-project-local-quoted-include-whole-file-one-hop-v1",
+  "dependency_header_count": 3,
+  "comments_removed": 13,
+  "query_unchanged_from_formal_r2": true,
+  "artifact_hashes": {
+    "query.json": "85370a81482a6c2dc4d94544c82c9e5187c98d02be5110c8d2345d4f91bde185",
+    "candidates_selected_comment_free.jsonl": "0b01bb5a3a80bc5af172298405bc24ecaed40be819d73f03c9df007c95355781",
+    "actual_rag_context_comment_free.txt": "f8af1821ee583c176c8d5e36aef5e0a2af7111dd076378c9d9933478821c83a5"
+  },
+  "context_bytes": 2106,
+  "context_sha256": "f8af1821ee583c176c8d5e36aef5e0a2af7111dd076378c9d9933478821c83a5",
+  "dependencies": [
+    {
+      "path": "src/Common/Common.h",
+      "source_sha256": "1842fc10588b2c6997b0e25beca27c33b6dcfe978f6d22cf6f4869425844d575",
+      "source_formal_r2_content_sha256": "84bc60b8e0afa6b516cf63689a608968f560e3de4e640e651fd7c1a176de56ca",
+      "comment_free_content_sha256": "73a1a75453fd409ffa7d6229c9e74efcf26a821cb4e6f40253a0b70729039616",
+      "line_comments_removed": 4,
+      "block_comments_removed": 0,
+      "total_comments_removed": 4
+    },
+    {
+      "path": "src/Common/Register.hpp",
+      "source_sha256": "57fb42ae07816f444301153cdea5bf943b873262ff992e454b894ff990ad8e34",
+      "source_formal_r2_content_sha256": "6890bd1d2e673be19ad1db79f647797da52c784d1963db9a43de0ce0ec33c7fb",
+      "comment_free_content_sha256": "9e58abeb53012d1002f06ba204951005929aed1a2eb6d00054a5ad6e0f2adaa5",
+      "line_comments_removed": 5,
+      "block_comments_removed": 0,
+      "total_comments_removed": 5
+    },
+    {
+      "path": "src/Common/utils.h",
+      "source_sha256": "74d3100141f38b67efdec002eae6dcf9803452fffec0bfb0f5bac8e56d10a61a",
+      "source_formal_r2_content_sha256": "5ea59e524e9558ca569b8466a121e7d4a2ed6a77c3eaba9b4d582f4b63389b27",
+      "comment_free_content_sha256": "f0298fb7fb0870302ee6fa2d46fae13fb15d15f3b5eb7ad0b2885b49353853f8",
+      "line_comments_removed": 4,
+      "block_comments_removed": 0,
+      "total_comments_removed": 4
+    }
+  ]
+}

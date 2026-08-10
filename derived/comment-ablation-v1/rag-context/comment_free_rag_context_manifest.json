@@ -1,0 +1,150 @@
+{
+  "artifact_schema_version": "comment-ablation-rag-context-v1",
+  "purpose": "same formal-r2 RAG dependency selection with C/C++ comments removed from selected dependency code",
+  "selection_policy": "frozen-from-comment-present-formal-r2-condition-b",
+  "source_formal_r2_root": "experiments/rag/roundtrip-ab-v1/formal-r2",
+  "source_target_manifest": "derived/comment-ablation-v1/target-inputs/comment_free_manifest.json",
+  "target_count": 17,
+  "targets": [
+    {
+      "target_id": "echo-web-server-block-deque",
+      "dependency_header_count": 0,
+      "comments_removed": 0,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/echo-web-server-block-deque/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/echo-web-server-block-deque",
+      "context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31"
+    },
+    {
+      "target_id": "echo-web-server-buffer",
+      "dependency_header_count": 1,
+      "comments_removed": 13,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/echo-web-server-buffer/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/echo-web-server-buffer",
+      "context_sha256": "2b96567e6edf2136fb01c4c8166f4bb1edde8da719da9bd2d3acc8851fc81006"
+    },
+    {
+      "target_id": "echo-web-server-config",
+      "dependency_header_count": 1,
+      "comments_removed": 30,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/echo-web-server-config/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/echo-web-server-config",
+      "context_sha256": "0a69fecf7614b3636c05731f09eb0465bca5d21f5af1c7f1dff0d31f46e832f8"
+    },
+    {
+      "target_id": "echo-web-server-heap-timer",
+      "dependency_header_count": 2,
+      "comments_removed": 66,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/echo-web-server-heap-timer/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/echo-web-server-heap-timer",
+      "context_sha256": "540edc4af0e67dad14f12e3e10197a5cc7b356bbab6870b2af17ab35982cc630"
+    },
+    {
+      "target_id": "echo-web-server-http",
+      "dependency_header_count": 4,
+      "comments_removed": 91,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/echo-web-server-http/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/echo-web-server-http",
+      "context_sha256": "a682512c0c3fecf702e528734a6d16988e5261b928b95bb7b6d64bed1321eaa7"
+    },
+    {
+      "target_id": "echo-web-server-io",
+      "dependency_header_count": 2,
+      "comments_removed": 70,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/echo-web-server-io/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/echo-web-server-io",
+      "context_sha256": "61791f68fb968086bcf20ce42f1449d3d22fcac3ebf349b0045a2e88b3f590e1"
+    },
+    {
+      "target_id": "echo-web-server-ip",
+      "dependency_header_count": 1,
+      "comments_removed": 30,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/echo-web-server-ip/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/echo-web-server-ip",
+      "context_sha256": "0a69fecf7614b3636c05731f09eb0465bca5d21f5af1c7f1dff0d31f46e832f8"
+    },
+    {
+      "target_id": "echo-web-server-log",
+      "dependency_header_count": 3,
+      "comments_removed": 88,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/echo-web-server-log/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/echo-web-server-log",
+      "context_sha256": "93649edb347a54fa5990c923b4e8356925e3e65088a3decf960889154f8acc18"
+    },
+    {
+      "target_id": "echo-web-server-thread-pool",
+      "dependency_header_count": 2,
+      "comments_removed": 66,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/echo-web-server-thread-pool/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/echo-web-server-thread-pool",
+      "context_sha256": "540edc4af0e67dad14f12e3e10197a5cc7b356bbab6870b2af17ab35982cc630"
+    },
+    {
+      "target_id": "echo-web-server-util",
+      "dependency_header_count": 0,
+      "comments_removed": 0,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/echo-web-server-util/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/echo-web-server-util",
+      "context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31"
+    },
+    {
+      "target_id": "ini-cpp-ini-writer",
+      "dependency_header_count": 0,
+      "comments_removed": 0,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/ini-cpp-ini-writer/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/ini-cpp-ini-writer",
+      "context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31"
+    },
+    {
+      "target_id": "ini-cpp-inireader",
+      "dependency_header_count": 0,
+      "comments_removed": 0,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/ini-cpp-inireader/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/ini-cpp-inireader",
+      "context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31"
+    },
+    {
+      "target_id": "riscv-simulator-instruction",
+      "dependency_header_count": 1,
+      "comments_removed": 4,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/riscv-simulator-instruction/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/riscv-simulator-instruction",
+      "context_sha256": "a2427f242d401e3f090f8e38bce896d848cc2ad46eaf2e39692fb8297ca0763d"
+    },
+    {
+      "target_id": "riscv-simulator-memory",
+      "dependency_header_count": 1,
+      "comments_removed": 4,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/riscv-simulator-memory/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/riscv-simulator-memory",
+      "context_sha256": "a2427f242d401e3f090f8e38bce896d848cc2ad46eaf2e39692fb8297ca0763d"
+    },
+    {
+      "target_id": "riscv-simulator-parser",
+      "dependency_header_count": 1,
+      "comments_removed": 7,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/riscv-simulator-parser/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/riscv-simulator-parser",
+      "context_sha256": "641209e195dff1e999983edba057eeb0c297b6dece02df75d1336f76eadbab4e"
+    },
+    {
+      "target_id": "riscv-simulator-register",
+      "dependency_header_count": 0,
+      "comments_removed": 0,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/riscv-simulator-register/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/riscv-simulator-register",
+      "context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31"
+    },
+    {
+      "target_id": "riscv-simulator-registerfile",
+      "dependency_header_count": 3,
+      "comments_removed": 13,
+      "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/riscv-simulator-registerfile/condition-b/retrieval",
+      "output_path": "derived/comment-ablation-v1/rag-context/riscv-simulator-registerfile",
+      "context_sha256": "f8af1821ee583c176c8d5e36aef5e0a2af7111dd076378c9d9933478821c83a5"
+    }
+  ],
+  "total_dependency_headers": 22,
+  "total_dependency_comments_removed": 482,
+  "targets_with_dependencies": 12,
+  "targets_with_dependency_comments": 12
+}
