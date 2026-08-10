@@ -1,0 +1,388 @@
+# 詳細設計仕様書: `BlockDeque` クラス
+
+## 1. 目的
+この文書は、`BlockDeque` クラスの詳細な設計情報を提供し、別のLLMが再実装できるようにすることを目的としています。
+
+## 2. クラス図
+```mermaid
+classDiagram
+    class BlockDeque {
+        +Clock::duration Clock
+        +BlockDeque(std::size_t capacity) noexcept
+        +void Clear() noexcept
+        +bool Empty() const noexcept
+        +bool Full() const noexcept
+        +std::size_t Size() const noexcept
+        +std::size_t Capacity() const noexcept
+        +void PushBack(T item) noexcept
+        +void PushFront(T item) noexcept
+        +const T& Front() const noexcept
+        +const T& Back() const noexcept
+        +T& Front() noexcept
+        +T& Back() noexcept
+        +std::optional<T> Pop(std::optional<Clock::duration> time_out = std::nullopt) noexcept
+        +void Flush() noexcept
+        +void Close() noexcept
+        -void WaitForSpace(std::unique_lock<std::mutex>& locker) noexcept
+        -void ClearNoLock() noexcept
+        -mutable std::mutex mtx_
+        -std::atomic_bool closed_ {false}
+        -std::size_t capacity_
+        -std::deque<T> deq_
+        -std::condition_variable consumer_cond_
+        -std::condition_variable producer_cond_
+    }
+```
+
+## 3. クラス・メソッド・インターフェース詳細
+
+| 完全な名前 | 属性 | 引数名と型 | 戻り値型 | 可視性 | const | noexcept | static | virtual |
+|------------|------|------------|----------|--------|-------|----------|--------|---------|
+| ws::BlockDeque<T>::Clock | 型別名 / 種別 / 実体 | - | std::chrono::steady_clock | public | - | - | - | - |
+| ws::BlockDeque<T>::BlockDeque | コンストラクタ | std::size_t capacity | void | public | - | noexcept | - | - |
+| ws::BlockDeque<T>::Clear | メソッド | - | void | public | - | noexcept | - | - |
+| ws::BlockDeque<T>::Empty | メソッド | - | bool | public | const | noexcept | - | - |
+| ws::BlockDeque<T>::Full | メソッド | - | bool | public | const | noexcept | - | - |
+| ws::BlockDeque<T>::Size | メソッド | - | std::size_t | public | const | noexcept | - | - |
+| ws::BlockDeque<T>::Capacity | メソッド | - | std::size_t | public | const | noexcept | - | - |
+| ws::BlockDeque<T>::PushBack | メソッド | T item | void | public | - | noexcept | - | - |
+| ws::BlockDeque<T>::PushFront | メソッド | T item | void | public | - | noexcept | - | - |
+| ws::BlockDeque<T>::Front | メソッド | - | const T& | public | const | noexcept | - | - |
+| ws::BlockDeque<T>::Back | メソッド | - | const T& | public | const | noexcept | - | - |
+| ws::BlockDeque<T>::Front | メソッド | - | T& | public | - | noexcept | - | - |
+| ws::BlockDeque<T>::Back | メソッド | - | T& | public | - | noexcept | - | - |
+| ws::BlockDeque<T>::Pop | メソッド | std::optional<Clock::duration> time_out = std::nullopt | std::optional<T> | public | - | noexcept | - | - |
+| ws::BlockDeque<T>::Flush | メソッド | - | void | public | - | noexcept | - | - |
+| ws::BlockDeque<T>::Close | メソッド | - | void | public | - | noexcept | - | - |
+| ws::BlockDeque<T>::WaitForSpace | メソッド | std::unique_lock<std::mutex>& locker | void | private | - | noexcept | - | - |
+| ws::BlockDeque<T>::ClearNoLock | メソッド | - | void | private | - | noexcept | - | - |
+
+## 4. シーケンス図
+### PushBack メソッドのシーケンス図
+```mermaid
+sequenceDiagram
+    participant Client
+    participant BlockDeque
+
+    Client->>BlockDeque: PushBack(T item)
+    BlockDeque->>BlockDeque: std::unique_lock locker {mtx_}
+    BlockDeque->>BlockDeque: WaitForSpace(locker)
+    BlockDeque->>deq_: push_back(std::move(item))
+    BlockDeque->>consumer_cond_: notify_one()
+```
+
+### Pop メソッドのシーケンス図
+```mermaid
+sequenceDiagram
+    participant Client
+    participant BlockDeque
+
+    Client->>BlockDeque: Pop(std::optional<Clock::duration> time_out)
+    BlockDeque->>BlockDeque: std::unique_lock locker {mtx_}
+    alt time_out.has_value()
+        BlockDeque->>consumer_cond_: wait_for(locker, *time_out, not_empty_or_closed)
+    else
+        BlockDeque->>consumer_cond_: wait(locker, not_empty_or_closed)
+    end
+    opt closed_
+        return std::nullopt
+    else
+        BlockDeque->>deq_: front()
+        BlockDeque->>deq_: pop_front()
+        BlockDeque->>producer_cond_: notify_one()
+        return item
+    end
+```
+
+## 5. メソッド仕様書
+
+### PushBack
+- **目的**: キューの末尾に要素を追加し、消費者に通知します。
+- **引数**:
+  - `T item`: 追加する要素。
+- **戻り値**: 無し。
+- **動作**:
+  1. ミューテックスでロックを取得します。
+  2. キューに空きがあるまで待機します。
+  3. 要素をデキューの末尾に追加します。
+  4. 消費者に通知します。
+
+### Pop
+- **目的**: キューから最初の要素を取り出し、それを返します。タイムアウトが指定された場合は、その時間内に要素が取得できない場合やキューが閉じられた場合には `std::nullopt` を返します。
+- **引数**:
+  - `std::optional<Clock::duration> time_out`: タイムアウトの最大時間。デフォルトは `std::nullopt`（無限待機）。
+- **戻り値**: 取得した要素か、タイムアウトまたはキューが閉じられた場合には `std::nullopt`。
+- **動作**:
+  1. ミューテックスでロックを取得します。
+  2. タイムアウトが指定された場合はその時間内に空きがあるまで待機し、それ以外の場合は空きがあるまで待機します。
+  3. キューが閉じられた場合には `std::nullopt` を返します。
+  4. 最初の要素を取り出し、デキューから削除します。
+  5. 生産者に通知します。
+  6. 取り出した要素を返します。
+
+## 6. 処理フロー図
+
+### PushBack メソッドの処理フロー
+```mermaid
+graph TD
+    A[ロック取得] --> B{スペースがあるか?}
+    B -- いいえ --> C[待機]
+    C --> B
+    B -- はい --> D[要素追加]
+    D --> E[消費者通知]
+```
+
+### Pop メソッドの処理フロー
+```mermaid
+graph TD
+    A[ロック取得] --> B{タイムアウト指定?}
+    B -- いいえ --> C[待機(無限)]
+    B -- はい --> D[待機(タイムアウトあり)]
+    C --> E{キューが閉じられたか?}
+    D --> E
+    E -- いいえ --> F{要素があるか?}
+    E -- はい --> G[std::nullopt 返却]
+    F -- いいえ --> H[要素取り出し]
+    F -- はい --> G
+    H --> I[生産者通知]
+    I --> J[要素返却]
+```
+
+## 7. 状態遷移・副作用
+
+| 更新前状態 | 遷移条件 | 変更対象 | 更新後状態 | 更新順序 | 副作用 |
+|------------|----------|----------|------------|----------|--------|
+| キューに空きなし | スペースがあるまで待機 | - | - | 1 | ミューテックスロック |
+| キューに空きあり | 要素追加 | deq_ | キューに要素追加 | 2 | 消費者通知 |
+| タイムアウト指定なし | 空きがあるまで待機 | - | - | 1 | ミューテックスロック |
+| タイムアウト指定あり | タイムアウト時間内に空きがあるまで待機 | - | - | 1 | ミューテックスロック |
+| キューが閉じられた | - | - | - | 2 | std::nullopt 返却 |
+| 要素がない | - | - | - | 3 | std::nullopt 返却 |
+| 要素がある | 要素取り出し | deq_ | キューから要素削除 | 4 | 生産者通知 |
+
+## 8. データ変換・制約
+
+| 入力 | 出力 | 変換規則 | 値域 | 境界値 |
+|------|------|----------|------|--------|
+| T item | - | 追加 | 無し | 無し |
+| std::optional<Clock::duration> time_out | std::optional<T> | 待機時間指定 | 無し | 無し |
+
+## 9. 追加詳細設計情報
+
+### インクルードガード
+```cpp
+#pragma once
+```
+
+### 必要なインクルード
+```cpp
+#include <cassert>
+#include <condition_variable>
+#include <deque>
+#include <mutex>
+#include <optional>
+#include <utility>
+```
+
+### 名前空間
+```cpp
+namespace ws {
+    // クラス定義
+}
+```
+
+### コンストラクタ
+```cpp
+template <typename T>
+BlockDeque<T>::BlockDeque(const std::size_t capacity) noexcept :
+    capacity_ {capacity} {
+    assert(capacity > 0);
+}
+```
+
+### デストラクタ
+```cpp
+template <typename T>
+BlockDeque<T>::~BlockDeque() noexcept {
+    Close();
+}
+```
+
+### Clear メソッド
+```cpp
+template <typename T>
+void BlockDeque<T>::Clear() noexcept {
+    const std::lock_guard locker {mtx_};
+    ClearNoLock();
+}
+```
+
+### Empty メソッド
+```cpp
+template <typename T>
+bool BlockDeque<T>::Empty() const noexcept {
+    const std::lock_guard locker {mtx_};
+    return deq_.empty();
+}
+```
+
+### Full メソッド
+```cpp
+template <typename T>
+bool BlockDeque<T>::Full() const noexcept {
+    const auto size {this->Size()};
+    assert(size <= capacity_);
+    return size == capacity_;
+}
+```
+
+### Size メソッド
+```cpp
+template <typename T>
+std::size_t BlockDeque<T>::Size() const noexcept {
+    const std::lock_guard locker {mtx_};
+    return deq_.size();
+}
+```
+
+### Capacity メソッド
+```cpp
+template <typename T>
+std::size_t BlockDeque<T>::Capacity() const noexcept {
+    return capacity_;
+}
+```
+
+### PushBack メソッド
+```cpp
+template <typename T>
+void BlockDeque<T>::PushBack(T item) noexcept {
+    std::unique_lock locker {mtx_};
+    WaitForSpace(locker);
+    deq_.push_back(std::move(item));
+    Flush();
+}
+```
+
+### PushFront メソッド
+```cpp
+template <typename T>
+void BlockDeque<T>::PushFront(T item) noexcept {
+    std::unique_lock locker {mtx_};
+    WaitForSpace(locker);
+    deq_.push_front(std::move(item));
+    Flush();
+}
+```
+
+### Front メソッド (const)
+```cpp
+template <typename T>
+const T& BlockDeque<T>::Front() const noexcept {
+    const std::lock_guard locker {mtx_};
+    assert(!deq_.empty());
+    return deq_.front();
+}
+```
+
+### Back メソッド (const)
+```cpp
+template <typename T>
+const T& BlockDeque<T>::Back() const noexcept {
+    const std::lock_guard locker {mtx_};
+    assert(!deq_.empty());
+    return deq_.back();
+}
+```
+
+### Front メソッド (non-const)
+```cpp
+template <typename T>
+T& BlockDeque<T>::Front() noexcept {
+    return const_cast<T&>(std::as_const(*this).Front());
+}
+```
+
+### Back メソッド (non-const)
+```cpp
+template <typename T>
+T& BlockDeque<T>::Back() noexcept {
+    return const_cast<T&>(std::as_const(*this).Back());
+}
+```
+
+### Pop メソッド
+```cpp
+template <typename T>
+std::optional<T> BlockDeque<T>::Pop(
+    const std::optional<Clock::duration> time_out) noexcept {
+    const auto not_empty_or_closed {[this]() noexcept {
+        return !deq_.empty() || closed_;
+    }};
+
+    std::unique_lock locker {mtx_};
+    if (time_out.has_value()) {
+        if (!consumer_cond_.wait_for(locker, *time_out, not_empty_or_closed)) {
+            return std::nullopt;
+        }
+    } else {
+        consumer_cond_.wait(locker, not_empty_or_closed);
+    }
+
+    if (closed_) {
+        return std::nullopt;
+    } else {
+        const auto item {deq_.front()};
+        deq_.pop_front();
+        producer_cond_.notify_one();
+        return item;
+    }
+}
+```
+
+### Flush メソッド
+```cpp
+template <typename T>
+void BlockDeque<T>::Flush() noexcept {
+    consumer_cond_.notify_one();
+}
+```
+
+### Close メソッド
+```cpp
+template <typename T>
+void BlockDeque<T>::Close() noexcept {
+    const std::lock_guard locker {mtx_};
+    ClearNoLock();
+    closed_ = true;
+    producer_cond_.notify_all();
+    consumer_cond_.notify_all();
+}
+```
+
+### WaitForSpace メソッド
+```cpp
+template <typename T>
+void BlockDeque<T>::WaitForSpace(
+    std::unique_lock<std::mutex>& locker) noexcept {
+    producer_cond_.wait(locker, [this]() { return deq_.size() < capacity_; });
+}
+```
+
+### ClearNoLock メソッド
+```cpp
+template <typename T>
+void BlockDeque<T>::ClearNoLock() noexcept {
+    deq_.clear();
+}
+```
+
+## 10. 確認不能項目
+- クラスの継承関係: 確認不能。
+- 外部依存関係: 確認不能。ただし、`std::deque`, `std::mutex`, `std::condition_variable` などの標準ライブラリの使用は確認可能。
+
+## 11. 該当なし項目
+- インターフェースの継承: 該当なし。
+- テンプレートパラメータの制約: 該当なし。ただし、`T` 型に対する要件は確認不能。
+
+この設計仕様書は、別のLLMが `BlockDeque` クラスを再実装するための詳細な情報を提供します。

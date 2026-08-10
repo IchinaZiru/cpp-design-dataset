@@ -1,0 +1,174 @@
+# Design Specification for `HeapTimer` Class
+
+## Overview
+
+The `HeapTimer` class is a timer system implemented using a min-heap data structure. It manages timers based on their expiration times and invokes callbacks when the timers expire. The class ensures efficient management of timers with operations such as adding, adjusting, removing, and invoking timers.
+
+## File Information
+
+- **File Path:** `include/containers/heap_timer.h`
+- **Role:** Complete target-owned implementation/declaration file
+- **Replacement Required:** Yes
+
+## Dependencies
+
+The following headers are included in the file:
+
+- `log.h` - For logging functionality.
+- `util.h` - Utility functions (details not provided).
+- `<algorithm>` - Standard algorithms library.
+- `<cassert>` - Assertions for debugging.
+- `<chrono>` - Time-related utilities.
+- `<compare>` - Three-way comparison operators.
+- `<deque>` - Double-ended queue container.
+- `<functional>` - Function objects and related utilities.
+- `<optional>` - Optional values.
+- `<stdexcept>` - Standard exception classes.
+- `<unordered_map>` - Hash table-based associative containers.
+
+## Namespace
+
+All the components of `HeapTimer` are encapsulated within the `ws` namespace.
+
+## Template Parameter
+
+- **Key:** The type of node keys. This is a template parameter that allows the class to be used with any key type.
+
+## Class: `HeapTimer<Key>`
+
+### Public Types and Constants
+
+1. **Clock**
+   - Type alias for `std::chrono::steady_clock`.
+
+2. **TimeOutCallback**
+   - A function object type representing the callback to be invoked when a timer expires.
+   - Signature: `void(const Key&)`
+
+### Constructors and Assignment Operators
+
+1. **HeapTimer(log::Logger::Ptr logger = log::RootLogger()) noexcept**
+   - Constructor that initializes the timer system with an optional logger.
+   - If no logger is provided, it defaults to the global root logger.
+
+2. **Deleted Copy and Move Operations**
+   - The class does not support copying or moving instances.
+
+### Public Methods
+
+1. **Adjust(const Key& key, Clock::duration expiration)**
+   - Adjusts a node's expiration time by a duration from now.
+   - Throws `std::out_of_range` if the key is not found in the timer system.
+
+2. **Adjust(const Key& key, Clock::time_point expiration)**
+   - Adjusts a node's expiration time to an absolute point in time.
+   - Throws `std::out_of_range` if the key is not found in the timer system.
+
+3. **Push(const Key& key, Clock::duration expiration, TimeOutCallback callback) noexcept**
+   - Adds a new node with a duration from now until its expiration and associates it with a callback.
+   - If the key already exists, it adjusts the existing node's expiration time and callback.
+
+4. **Push(const Key& key, Clock::time_point expiration, TimeOutCallback callback) noexcept**
+   - Adds a new node with an absolute expiration time and associates it with a callback.
+   - If the key already exists, it adjusts the existing node's expiration time and callback.
+
+5. **Tick() noexcept**
+   - Removes expired nodes from the timer system and invokes their callbacks.
+   - Any exceptions raised in callbacks are caught and logged but not rethrown.
+
+6. **Remove(const Key& key) noexcept**
+   - Removes a node by its key if it exists.
+   - Returns `true` if the node was removed, otherwise `false`.
+
+7. **Invoke(const Key& key)**
+   - Invokes the callback of a node by its key and removes the node.
+   - Throws `std::out_of_range` if the key is not found in the timer system.
+   - Any exceptions raised in callbacks are caught and logged but not rethrown.
+
+8. **Pop() noexcept**
+   - Removes and returns the key of the top node (the one with the earliest expiration time).
+   - Assumes that the timer system is not empty.
+
+9. **Clear() noexcept**
+   - Clears all nodes from the timer system.
+
+10. **Contain(const Key& key) const noexcept**
+    - Checks if a node with the specified key exists in the timer system.
+    - Returns `true` if the key is found, otherwise `false`.
+
+11. **Empty() const noexcept**
+    - Checks if the timer system is empty.
+    - Returns `true` if there are no nodes, otherwise `false`.
+
+12. **Size() const noexcept**
+    - Returns the number of nodes in the timer system.
+
+13. **ToNextTick() noexcept**
+    - Removes expired nodes and invokes their callbacks.
+    - Returns the duration from now to the next node's expiration time.
+    - If there are no remaining nodes, returns a zero duration.
+
+### Private Types
+
+1. **Node**
+   - Represents an individual timer node in the heap.
+   - Contains:
+     - `key`: A user-defined unique key.
+     - `expiration`: An absolute expiration time.
+     - `callback`: The callback to be invoked when the timer expires.
+     - `Expired() const noexcept`: Checks if the node has expired.
+     - `Swap(Node&) noexcept`: Swaps the contents of two nodes.
+     - Comparison operator `<=>` for ordering based on expiration times.
+
+### Private Methods
+
+1. **Adjust(const Key& key, Clock::time_point expiration, std::optional<TimeOutCallback> callback)**
+   - Adjusts a node's expiration time and optionally updates its callback.
+   - Throws `std::out_of_range` if the key is not found in the timer system.
+
+2. **RemoveByIndex(std::size_t idx) noexcept**
+   - Removes a node by its index in the heap and returns its key.
+   - Maintains heap properties after removal.
+
+3. **ShiftUp(std::size_t idx) noexcept**
+   - Recursively swaps a node with its parent if it is smaller than the parent.
+   - Ensures that the node moves to the correct position in the heap.
+
+4. **ShiftDown(std::size_t idx) noexcept**
+   - Recursively swaps a node with its smallest child if it is larger than the child.
+   - Ensures that the node moves to the correct position in the heap.
+
+5. **ValidIndex(std::size_t idx) const noexcept**
+   - Checks if an index is valid within the bounds of the heap.
+   - Returns `true` if the index is valid, otherwise `false`.
+
+6. **Parent(std::size_t idx) const noexcept**
+   - Returns the index of a node's parent or `std::nullopt` if it does not exist.
+
+7. **SmallChild(std::size_t idx) const noexcept**
+   - Returns the index of a node's child with the shorter expiration time or `std::nullopt` if it does not exist.
+
+8. **Swap(const std::size_t idx1, const std::size_t idx2) noexcept**
+   - Swaps two nodes in the heap and updates their indices in the key-to-index map.
+
+### Private Members
+
+1. **logger_**
+   - A pointer to a logger used for logging events related to timer operations.
+
+2. **key_to_idx_**
+   - An unordered map that maps user-defined keys to their corresponding indices in the `nodes_` deque.
+
+3. **nodes_**
+   - A deque containing all the nodes in the heap, ordered by expiration times.
+
+## Usage Example
+
+For a detailed example of how to use the `HeapTimer` class, refer to `tests/containers/heap_timer_test.cpp`.
+
+## Notes
+
+- The implementation relies on the correctness of the `ShiftUp` method for efficient node removal.
+- Exceptions raised in callbacks are caught and logged but not rethrown, ensuring that the timer system remains stable even if a callback fails.
+
+This design specification provides all necessary details to reimplement the `HeapTimer` class without referencing the original source code.

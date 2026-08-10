@@ -1,0 +1,265 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# 詳細設計仕様書
+
+## 概要
+
+このドキュメントは、`config.h`と`config.cpp`の再実装に必要な詳細な設計情報を提供します。元コードから確認できる事実のみを記述し、推測や創作を行いません。
+
+## クラス図
+
+```mermaid
+classDiagram
+    class VarBase {
+        +std::string_view Name() const noexcept
+        +std::string_view Description() const noexcept
+        +virtual std::string ToString() const noexcept = 0
+        +virtual void FromString(std::string_view str) = 0
+        -std::string name_
+        -std::string description_
+    }
+    
+    class Var~T, FromStr, ToStr~ {
+        +std::string ToString() const noexcept override
+        +void FromString(std::string_view str) override
+        +T GetValue() const noexcept
+        +void SetValue(const T& val) noexcept
+        +std::string_view TypeName() const noexcept
+        +void RemoveListener(const std::uint64_t key) noexcept
+        +std::uint64_t AddListener(OnChange listener) noexcept
+        +void ClearListeners() noexcept
+        -mutable std::shared_mutex mtx_
+        -T val_
+        -std::unordered_map~std::uint64_t, OnChange~ listeners_
+    }
+    
+    class Config {
+        +std::string_view Name() const noexcept
+        +template~typename T~ typename Var~T~::Ptr Lookup(const std::string_view name, const T& default_val, const std::string_view description = "")
+        +template~typename T~ typename Var~T~::Ptr Lookup(const std::string_view name) const
+        +VarBase::Ptr LookupBase(std::string_view name) const noexcept
+        +void LoadYaml(const YAML::Node& root)
+        +void Visit(std::function~void(VarBase::Ptr)~ visitor) const noexcept
+        -mutable std::shared_mutex mtx_
+        -std::string name_
+        -VarMap vars_
+    }
+    
+    class Config::Ptr {
+        <<pointer>>
+    }
+
+    VarBase <|-- Var
+    Config --> VarBase : contains
+```
+
+## クラス・メソッド・インターフェース詳細
+
+| クラス/構造体 | メンバ名 | 種類 | 戻り値型 | 引数 | 修飾子 |
+|---------------|----------|------|----------|------|--------|
+| VarBase       | Name     | メソッド | std::string_view | -    | const noexcept |
+| VarBase       | Description | メソッド | std::string_view | -    | const noexcept |
+| VarBase       | ToString  | メソッド | std::string      | -    | const noexcept = 0 |
+| VarBase       | FromString | メソッド | void           | std::string_view str | - |
+| Var~T, FromStr, ToStr~ | ToString | メソッド | std::string | - | const noexcept override |
+| Var~T, FromStr, ToStr~ | FromString | メソッド | void | std::string_view str | - |
+| Var~T, FromStr, ToStr~ | GetValue | メソッド | T | - | const noexcept |
+| Var~T, FromStr, ToStr~ | SetValue | メソッド | void | const T& val | noexcept |
+| Var~T, FromStr, ToStr~ | TypeName | メソッド | std::string_view | - | const noexcept |
+| Var~T, FromStr, ToStr~ | RemoveListener | メソッド | void | const std::uint64_t key | noexcept |
+| Var~T, FromStr, ToStr~ | AddListener | メソッド | std::uint64_t | OnChange listener | noexcept |
+| Var~T, FromStr, ToStr~ | ClearListeners | メソッド | void | - | noexcept |
+| Config        | Name     | メソッド | std::string_view | -    | const noexcept |
+| Config        | Lookup   | テンプレートメソッド | typename Var~T~::Ptr | const std::string_view name, const T& default_val, const std::string_view description = "" | - |
+| Config        | Lookup   | テンプレートメソッド | typename Var~T~::Ptr | const std::string_view name | const |
+| Config        | LookupBase | メソッド | VarBase::Ptr | std::string_view name | const noexcept |
+| Config        | LoadYaml | メソッド | void           | const YAML::Node& root | - |
+| Config        | Visit    | メソッド | void           | std::function~void(VarBase::Ptr)~ visitor | const noexcept |
+
+## シーケンス図
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Config
+    participant Var
+
+    User->>Config: Lookup(name, default_val)
+    Config->>Config: LookupBase(name)
+    alt var found
+        Config-->>Var: GetValue()
+        Var-->>User: value
+    else var not found
+        Config->>Var: new Var(name, default_val)
+        Config->>Config: vars_.emplace(name, var)
+        Config-->>Var: GetValue()
+        Var-->>User: value
+    end
+
+    User->>Config: LoadYaml(root)
+    Config->>Config: ExtractMembers(root)
+    loop for each member
+        Config->>Config: LookupBase(key)
+        alt var found
+            Config->>Var: FromString(ss.str())
+        end
+    end
+```
+
+## メソッド仕様書
+
+### VarBase::Name()
+
+- **目的**: 変数名を取得する。
+- **引数**: なし
+- **戻り値型**: std::string_view
+- **動作**: name_メンバ変数の値を返す。
+
+### VarBase::Description()
+
+- **目的**: 変数の説明を取得する。
+- **引数**: なし
+- **戻り値型**: std::string_view
+- **動作**: description_メンバ変数の値を返す。
+
+### Var<T, FromStr, ToStr>::ToString()
+
+- **目的**: 変数の値を文字列に変換する。
+- **引数**: なし
+- **戻り値型**: std::string
+- **動作**: GetValue()で取得した値をToStirngコンバータを使用して文字列に変換し、返す。
+
+### Var<T, FromStr, ToStr>::FromString()
+
+- **目的**: 文字列から変数の値を設定する。
+- **引数**: std::string_view str
+- **戻り値型**: void
+- **動作**: FromStrコンバータを使用して文字列を値に変換し、SetValue()で設定する。
+
+### Config::Lookup()
+
+- **目的**: 指定された名前の変数を探す。存在しない場合は新しく作成する。
+- **引数**: const std::string_view name, const T& default_val, const std::string_view description = ""
+- **戻り値型**: typename Var<T>::Ptr
+- **動作**: LookupBase()で変数を検索し、存在しない場合は新しいVarオブジェクトを作成してvars_に追加する。
+
+### Config::LoadYaml()
+
+- **目的**: YAMLノードから既存の変数の値を設定する。
+- **引数**: const YAML::Node& root
+- **戻り値型**: void
+- **動作**: ExtractMembers()でrootノードからメンバーを抽出し、各メンバーに対してLookupBase()で変数を探す。見つかった場合はFromString()で値を設定する。
+
+## 処理フロー図
+
+```mermaid
+graph TD
+    A[開始] --> B{Lookup(name, default_val)}
+    B -->|var found| C1[GetValue()]
+    B -->|var not found| D[new Var(name, default_val)]
+    D --> E[vars_.emplace(name, var)]
+    C1 --> F[return value]
+    E --> G[GetValue()]
+    G --> H[return value]
+
+    I[開始] --> J{LoadYaml(root)}
+    J --> K[ExtractMembers(root)]
+    loop for each member
+        K --> L{LookupBase(key)}
+        L -->|var found| M[FromString(ss.str())]
+    end
+```
+
+## 状態遷移・副作用
+
+| 更新前状態 | 遷移条件 | 変更対象 | 更新後状態 | 更新順序 | 副作用 |
+|------------|----------|----------|------------|----------|--------|
+| なし       | Lookup(name, default_val) | vars_ | Varオブジェクト追加 | 1. LookupBase() <br> 2. new Var() <br> 3. emplace() | なし |
+| なし       | LoadYaml(root) | 各Varオブジェクトの値 | 文字列から変換された値 | 1. ExtractMembers() <br> 2. LookupBase() <br> 3. FromString() | なし |
+
+## データ変換・制約
+
+| 入力データ型 | 出力データ型 | 変換規則 | 値域 | 境界値 |
+|--------------|--------------|----------|------|--------|
+| T            | std::string  | ToStrコンバータ | 確認不能 | 確認不能 |
+| std::string_view | T          | FromStrコンバータ | 確認不能 | 確認不能 |
+
+## 追加詳細設計情報
+
+### VarConverterクラス群
+
+- **VarConverter<From, To>**: `static_cast`を使用して変換。
+- **VarConverter<From, std::string>**: `std::to_string`を使用して変換。
+- **VarConverter<std::string, std::string>**: 文字列をそのまま返す。
+- **VarConverter<std::string, To>**: `std::istringstream`を使用して変換。失敗した場合は例外を投げる。
+- **VarConverter<std::string, std::list<T>>**: YAMLノードからリストに変換。シーケンスでない場合は例外を投げる。
+- **VarConverter<std::list<T>, std::string>**: リストからYAMLノードに変換し、文字列に変換する。
+- **VarConverter<std::string, std::vector<T>>**: 文字列からリストに変換し、ベクタに移動する。
+- **VarConverter<std::vector<T>, std::string>**: ベクタからリストに変換し、文字列に変換する。
+- **VarConverter<std::string, std::set<T>>**: 文字列からリストに変換し、セットに移動する。
+- **VarConverter<std::set<T>, std::string>**: セットからリストに変換し、文字列に変換する。
+- **VarConverter<std::string, std::unordered_set<T>>**: 文字列からリストに変換し、非順序セットに移動する。
+- **VarConverter<std::unordered_set<T>, std::string>**: 非順序セットからリストに変換し、文字列に変換する。
+- **VarConverter<std::string, std::map<std::string, T>>**: YAMLノードからマップに変換。マップでない場合は例外を投げる。
+- **VarConverter<std::map<std::string, T>, std::string>**: マップからYAMLノードに変換し、文字列に変換する。
+- **VarConverter<std::string, std::unordered_map<std::string, T>>**: 文字列からマップに変換し、非順序マップに移動する。
+- **VarConverter<std::unordered_map<std::string, T>, std::string>**: 非順序マップからマップに変換し、文字列に変換する。
+
+### Varクラス
+
+- **メンバ変数**:
+  - `name_`: 変数名
+  - `description_`: 変数の説明
+  - `val_`: 変数の値
+  - `listeners_`: 値変更リスナー
+  - `mtx_`: 排他制御用ミューテックス
+
+- **メソッド**:
+  - `ToString()`: 変数の値を文字列に変換する。
+  - `FromString(std::string_view str)`: 文字列から変数の値を設定する。
+  - `GetValue()`: 変数の現在値を取得する。
+  - `SetValue(const T& val)`: 変数の値を設定し、リスナーに通知する。
+  - `TypeName()`: 変数の型名を返す。
+  - `RemoveListener(std::uint64_t key)`: 指定されたキーのリスナーを削除する。
+  - `AddListener(OnChange listener)`: リスナーを追加し、ユニークなキーを返す。
+  - `ClearListeners()`: 全てのリスナーをクリアする。
+
+### Configクラス
+
+- **メンバ変数**:
+  - `name_`: コンフィグ名
+  - `vars_`: 変数マップ
+  - `mtx_`: 排他制御用ミューテックス
+
+- **メソッド**:
+  - `Name()`: コンフィグ名を返す。
+  - `Lookup(const std::string_view name, const T& default_val, const std::string_view description = "")`: 指定された名前の変数を探す。存在しない場合は新しく作成する。
+  - `Lookup(const std::string_view name) const`: 指定された名前の変数を探す。型が一致しない場合は例外を投げる。
+  - `LookupBase(std::string_view name) const noexcept`: 基本情報の変数を探す。
+  - `LoadYaml(const YAML::Node& root)`: YAMLノードから既存の変数の値を設定する。
+  - `Visit(std::function<void(VarBase::Ptr)> visitor) const noexcept`: 全ての変数に対してビジタ関数を呼び出す。
+
+### RootConfig()
+
+- **目的**: ルートコンフィグオブジェクトを取得する。
+- **引数**: なし
+- **戻り値型**: Config::Ptr
+- **動作**: static constインスタンスを作成して返す。

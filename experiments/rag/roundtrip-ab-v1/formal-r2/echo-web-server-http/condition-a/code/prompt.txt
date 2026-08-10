@@ -1,0 +1,175 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+### Design Specification for HTTP Module
+
+#### Overview
+This document provides a detailed design specification for the HTTP module, which includes classes and functions to handle HTTP requests and responses. The module is designed to be part of a larger system that requires HTTP communication capabilities.
+
+#### Namespaces and Files
+- **Namespace**: `ws::http`
+- **Files**:
+  - `include/http.h`: Declarations for HTTP-related types and classes.
+  - `src/http/http.cpp`: Implementations for functions declared in `http.h`.
+  - `src/http/request.h`: Declaration of the HTTP request parser class.
+  - `src/http/request.cpp`: Implementation of the HTTP request parser class.
+  - `src/http/response.h`: Declaration of the HTTP response builder class.
+  - `src/http/response.cpp`: Implementation of the HTTP response builder class.
+
+#### Classes and Functions
+
+##### `http.h`
+
+###### Constants
+- **HTTP Version**: `version` (constant string view)
+- **New Line**: `new_line` (constant string view)
+
+###### Types
+- **Parameters**: `std::unordered_map<std::string, std::string>`
+- **StatusCode**: Enum class for HTTP status codes.
+- **Method**: Enum class for HTTP methods.
+
+###### Functions
+- **StatusCodeToMessage**: Converts an HTTP status code to a message.
+- **StatusCodeToInteger**: Converts an HTTP status code to an integer.
+- **operator<< (StatusCode)**: Overloads the `<<` operator for `StatusCode`.
+- **MethodToString**: Converts an HTTP method to a string.
+- **to_string (Method)**: Converts an HTTP method to a string.
+- **StringToMethod**: Converts a string to an HTTP method.
+- **operator<< (Method)**: Overloads the `<<` operator for `Method`.
+- **DecodeURLEncodedCharacter**: Decodes a URL-encoded character.
+- **DecodeURLEncodedString**: Decodes a URL-encoded string.
+- **HTMLPlaceholder**: Generates an HTML placeholder for an HTTP parameter.
+- **PutParamIntoHTML**: Replaces placeholders in an HTML template with actual data.
+
+###### Classes
+- **ConnectionImpl**:
+  - **Role**: Core implementation of the HTTP connection.
+  - **Methods**:
+    - `SetRootDirectory`: Sets the root directory.
+    - `GetRootDirectory`: Gets the root directory.
+    - `Close`: Closes the connection.
+    - `Valid`: Checks if the connection is valid.
+    - `Socket`: Gets the socket.
+    - `Receive`: Receives an HTTP request.
+    - `Send`: Sends an HTTP response.
+    - `KeepAlive`: Checks if the connection keeps alive.
+    - `Process`: Processes the HTTP request.
+
+- **Connection**:
+  - **Role**: Template class for HTTP connections with IP address validation.
+  - **Methods**:
+    - `IPAddress`: Gets the IP address.
+    - `Port`: Gets the port number.
+
+##### `http.cpp`
+
+###### Functions
+- **ContentTypeByFileName**: Determines the content type of a file based on its extension.
+- **StatusCodeToMessage**: Converts an HTTP status code to a message.
+- **operator<< (StatusCode)**: Overloads the `<<` operator for `StatusCode`.
+- **StatusCodeToInteger**: Converts an HTTP status code to an integer.
+- **MethodToString**: Converts an HTTP method to a string.
+- **to_string (Method)**: Converts an HTTP method to a string.
+- **StringToMethod**: Converts a string to an HTTP method.
+- **operator<< (Method)**: Overloads the `<<` operator for `Method`.
+- **DecodeURLEncodedCharacter**: Decodes a URL-encoded character.
+- **DecodeURLEncodedString**: Decodes a URL-encoded string.
+- **HTMLPlaceholder**: Generates an HTML placeholder for an HTTP parameter.
+- **PutParamIntoHTML**: Replaces placeholders in an HTML template with actual data.
+
+###### Classes
+- **ConnectionImpl**:
+  - **Methods**:
+    - `SetRootDirectory`: Sets the root directory.
+    - `GetRootDirectory`: Gets the root directory.
+    - `Close`: Closes the connection.
+    - `Valid`: Checks if the connection is valid.
+    - `Socket`: Gets the socket.
+    - `Receive`: Receives an HTTP request.
+    - `Send`: Sends an HTTP response.
+    - `KeepAlive`: Checks if the connection keeps alive.
+    - `Process`: Processes the HTTP request.
+
+##### `request.h`
+
+###### Classes
+- **Request**:
+  - **Role**: Parses HTTP requests.
+  - **Methods**:
+    - `Parse`: Parses an HTTP request.
+    - `Header`: Gets an HTTP header by its key.
+    - `Post`: Gets an HTTP POST variable by its key.
+    - `PostSize`: Gets the number of HTTP POST variables.
+    - `Method`: Gets the HTTP method.
+    - `Path`: Gets the path.
+    - `Version`: Gets the HTTP version.
+    - `KeepAlive`: Checks if the request keeps alive.
+
+##### `request.cpp`
+
+###### Classes
+- **Request::State**: Interface for parsing states.
+- **NotStarted**: Parses the HTTP status line.
+- **Header**: Parses HTTP headers.
+- **Body**: Parses the HTTP body.
+- **Finished**: Represents a finished state (throws an exception if parsing continues).
+
+###### Methods
+- **Request**:
+  - `Parse`: Parses an HTTP request.
+  - `SetState`: Sets a new parsing state.
+  - `Clear`: Clears the parser's cache.
+
+##### `response.h`
+
+###### Classes
+- **Response**:
+  - **Role**: Builds HTTP responses.
+  - **Methods**:
+    - `SetKeepAlive`: Sets whether the connection should keep alive.
+    - `Build (file request)**: Builds an HTTP response from a file request.
+    - `Build (HTML page with parameters)**: Builds an HTTP response from an HTML page with parameters.
+    - `Build (status code and message)**: Builds a response from an HTTP status.
+
+##### `response.cpp`
+
+###### Methods
+- **Response**:
+  - `Clear`: Clears settings.
+  - `Build (file request)**: Builds an HTTP response from a file request.
+  - `Build (HTML page with parameters)**: Builds an HTTP response from an HTML page with parameters.
+  - `Build (status code and message)**: Builds a response from an HTTP status.
+
+###### Private Methods
+- **CheckFile**: Checks the file status if there is a file request.
+- **MapFile**: Maps the file into memory if there is a valid file request.
+- **AddStatusLine**: Adds an HTTP status line.
+- **AddHeaders**: Adds HTTP headers that are not relevant to the content of the response.
+- **AddMappedContent**: Adds HTTP headers and mapped read-only file content.
+- **AddParamContent**: Adds HTTP headers and generated HTML content from parameters.
+- **AddPredefinedErrorContent**: Adds HTTP headers and a predefined error-handling HTML page.
+
+#### Notes
+- The `Fxx/Uxx` identifiers are opaque and should be preserved in the final implementation.
+- Only units with `replacement_required=true` will be regenerated. Reference-only inputs must inform the design but must not become output units.
+- No assumptions or inferences should be made about any unspecified details in the provided code.
+
+This specification provides a comprehensive guide for re-implementing the HTTP module based on the given source code.

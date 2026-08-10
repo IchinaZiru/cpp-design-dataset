@@ -1,0 +1,723 @@
+RAG_CONTEXT repository-dependencies-v1
+
+### PATH: include/containers/buffer.h
+SOURCE_SHA256: 94807866681c70598b716d810ffd2bfe0d9cf3406f459b51f2d33013c37b9a09
+CONTENT_SHA256: 8f0b0648f537d9c07ca6323e8f3d6c2a7400651d4319a96f683a60c64b6473d8
+----- BEGIN DEPENDENCY HEADER CONTENT: include/containers/buffer.h -----
+/**
+ * @file buffer.h
+ * @brief The auto-expandable buffer, supporting storing bytes and strings.
+ *
+ * @author Chen Zhenshuo (chenzs108@outlook.com)
+ * @author Liu Guowen (liu.guowen@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-05-03
+ *
+ * @example tests/containers/buffer_test.cpp
+ */
+
+#pragma once
+
+#include <atomic>
+#include <optional>
+#include <span>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace ws {
+
+namespace io {
+
+class IReadWriter;
+
+}
+
+//! New-line characters
+enum class NewLine {
+    //! @p \n
+    LF,
+
+    //! @p \r\n
+    CRLF
+};
+
+/**
+ * @brief An auto-expandable buffer, supporting storing bytes and strings.
+ *
+ * @details
+ * @code
+ *                 Writing Offset ──────┐
+ * Reading Offset ─────┐                │
+ *                     │                │
+ *                     │                │
+ * ┌───────────────────▼────────────────▼────────────────┐
+ * │ Prependable Bytes │ Readable Bytes │ Writable Bytes │
+ * └───────────────────┴────────────────┴────────────────┘
+ * @endcode
+ *
+ * Prependable space can be reused.
+ */
+class Buffer {
+public:
+    //! Create a buffer with an initial size.
+    explicit Buffer(std::size_t size = 1000) noexcept;
+
+    //! Create a buffer with bytes.
+    explicit Buffer(std::span<const std::byte> bytes) noexcept;
+
+    //! Create a buffer with bytes.
+    explicit Buffer(std::initializer_list<std::byte> bytes) noexcept;
+
+    //! Create a buffer with a string.
+    explicit Buffer(std::string_view str) noexcept;
+
+    Buffer(const Buffer&) noexcept;
+
+    Buffer(Buffer&&) noexcept;
+
+    Buffer& operator=(const Buffer&) noexcept;
+
+    Buffer& operator=(Buffer&&) noexcept;
+
+    //! Get the current writable size without expanding.
+    std::size_t WritableSize() const noexcept;
+
+    //! Get the readable size.
+    std::size_t ReadableSize() const noexcept;
+
+    //! Peek the first byte without moving the reading offset.
+    std::optional<std::byte> Peek() const noexcept;
+
+    //! Get readable bytes without moving the reading offset.
+    std::span<const std::byte> ReadableBytes() const noexcept;
+
+    /**
+     * @brief Get a readable string without moving the reading offset.
+     *
+     * @warning Developers should ensure that the stored bytes are printable.
+     */
+    std::string ReadableString() const noexcept;
+
+    /**
+     * @brief Get writable space for editing.
+     *
+     * @warning
+     * If developers directly write data using the base address of writable space,
+     * they must manually adjust the writing offset with @p HasWritten.
+     */
+    std::span<std::byte> WritableBytes() const noexcept;
+
+    //! Append bytes to the buffer and move forward the writing offset.
+    void Append(std::span<const std::byte> bytes) noexcept;
+
+    //! Append bytes to the buffer and move forward the writing offset.
+    void Append(std::initializer_list<std::byte> bytes) noexcept;
+
+    //! Append a string and an optional new-line character to the buffer and move forward the writing offset.
+    void Append(std::string_view str,
+                std::optional<NewLine> new_line = std::nullopt) noexcept;
+
+    //! Append data to the buffer and move forward the writing offset.
+    void Append(const void* data, std::size_t size) noexcept;
+
+    //! Append another buffer to the buffer and move forward the writing offset.
+    void Append(const Buffer& buf) noexcept;
+
+    //! Ensure the buffer has enough writable space.
+    void EnsureWriteableSize(std::size_t size) noexcept;
+
+    //! Manually move forward the writing offset by a specific size.
+    void HasWritten(std::size_t size) noexcept;
+
+    //! Manually move forward the reading offset by a specific size.
+    void Retrieve(std::size_t size) noexcept;
+
+    //! Manually move forward the reading offset until it reaches the destination.
+    std::size_t RetrieveUntil(const void* addr) noexcept;
+
+    //! Manually move forward the reading offset to the end.
+    std::size_t RetrieveAll() noexcept;
+
+    /**
+     * @brief Manually move forward the reading offset to the end and extract a string from the rest.
+     *
+     * @warning Developers should ensure that the stored bytes are printable.
+     */
+    std::string RetrieveAllToString() noexcept;
+
+    //! Clear the buffer.
+    void Clear() noexcept;
+
+    //! Whether the buffer is empty.
+    bool Empty() const noexcept;
+
+protected:
+    //! Get the prependable size which can be reused.
+    std::size_t PrependableSize() const noexcept;
+
+    //! Make the buffer have enough writable space.
+    void MakeSpace(std::size_t size) noexcept;
+
+    //! Get the reading offset.
+    std::vector<std::byte>::iterator ReadIter() const noexcept;
+
+    //! Get the writing offset.
+    std::vector<std::byte>::iterator WriteIter() const noexcept;
+
+    std::vector<std::byte> buf_;
+    std::atomic<std::size_t> read_pos_ {0};
+    std::atomic<std::size_t> write_pos_ {0};
+};
+
+//! An enhanced buffer supporting I/O reading and writing.
+class IOBuffer : public Buffer {
+public:
+    using Buffer::Buffer;
+
+    //! Read data from an I/O object.
+    std::size_t ReadFrom(io::IReadWriter& io);
+
+    //! Write data to an I/O object.
+    std::size_t WriteTo(io::IReadWriter& io);
+};
+
+//! Write a string to a buffer.
+Buffer& operator<<(Buffer& buf, std::string_view str) noexcept;
+
+//! Write a buffer to another buffer.
+Buffer& operator<<(Buffer& to, const Buffer& from) noexcept;
+
+//! Write bytes to a buffer.
+Buffer& operator<<(Buffer& buf, std::span<const std::byte> bytes) noexcept;
+
+//! Write bytes to a buffer.
+Buffer& operator<<(Buffer& buf,
+                   std::initializer_list<std::byte> bytes) noexcept;
+
+}  // namespace ws
+----- END DEPENDENCY HEADER CONTENT: include/containers/buffer.h -----
+
+### PATH: include/io.h
+SOURCE_SHA256: 760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241
+CONTENT_SHA256: c17433f843772db49f268a1cbc452b2996ce8b1484ede3b651d3525a6b67360c
+----- BEGIN DEPENDENCY HEADER CONTENT: include/io.h -----
+/**
+ * @file io.h
+ * @brief I/O objects supporting reading and writing from buffers.
+ *
+ * @author Chen Zhenshuo (chenzs108@outlook.com)
+ * @author Liu Guowen (liu.guowen@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-05-06
+ *
+ * @example tests/io_test.cpp
+ */
+
+#pragma once
+
+#include "util.h"
+
+#include <iostream>
+
+
+namespace ws {
+
+class Buffer;
+
+namespace io {
+
+//! An I/O reading interface interacting with buffers.
+class IReader {
+public:
+    virtual ~IReader() noexcept = default;
+
+    //! Read data from a buffer.
+    virtual std::size_t ReadFrom(Buffer& buf) = 0;
+};
+
+//! An I/O writing interface interacting with buffers.
+class IWriter {
+public:
+    virtual ~IWriter() noexcept = default;
+
+    //! Write data to a buffer.
+    virtual std::size_t WriteTo(Buffer& buf) = 0;
+};
+
+//! An I/O interface interacting with buffers.
+class IReadWriter : public virtual IReader, public virtual IWriter {};
+
+/**
+ * @brief Null I/O.
+ *
+ * @details
+ * It simply consumes a buffer's all readable or writable space,
+ * without reading or writing anything.
+ */
+class Null : public virtual IReadWriter {
+public:
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+};
+
+//! I/O for string streams.
+class StringStream : public virtual IReadWriter {
+public:
+    /**
+     * @brief Create an I/O object with string stream references.
+     *
+     * @param read
+     * A string stream for reading.
+     * Data will be read from it to a buffer.
+     * @param write
+     * A string stream for writing.
+     * Data will be written to it from a buffer.
+     *
+     * @warning
+     * The I/O does not maintain a copy of the stream.
+     * Developers must ensure the stream is valid when reading or writing.
+     */
+    explicit StringStream(std::istream& read, std::ostream& write) noexcept;
+
+    StringStream(const StringStream&) = delete;
+
+    StringStream(StringStream&&) = delete;
+
+    StringStream& operator=(const StringStream&) = delete;
+
+    StringStream& operator=(StringStream&&) = delete;
+
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+
+private:
+    std::istream& read_;
+    std::ostream& write_;
+};
+
+//! I/O for file descriptors.
+class FileDescriptor : public virtual IReadWriter {
+public:
+    /**
+     * @brief Create an I/O object with file descriptors.
+     *
+     * @param read
+     * A file descriptor for reading.
+     * Data will be read from it to a buffer.
+     * @param write
+     * A file descriptor for writing.
+     * Data will be written to it from a buffer.
+     *
+     * @note
+     * A file descriptor uses the same offset for reading and writing.
+     * So the constructor needs two descriptors for reading and writing respectively.
+     */
+    explicit FileDescriptor(ws::FileDescriptor read,
+                            ws::FileDescriptor write) noexcept;
+
+    FileDescriptor(const FileDescriptor&) = delete;
+
+    FileDescriptor(FileDescriptor&&) = delete;
+
+    FileDescriptor& operator=(const FileDescriptor&) = delete;
+
+    FileDescriptor& operator=(FileDescriptor&&) = delete;
+
+    std::size_t WriteTo(Buffer& buf) override;
+
+    std::size_t ReadFrom(Buffer& buf) override;
+
+private:
+    ws::FileDescriptor read_;
+    ws::FileDescriptor write_;
+};
+
+}  // namespace io
+
+}  // namespace ws
+----- END DEPENDENCY HEADER CONTENT: include/io.h -----
+
+### PATH: include/ip.h
+SOURCE_SHA256: 82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1
+CONTENT_SHA256: 6a2d6d8f9dac2133366304948e58212d248c04ef9714e2088a41fbadf70b23d0
+----- BEGIN DEPENDENCY HEADER CONTENT: include/ip.h -----
+/**
+ * @file ip.h
+ * @brief The IP address interface.
+ *
+ * @author Zhenshuo Chen (chenzs108@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-06-06
+ */
+
+#pragma once
+
+#include <concepts>
+#include <cstdint>
+#include <string>
+#include <string_view>
+
+#include <netinet/in.h>
+
+
+namespace ws {
+
+//! The interface of IP address.
+class IPAddr {
+public:
+    virtual ~IPAddr() noexcept = default;
+
+    //! Get the IP version.
+    virtual int Version() const noexcept = 0;
+
+    //! Get the size of socket address.
+    virtual std::size_t Size() const noexcept = 0;
+
+    //! Get the socket address.
+    virtual const sockaddr* Raw() const noexcept = 0;
+
+    virtual std::uint16_t Port() const noexcept = 0;
+
+    virtual std::string IPAddress() const noexcept = 0;
+};
+
+//! The IPv4 address.
+class IPv4Addr : public IPAddr {
+public:
+    static constexpr int version {AF_INET};
+
+    static constexpr std::string_view loop_back {"127.0.0.1"};
+
+    static constexpr std::string_view any {"0.0.0.0"};
+
+    static constexpr std::size_t max_length {15};
+
+    using RawType = sockaddr_in;
+
+    explicit IPv4Addr(sockaddr_in addr);
+
+    explicit IPv4Addr(std::string ip, std::uint16_t port);
+
+    int Version() const noexcept override;
+
+    std::size_t Size() const noexcept override;
+
+    const sockaddr* Raw() const noexcept override;
+
+    std::uint16_t Port() const noexcept override;
+
+    std::string IPAddress() const noexcept override;
+
+private:
+    std::string ip_;
+    sockaddr_in raw_ {};
+};
+
+//! The IPv6 address.
+class IPv6Addr : public IPAddr {
+public:
+    static constexpr int version {AF_INET6};
+
+    static constexpr std::string_view loop_back {"::1"};
+
+    static constexpr std::string_view any {"::"};
+
+    static constexpr std::size_t max_length {45};
+
+    using RawType = sockaddr_in6;
+
+    explicit IPv6Addr(sockaddr_in6 addr);
+
+    explicit IPv6Addr(std::string ip, std::uint16_t port);
+
+    int Version() const noexcept override;
+
+    std::size_t Size() const noexcept override;
+
+    const sockaddr* Raw() const noexcept override;
+
+    std::uint16_t Port() const noexcept override;
+
+    std::string IPAddress() const noexcept override;
+
+private:
+    std::string ip_;
+    sockaddr_in6 raw_ {};
+};
+
+template <typename T>
+concept ValidIPAddr = std::same_as<T, IPv4Addr> || std::same_as<T, IPv6Addr>;
+
+}  // namespace ws
+----- END DEPENDENCY HEADER CONTENT: include/ip.h -----
+
+### PATH: include/util.h
+SOURCE_SHA256: bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85
+CONTENT_SHA256: b55d0fd816eb63e37e57892a9a362293851d5f6702d3784aa3a82055c4753270
+----- BEGIN DEPENDENCY HEADER CONTENT: include/util.h -----
+/**
+ * @file util.h
+ * @brief Commonly used utilities.
+ *
+ * @author Chen Zhenshuo (chenzs108@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-04-23
+ *
+ * @example tests/util_test.cpp
+ *
+ * @todo Replace @p fmt with C++20 @p format.
+ */
+
+#pragma once
+
+#include <fmt/format.h>
+#include <yaml-cpp/yaml.h>
+
+#include <sys/stat.h>
+
+#include <concepts>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+#include <regex>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+//! @p ws means "web server".
+namespace ws {
+
+//! The underlying type of file descriptors.
+using FileDescriptor = int;
+
+//! A constant value representing invalid file descriptors.
+inline constexpr FileDescriptor invalid_file_descriptor {-1};
+
+//! Convert a string into lower-case.
+std::string StringToLower(std::string str) noexcept;
+
+//! Convert a string into upper-case.
+std::string StringToUpper(std::string str) noexcept;
+
+//! Replace all occurrences of a sub-string in a string.
+std::string ReplaceAllSubstring(std::string_view str, std::string_view from,
+                                std::string_view to) noexcept;
+
+//! Split a string by a regex pattern.
+std::vector<std::string> SplitString(const std::string& str,
+                                     const std::regex& pattern) noexcept;
+
+//! Split a string into lines.
+std::vector<std::string> SplitStringToLines(const std::string& str) noexcept;
+
+/**
+ * @brief Load a @p YAML node from a string.
+ *
+ * @param str A @p YAML string.
+ * @param required_fields Required fields.
+ *
+ * @exception std::invalid_argument The node does not contain all required fields.
+ */
+YAML::Node LoadYamlString(
+    std::string_view str,
+    std::initializer_list<std::string_view> required_fields = {});
+
+//! Throw an @p std::invalid_argument exception if a field does not exist in a @p YAML node or it is not scalar.
+void ThrowIfYamlFieldIsNotScalar(const YAML::Node& node,
+                                 std::string_view field);
+
+/**
+ * @brief Whether a file descriptor is valid.
+ *
+ * @note Assume the value of valid file descriptors should be greater than or equal to 0.
+ */
+constexpr bool IsValidFileDescriptor(FileDescriptor fd) noexcept {
+    return fd >= 0;
+}
+
+/**
+ * @brief Set a file descriptor as non-blocking.
+ *
+ * @exception std::system_error Failed to set the file descriptor.
+ */
+void SetFileDescriptorAsNonblocking(FileDescriptor fd);
+
+//! Throw a @p std::system_error exception containing the last-error.
+[[noreturn]] void ThrowLastSystemError();
+
+//! Get the ID of the current thread.
+std::uint32_t CurrentThreadId() noexcept;
+
+/**
+ * @brief Get a backtrace for the calling program.
+ *
+ * @param[out] stack An address array.
+ * @param size The maximum number of addresses.
+ * @param skip The number of addresses to ignore.
+ */
+void Backtrace(std::vector<std::string>& stack, std::size_t size,
+               std::size_t skip = 0) noexcept;
+
+/**
+ * @brief Get a backtrace for the calling program.
+ *
+ * @param size The maximum number of addresses.
+ * @param skip The number of addresses to ignore.
+ * @return A string containing the backtrace.
+ */
+std::string Backtrace(std::size_t size, std::size_t skip = 0,
+                      std::string_view prefix = "") noexcept;
+
+/**
+ * @brief The singleton pattern interface for references.
+ *
+ * @tparam T A type using the singleton pattern.
+ * @tparam Args The arguments of the singleton instance, referring to one of its constructors.
+ */
+template <typename T, typename... Args>
+class Singleton {
+public:
+    /**
+     * @brief Get the singleton instance.
+     *
+     * @tparam args The construction arguments.
+     */
+    template <Args... args>
+    static T& Instance() noexcept {
+        static T ins {std::move(args)...};
+        return ins;
+    }
+};
+
+/**
+ * @brief The singleton pattern interface for smart points.
+ *
+ * @tparam T A type using the singleton pattern.
+ * @tparam Args The argument types of the singleton instance, referring to one of its constructors.
+ */
+template <typename T, typename... Args>
+class SingletonPtr {
+public:
+    /**
+     * @brief Get the singleton instance.
+     *
+     * @tparam args The construction arguments.
+     */
+    template <Args... args>
+    static std::shared_ptr<T> Instance() noexcept {
+        static const std::shared_ptr<T> ins {
+            std::make_shared<T>(std::move(args)...)};
+        return ins;
+    }
+};
+
+template <typename T, typename Cleaner = std::function<void(T)>>
+requires std::is_invocable_v<Cleaner, T>
+class RAII {
+public:
+    /**
+     * @brief Create a RAII for an object.
+     *
+     * @param obj An object needing to be cleaned.
+     * @param cleaner A cleaner.
+     */
+    explicit RAII(T obj, Cleaner cleaner) noexcept :
+        obj_ {std::move(obj)}, cleaner_ {std::move(cleaner)} {}
+
+    RAII(const RAII&) = delete;
+
+    RAII(RAII&&) = delete;
+
+    RAII& operator=(const RAII&) = delete;
+
+    RAII& operator=(RAII&&) = delete;
+
+    ~RAII() noexcept {
+        cleaner_(obj_);
+    }
+
+    const T& Object() const noexcept {
+        return obj_;
+    }
+
+private:
+    T obj_;
+    Cleaner cleaner_;
+};
+
+/**
+ * @brief
+ * RAII for a read-only file that has been mapped into memory.
+ *
+ * @details
+ * It encapsulates @p stat, @p mmap and @p munmap of Linux system.
+ */
+class MappedReadOnlyFile {
+public:
+    MappedReadOnlyFile() noexcept;
+
+    MappedReadOnlyFile(const MappedReadOnlyFile&) = delete;
+
+    MappedReadOnlyFile(MappedReadOnlyFile&&) noexcept;
+
+    MappedReadOnlyFile& operator=(const MappedReadOnlyFile&) = delete;
+
+    MappedReadOnlyFile& operator=(MappedReadOnlyFile&&) noexcept;
+
+    ~MappedReadOnlyFile() noexcept;
+
+    /**
+     * @brief Map a file into memory.
+     *
+     * @exception std::invalid_argument The path refers to a directory.
+     * @exception std::runtime_error No permission to access the file.
+     * @exception std::system_error Failed to map the file.
+     */
+    std::byte* Map(std::string path);
+
+    //! Unmap the file.
+    void Unmap() noexcept;
+
+    //! Get the file size.
+    std::size_t Size() const noexcept;
+
+    //! Get the file data.
+    std::byte* Data() const noexcept;
+
+    //! Get the file path.
+    std::string_view Path() const noexcept;
+
+private:
+    /**
+     * @brief Check the file.
+     *
+     * @exception std::invalid_argument The path refers to a directory.
+     * @exception std::runtime_error No permission to access the file.
+     * @exception std::system_error Other system errors.
+     */
+    void Check();
+
+    std::string path_;
+    struct stat stat_ {};
+    std::byte* data_ {nullptr};
+};
+
+template <typename T, typename U, typename Ret = T>
+concept Addable = requires(T t, U u) {
+    { t + u } -> std::convertible_to<Ret>;
+};
+
+}  // namespace ws
+----- END DEPENDENCY HEADER CONTENT: include/util.h -----

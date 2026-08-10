@@ -1,0 +1,166 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# Design Specification for Thread Pool Implementation
+
+## Overview
+
+This document provides a detailed design specification for the `ThreadPool` class, which is part of a larger software system. The `ThreadPool` class manages a pool of threads to execute tasks concurrently. This specification covers both the declaration and implementation aspects of the `ThreadPool` class.
+
+## Target Audience
+
+- Developers responsible for implementing or maintaining the `ThreadPool` class.
+- Other stakeholders involved in the development process who need an understanding of the `ThreadPool` functionality and design.
+
+## File Structure
+
+The `ThreadPool` class is defined across two files:
+
+1. **Header File (`thread_pool.h`)**: Contains the declaration of the `ThreadPool` class, including its public interface and private members.
+2. **Source File (`thread_pool.cpp`)**: Contains the implementation of the methods declared in `thread_pool.h`.
+
+## Namespaces
+
+- All classes and functions are encapsulated within the `ws` namespace.
+
+## Dependencies
+
+The `ThreadPool` class depends on the following external libraries:
+
+- `<condition_variable>`
+- `<functional>`
+- `<list>`
+- `<mutex>`
+- `<optional>`
+- `<thread>`
+
+Additionally, it uses a custom logging library (`log.h`) and utility functions (`util.h`).
+
+## Class Declaration: `ThreadPool`
+
+### File Path
+
+`include/containers/thread_pool.h`
+
+### Purpose
+
+The `ThreadPool` class manages a pool of threads to execute tasks concurrently. It provides methods to start the thread pool, push tasks into it, and close the thread pool.
+
+### Public Interface
+
+#### Types
+
+- **Task**: A type alias for `std::function<void()>`, representing a task that can be executed by the thread pool.
+
+#### Constructors
+
+- **ThreadPool(std::optional<std::size_t> thread_count = std::nullopt, log::Logger::Ptr logger = log::RootLogger()) noexcept**
+  - **Parameters**:
+    - `thread_count`: The number of working threads. If it is `std::nullopt` or zero, the thread pool will use the number of concurrent threads supported by hardware.
+    - `logger`: A logger. If it is `nullptr`, the thread pool will use the global root logger.
+
+#### Destructor
+
+- **~ThreadPool() noexcept**
+  - Cleans up resources and ensures all threads are joined before destruction.
+
+#### Deleted Methods
+
+- **Copy Constructor**: Deleted to prevent copying of `ThreadPool` objects.
+- **Move Constructor**: Deleted to prevent moving of `ThreadPool` objects.
+- **Copy Assignment Operator**: Deleted to prevent assignment of `ThreadPool` objects.
+- **Move Assignment Operator**: Deleted to prevent move assignment of `ThreadPool` objects.
+
+#### Public Methods
+
+- **void Start() noexcept**
+  - Starts the thread pool by creating and starting worker threads.
+
+- **void Push(Task task) noexcept**
+  - Pushes a task into the thread pool for execution.
+
+- **void Close() noexcept**
+  - Closes the thread pool, preventing further tasks from being executed. Remaining tasks will not be executed.
+
+### Private Members
+
+#### Types
+
+- **Task**: A type alias for `std::function<void()>`, representing a task that can be executed by the thread pool.
+
+#### Member Variables
+
+- **logger_**: A pointer to a logger used for logging messages.
+- **mtx_**: A mutex used to synchronize access to shared resources.
+- **closed_**: An atomic boolean indicating whether the thread pool is closed.
+- **thread_count_**: The number of threads in the thread pool.
+- **cond_**: A condition variable used to notify worker threads when tasks are available or when the thread pool is closing.
+- **tasks_**: A list of tasks waiting to be executed.
+- **threads_**: A list of worker threads managed by the thread pool.
+
+#### Private Methods
+
+- **void ExecProc() noexcept**
+  - Continually pops and executes tasks from the task queue. Any exceptions raised in callbacks are caught, and exception messages are logged.
+
+## Class Implementation: `ThreadPool`
+
+### File Path
+
+`src/containers/thread_pool/thread_pool.cpp`
+
+### Constructor
+
+- **ThreadPool(std::optional<std::size_t> thread_count, log::Logger::Ptr logger) noexcept**
+  - Initializes the logger. If no logger is provided, it defaults to the global root logger.
+  - Determines the number of threads based on the input parameter or hardware concurrency.
+
+### Destructor
+
+- **~ThreadPool() noexcept**
+  - Closes the thread pool and joins all worker threads before destruction.
+
+### Public Methods
+
+- **void Start() noexcept**
+  - Asserts that the thread pool is closed, sets it to open, and starts the specified number of worker threads.
+
+- **void Push(Task task) noexcept**
+  - Asserts that the thread pool is not closed, locks the mutex, adds the task to the queue, and notifies one waiting worker thread.
+
+- **void Close() noexcept**
+  - Locks the mutex, sets the `closed_` flag to true, and notifies all waiting worker threads.
+
+### Private Methods
+
+- **void ExecProc() noexcept**
+  - Continually pops and executes tasks from the task queue. If an exception is raised during task execution, it logs the error message.
+
+## Usage Example
+
+The usage of the `ThreadPool` class can be found in the example file `tests/containers/thread_pool_test.cpp`.
+
+## Conclusion
+
+This design specification provides a comprehensive overview of the `ThreadPool` class, including its public and private interfaces, constructors, destructors, and methods. It also outlines the dependencies and usage examples to ensure that developers have all necessary information for implementing or maintaining this component.
+
+---
+
+**Note**: The identifiers `Fxx/Uxx` are preserved as per the guidelines provided. No assumptions were made about their meanings or purposes beyond what was explicitly stated in the input files.

@@ -1,0 +1,444 @@
+与えられたC++ソースコードを解析し、このソースコードを参照できない別のLLMが再実装できるように、詳細な設計仕様書を作成してください。
+
+入力から確認できない情報は推測しないでください。
+
+TARGET-OWNED INPUTS
+Fxx/Uxx identifiers are opaque. Preserve names, types, signatures, namespaces, and replacement boundaries in the final specification.
+
+REPLACEMENT UNIT CONTRACT
+Only replacement_required=true units will be regenerated. Reference-only units must inform the design but must not become output units.
+REPLACEMENT UNITS: F01/U01, F02/U02
+REFERENCE-ONLY INPUTS: none
+
+===== BEGIN F01/U01 =====
+path: include/containers/buffer.h
+role: complete target-owned implementation/declaration file
+replacement_required: true
+/**
+ * @file buffer.h
+ * @brief The auto-expandable buffer, supporting storing bytes and strings.
+ *
+ * @author Chen Zhenshuo (chenzs108@outlook.com)
+ * @author Liu Guowen (liu.guowen@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-05-03
+ *
+ * @example tests/containers/buffer_test.cpp
+ */
+
+#pragma once
+
+#include <atomic>
+#include <optional>
+#include <span>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace ws {
+
+namespace io {
+
+class IReadWriter;
+
+}
+
+//! New-line characters
+enum class NewLine {
+    //! @p \n
+    LF,
+
+    //! @p \r\n
+    CRLF
+};
+
+/**
+ * @brief An auto-expandable buffer, supporting storing bytes and strings.
+ *
+ * @details
+ * @code
+ *                 Writing Offset ──────┐
+ * Reading Offset ─────┐                │
+ *                     │                │
+ *                     │                │
+ * ┌───────────────────▼────────────────▼────────────────┐
+ * │ Prependable Bytes │ Readable Bytes │ Writable Bytes │
+ * └───────────────────┴────────────────┴────────────────┘
+ * @endcode
+ *
+ * Prependable space can be reused.
+ */
+class Buffer {
+public:
+    //! Create a buffer with an initial size.
+    explicit Buffer(std::size_t size = 1000) noexcept;
+
+    //! Create a buffer with bytes.
+    explicit Buffer(std::span<const std::byte> bytes) noexcept;
+
+    //! Create a buffer with bytes.
+    explicit Buffer(std::initializer_list<std::byte> bytes) noexcept;
+
+    //! Create a buffer with a string.
+    explicit Buffer(std::string_view str) noexcept;
+
+    Buffer(const Buffer&) noexcept;
+
+    Buffer(Buffer&&) noexcept;
+
+    Buffer& operator=(const Buffer&) noexcept;
+
+    Buffer& operator=(Buffer&&) noexcept;
+
+    //! Get the current writable size without expanding.
+    std::size_t WritableSize() const noexcept;
+
+    //! Get the readable size.
+    std::size_t ReadableSize() const noexcept;
+
+    //! Peek the first byte without moving the reading offset.
+    std::optional<std::byte> Peek() const noexcept;
+
+    //! Get readable bytes without moving the reading offset.
+    std::span<const std::byte> ReadableBytes() const noexcept;
+
+    /**
+     * @brief Get a readable string without moving the reading offset.
+     *
+     * @warning Developers should ensure that the stored bytes are printable.
+     */
+    std::string ReadableString() const noexcept;
+
+    /**
+     * @brief Get writable space for editing.
+     *
+     * @warning
+     * If developers directly write data using the base address of writable space,
+     * they must manually adjust the writing offset with @p HasWritten.
+     */
+    std::span<std::byte> WritableBytes() const noexcept;
+
+    //! Append bytes to the buffer and move forward the writing offset.
+    void Append(std::span<const std::byte> bytes) noexcept;
+
+    //! Append bytes to the buffer and move forward the writing offset.
+    void Append(std::initializer_list<std::byte> bytes) noexcept;
+
+    //! Append a string and an optional new-line character to the buffer and move forward the writing offset.
+    void Append(std::string_view str,
+                std::optional<NewLine> new_line = std::nullopt) noexcept;
+
+    //! Append data to the buffer and move forward the writing offset.
+    void Append(const void* data, std::size_t size) noexcept;
+
+    //! Append another buffer to the buffer and move forward the writing offset.
+    void Append(const Buffer& buf) noexcept;
+
+    //! Ensure the buffer has enough writable space.
+    void EnsureWriteableSize(std::size_t size) noexcept;
+
+    //! Manually move forward the writing offset by a specific size.
+    void HasWritten(std::size_t size) noexcept;
+
+    //! Manually move forward the reading offset by a specific size.
+    void Retrieve(std::size_t size) noexcept;
+
+    //! Manually move forward the reading offset until it reaches the destination.
+    std::size_t RetrieveUntil(const void* addr) noexcept;
+
+    //! Manually move forward the reading offset to the end.
+    std::size_t RetrieveAll() noexcept;
+
+    /**
+     * @brief Manually move forward the reading offset to the end and extract a string from the rest.
+     *
+     * @warning Developers should ensure that the stored bytes are printable.
+     */
+    std::string RetrieveAllToString() noexcept;
+
+    //! Clear the buffer.
+    void Clear() noexcept;
+
+    //! Whether the buffer is empty.
+    bool Empty() const noexcept;
+
+protected:
+    //! Get the prependable size which can be reused.
+    std::size_t PrependableSize() const noexcept;
+
+    //! Make the buffer have enough writable space.
+    void MakeSpace(std::size_t size) noexcept;
+
+    //! Get the reading offset.
+    std::vector<std::byte>::iterator ReadIter() const noexcept;
+
+    //! Get the writing offset.
+    std::vector<std::byte>::iterator WriteIter() const noexcept;
+
+    std::vector<std::byte> buf_;
+    std::atomic<std::size_t> read_pos_ {0};
+    std::atomic<std::size_t> write_pos_ {0};
+};
+
+//! An enhanced buffer supporting I/O reading and writing.
+class IOBuffer : public Buffer {
+public:
+    using Buffer::Buffer;
+
+    //! Read data from an I/O object.
+    std::size_t ReadFrom(io::IReadWriter& io);
+
+    //! Write data to an I/O object.
+    std::size_t WriteTo(io::IReadWriter& io);
+};
+
+//! Write a string to a buffer.
+Buffer& operator<<(Buffer& buf, std::string_view str) noexcept;
+
+//! Write a buffer to another buffer.
+Buffer& operator<<(Buffer& to, const Buffer& from) noexcept;
+
+//! Write bytes to a buffer.
+Buffer& operator<<(Buffer& buf, std::span<const std::byte> bytes) noexcept;
+
+//! Write bytes to a buffer.
+Buffer& operator<<(Buffer& buf,
+                   std::initializer_list<std::byte> bytes) noexcept;
+
+}  // namespace ws
+===== END F01/U01 =====
+
+===== BEGIN F02/U02 =====
+path: src/containers/buffer/buffer.cpp
+role: complete target-owned implementation/declaration file
+replacement_required: true
+#include "buffer.h"
+#include "io.h"
+
+#include <algorithm>
+#include <cassert>
+
+
+namespace ws {
+
+Buffer::Buffer(const std::size_t size) noexcept : buf_(size) {}
+
+Buffer::Buffer(const std::span<const std::byte> bytes) noexcept {
+    Append(bytes);
+}
+
+Buffer::Buffer(const std::initializer_list<std::byte> bytes) noexcept {
+    Append(bytes.begin(), bytes.size());
+}
+
+Buffer::Buffer(const std::string_view str) noexcept {
+    Append(str);
+}
+
+Buffer::Buffer(const Buffer& o) noexcept :
+    buf_ {o.buf_},
+    read_pos_ {o.read_pos_.load()},
+    write_pos_ {o.write_pos_.load()} {}
+
+Buffer::Buffer(Buffer&& o) noexcept :
+    buf_ {std::move(o.buf_)},
+    read_pos_ {o.read_pos_.load()},
+    write_pos_ {o.write_pos_.load()} {}
+
+Buffer& Buffer::operator=(const Buffer& o) noexcept {
+    if (this != &o) {
+        buf_ = o.buf_;
+        read_pos_ = o.read_pos_.load();
+        write_pos_ = o.write_pos_.load();
+    }
+
+    return *this;
+}
+
+Buffer& Buffer::operator=(Buffer&& o) noexcept {
+    if (this != &o) {
+        buf_ = std::move(o.buf_);
+        read_pos_ = o.read_pos_.load();
+        write_pos_ = o.write_pos_.load();
+    }
+
+    return *this;
+}
+
+std::size_t Buffer::WritableSize() const noexcept {
+    return buf_.size() - write_pos_;
+}
+
+std::size_t Buffer::ReadableSize() const noexcept {
+    return write_pos_ - read_pos_;
+}
+
+std::size_t Buffer::PrependableSize() const noexcept {
+    return read_pos_;
+}
+
+std::optional<std::byte> Buffer::Peek() const noexcept {
+    return Empty() ? std::nullopt : std::optional {*ReadIter()};
+}
+
+void Buffer::Append(const std::initializer_list<std::byte> bytes) noexcept {
+    Append(bytes.begin(), bytes.size());
+}
+
+void Buffer::Append(const std::span<const std::byte> bytes) noexcept {
+    Append(bytes.data(), bytes.size_bytes());
+}
+
+void Buffer::Append(const std::string_view str,
+                    const std::optional<NewLine> new_line) noexcept {
+    std::string full_str {str};
+    if (new_line.has_value()) {
+        if (new_line == NewLine::LF) {
+            full_str += "\n";
+        } else if (new_line == NewLine::CRLF) {
+            full_str += "\r\n";
+        } else {
+            assert(false);
+        }
+    }
+
+    Append(full_str.data(), full_str.length());
+}
+
+void Buffer::Append(const void* const data, const std::size_t size) noexcept {
+    if (size == 0) {
+        return;
+    }
+
+    assert(data);
+
+    EnsureWriteableSize(size);
+    const auto base {reinterpret_cast<const std::byte*>(data)};
+    std::copy(base, base + size, WriteIter());
+    HasWritten(size);
+
+    assert(ReadableSize() >= size);
+}
+
+void Buffer::Append(const Buffer& buf) noexcept {
+    Append(buf.ReadableBytes());
+}
+
+void Buffer::EnsureWriteableSize(const std::size_t size) noexcept {
+    if (WritableSize() < size) {
+        MakeSpace(size);
+    }
+
+    assert(WritableSize() >= size);
+}
+
+void Buffer::MakeSpace(const std::size_t size) noexcept {
+    if (WritableSize() + PrependableSize() < size) {
+        buf_.resize(write_pos_ + size);
+    } else {
+        const auto readable_size {ReadableSize()};
+        std::copy(ReadIter(), WriteIter(), buf_.begin());
+        read_pos_ = 0;
+        write_pos_ = read_pos_ + readable_size;
+
+        assert(readable_size == ReadableSize());
+    }
+}
+
+std::span<const std::byte> Buffer::ReadableBytes() const noexcept {
+    return {ReadIter().base(), ReadableSize()};
+}
+
+std::string Buffer::ReadableString() const noexcept {
+    return {reinterpret_cast<char*>(ReadIter().base()), ReadableSize()};
+}
+
+std::span<std::byte> Buffer::WritableBytes() const noexcept {
+    return {WriteIter().base(), WritableSize()};
+}
+
+void Buffer::HasWritten(const std::size_t size) noexcept {
+    assert(WritableSize() >= size);
+    write_pos_ += size;
+}
+
+void Buffer::Retrieve(const std::size_t size) noexcept {
+    assert(ReadableSize() >= size);
+    read_pos_ += size;
+}
+
+std::size_t Buffer::RetrieveAll() noexcept {
+    const auto read_size {ReadableSize()};
+    Clear();
+    return read_size;
+}
+
+std::string Buffer::RetrieveAllToString() noexcept {
+    const auto str {ReadableString()};
+    Clear();
+    return str;
+}
+
+std::size_t Buffer::RetrieveUntil(const void* const addr) noexcept {
+    const auto end {static_cast<const std::byte*>(addr)};
+    const auto begin {ReadIter().base()};
+
+    assert(begin <= end);
+
+    const auto read_size {end - begin};
+    Retrieve(read_size);
+    return read_size;
+}
+
+void Buffer::Clear() noexcept {
+    read_pos_ = 0;
+    write_pos_ = 0;
+    assert(Empty());
+}
+
+bool Buffer::Empty() const noexcept {
+    return ReadableSize() == 0;
+}
+
+std::vector<std::byte>::iterator Buffer::ReadIter() const noexcept {
+    return const_cast<Buffer*>(this)->buf_.begin() + read_pos_;
+}
+
+std::vector<std::byte>::iterator Buffer::WriteIter() const noexcept {
+    return const_cast<Buffer*>(this)->buf_.begin() + write_pos_;
+}
+
+std::size_t IOBuffer::ReadFrom(io::IReadWriter& io) {
+    return io.WriteTo(*this);
+}
+
+std::size_t IOBuffer::WriteTo(io::IReadWriter& io) {
+    return io.ReadFrom(*this);
+}
+
+Buffer& operator<<(Buffer& buf, const std::string_view str) noexcept {
+    buf.Append(str);
+    return buf;
+}
+
+Buffer& operator<<(Buffer& to, const Buffer& from) noexcept {
+    to.Append(from);
+    return to;
+}
+
+Buffer& operator<<(Buffer& buf,
+                   const std::span<const std::byte> bytes) noexcept {
+    buf.Append(bytes);
+    return buf;
+}
+
+Buffer& operator<<(Buffer& buf,
+                   const std::initializer_list<std::byte> bytes) noexcept {
+    buf.Append(bytes);
+    return buf;
+}
+
+}  // namespace ws
+===== END F02/U02 =====

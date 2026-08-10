@@ -1,0 +1,254 @@
+# 設計仕様書
+
+## 概要
+
+この設計仕様書は、与えられたC++ソースコードを再実装するために必要な詳細情報を提供します。各ファイルの内容と関連するクラス・メソッド・インターフェースについて記述し、再実装に必要な具体的な事実を保持します。
+
+## クラス図
+
+```mermaid
+classDiagram
+    class Logger {
+        +std::string_view Name() const noexcept
+        +void Log(Event::Ptr event) noexcept
+        +void AddAppender(Appender::Ptr appender) noexcept
+        +void RemoveAppender(Appender::Ptr appender) noexcept
+        +void ClearAppenders() noexcept
+        +log::Level GetLevel() const noexcept
+        +void SetLevel(log::Level level) noexcept
+        +Formatter::Ptr GetDefaultFormatter() const noexcept
+        +void SetDefaultFormatter(Formatter::Ptr formatter) noexcept
+        +void SetDefaultFormatter(std::string_view pattern)
+        +std::size_t Capacity() const noexcept
+        +std::string ToYamlString() const noexcept
+    }
+    
+    class Event {
+        +log::Level Level() const noexcept
+        +std::string_view FileName() const noexcept
+        +std::size_t LineNum() const noexcept
+        +std::uint32_t ThreadId() const noexcept
+        +Event::Clock::time_point Time() const noexcept
+        +std::string Message() const noexcept
+        +std::ostringstream& MessageStream() noexcept
+    }
+    
+    class Formatter {
+        +std::string Format(const Logger& logger, const Event& event) const noexcept
+        +std::string_view Pattern() const noexcept
+    }
+    
+    class Appender {
+        +void Log(const Logger& logger, const Event& event) noexcept
+        +std::string ToYamlString() const noexcept
+        +Formatter::Ptr GetFormatter() const noexcept
+        +void SetFormatter(Formatter::Ptr formatter) noexcept
+        +void SetFormatter(std::string_view pattern)
+    }
+    
+    class StdOutAppender {
+        +void Log(const Logger& logger, const Event& event) noexcept
+        +std::string ToYamlString() const noexcept
+    }
+    
+    class FileAppender {
+        +void Log(const Logger& logger, const Event& event) noexcept
+        +std::string ToYamlString() const noexcept
+    }
+    
+    class Manager {
+        +Logger::Ptr FindLogger(std::string_view name, log::Level level = Level::Info, std::optional<std::size_t> capacity = std::nullopt) noexcept
+        +void RemoveLogger(std::string_view name) noexcept
+        +std::string ToYamlString() const noexcept
+    }
+    
+    class EventWriter {
+        +std::ostringstream& MessageStream() noexcept
+    }
+
+    Logger "1" -- "0..*" Appender : has
+    Logger "1" -- "1" Formatter : uses
+    EventWriter "1" -- "1" Logger : writes to
+    Manager "1" -- "0..*" Logger : manages
+```
+
+## クラス・メソッド・インターフェース詳細
+
+### `Logger`
+| メンバ | 型 | 可視性 | const | noexcept | static |
+|--------|----|--------|-------|----------|--------|
+| Name   | std::string_view | public | 〇     | 〇      | ×      |
+| Log    | void           | public | ×     | 〇      | ×      |
+| AddAppender | void       | public | ×     | 〇      | ×      |
+| RemoveAppender | void   | public | ×     | 〇      | ×      |
+| ClearAppenders | void   | public | ×     | 〇      | ×      |
+| GetLevel | log::Level   | public | 〇     | 〇      | ×      |
+| SetLevel | void         | public | ×     | 〇      | ×      |
+| GetDefaultFormatter | Formatter::Ptr | public | 〇    | 〇      | ×      |
+| SetDefaultFormatter | void | public | ×   | 〇      | ×      |
+| SetDefaultFormatter | void | public | ×   | ×      | ×      |
+| Capacity | std::size_t  | public | 〇     | 〇      | ×      |
+| ToYamlString | std::string | public | 〇    | 〇      | ×      |
+
+### `Event`
+| メンバ | 型 | 可視性 | const | noexcept | static |
+|--------|----|--------|-------|----------|--------|
+| Level  | log::Level   | public | 〇     | 〇      | ×      |
+| FileName | std::string_view | public | 〇    | 〇      | ×      |
+| LineNum | std::size_t | public | 〇    | 〇      | ×      |
+| ThreadId | std::uint32_t | public | 〇   | 〇      | ×      |
+| Time   | Event::Clock::time_point | public | 〇 | 〇      | ×      |
+| Message | std::string | public | 〇    | 〇      | ×      |
+| MessageStream | std::ostringstream& | public | ×   | 〇      | ×      |
+
+### `Formatter`
+| メンバ | 型 | 可視性 | const | noexcept | static |
+|--------|----|--------|-------|----------|--------|
+| Format | std::string | public | ×    | 〇      | ×      |
+| Pattern | std::string_view | public | 〇   | 〇      | ×      |
+
+### `Appender`
+| メンバ | 型 | 可視性 | const | noexcept | static |
+|--------|----|--------|-------|----------|--------|
+| Log    | void           | public | ×     | 〇      | ×      |
+| ToYamlString | std::string | public | 〇    | 〇      | ×      |
+| GetFormatter | Formatter::Ptr | public | 〇    | 〇      | ×      |
+| SetFormatter | void         | public | ×     | 〇      | ×      |
+| SetFormatter | void         | public | ×     | ×      | ×      |
+
+### `StdOutAppender`
+| メンバ | 型 | 可視性 | const | noexcept | static |
+|--------|----|--------|-------|----------|--------|
+| Log    | void           | public | ×     | 〇      | ×      |
+| ToYamlString | std::string | public | 〇    | 〇      | ×      |
+
+### `FileAppender`
+| メンバ | 型 | 可視性 | const | noexcept | static |
+|--------|----|--------|-------|----------|--------|
+| Log    | void           | public | ×     | 〇      | ×      |
+| ToYamlString | std::string | public | 〇    | 〇      | ×      |
+
+### `Manager`
+| メンバ | 型 | 可視性 | const | noexcept | static |
+|--------|----|--------|-------|----------|--------|
+| FindLogger | Logger::Ptr | public | ×   | 〇      | ×      |
+| RemoveLogger | void     | public | ×   | 〇      | ×      |
+| ToYamlString | std::string | public | 〇    | 〇      | ×      |
+
+### `EventWriter`
+| メンバ | 型 | 可視性 | const | noexcept | static |
+|--------|----|--------|-------|----------|--------|
+| MessageStream | std::ostringstream& | public | ×   | 〇      | ×      |
+
+## シーケンス図
+
+### `Logger::Log`
+```mermaid
+sequenceDiagram
+    participant Logger
+    participant Event
+    participant Appender
+    participant Formatter
+    
+    Logger->>Event: Log(event)
+    alt event->Level() >= logger->GetLevel()
+        alt logger->Capacity() > 0
+            Logger->>logger.event_deque_: PushBack(event)
+        else
+            Logger->>Appender: SyncLog(event)
+            Appender->>Formatter: Format(logger, event)
+            Formatter-->>Appender: formatted_string
+            Appender->>std::cout/file: Log(formatted_string)
+        end
+    end
+```
+
+## メソッド仕様書
+
+### `Logger::Log`
+- **目的**: イベントをログに記録します。
+- **引数**:
+  - `event`: 記録するイベント (`Event::Ptr`)
+- **戻り値**: 無し
+- **動作**:
+  1. イベントのレベルがロガーのレベル以上であるか確認します。
+  2. ロガーのキャパシティが0より大きい場合、イベントを非同期キューにプッシュします。
+  3. それ以外の場合、イベントを同期的にログに記録します。
+- **副作用**: イベントがキューに追加されるか、または即座にログに出力されます。
+
+### `Event::Create`
+- **目的**: 新しいイベントを作成します。
+- **引数**:
+  - `level`: イベントレベル (`log::Level`)
+  - `location`: ソースコード位置 (`std::experimental::source_location`)
+  - `thread_id`: スレッドID (`std::uint32_t`)
+  - `time`: イベント発生日時 (`Event::Clock::time_point`)
+- **戻り値**: 新しいイベント (`Event::Ptr`)
+- **動作**:
+  1. `MakeSharedEvent`構造体を使用して新しいイベントを作成します。
+  2. 作成したイベントを共有ポインタとして返します。
+
+## 処理フロー図
+
+### `Logger::Log`
+```mermaid
+graph TD
+    A[開始] --> B{event->Level() >= logger->GetLevel()?}
+    B -- はい --> C{logger->Capacity() > 0?}
+    C -- はい --> D[logger.event_deque_->PushBack(event)]
+    C -- いいえ --> E[Logger->SyncLog(event)]
+    B -- いいえ --> F[終了]
+    E --> G[Formatter->Format(logger, event)]
+    G --> H[Appender->Log(formatted_string)]
+    H --> I[std::cout/file: Log(formatted_string)]
+    D --> J[終了]
+```
+
+## 状態遷移・副作用
+
+### `Logger`
+| 状態 | 遷移条件 | 変更対象 | 更新後状態 | 更新順序 |
+|------|----------|----------|------------|----------|
+| 同期モード | キュー容量が0以下 | event_deque_ | nullptr      | 1          |
+| 非同期モード | キュー容量が0より大きい | event_deque_, writer_thread_ | 初期化済み | 1,2        |
+
+### `EventWriter`
+| 状態 | 遷移条件 | 変更対象 | 更新後状態 | 更新順序 |
+|------|----------|----------|------------|----------|
+| メッセージ未記録 | イベント作成後 | event_->msg_ | ユーザー入力 | 1          |
+
+## データ変換・制約
+
+### `Logger::SetDefaultFormatter`
+| 入力 | 出力 | 変換規則 |
+|------|------|----------|
+| std::string_view pattern | Formatter::Ptr formatter | Formatter(pattern) |
+
+### `EventWriter::MessageStream`
+| 入力 | 出力 | 変換規則 |
+|------|------|----------|
+| ユーザー入力 | event_->msg_ | msg_ << ユーザー入力 |
+
+## 追加詳細設計情報
+
+### クラス図
+- `Logger`は複数の`Appender`を持つことができます。
+- 各`Appender`は独自の`Formatter`を持ちます。
+
+### シーケンス図
+- `Logger::Log`メソッドでは、イベントレベルとロガーのレベルを比較し、適切なログ記録方法を選択します。
+
+### メソッド仕様書
+- `Event::Create`: イベントを作成するための静的ファクトリメソッドです。
+- `Logger::SetDefaultFormatter`: ロガーにデフォルトのフォーマッタを設定します。これは新しいアペンダーが追加されたときに使用されます。
+
+### 処理フロー図
+- `Logger::Log`メソッドでは、イベントレベルとロガーのレベルを比較し、適切なログ記録方法を選択します。
+
+### 状態遷移・副作用
+- ロガーは同期モードと非同期モードを持ちます。キャパシティが0より大きい場合、非同期モードになります。
+- `EventWriter`はデストラクタでイベントをログに記録します。
+
+### データ変換・制約
+- `Logger::SetDefaultFormatter`: 文字列パターンからフォーマッタオブジェクトを作成します。
+- `EventWriter::MessageStream`: ユーザーからの入力をイベントのメッセージストリームに追加します。

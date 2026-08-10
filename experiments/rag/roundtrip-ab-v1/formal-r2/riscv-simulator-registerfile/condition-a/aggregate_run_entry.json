@@ -1,0 +1,1 @@
+{"artifact_schema_version":"roundtrip-ab-aggregate-run-entry-v1","condition":"A","result_path":"result.json","result_sha256":"1e62f29026712f81598ad69ac6d362d9cf0580bb0c216286e55bde5dbb3a207a","status":"fail","target_id":"riscv-simulator-registerfile"}
