@@ -1,0 +1,161 @@
+与えられたC++ソースコードを解析し、このソースコードを参照できない別のLLMが再実装できるように、詳細な設計仕様書を作成してください。
+
+入力から確認できない情報は推測しないでください。
+
+TARGET-OWNED INPUTS
+各Fxx/Uxx識別子、役割、replacement_requiredの値を最終設計仕様書に保持してください。
+
+REPLACEMENT UNIT CONTRACT
+replacement_required=trueのunitだけがコード再生成と置換の対象です。
+replacement_required=falseのunitは参照専用で、既存コードとして利用できますが再生成してはいけません。
+最終設計仕様書では置換対象と参照専用を明確に分離してください。
+REPLACEMENT UNITS: F01/U01
+REFERENCE-ONLY INPUTS: F02/U02, F03/U03
+
+===== BEGIN F01/U01 =====
+path: src/binary.cpp
+role: target function implementation
+replacement_required: true
+std::vector<unsigned char> DecodeBase64(const std::string &input) {
+  using ret_type = std::vector<unsigned char>;
+  if (input.empty())
+    return ret_type();
+
+  ret_type ret(3 * input.size() / 4 + 1);
+  unsigned char *out = &ret[0];
+
+  unsigned value = 0;
+  std::size_t cnt = 0;
+  for (std::size_t i = 0; i < input.size(); i++) {
+    if (std::isspace(static_cast<unsigned char>(input[i]))) {
+      // skip newlines
+      continue;
+    }
+    unsigned char d = decoding[static_cast<unsigned char>(input[i])];
+    if (d == 255)
+      return ret_type();
+
+    value = (value << 6) | d;
+    if (cnt == 3) {
+      *out++ = value >> 16;
+      if (i > 0 && input[i - 1] != '=')
+        *out++ = value >> 8;
+      if (input[i] != '=')
+        *out++ = value;
+      cnt = 0;
+    } else {
+      ++cnt;
+    }
+  }
+  if (cnt != 0) {
+    // An invalid number of characters were encountered.
+    return ret_type();
+  }
+
+  ret.resize(out - &ret[0]);
+  return ret;
+}
+===== END F01/U01 =====
+
+===== BEGIN F02/U02 =====
+path: include/yaml-cpp/binary.h
+role: target-owned public declaration; existing reference only
+replacement_required: false
+#ifndef BASE64_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+#define BASE64_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+
+#if defined(_MSC_VER) ||                                            \
+    (defined(__GNUC__) && (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || \
+     (__GNUC__ >= 4))  // GCC supports "pragma once" correctly since 3.4
+#pragma once
+#endif
+
+#include <string>
+#include <vector>
+
+#include "yaml-cpp/dll.h"
+
+namespace YAML {
+YAML_CPP_API std::string EncodeBase64(const unsigned char *data,
+                                      std::size_t size);
+YAML_CPP_API std::vector<unsigned char> DecodeBase64(const std::string &input);
+
+class YAML_CPP_API Binary {
+ public:
+  Binary(const unsigned char *data_, std::size_t size_)
+      : m_data{}, m_unownedData(data_), m_unownedSize(size_) {}
+  Binary() : Binary(nullptr, 0) {}
+  Binary(const Binary &) = default;
+  Binary(Binary &&) = default;
+  Binary &operator=(const Binary &) = default;
+  Binary &operator=(Binary &&) = default;
+
+  bool owned() const { return !m_unownedData; }
+  std::size_t size() const { return owned() ? m_data.size() : m_unownedSize; }
+  const unsigned char *data() const {
+    return owned() ? &m_data[0] : m_unownedData;
+  }
+
+  void swap(std::vector<unsigned char> &rhs) {
+    if (m_unownedData) {
+      m_data.swap(rhs);
+      rhs.clear();
+      rhs.resize(m_unownedSize);
+      std::copy(m_unownedData, m_unownedData + m_unownedSize, rhs.begin());
+      m_unownedData = nullptr;
+      m_unownedSize = 0;
+    } else {
+      m_data.swap(rhs);
+    }
+  }
+
+  bool operator==(const Binary &rhs) const {
+    const std::size_t s = size();
+    if (s != rhs.size())
+      return false;
+    const unsigned char *d1 = data();
+    const unsigned char *d2 = rhs.data();
+    for (std::size_t i = 0; i < s; i++) {
+      if (*d1++ != *d2++)
+        return false;
+    }
+    return true;
+  }
+
+  bool operator!=(const Binary &rhs) const { return !(*this == rhs); }
+
+ private:
+  std::vector<unsigned char> m_data;
+  const unsigned char *m_unownedData;
+  std::size_t m_unownedSize;
+};
+}  // namespace YAML
+
+#endif  // BASE64_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+===== END F02/U02 =====
+
+===== BEGIN F03/U03 =====
+path: src/binary.cpp
+role: target-owned file-local decoding table; existing reference only
+replacement_required: false
+static constexpr unsigned char decoding[] = {
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 62,  255,
+    255, 255, 63,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  255, 255,
+    255, 0,   255, 255, 255, 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
+    10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
+    25,  255, 255, 255, 255, 255, 255, 26,  27,  28,  29,  30,  31,  32,  33,
+    34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,
+    49,  50,  51,  255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+    255,
+};
+===== END F03/U03 =====

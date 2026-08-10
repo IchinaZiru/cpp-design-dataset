@@ -1,0 +1,47 @@
+{
+  "artifact_schema_version": "roundtrip-ab-development-freeze-v1",
+  "common_version": "1.8-frozen-16",
+  "condition_a": {
+    "build": "fail",
+    "configure": "pass",
+    "design_sha256": "a1f7f0760478836878bf817cf5635b406c1f5736982ff05a09e96f6614a6ef1a",
+    "llm_call_count": 2,
+    "overall_pass": false,
+    "result_sha256": "456429d5bc78efee9e8edee8f2b38f9aee7cd931a3348b13727937f5d4a3bdd5"
+  },
+  "condition_b": {
+    "build": "pass",
+    "configure": "pass",
+    "design_sha256": "d1b0f84c8cd470f51bf29750ef6f83a8c3d6cf108a616e27b10f682960caa0a4",
+    "direct_test": "pass",
+    "direct_test_count": 7,
+    "full_test": "pass",
+    "full_test_count": 18,
+    "llm_call_count": 2,
+    "overall_pass": true,
+    "result_sha256": "c48da610a17aac68fa22cf1fa0fa40b5983370fa7d49c8da59e283218a02c16e"
+  },
+  "development_llm_call_count": 12,
+  "development_target_excluded_from_formal": true,
+  "formal_execution_authorized": false,
+  "formal_llm_call_count": 0,
+  "formal_target_count": 16,
+  "frozen_hashes": {
+    "code_generation_system.txt": "02921cad5f7c3d61e48cec5d9f4ed5cbfec04074ed18416f4d085b42dacbfcb4",
+    "code_generation_user.txt": "30b7ca4e8eedcc5874530d18fa6cff9c0467fac51e55f2c11554c55d9493107d",
+    "condition_b_rag_context": "dcfa63ebf6e076427f83d1d1e79cd790c22dc4f371c9ea1ad6119c559173fd56",
+    "roundtrip_completeness_knowledge_content": "52f6345993e5eefcd55b116319e7a5eb51e0bc5653a3e7c3c88eb5ea8d2d093b",
+    "roundtrip_completeness_knowledge_file": "d64a7654f4fcad6614d140baa9e51ecba474303229e02e63020260c2b6c1234d",
+    "target_source": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9"
+  },
+  "input_isolation": {
+    "code_generation_semantic_input": "final_design_specification_only",
+    "dependency_header_loaded_by_codegen": false,
+    "fixed_scaffold_loaded": false,
+    "original_target_source_loaded_by_codegen": false,
+    "rag_context_loaded_by_codegen": false,
+    "test_or_build_result_loaded_by_codegen": false
+  },
+  "repository_clean_after_restoration": true,
+  "target_id": "riscv-simulator-instruction-ab-v1-dev04"
+}

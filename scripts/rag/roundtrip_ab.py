@@ -8,6 +8,7 @@ requests from a final design document without loading repository inputs.
 
 from __future__ import annotations
 
+import copy
 import json
 import re
 import subprocess
@@ -66,6 +67,7 @@ class RetrievalBundle:
     context: str
     query: dict[str, Any]
     fixed_design_knowledge: str
+    roundtrip_completeness_knowledge: str
     dependency_records: tuple[dict[str, Any], ...]
     manifest: dict[str, Any]
 
@@ -180,6 +182,29 @@ def validate_target_config(config: Mapping[str, Any]) -> None:
     for key, expected in required.items():
         if one_shot.get(key) != expected:
             raise RoundtripABError(f"one_shot.{key} must be {expected!r}")
+    execution = config.get("execution")
+    if isinstance(execution, Mapping) and execution.get("enabled") is True:
+        replacement_units = config.get("replacement_units")
+        if not isinstance(replacement_units, list) or not replacement_units:
+            raise RoundtripABError("enabled execution requires replacement_units")
+        replacement_pairs: set[tuple[str, str]] = set()
+        for raw_unit in replacement_units:
+            unit = _mapping(raw_unit, "replacement_units item")
+            pair = (str(unit.get("file_id", "")), str(unit.get("unit_id", "")))
+            if pair in replacement_pairs:
+                raise RoundtripABError(f"duplicate replacement unit IDs: {pair}")
+            replacement_pairs.add(pair)
+        required_pairs = {
+            (str(item["file_id"]), str(item["unit_id"]))
+            for item in inputs
+            if bool(item.get("replacement_required", False))
+        }
+        if replacement_pairs != required_pairs:
+            raise RoundtripABError(
+                "replacement_units must exactly match target inputs marked "
+                f"replacement_required=true: required={sorted(required_pairs)}, "
+                f"configured={sorted(replacement_pairs)}"
+            )
 
 
 def _normalized_text(raw: bytes) -> str:
@@ -263,6 +288,32 @@ def load_fixed_design_knowledge(
     )
     if sha256_bytes(text.encode("utf-8")) != expected_content_hash:
         raise RoundtripABError("fixed design knowledge content SHA-256 mismatch")
+    return text
+
+
+def load_roundtrip_completeness_knowledge(
+    config: Mapping[str, Any], project_root: Path
+) -> str:
+    retrieval = _mapping(config.get("retrieval"), "retrieval")
+    mode = retrieval.get("roundtrip_completeness_mode")
+    if mode is None:
+        return ""
+    if mode != "fixed-roundtrip-completeness-v1":
+        raise RoundtripABError("unknown round-trip completeness knowledge mode")
+    path = resolve_project_path(
+        project_root,
+        str(retrieval["roundtrip_completeness_path"]),
+        field="round-trip completeness knowledge",
+    )
+    if sha256_file(path) != str(retrieval.get("roundtrip_completeness_sha256", "")):
+        raise RoundtripABError("round-trip completeness knowledge file SHA-256 mismatch")
+    text = read_prompt(path)
+    if sha256_bytes(text.encode("utf-8")) != str(
+        retrieval.get("roundtrip_completeness_content_sha256", "")
+    ):
+        raise RoundtripABError(
+            "round-trip completeness knowledge content SHA-256 mismatch"
+        )
     return text
 
 
@@ -359,6 +410,7 @@ def retrieve_dependency_headers(
 def compose_rag_context(
     fixed_design_knowledge: str,
     dependencies: Sequence[Mapping[str, Any]],
+    roundtrip_completeness_knowledge: str = "",
 ) -> str:
     if not fixed_design_knowledge:
         raise RoundtripABError("fixed V4/V5 design knowledge is empty")
@@ -381,6 +433,14 @@ def compose_rag_context(
         chunks.append(str(record["content"]))
         chunks.append(f"\n----- END DEPENDENCY HEADER CONTENT: {path} -----\n\n")
     chunks.append("===== END DIRECT DEPENDENCY HEADER CONTEXT =====\n")
+    if roundtrip_completeness_knowledge:
+        chunks.extend(
+            [
+                "\n===== BEGIN ROUND-TRIP COMPLETENESS KNOWLEDGE =====\n",
+                roundtrip_completeness_knowledge,
+                "\n===== END ROUND-TRIP COMPLETENESS KNOWLEDGE =====\n",
+            ]
+        )
     return "".join(chunks)
 
 
@@ -395,8 +455,9 @@ def build_retrieval_bundle(
     if retrieval.get("target_specific_manual_query") is not False:
         raise RoundtripABError("target-specific manual query is prohibited")
     knowledge = load_fixed_design_knowledge(config, project_root)
+    completeness = load_roundtrip_completeness_knowledge(config, project_root)
     dependencies = retrieve_dependency_headers(config, repository_root, inputs)
-    context = compose_rag_context(knowledge, dependencies)
+    context = compose_rag_context(knowledge, dependencies, completeness)
     expected = retrieval.get("expected_evidence", [])
     checks: list[dict[str, Any]] = []
     for raw_check in expected:
@@ -450,6 +511,9 @@ def build_retrieval_bundle(
         "fixed_design_knowledge_content_sha256": sha256_bytes(
             knowledge.encode("utf-8")
         ),
+        "roundtrip_completeness_content_sha256": (
+            sha256_bytes(completeness.encode("utf-8")) if completeness else None
+        ),
         "knowledge_top_k_used": False,
         "manual_query_used": False,
         "source_feature_selection_used": False,
@@ -474,6 +538,10 @@ def build_retrieval_bundle(
         "fixed_design_knowledge_content_sha256": sha256_bytes(
             knowledge.encode("utf-8")
         ),
+        "roundtrip_completeness_bytes": len(completeness.encode("utf-8")),
+        "roundtrip_completeness_content_sha256": (
+            sha256_bytes(completeness.encode("utf-8")) if completeness else None
+        ),
         "knowledge_top_k_used": False,
         "leakage": leakage,
         "llm_call_count": 0,
@@ -488,15 +556,31 @@ def build_retrieval_bundle(
         context=context,
         query=query,
         fixed_design_knowledge=knowledge,
+        roundtrip_completeness_knowledge=completeness,
         dependency_records=tuple(dict(item) for item in dependencies),
         manifest=manifest,
     )
 
 
 def _input_envelope(inputs: Sequence[TargetInput]) -> str:
+    replacement_ids = [
+        f"{item.file_id}/{item.unit_id}" for item in inputs if item.replacement_required
+    ]
+    reference_ids = [
+        f"{item.file_id}/{item.unit_id}" for item in inputs if not item.replacement_required
+    ]
+    if not replacement_ids:
+        raise RoundtripABError("at least one target input must require replacement")
     parts = [
         "TARGET-OWNED INPUTS",
-        "各Fxx/Uxx識別子と対象コードの対応を最終設計仕様書に保持してください。",
+        "各Fxx/Uxx識別子、役割、replacement_requiredの値を最終設計仕様書に保持してください。",
+        "",
+        "REPLACEMENT UNIT CONTRACT",
+        "replacement_required=trueのunitだけがコード再生成と置換の対象です。",
+        "replacement_required=falseのunitは参照専用で、既存コードとして利用できますが再生成してはいけません。",
+        "最終設計仕様書では置換対象と参照専用を明確に分離してください。",
+        f"REPLACEMENT UNITS: {', '.join(replacement_ids)}",
+        f"REFERENCE-ONLY INPUTS: {', '.join(reference_ids) if reference_ids else 'none'}",
     ]
     for item in inputs:
         parts.extend(
@@ -616,12 +700,57 @@ def build_design_request(
     return RequestBundle(payload=payload, prompt=prompt, audit=audit)
 
 
+def build_effective_code_schema(
+    base_schema: Mapping[str, Any], expected_units: Sequence[Mapping[str, Any]]
+) -> dict[str, Any]:
+    """Constrain JSON output with opaque unit IDs, never repository semantics."""
+
+    pairs: list[tuple[str, str]] = []
+    for raw_unit in expected_units:
+        unit = _mapping(raw_unit, "expected code-generation unit")
+        pair = (str(unit.get("file_id", "")), str(unit.get("unit_id", "")))
+        if not re.fullmatch(r"F\d{2}", pair[0]) or not re.fullmatch(
+            r"U\d{2}", pair[1]
+        ):
+            raise RoundtripABError("expected code-generation IDs must use Fxx/Uxx")
+        if pair in pairs:
+            raise RoundtripABError(f"duplicate expected code-generation IDs: {pair}")
+        pairs.append(pair)
+    if not pairs:
+        raise RoundtripABError("code generation requires at least one expected unit")
+
+    schema = copy.deepcopy(dict(base_schema))
+    try:
+        units_schema = schema["properties"]["units"]
+        base_item = units_schema["items"]
+    except (KeyError, TypeError) as exc:
+        raise RoundtripABError("common code-generation schema structure differs") from exc
+
+    def item_for(pair: tuple[str, str]) -> dict[str, Any]:
+        item = copy.deepcopy(base_item)
+        item["properties"]["file_id"] = {"enum": [pair[0]], "type": "string"}
+        item["properties"]["unit_id"] = {"enum": [pair[1]], "type": "string"}
+        return item
+
+    units_schema["items"] = (
+        item_for(pairs[0])
+        if len(pairs) == 1
+        else {"oneOf": [item_for(pair) for pair in pairs]}
+    )
+    units_schema["minItems"] = len(pairs)
+    units_schema["maxItems"] = len(pairs)
+    units_schema["uniqueItems"] = True
+    return schema
+
+
 def build_code_request(
     final_design_document: str,
     common: Mapping[str, Any],
     project_root: Path,
+    *,
+    expected_units: Sequence[Mapping[str, Any]],
 ) -> RequestBundle:
-    """Build codegen from the design only; no target config is accepted."""
+    """Build codegen from the design plus opaque non-semantic output IDs only."""
 
     if not final_design_document.strip():
         raise RoundtripABError("final design document is empty")
@@ -632,7 +761,11 @@ def build_code_request(
     if template.count(marker) != 1:
         raise RoundtripABError("code-generation design marker must occur once")
     prompt = template.replace(marker, final_design_document)
-    schema = load_json(paths["code_generation_schema"])
+    base_schema = load_json(paths["code_generation_schema"])
+    schema = build_effective_code_schema(base_schema, expected_units)
+    expected_ids = [
+        f"{str(unit['file_id'])}/{str(unit['unit_id'])}" for unit in expected_units
+    ]
     generation = _mapping(common.get("generation"), "common.generation")
     payload = {
         "format": schema,
@@ -645,13 +778,19 @@ def build_code_request(
     audit = {
         "artifact_schema_version": "roundtrip-ab-code-request-audit-v1",
         "allowed_semantic_inputs": ["final design specification"],
+        "allowed_nonsemantic_inputs": [
+            "opaque replacement unit identifiers",
+            "JSON output schema",
+        ],
         "code_prompt_sha256": sha256_bytes(prompt.encode("utf-8")),
         "dependency_header_loaded": False,
         "fixed_scaffold_loaded": False,
         "original_target_source_loaded": False,
         "rag_context_loaded": False,
         "repository_access_used": False,
-        "schema_sha256": sha256_file(paths["code_generation_schema"]),
+        "base_schema_sha256": sha256_file(paths["code_generation_schema"]),
+        "effective_schema_sha256": sha256_bytes(canonical_json_bytes(schema)),
+        "expected_replacement_unit_ids": expected_ids,
         "test_or_build_result_loaded": False,
     }
     return RequestBundle(payload=payload, prompt=prompt, audit=audit)
@@ -729,7 +868,14 @@ class SourceReplacementTransaction:
                     start, end = int(unit["start_byte"]), int(unit["end_byte"])
                 if not (0 <= start < end <= len(original)):
                     raise RoundtripABError(f"replacement span is invalid: {relative}")
-                expected_span = unit.get("content_sha256")
+                # Full-file input content is normalized to LF for the design
+                # prompt, while replacement/restoration operates on the exact
+                # repository bytes.  The exact full-file bytes were already
+                # checked against source_file_sha256 above; content_sha256 is
+                # therefore only a raw byte-span guard here.
+                expected_span = (
+                    None if unit["scope"] == "full_file" else unit.get("content_sha256")
+                )
                 if expected_span and sha256_bytes(original[start:end]) != expected_span:
                     raise RoundtripABError(f"replacement span hash mismatch: {relative}")
                 replacements.append((start, end, content))
@@ -768,6 +914,13 @@ def write_retrieval_bundle(output_root: Path, bundle: RetrievalBundle) -> None:
         output_root / "fixed_design_knowledge.txt",
         (bundle.fixed_design_knowledge.rstrip("\n") + "\n").encode("utf-8"),
     )
+    if bundle.roundtrip_completeness_knowledge:
+        _write_exclusive(
+            output_root / "roundtrip_completeness_knowledge.txt",
+            (bundle.roundtrip_completeness_knowledge.rstrip("\n") + "\n").encode(
+                "utf-8"
+            ),
+        )
     _write_exclusive(
         output_root / "dependency_headers.jsonl",
         canonical_jsonl_bytes(bundle.dependency_records),
@@ -784,6 +937,14 @@ def write_retrieval_bundle(output_root: Path, bundle: RetrievalBundle) -> None:
         ),
         "query.json": sha256_bytes(canonical_json_bytes(bundle.query)),
     }
+    if bundle.roundtrip_completeness_knowledge:
+        manifest["artifact_hashes"]["roundtrip_completeness_knowledge.txt"] = (
+            sha256_bytes(
+                (bundle.roundtrip_completeness_knowledge.rstrip("\n") + "\n").encode(
+                    "utf-8"
+                )
+            )
+        )
     _write_exclusive(
         output_root / "retrieval_manifest.json", canonical_json_bytes(manifest)
     )
@@ -1097,7 +1258,15 @@ def execute_condition_once(
             design_document.encode("utf-8"),
         )
 
-        code_request = build_code_request(design_document, common, project_root)
+        replacement_units = config.get("replacement_units")
+        if not isinstance(replacement_units, list) or not replacement_units:
+            raise RoundtripABError("replacement_units are missing")
+        code_request = build_code_request(
+            design_document,
+            common,
+            project_root,
+            expected_units=replacement_units,
+        )
         code_request_bytes = canonical_json_bytes(code_request.payload)
         _write_exclusive(run_root / "code" / "prompt.txt", code_request.prompt.encode("utf-8"))
         _write_exclusive(run_root / "code" / "request.json", code_request_bytes)
@@ -1120,9 +1289,6 @@ def execute_condition_once(
         code_response = call_generation(endpoint, headers, code_request_bytes, timeout)
         _write_exclusive(run_root / "code" / "response.json", code_response)
         code_text = _ollama_text(code_response, "code generation")
-        replacement_units = config.get("replacement_units")
-        if not isinstance(replacement_units, list) or not replacement_units:
-            raise RoundtripABError("replacement_units are missing")
         generated = validate_generated_units(code_text, replacement_units)
         _write_exclusive(
             run_root / "code" / "validated_units.json",

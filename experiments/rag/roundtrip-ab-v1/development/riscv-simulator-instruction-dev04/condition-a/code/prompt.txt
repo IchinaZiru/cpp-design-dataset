@@ -1,0 +1,106 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# デザイン仕様書
+
+## 概要
+この設計仕様書は、与えられたC++ソースコードを再実装するための詳細なガイドラインを提供します。ソースコードはRISC-Vシミュレータの命令処理に関連しています。
+
+## 対象入力
+### REPLACEMENT UNITS:
+- **F01/U01**
+  - パス: `src/Common/Instruction.hpp`
+  - 役割: 完全なヘッダオンリーターゲット実装と宣言
+  - 置換必要: true
+
+### REFERENCE-ONLY INPUTS:
+- none
+
+## REPLACEMENT UNIT CONTRACT
+- **置換対象**: `replacement_required=true`のunitのみがコード再生成と置換の対象となります。
+- **参照専用**: `replacement_required=false`のunitは参照専用で、既存コードとして利用できますが再生成してはいけません。
+
+## 詳細仕様
+
+### ファイル: Instruction.hpp
+#### 概要
+このヘッダファイルはRISC-Vシミュレータにおいて命令を処理するための基本的な構造体とクラスを定義しています。主に命令の解析、検証、デバッグ機能が含まれています。
+
+#### クラス・構造体定義
+
+1. **InstructionBase**
+   - **役割**: 命令の共通部分を管理する基底クラス。
+   - **メンバ変数**:
+     - `unsigned opcode`: 命令コード
+     - `unsigned rs1, rs2, rd`: レジスタ番号 (ソースレジスタ1, ソースレジスタ2, 宛先レジスタ)
+     - `Immediate imm`: 即値
+     - `Instruction inst`: 命令の生データ
+     - `enum Type t`: 命令タイプ (R型, I型, S型, B型, U型, J型)
+
+   - **メンバ関数**:
+     - `InstructionBase()`: デフォルトコンストラクタ。すべてのフィールドを初期化する。
+     - `InstructionBase(unsigned)`: 特定の命令コードを持つI型命令用のコンストラクタ。
+     - `static InstructionBase nop()`: NOP命令を作成して返す静的メソッド。
+     - `bool is_nop()`: 現在のインスタンスがNOP命令であるかを判定する。
+     - `static constexpr unsigned int bin_mask(int digits)`: 指定されたビット数に対応するマスク値を計算する。
+     - `static unsigned int get_digits(unsigned int n, int hi, int lo)`: 与えられた整数から指定された範囲のビットを取り出す。
+     - `static unsigned int expand_digit(unsigned int digit, int lo)`: 指定されたビットが1の場合、その位置から下位ビットを全て1に設定する。
+     - `bool is_valid(const std::string &key)`: 指定されたキーに対するフィールドアクセスが有効であるかを判定する。
+     - `void verify(const std::string &key)`: 指定されたキーに対するフィールドアクセスが無効な場合、例外を投げる。
+     - `void debug()`: 命令の詳細情報を出力する。命令コードに応じて適切な命令名を表示する。
+     - `bool has_op1()`: 命令がオペランド1を持つかどうかを判定する。
+     - `bool has_op2()`: 命令がオペランド2を持つかどうかを判定する。
+
+2. **InstructionR**
+   - **役割**: R型命令の解析と管理を行う派生クラス。
+   - **コンストラクタ**:
+     - `InstructionR(const Instruction &inst)`: 与えられた命令データからR型命令のフィールドを初期化する。
+
+3. **InstructionI**
+   - **役割**: I型命令の解析と管理を行う派生クラス。
+   - **コンストラクタ**:
+     - `InstructionI(const Instruction &inst)`: 与えられた命令データからI型命令のフィールドを初期化する。
+
+4. **InstructionS**
+   - **役割**: S型命令の解析と管理を行う派生クラス。
+   - **コンストラクタ**:
+     - `InstructionS(const Instruction &inst)`: 与えられた命令データからS型命令のフィールドを初期化する。
+
+5. **InstructionB**
+   - **役割**: B型命令の解析と管理を行う派生クラス。
+   - **コンストラクタ**:
+     - `InstructionB(const Instruction &inst)`: 与えられた命令データからB型命令のフィールドを初期化する。
+
+6. **InstructionU**
+   - **役割**: U型命令の解析と管理を行う派生クラス。
+   - **コンストラクタ**:
+     - `InstructionU(const Instruction &inst)`: 与えられた命令データからU型命令のフィールドを初期化する。
+
+7. **InstructionJ**
+   - **役割**: J型命令の解析と管理を行う派生クラス。
+   - **コンストラクタ**:
+     - `InstructionJ(const Instruction &inst)`: 与えられた命令データからJ型命令のフィールドを初期化する。
+
+## 注意事項
+- この仕様書では、`replacement_required=false`のunitは参照専用とされています。これらの部分は再生成してはいけません。
+- `InstructionBase`クラスのメンバ関数や派生クラスのコンストラクタは命令データから必要な情報を抽出し、適切なフィールドに格納します。
+
+## まとめ
+この設計仕様書はRISC-Vシミュレータにおいて命令処理を行うための基本的な構造体とクラスを定義しています。`InstructionBase`クラスとその派生クラスを使用することで、様々な型の命令を解析し、検証し、デバッグすることができます。

@@ -1,0 +1,161 @@
+{
+  "artifact_schema_version": "roundtrip-design-only-ab-target-v1",
+  "execution": {
+    "commands": {
+      "build": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "cmake",
+        "--build",
+        "/evaluation/build",
+        "--parallel"
+      ],
+      "configure": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "cmake",
+        "-S",
+        "/source",
+        "-B",
+        "/evaluation/build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DYAML_CPP_BUILD_TESTS=ON",
+        "-DYAML_CPP_BUILD_TOOLS=OFF",
+        "-DYAML_CPP_BUILD_CONTRIB=ON"
+      ],
+      "direct_test": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "-w",
+        "/evaluation/build/test",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "./yaml-cpp-tests",
+        "--gtest_filter=BinaryTest.*"
+      ],
+      "full_test": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-rag-pilot-env:yaml-cpp-v1",
+        "ctest",
+        "--test-dir",
+        "/evaluation/build",
+        "--output-on-failure"
+      ]
+    },
+    "enabled": true,
+    "output_root": "experiments/rag/roundtrip-ab-v1/pilot/yaml-cpp-decode-base64-run02",
+    "plan_root": "reports/rag/roundtrip-ab-v1/pilot/yaml-cpp-decode-base64-run02/plan",
+    "stage_timeouts_seconds": {
+      "build": 600,
+      "configure": 300,
+      "direct_test": 300,
+      "full_test": 300
+    }
+  },
+  "formal_execution_authorized": false,
+  "formal_target_member": false,
+  "one_shot": {
+    "automatic_repair": false,
+    "code_generation_count": 1,
+    "design_generation_count": 1,
+    "manual_patch": false,
+    "overwrite": false,
+    "retry": false
+  },
+  "output": {
+    "retrieval_root": "rag/retrieval/roundtrip-ab-v1/pilot/yaml-cpp-decode-base64-run02"
+  },
+  "replacement_units": [
+    {
+      "content_sha256": "e98fa8d67a315509cdfaed2fa856a36d35d26dfa29ffda4f5e73bfb94ac57c15",
+      "end_byte": 3582,
+      "file_id": "F01",
+      "path": "src/binary.cpp",
+      "scope": "byte_span",
+      "source_file_sha256": "07dbe63c94fd6e04cc4972c721944f9c84ded902da4c34e849a1c05dc3d87424",
+      "start_byte": 2596,
+      "unit_id": "U01"
+    }
+  ],
+  "repository": {
+    "commit": "3eb39d5808c33aa93a113cb6c668fa2435ff3ecd",
+    "external": true,
+    "id": "yaml-cpp",
+    "path": "../cpp-rag-pilot-yaml-cpp"
+  },
+  "retrieval": {
+    "expected_evidence": [],
+    "include_roots": [
+      "include",
+      "src"
+    ],
+    "design_knowledge_mode": "fixed-v4-v5-verbatim-all-targets-v1",
+    "dependency_header_mode": "direct-project-local-quoted-include-whole-file-one-hop-v1",
+    "dependency_header_normalization": "utf8-bom-aware-newlines-to-lf-v1",
+    "fixed_design_knowledge_content_sha256": "13ffffe8c5c76b6493f36be79c56332ee2cd8ccfcf9b38685edfd6ab4137636f",
+    "fixed_design_knowledge_path": "configs/rag/roundtrip_ab_v1/prompts/fixed_v4_v5_design_knowledge.txt",
+    "fixed_design_knowledge_sha256": "72f781bedcb5cbd7d3caf7498440f9ed7023ac2ab61ba36c090e6fdcaadf9d5c",
+    "maximum_dependency_headers": 16,
+    "source_feature_selection": false,
+    "target_specific_manual_query": false
+  },
+  "stage": "formal_excluded_mechanics_pilot_unit_contract_v2",
+  "target_id": "yaml-cpp-decode-base64-ab-v1-pilot-02",
+  "target_owned_inputs": [
+    {
+      "content_sha256": "92d00de742700c20c79902dc2f0d0a2dcc26b6cfcf6611ae4c42410d1c893a16",
+      "end_byte": 3582,
+      "file_id": "F01",
+      "path": "src/binary.cpp",
+      "replacement_required": true,
+      "role": "target function implementation",
+      "scope": "byte_span",
+      "source_file_sha256": "07dbe63c94fd6e04cc4972c721944f9c84ded902da4c34e849a1c05dc3d87424",
+      "start_byte": 2596,
+      "unit_id": "U01"
+    },
+    {
+      "file_id": "F02",
+      "path": "include/yaml-cpp/binary.h",
+      "replacement_required": false,
+      "role": "target-owned public declaration; existing reference only",
+      "scope": "full_file",
+      "source_file_sha256": "85066ccce1c7b6f86caf231e3cb2489a1633d185d14cc19c566dfb484aa4599b",
+      "unit_id": "U02"
+    },
+    {
+      "content_sha256": "2028ba5b4257654dad08b70fa1db3d3ddd57217d05ab0c5e4b3c8ecdfed28616",
+      "end_byte": 2592,
+      "file_id": "F03",
+      "path": "src/binary.cpp",
+      "replacement_required": false,
+      "role": "target-owned file-local decoding table; existing reference only",
+      "scope": "byte_span",
+      "source_file_sha256": "07dbe63c94fd6e04cc4972c721944f9c84ded902da4c34e849a1c05dc3d87424",
+      "start_byte": 1178,
+      "unit_id": "U03"
+    }
+  ]
+}

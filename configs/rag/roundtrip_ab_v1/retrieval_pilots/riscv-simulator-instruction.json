@@ -4,7 +4,7 @@
     "enabled": false
   },
   "formal_execution_authorized": false,
-  "formal_target_member": true,
+  "formal_target_member": false,
   "one_shot": {
     "automatic_repair": false,
     "code_generation_count": 1,
@@ -43,7 +43,7 @@
     "source_feature_selection": false,
     "target_specific_manual_query": false
   },
-  "stage": "retrieval_only_gate",
+  "stage": "formal_excluded_development_retrieval_gate",
   "target_id": "riscv-simulator-instruction",
   "target_owned_inputs": [
     {

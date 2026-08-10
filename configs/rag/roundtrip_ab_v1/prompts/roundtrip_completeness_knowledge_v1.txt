@@ -1,0 +1,14 @@
+# Round-trip completeness knowledge v1
+
+これは個別targetの実装情報ではなく、再実装可能な設計仕様書を作るための汎用知識である。図や要約を作る前に、入力の各replacement unitについて「完全再構築台帳」を作成すること。
+
+## 完全再構築台帳
+
+- full-file/module-file unitでは、ファイル先頭から末尾までを再構築できるように、include guardまたはpragma、すべてのincludeを綴りと順序を保って記録し、すべてのtop-level宣言を出現順に列挙する。
+- `struct`/`class`、`typedef`/`using`、scoped/unscoped enum、継承、access、型、名前、const/static/constexpr、引数名、default値を別表現へ言い換えず記録する。
+- constructor、conversion、operator、method、free functionを一つも省略せず、完全なsignatureと、body内の各statement、式、literal、条件、比較演算子、分岐順、更新順、戻り値を入力どおり記録する。「同様」「各fieldを設定」「必要に応じて」のような要約で置き換えない。
+- 宣言数、型数、callable数を入力と台帳で照合し、代表例だけになっていないことを設計書内で確認する。
+- dependency headerの内容は参照情報であり、replacement unitの一部ではない。targetがそのheaderをincludeしている場合はincludeを保持し、dependency側のalias、enum、class、functionをtarget内へ再定義しない。どの外部symbolをどのincludeから利用するかを記録する。
+- 入力から確認できない項目は推測しない。確認できる構文や処理を一般化、簡略化、最適化、等価変形しない。
+
+最終設計仕様書では、図や説明より完全再構築台帳を優先し、別のLLMがreplacement unit全体を欠落なく生成できる粒度で記録すること。

@@ -15,14 +15,17 @@ from scripts.rag.roundtrip_ab import (
     TargetInput,
     build_code_request,
     build_design_request,
+    build_effective_code_schema,
     build_plan,
     build_retrieval_bundle,
     compose_design_prompt,
     execute_condition_once,
     load_common_config,
     load_json,
+    load_target_inputs,
     resolve_repository_root,
     retrieve_dependency_headers,
+    validate_target_config,
     validate_generated_units,
     write_retrieval_bundle,
 )
@@ -219,6 +222,28 @@ def test_a_and_b_use_same_base_prompt_and_b_only_adds_rag_context() -> None:
     )[0]
 
 
+def test_design_envelope_separates_replacement_and_reference_only_units() -> None:
+    reference = TargetInput(
+        file_id="F02",
+        unit_id="U02",
+        path="include/target.h",
+        replacement_required=False,
+        role="existing declaration",
+        content="int target(int value);\n",
+        source_file_sha256="0" * 64,
+        content_sha256="1" * 64,
+    )
+
+    prompt = compose_design_prompt(
+        "COMMON", (_target_input(), reference), condition="A", rag_context=None
+    )
+
+    assert "REPLACEMENT UNITS: F01/U01" in prompt
+    assert "REFERENCE-ONLY INPUTS: F02/U02" in prompt
+    assert "replacement_required=falseのunitは参照専用" in prompt
+    assert "再生成してはいけません" in prompt
+
+
 def test_canonical_minimal_prompt_matches_new_protocol_text() -> None:
     prompt = (
         PROJECT_ROOT
@@ -251,6 +276,36 @@ def test_fixed_v4_v5_design_knowledge_is_verbatim_and_not_ranked() -> None:
         PROJECT_ROOT
         / "configs/rag/roundtrip_ab_v1/design_knowledge_index_v1.json"
     ).exists()
+
+
+def test_roundtrip_completeness_knowledge_is_generic_and_dependency_safe() -> None:
+    path = (
+        PROJECT_ROOT
+        / "configs/rag/roundtrip_ab_v1/prompts/"
+        "roundtrip_completeness_knowledge_v1.txt"
+    )
+    text = path.read_text(encoding="utf-8")
+
+    assert "完全再構築台帳" in text
+    assert "すべてのinclude" in text
+    assert "dependency側" in text
+    assert "再定義しない" in text
+    assert "Instruction" not in text
+    assert "Immediate" not in text
+
+    config = load_json(
+        PROJECT_ROOT
+        / "configs/rag/roundtrip_ab_v1/development/"
+        "riscv-simulator-instruction-dev04.json"
+    )
+    repository = resolve_repository_root(config, PROJECT_ROOT)
+    bundle = build_retrieval_bundle(config, PROJECT_ROOT, repository)
+    assert bundle.roundtrip_completeness_knowledge == text.rstrip("\n")
+    assert "BEGIN ROUND-TRIP COMPLETENESS KNOWLEDGE" in bundle.context
+    assert bundle.manifest["roundtrip_completeness_bytes"] > 0
+    assert bundle.manifest["roundtrip_completeness_content_sha256"] == (
+        "52f6345993e5eefcd55b116319e7a5eb51e0bc5653a3e7c3c88eb5ea8d2d093b"
+    )
 
 
 def test_all_targets_use_same_fixed_knowledge_without_source_feature_top_k() -> None:
@@ -322,19 +377,76 @@ def test_condition_a_rejects_rag_context() -> None:
 
 def test_code_request_accepts_design_only_and_uses_common_protocol() -> None:
     common = load_common_config(COMMON_PATH, PROJECT_ROOT)
+    expected = [{"file_id": "F01", "unit_id": "U01"}]
 
-    request = build_code_request("UNIQUE FINAL DESIGN", common, PROJECT_ROOT)
+    request = build_code_request(
+        "UNIQUE FINAL DESIGN",
+        common,
+        PROJECT_ROOT,
+        expected_units=expected,
+    )
 
     assert "UNIQUE FINAL DESIGN" in request.prompt
     assert "RAG_CONTEXT" not in request.prompt
     assert "fixed scaffold" not in request.prompt.lower()
     assert "src/target.cpp" not in request.prompt
+    assert "参照専用unitは生成しない" in request.prompt
+    assert "完全な関数定義を出力" in request.prompt
+    assert "関数body内の文だけを出力してはいけません" in request.prompt
+    assert "error path、境界条件を逐語的に実装" in request.prompt
+    assert "参照専用または既存の周辺symbol" in request.payload["system"]
+    assert "省略・簡略化・等価変形してはいけません" in request.payload["system"]
     assert request.audit["allowed_semantic_inputs"] == [
         "final design specification"
     ]
     assert request.audit["original_target_source_loaded"] is False
     assert request.audit["dependency_header_loaded"] is False
     assert request.audit["repository_access_used"] is False
+    assert request.audit["expected_replacement_unit_ids"] == ["F01/U01"]
+    assert request.audit["allowed_nonsemantic_inputs"] == [
+        "opaque replacement unit identifiers",
+        "JSON output schema",
+    ]
+    units_schema = request.payload["format"]["properties"]["units"]
+    assert units_schema["minItems"] == 1
+    assert units_schema["maxItems"] == 1
+    assert units_schema["items"]["properties"]["file_id"]["enum"] == ["F01"]
+    assert units_schema["items"]["properties"]["unit_id"]["enum"] == ["U01"]
+
+
+def test_effective_schema_allows_only_opaque_expected_unit_pairs() -> None:
+    base = load_json(
+        PROJECT_ROOT / "configs/rag/roundtrip_ab_v1/code_generation_schema.json"
+    )
+    schema = build_effective_code_schema(
+        base,
+        [
+            {"file_id": "F01", "unit_id": "U01"},
+            {"file_id": "F03", "unit_id": "U03"},
+        ],
+    )
+
+    units = schema["properties"]["units"]
+    assert units["minItems"] == 2
+    assert units["maxItems"] == 2
+    variants = units["items"]["oneOf"]
+    assert [
+        (
+            item["properties"]["file_id"]["enum"][0],
+            item["properties"]["unit_id"]["enum"][0],
+        )
+        for item in variants
+    ] == [("F01", "U01"), ("F03", "U03")]
+
+
+def test_enabled_config_requires_exact_replacement_contract() -> None:
+    config = _minimal_config()
+    config["execution"] = {"enabled": True}
+    config["target_owned_inputs"][0]["replacement_required"] = True
+    config["replacement_units"] = [{"file_id": "F02", "unit_id": "U02"}]
+
+    with pytest.raises(RoundtripABError, match="must exactly match"):
+        validate_target_config(config)
 
 
 def test_common_prompt_hash_mismatch_is_rejected(tmp_path: Path) -> None:
@@ -524,6 +636,88 @@ def test_plan_records_zero_calls_and_identical_base_prompt() -> None:
     )
 
 
+def test_run02_exposes_file_local_decoding_table_to_both_conditions() -> None:
+    config = load_json(
+        PROJECT_ROOT
+        / "configs/rag/roundtrip_ab_v1/mechanics_pilot/"
+        "yaml-cpp-decode-base64-run02.json"
+    )
+    validate_target_config(config)
+    repository = resolve_repository_root(config, PROJECT_ROOT)
+    inputs = load_target_inputs(config, repository)
+    common = load_common_config(COMMON_PATH, PROJECT_ROOT)
+    base = (
+        PROJECT_ROOT / common["prompts"]["design_generation"]
+    ).read_text(encoding="utf-8")
+    decoding = next(item for item in inputs if item.file_id == "F03")
+
+    prompt_a = compose_design_prompt(
+        base, inputs, condition="A", rag_context=None
+    )
+    prompt_b = compose_design_prompt(
+        base, inputs, condition="B", rag_context="RAG EVIDENCE"
+    )
+
+    assert decoding.replacement_required is False
+    assert "static constexpr unsigned char decoding[]" in decoding.content
+    assert "REFERENCE-ONLY INPUTS: F02/U02, F03/U03" in prompt_a
+    assert decoding.content in prompt_a
+    assert decoding.content in prompt_b
+
+
+def test_instruction_development_config_is_formal_excluded_full_file() -> None:
+    config = load_json(
+        PROJECT_ROOT
+        / "configs/rag/roundtrip_ab_v1/development/"
+        "riscv-simulator-instruction-dev01.json"
+    )
+    validate_target_config(config)
+    repository = resolve_repository_root(config, PROJECT_ROOT)
+    inputs = load_target_inputs(config, repository)
+
+    assert config["formal_target_member"] is False
+    assert config["stage"] == "formal_excluded_development_tuning"
+    assert len(inputs) == 1
+    assert inputs[0].replacement_required is True
+    assert config["replacement_units"][0]["scope"] == "full_file"
+    assert inputs[0].content_sha256 == (
+        "f1a2a6bfb8f5588fb1fd14fad5eac65c4eedb31b0d10febe9aade2084baa4cfd"
+    )
+
+
+def test_frozen_common_excludes_instruction_and_declares_16_formal_targets() -> None:
+    common = load_common_config(COMMON_PATH, PROJECT_ROOT)
+    freeze = common["development_freeze"]
+
+    assert common["status"] == "frozen_after_instruction_development_gate"
+    assert common["version"] == "1.8-frozen-16"
+    assert freeze["formal_target_count"] == 16
+    assert freeze["excluded_target_ids"] == ["riscv-simulator-instruction"]
+    assert freeze["gate_run_id"] == "riscv-simulator-instruction-ab-v1-dev04"
+    retrieval_config = load_json(
+        PROJECT_ROOT
+        / "configs/rag/roundtrip_ab_v1/retrieval_pilots/"
+        "riscv-simulator-instruction.json"
+    )
+    assert retrieval_config["formal_target_member"] is False
+
+
+def test_codegen_prompt_requires_complete_full_file_units() -> None:
+    common = load_json(COMMON_PATH)
+    prompt = (
+        PROJECT_ROOT / common["prompts"]["code_generation_user"]
+    ).read_text(encoding="utf-8")
+    system = (
+        PROJECT_ROOT / common["prompts"]["code_generation_system"]
+    ).read_text(encoding="utf-8")
+
+    for text in (prompt, system):
+        assert "full-file" in text
+        assert "完全なファイル" in text
+        assert "代表的な関数一つ" in text
+        assert "除外規則" in text
+
+
 def test_retrieval_artifacts_refuse_overwrite(tmp_path: Path) -> None:
     config = load_json(
         PROJECT_ROOT
@@ -599,6 +793,39 @@ def test_span_replacement_restores_exact_original_bytes(tmp_path: Path) -> None:
     assert restored["source.cpp"] == sha256_bytes(original)
 
 
+def test_full_file_replacement_accepts_normalized_content_hash_and_restores_crlf(
+    tmp_path: Path,
+) -> None:
+    repository = tmp_path / "repo"
+    repository.mkdir()
+    source = repository / "target.hpp"
+    original = b"#ifndef X\r\n#define X\r\nint old();\r\n#endif\r\n"
+    normalized = original.replace(b"\r\n", b"\n")
+    source.write_bytes(original)
+    units = [
+        {
+            "file_id": "F01",
+            "unit_id": "U01",
+            "path": "target.hpp",
+            "scope": "full_file",
+            "source_file_sha256": sha256_bytes(original),
+            "content_sha256": sha256_bytes(normalized),
+        }
+    ]
+    transaction = SourceReplacementTransaction(
+        repository,
+        units,
+        {("F01", "U01"): "#ifndef X\n#define X\nint generated();\n#endif\n"},
+    )
+
+    transaction.apply()
+    assert b"generated" in source.read_bytes()
+    restored = transaction.restore()
+
+    assert source.read_bytes() == original
+    assert restored["target.hpp"] == sha256_bytes(original)
+
+
 def test_mocked_mechanics_pipeline_is_design_only_and_restores_source(
     tmp_path: Path,
 ) -> None:
@@ -647,6 +874,10 @@ def test_mocked_mechanics_pipeline_is_design_only_and_restores_source(
     code_request = requests[1]
     assert "target() { return 1; }" not in code_request["prompt"]
     assert "RAG_CONTEXT" not in code_request["prompt"]
+    unit_schema = code_request["format"]["properties"]["units"]
+    assert unit_schema["maxItems"] == 1
+    assert unit_schema["items"]["properties"]["file_id"]["enum"] == ["F01"]
+    assert unit_schema["items"]["properties"]["unit_id"]["enum"] == ["U01"]
     audit = json.loads(
         (
             tmp_path

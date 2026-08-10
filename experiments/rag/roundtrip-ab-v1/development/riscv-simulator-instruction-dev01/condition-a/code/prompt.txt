@@ -1,0 +1,95 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、型宣言、メンバー、inline実装、終端を省略してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# デザイン仕様書
+
+## 概要
+この設計仕様書は、与えられたC++ソースコードを再実装するための詳細なガイドラインを提供します。ソースコードはRISC-Vシミュレータの命令処理部分を含んでおり、ヘッダーファイルとして機能します。
+
+## 対象入力
+### REPLACEMENT UNITS:
+- **F01/U01**
+  - パス: `src/Common/Instruction.hpp`
+  - 役割: 完全なヘッダーオンリーターゲットの実装と宣言
+  - 置換必要: true
+
+### REFERENCE-ONLY INPUTS:
+- none
+
+## REPLACEMENT UNIT CONTRACT
+- **置換対象**: `replacement_required=true`が設定されているユニットのみがコード再生成と置換の対象となります。
+- **参照専用**: `replacement_required=false`が設定されているユニットは、既存コードとして利用できますが再生成してはいけません。
+
+## 詳細仕様
+
+### ファイル: Instruction.hpp
+#### 概要
+このヘッダーファイルはRISC-Vシミュレータの命令処理部分を定義しています。命令の種類（R型、I型、S型、B型、U型、J型）に対応する構造体と、それらの命令を解析・生成するための関数が含まれています。
+
+#### インクルードファイル
+- `<utility>`
+- `"Common.h"`
+- `<string>`
+- `<iostream>`
+
+#### 型定義
+- `Instruction`: `unsigned int`型
+
+#### 構造体: InstructionBase
+**役割**: すべての命令種類で共通するフィールドとメソッドを提供します。
+
+##### メンバ変数:
+- `opcode`: 命令コード (6ビット)
+- `rs1`, `rs2`, `rd`: レジスタ番号
+- `funct3`, `funct7`: 機能フィールド
+- `imm`: 即値
+- `inst`: 完全な命令を表す整数値
+- `t`: 命令の型 (R, I, S, B, U, J)
+
+##### メンバ関数:
+- **コンストラクタ**:
+  - `InstructionBase()`: 各フィールドを初期化します。
+  - `InstructionBase(unsigned)`: 特定の命令コードを持つI型命令として初期化します。
+
+- **静的メソッド**:
+  - `nop()`: NOP命令を生成して返します。
+  - `bin_mask(int digits)`: 指定されたビット数に対応するマスク値を計算します。
+  - `get_digits(unsigned int n, int hi, int lo)`: 整数nから指定された範囲のビットを取り出します。
+  - `expand_digit(unsigned int digit, int lo)`: 指定されたビットが1の場合、その位置から上位ビットを1に設定した値を返します。
+
+- **インスタンスメソッド**:
+  - `is_nop()`: NOP命令であるかどうかを判定します。
+  - `is_valid(const std::string &key)`: 指定されたキーが現在の命令型で有効なフィールドであるかを判定します。
+  - `verify(const std::string &key)`: 指定されたキーが無効な場合、`InvalidAccess`例外をスローします。
+  - `debug()`: 命令の詳細情報を出力します。
+  - `has_op1()`: 命令にオペランド1が必要かどうかを判定します。
+  - `has_op2()`: 命令にオペランド2が必要かどうかを判定します。
+
+##### クラス: InvalidAccess
+- **役割**: 無効なフィールドアクセス時にスローされる例外クラスです。
+
+#### 構造体: InstructionR, InstructionI, InstructionS, InstructionB, InstructionU, InstructionJ
+**役割**: 各命令型（R型、I型、S型、B型、U型、J型）に対応する構造体で、`InstructionBase`を継承しています。
+
+##### コンストラクタ:
+- `InstructionX(const Instruction &inst)`: 命令コードから各フィールドを解析して初期化します。ここでXはR, I, S, B, U, Jのいずれかです。
+
+## まとめ
+この設計仕様書では、`Instruction.hpp`ファイルの構造と機能について詳細に説明しました。再実装を行う際には、これらの仕様を基に新たなコードを生成し、既存の参照専用部分は変更せずに利用してください。

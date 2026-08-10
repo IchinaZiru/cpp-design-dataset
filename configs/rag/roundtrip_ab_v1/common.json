@@ -1,6 +1,12 @@
 {
   "artifact_schema_version": "roundtrip-design-only-ab-common-v1",
-  "condition_difference": "Condition B alone receives deterministic RAG_CONTEXT containing the verbatim fixed V4/V5 design guidance and complete one-hop direct project-local quoted-include dependency headers; the base design prompt and all generation settings are identical.",
+  "condition_difference": "Condition B alone receives deterministic RAG_CONTEXT containing the verbatim fixed V4/V5 design guidance, generic round-trip completeness knowledge, and complete one-hop direct project-local quoted-include dependency headers; the base design prompt and all generation settings are identical.",
+  "code_generation_unit_contract": {
+    "allowed_nonsemantic_input": "opaque replacement unit identifiers only",
+    "effective_schema_mode": "exact-replacement-unit-ids-and-count-v1",
+    "reference_only_unit_generation": false,
+    "surrounding_code_duplication": false
+  },
   "design_knowledge": {
     "content_sha256": "13ffffe8c5c76b6493f36be79c56332ee2cd8ccfcf9b38685edfd6ab4137636f",
     "mode": "fixed-v4-v5-verbatim-all-targets-v1",
@@ -10,6 +16,15 @@
     "verbatim_prompt_builder_commit": "dd140245ab278636261bc46a0c5fbdb919ef9932",
     "verbatim_v4_request_commit": "bd7bf7bf399130ef739793fe44a71de61dff0209",
     "verbatim_v5_request_commit": "d99c627339b9878dc944d91bfc638869ebe94a66"
+  },
+  "development_freeze": {
+    "excluded_target_ids": [
+      "riscv-simulator-instruction"
+    ],
+    "formal_target_count": 16,
+    "gate_run_id": "riscv-simulator-instruction-ab-v1-dev04",
+    "roundtrip_completeness_content_sha256": "52f6345993e5eefcd55b116319e7a5eb51e0bc5653a3e7c3c88eb5ea8d2d093b",
+    "roundtrip_completeness_file_sha256": "d64a7654f4fcad6614d140baa9e51ecba474303229e02e63020260c2b6c1234d"
   },
   "formal_execution_authorized": false,
   "generation": {
@@ -51,13 +66,13 @@
     "code_generation_schema": "configs/rag/roundtrip_ab_v1/code_generation_schema.json",
     "code_generation_schema_sha256": "05776575cce2372e90bd87fe8301c2b85e8d20ab611c244ee798d3c2e33cb44b",
     "code_generation_system": "configs/rag/roundtrip_ab_v1/prompts/code_generation_system.txt",
-    "code_generation_system_sha256": "43348493c16d845b376608404ddd1bc2d34628d022399f923441fffb54f1cdee",
+    "code_generation_system_sha256": "02921cad5f7c3d61e48cec5d9f4ed5cbfec04074ed18416f4d085b42dacbfcb4",
     "code_generation_user": "configs/rag/roundtrip_ab_v1/prompts/code_generation_user.txt",
-    "code_generation_user_sha256": "1225cb806a3c93e837de6dcbc99a39a7d6485fdd86c0c8015c4070261ab0b4b1",
+    "code_generation_user_sha256": "30b7ca4e8eedcc5874530d18fa6cff9c0467fac51e55f2c11554c55d9493107d",
     "design_generation": "configs/rag/roundtrip_ab_v1/prompts/design_generation.txt",
     "design_generation_sha256": "22736c6e9f4c9bad283a8e060fb5cff3cc0a80e4bc2fdebab9c4e94cf9d351e1"
   },
   "protocol_id": "design-only-roundtrip-ab-v1",
-  "status": "pilot_not_frozen",
-  "version": "1.2-prepilot"
+  "status": "frozen_after_instruction_development_gate",
+  "version": "1.8-frozen-16"
 }

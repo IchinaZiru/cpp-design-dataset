@@ -1,0 +1,260 @@
+# 詳細設計仕様書
+
+## 1. 目的
+この設計仕様書は、`Instruction.hpp` ファイルの再実装に必要な詳細情報を提供します。元コードから確認できる事実のみを基に記述し、推測や仮定を行いません。
+
+## 2. 対象スコープ
+- **ファイルパス**: `src/Common/Instruction.hpp`
+- **役割**: 完全なヘッダオンリーターゲットの実装と宣言
+- **置換対象**: `replacement_required: true`
+
+## 3. クラス図
+
+```mermaid
+classDiagram
+    class InstructionBase {
+        +unsigned opcode
+        +unsigned rs1
+        +unsigned rs2
+        +unsigned rd
+        +unsigned funct3
+        +unsigned funct7
+        +Immediate imm
+        +Instruction inst
+        +enum Type { R, I, S, B, U, J } t
+        +static constexpr unsigned int bin_mask(int digits)
+        +static unsigned int get_digits(unsigned int n, int hi, int lo)
+        +static unsigned int expand_digit(unsigned int digit, int lo)
+        +bool is_valid(const std::string &key)
+        +void verify(const std::string &key)
+        +void debug()
+        +bool has_op1()
+        +bool has_op2()
+    }
+    
+    class InstructionR {
+        -Instruction inst
+        +InstructionR(const Instruction &inst)
+    }
+
+    class InstructionI {
+        -Instruction inst
+        +InstructionI(const Instruction &inst)
+    }
+
+    class InstructionS {
+        -Instruction inst
+        +InstructionS(const Instruction &inst)
+    }
+
+    class InstructionB {
+        -Instruction inst
+        +InstructionB(const Instruction &inst)
+    }
+
+    class InstructionU {
+        -Instruction inst
+        +InstructionU(const Instruction &inst)
+    }
+
+    class InstructionJ {
+        -Instruction inst
+        +InstructionJ(const Instruction &inst)
+    }
+    
+    InstructionBase <|-- InstructionR
+    InstructionBase <|-- InstructionI
+    InstructionBase <|-- InstructionS
+    InstructionBase <|-- InstructionB
+    InstructionBase <|-- InstructionU
+    InstructionBase <|-- InstructionJ
+
+    class InvalidAccess {
+        +InvalidAccess()
+    }
+
+    InstructionBase *-- InvalidAccess : throws
+```
+
+## 4. クラス・メソッド・インターフェース詳細
+
+| クラス名         | メンバ名          | 型 / 戻り値型       | 可視性 | const | static | 引数                                                                 |
+|------------------|-------------------|---------------------|--------|-------|--------|----------------------------------------------------------------------|
+| InstructionBase  | opcode            | unsigned            | public |       |        |                                                                      |
+| InstructionBase  | rs1               | unsigned            | public |       |        |                                                                      |
+| InstructionBase  | rs2               | unsigned            | public |       |        |                                                                      |
+| InstructionBase  | rd                | unsigned            | public |       |        |                                                                      |
+| InstructionBase  | funct3            | unsigned            | public |       |        |                                                                      |
+| InstructionBase  | funct7            | unsigned            | public |       |        |                                                                      |
+| InstructionBase  | imm               | Immediate           | public |       |        |                                                                      |
+| InstructionBase  | inst              | Instruction         | public |       |        |                                                                      |
+| InstructionBase  | t                 | Type                | public |       |        |                                                                      |
+| InstructionBase  | bin_mask          | unsigned int        | static |       | true   | int digits                                                           |
+| InstructionBase  | get_digits        | unsigned int        | static |       | true   | unsigned int n, int hi, int lo                                     |
+| InstructionBase  | expand_digit      | unsigned int        | static |       | true   | unsigned int digit, int lo                                         |
+| InstructionBase  | is_valid          | bool                | public |       |        | const std::string &key                                             |
+| InstructionBase  | verify            | void                | public |       |        | const std::string &key                                             |
+| InstructionBase  | debug             | void                | public |       |        |                                                                      |
+| InstructionBase  | has_op1           | bool                | public |       |        |                                                                      |
+| InstructionBase  | has_op2           | bool                | public |       |        |                                                                      |
+| InvalidAccess    | InvalidAccess     |                     | public |       | false  |                                                                      |
+| InstructionR     | InstructionR      |                     | public |       | false  | const Instruction &inst                                            |
+| InstructionI     | InstructionI      |                     | public |       | false  | const Instruction &inst                                            |
+| InstructionS     | InstructionS      |                     | public |       | false  | const Instruction &inst                                            |
+| InstructionB     | InstructionB      |                     | public |       | false  | const Instruction &inst                                            |
+| InstructionU     | InstructionU      |                     | public |       | false  | const Instruction &inst                                            |
+| InstructionJ     | InstructionJ      |                     | public |       | false  | const Instruction &inst                                            |
+
+## 5. シーケンス図
+シーケンス図は、具体的な呼び出し順序や条件分岐が確認できないため、該当なし。
+
+## 6. メソッド仕様書
+
+### 6.1 `InstructionBase::bin_mask`
+- **目的**: 指定されたビット数のマスクを生成する。
+- **引数**: 
+  - `digits`: ビット数 (int)
+- **戻り値型**: unsigned int
+- **動作**: `(1 << digits) - 1` を計算して返す。
+
+### 6.2 `InstructionBase::get_digits`
+- **目的**: 指定された範囲のビットを抽出する。
+- **引数**: 
+  - `n`: 抽出元の値 (unsigned int)
+  - `hi`: 高位ビット位置 (int)
+  - `lo`: 低位ビット位置 (int)
+- **戻り値型**: unsigned int
+- **動作**: `(n >> lo) & bin_mask(hi - lo + 1)` を計算して返す。
+
+### 6.3 `InstructionBase::expand_digit`
+- **目的**: 指定されたビットを符号拡張する。
+- **引数**: 
+  - `digit`: 抽出元の値 (unsigned int)
+  - `lo`: 低位ビット位置 (int)
+- **戻り値型**: unsigned int
+- **動作**: `digit ? (0xffffffff << lo) : 0` を計算して返す。
+
+### 6.4 `InstructionBase::is_valid`
+- **目的**: 指定されたキーが有効かどうかを確認する。
+- **引数**: 
+  - `key`: チェック対象のキー (const std::string &)
+- **戻り値型**: bool
+- **動作**: キーと命令タイプに応じて有効性をチェックし、結果を返す。
+
+### 6.5 `InstructionBase::verify`
+- **目的**: 指定されたキーが無効な場合に例外を投げる。
+- **引数**: 
+  - `key`: チェック対象のキー (const std::string &)
+- **戻り値型**: void
+- **動作**: `is_valid(key)` が false の場合は `InvalidAccess` をスローする。
+
+### 6.6 `InstructionBase::debug`
+- **目的**: 命令をデバッグ出力する。
+- **引数**: 無し
+- **戻り値型**: void
+- **動作**: 命令の opcode に応じて適切な命令名を出力する。
+
+### 6.7 `InstructionBase::has_op1`
+- **目的**: 命令がオペランド1を持っているかどうかを確認する。
+- **引数**: 無し
+- **戻り値型**: bool
+- **動作**: 命令タイプが U や J でない場合に true を返す。
+
+### 6.8 `InstructionBase::has_op2`
+- **目的**: 命令がオペランド2を持っているかどうかを確認する。
+- **引数**: 無し
+- **戻り値型**: bool
+- **動作**: 命令タイプが R, S, B のいずれかである場合に true を返す。
+
+### 6.9 `InstructionR::InstructionR`
+- **目的**: R 型命令を初期化する。
+- **引数**: 
+  - `inst`: 命令値 (const Instruction &)
+- **戻り値型**: void
+- **動作**: 引数の命令値から opcode, rd, funct3, rs1, rs2, funct7 を抽出し、メンバ変数に設定する。
+
+### 6.10 `InstructionI::InstructionI`
+- **目的**: I 型命令を初期化する。
+- **引数**: 
+  - `inst`: 命令値 (const Instruction &)
+- **戻り値型**: void
+- **動作**: 引数の命令値から opcode, rd, funct3, rs1 を抽出し、imm を符号拡張してメンバ変数に設定する。
+
+### 6.11 `InstructionS::InstructionS`
+- **目的**: S 型命令を初期化する。
+- **引数**: 
+  - `inst`: 命令値 (const Instruction &)
+- **戻り値型**: void
+- **動作**: 引数の命令値から opcode, funct3, rs1, rs2 を抽出し、imm を符号拡張してメンバ変数に設定する。
+
+### 6.12 `InstructionB::InstructionB`
+- **目的**: B 型命令を初期化する。
+- **引数**: 
+  - `inst`: 命令値 (const Instruction &)
+- **戻り値型**: void
+- **動作**: 引数の命令値から opcode, funct3, rs1, rs2 を抽出し、imm を符号拡張してメンバ変数に設定する。
+
+### 6.13 `InstructionU::InstructionU`
+- **目的**: U 型命令を初期化する。
+- **引数**: 
+  - `inst`: 命令値 (const Instruction &)
+- **戻り値型**: void
+- **動作**: 引数の命令値から opcode, rd を抽出し、imm を符号拡張してメンバ変数に設定する。
+
+### 6.14 `InstructionJ::InstructionJ`
+- **目的**: J 型命令を初期化する。
+- **引数**: 
+  - `inst`: 命令値 (const Instruction &)
+- **戻り値型**: void
+- **動作**: 引数の命令値から opcode, rd を抽出し、imm を符号拡張してメンバ変数に設定する。
+
+## 7. 処理フロー図
+処理フロー図は、具体的な呼び出し順序や条件分岐が確認できないため、該当なし。
+
+## 8. 状態遷移・副作用
+
+| 更新前状態 | 遷移条件                     | 変更対象         | 更新後状態 | 更新順序 | 副作用 |
+|------------|------------------------------|------------------|------------|----------|--------|
+| 任意       | `InstructionBase::verify`    | 無し             | 例外スロー | -        | InvalidAccess スロー |
+| 任意       | `InstructionR::InstructionR` | opcode, rd, funct3, rs1, rs2, funct7 | 初期化   | -        | 無し     |
+| 任意       | `InstructionI::InstructionI` | opcode, rd, funct3, rs1, imm         | 初期化   | -        | 無し     |
+| 任意       | `InstructionS::InstructionS` | opcode, funct3, rs1, rs2, imm        | 初期化   | -        | 無し     |
+| 任意       | `InstructionB::InstructionB` | opcode, funct3, rs1, rs2, imm        | 初期化   | -        | 無し     |
+| 任意       | `InstructionU::InstructionU` | opcode, rd, imm                      | 初期化   | -        | 無し     |
+| 任意       | `InstructionJ::InstructionJ` | opcode, rd, imm                      | 初期化   | -        | 無し     |
+
+## 9. データ変換・制約
+
+| 入力データ         | 出力データ         | 変換規則                                                                 |
+|--------------------|--------------------|--------------------------------------------------------------------------|
+| `inst` (unsigned)  | opcode, rs1, rs2, rd, funct3, funct7, imm | 各フィールドにビット抽出し、必要に応じて符号拡張する。 |
+
+## 10. 追加詳細設計情報
+
+### 10.1 型定義
+- `Instruction` / unsigned int / RISC-V命令を表す32ビットの整数。
+- `Immediate` / unsigned int / 即値を表す符号なし整数。
+- `SImmediate` / int / 即値を表す符号付き整数。
+
+### 10.2 定数
+- `opcode` の値は具体的な命令に応じて設定される。例えば、`0b0010011` は I 型命令を示す。
+- `funct3`, `funct7` などのフィールドも同様に命令の種類によって異なる値が設定される。
+
+### 10.3 ビット操作
+- 各命令型（R, I, S, B, U, J）ごとに必要なビットを抽出し、必要に応じて符号拡張する。
+- `bin_mask`, `get_digits`, `expand_digit` などのメソッドを使用して具体的なビット操作を行う。
+
+### 10.4 エラーハンドリング
+- `verify` メソッドで指定されたキーが無効な場合に `InvalidAccess` 例外をスローする。
+- 命令の有効性チェックは命令タイプとフィールドの組み合わせによって行われる。
+
+### 10.5 デバッグ出力
+- `debug` メソッドで命令の opcode に応じて適切な命令名を出力する。
+- 特定の命令値（例: `0x00000013`）に対して特別な出力を生成する。
+
+### 10.6 オペランドチェック
+- `has_op1`, `has_op2` メソッドで命令が持つオペランドを確認する。
+- 命令タイプに応じてオペランドの有無を判定し、結果を返す。
+
+## 11. 参照専用入力
+参照専用入力は該当なし。

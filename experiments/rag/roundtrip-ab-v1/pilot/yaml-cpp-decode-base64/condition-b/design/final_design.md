@@ -1,0 +1,184 @@
+# 詳細設計仕様書
+
+## 目的
+対象コードから再実装に必要な実装上の事実を失わない詳細設計情報を生成する。
+
+## 基本情報
+
+### 対象コードの概要
+- **ファイルパス**: `src/binary.cpp`
+- **役割**: Base64デコーダーの実装
+- **置換必要性**: あり
+
+### 対応関係
+- **F01/U01**: `DecodeBase64` 関数の実装
+- **F02/U02**: `Binary` クラスの公開宣言
+
+## クラス図
+```mermaid
+classDiagram
+    class Binary {
+        +YAML_CPP_API Binary(const unsigned char *data_, std::size_t size_)
+        +YAML_CPP_API Binary()
+        +YAML_CPP_API Binary(const Binary &)
+        +YAML_CPP_API Binary(Binary &&)
+        +YAML_CPP_API Binary &operator=(const Binary &)
+        +YAML_CPP_API Binary &operator=(Binary &&)
+        +bool owned() const
+        +std::size_t size() const
+        +const unsigned char *data() const
+        +void swap(std::vector<unsigned char> &rhs)
+        +bool operator==(const Binary &rhs) const
+        +bool operator!=(const Binary &rhs) const
+        -std::vector<unsigned char> m_data
+        -const unsigned char *m_unownedData
+        -std::size_t m_unownedSize
+    }
+```
+
+## クラス・メソッド・インターフェース詳細
+
+### `Binary` クラス
+| メンバ名 | 型 | 可視性 | const | static | virtual | noexcept | 直接依存 |
+|----------|----|--------|-------|--------|---------|----------|----------|
+| Binary(const unsigned char *data_, std::size_t size_) | コンストラクタ | public | - | - | - | - | - |
+| Binary() | コンストラクタ | public | - | - | - | - | - |
+| Binary(const Binary &) | コピーコンストラクタ | public | - | - | - | - | - |
+| Binary(Binary &&) | ムーブコンストラクタ | public | - | - | - | - | - |
+| operator=(const Binary &) | 代入演算子 | public | - | - | - | - | - |
+| operator=(Binary &&) | ムーブ代入演算子 | public | - | - | - | - | - |
+| owned() | bool | public | あり | - | - | - | - |
+| size() | std::size_t | public | あり | - | - | - | - |
+| data() | const unsigned char * | public | あり | - | - | - | - |
+| swap(std::vector<unsigned char> &rhs) | void | public | - | - | - | - | - |
+| operator==(const Binary &rhs) | bool | public | あり | - | - | - | - |
+| operator!=(const Binary &rhs) | bool | public | あり | - | - | - | - |
+
+### `DecodeBase64` 関数
+- **完全な名前**: `YAML::DecodeBase64`
+- **引数名と型**: `const std::string &input`
+- **戻り値型**: `std::vector<unsigned char>`
+- **可視性**: public
+- **const**: なし
+- **参照/ポインタ**: 参照
+- **static**: あり
+- **virtual**: なし
+- **noexcept**: なし
+- **直接依存**: `decoding` 配列
+
+## シーケンス図
+該当なし
+
+## メソッド仕様書
+
+### `DecodeBase64`
+#### 目的
+Base64エンコードされた文字列をデコードし、バイト配列に変換する。
+
+#### 引数
+- **input**: Base64エンコードされた文字列 (`const std::string &`)
+
+#### 戻り値
+- デコードされたバイト配列 (`std::vector<unsigned char>`)
+
+#### 動作
+1. 入力が空の場合は空のベクタを返す。
+2. 出力用のベクタ `ret` を初期化し、必要なサイズを確保する。
+3. 各文字を処理し、Base64デコーディングを行う。
+   - スペースや改行はスキップされる。
+   - 不正な文字が含まれる場合は空のベクタを返す。
+4. 最終的な出力サイズに合わせて `ret` をリサイズする。
+
+#### 副作用
+- なし
+
+#### エラー処理
+- 入力が空の場合、不正な文字が含まれる場合、空のベクタを返す。
+
+## 処理フロー図
+```mermaid
+graph TD;
+    A[開始] --> B{input.empty()?};
+    B -- はい --> C[ret_type()];
+    B -- いいえ --> D[ret(3 * input.size() / 4 + 1)];
+    E[out = &ret[0]];
+    F[value = 0];
+    G[cnt = 0];
+    H[i = 0];
+    I{i < input.size()?};
+    J{std::isspace(input[i])?};
+    K[d = decoding[input[i]]];
+    L{d == 255?};
+    M[value = (value << 6) | d];
+    N[cnt == 3?};
+    O[*out++ = value >> 16];
+    P{i > 0 && input[i - 1] != '='?};
+    Q[*out++ = value >> 8];
+    R{input[i] != '='?};
+    S[*out++ = value];
+    T[cnt = 0];
+    U[else cnt++];
+    V[i++];
+    W{cnt != 0?};
+    X[ret.resize(out - &ret[0])];
+    Y[return ret];
+
+    C --> Y;
+    D --> E;
+    E --> F;
+    F --> G;
+    G --> H;
+    H --> I;
+    I -- いいえ --> W;
+    I -- はい --> J;
+    J -- いいえ --> K;
+    J -- はい --> V;
+    K --> L;
+    L -- いいえ --> M;
+    L -- はい --> C;
+    M --> N;
+    N -- いいえ --> U;
+    N -- はい --> O;
+    O --> P;
+    P -- いいえ --> R;
+    P -- はい --> V;
+    Q --> R;
+    R -- いいえ --> T;
+    R -- はい --> V;
+    S --> T;
+    T --> V;
+    U --> V;
+    V --> I;
+    W -- いいえ --> Y;
+    W -- はい --> X;
+    X --> Y;
+```
+
+## 状態遷移・副作用
+| 更新前状態 | 遷移条件 | 変更対象 | 更新後状態 | 更新順序 | 副作用 |
+|------------|----------|----------|------------|----------|--------|
+| なし       | input.empty() | ret      | 空のベクタ | -        | なし   |
+| なし       | !input.empty() | ret, out, value, cnt, i | 初期化された状態 | -        | なし   |
+| 処理中     | std::isspace(input[i]) | なし      | なし      | -        | スキップ |
+| 処理中     | d == 255           | ret      | 空のベクタ | -        | なし   |
+| 処理中     | cnt == 3           | out, value, cnt | 更新された状態 | -        | なし   |
+
+## データ変換・制約
+| 入力データ | 変換規則 | 出力データ | 値域 | 境界値 |
+|------------|----------|------------|------|--------|
+| Base64文字列 | Base64デコーディング | バイト配列 | 0-255 | 空文字列, 不正な文字 |
+
+## 追加詳細設計情報
+
+### `decoding` 配列
+確認不能
+
+### DLL 定義
+- **YAML_CPP_API**: DLLインポート/エクスポートのマクロ
+- **YAML_CPP_NO_EXPORT**: デフォルト可視性を隠すマクロ
+- **YAML_CPP_DEPRECATED**: 廃止されたAPIを示すマクロ
+
+### その他の依存関係
+- `decoding` 配列: Base64デコーディングに使用される内部配列。具体的な内容は確認不能。
+
+この設計仕様書に基づいて、別のLLMが再実装を行うことができます。

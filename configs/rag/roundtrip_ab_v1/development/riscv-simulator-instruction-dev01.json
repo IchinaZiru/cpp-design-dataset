@@ -1,0 +1,135 @@
+{
+  "artifact_schema_version": "roundtrip-design-only-ab-target-v1",
+  "execution": {
+    "commands": {
+      "build": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "cmake",
+        "--build",
+        "/evaluation/build",
+        "--parallel"
+      ],
+      "configure": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "cmake",
+        "-S",
+        "/source",
+        "-B",
+        "/evaluation/build",
+        "-DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "direct_test": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "/evaluation/build/RISCV_Simulator_Test",
+        "--gtest_color=no",
+        "--gtest_filter=Instruction.CorrectSize:Instruction.InstructionR:Instruction.InstructionI:Instruction.InstructionS:Instruction.InstructionB:Instruction.InstructionU:Instruction.InstructionJ"
+      ],
+      "full_test": [
+        "docker",
+        "run",
+        "--rm",
+        "--mount",
+        "type=bind,source=<REPOSITORY_ROOT>,target=/source,readonly",
+        "--mount",
+        "type=bind,source=<EVALUATION_WORKSPACE>,target=/evaluation",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "/evaluation/build/RISCV_Simulator_Test",
+        "--gtest_color=no"
+      ]
+    },
+    "enabled": true,
+    "output_root": "experiments/rag/roundtrip-ab-v1/development/riscv-simulator-instruction-dev01",
+    "plan_root": "reports/rag/roundtrip-ab-v1/development/riscv-simulator-instruction-dev01/plan",
+    "stage_timeouts_seconds": {
+      "build": 600,
+      "configure": 300,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "formal_execution_authorized": false,
+  "formal_target_member": false,
+  "one_shot": {
+    "automatic_repair": false,
+    "code_generation_count": 1,
+    "design_generation_count": 1,
+    "manual_patch": false,
+    "overwrite": false,
+    "retry": false
+  },
+  "output": {
+    "retrieval_root": "rag/retrieval/roundtrip-ab-v1/development/riscv-simulator-instruction-dev01"
+  },
+  "replacement_units": [
+    {
+      "content_sha256": "f1a2a6bfb8f5588fb1fd14fad5eac65c4eedb31b0d10febe9aade2084baa4cfd",
+      "file_id": "F01",
+      "path": "src/Common/Instruction.hpp",
+      "scope": "full_file",
+      "source_file_sha256": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9",
+      "unit_id": "U01"
+    }
+  ],
+  "repository": {
+    "commit": "8989a09c357a69b68612f653380d60816f5176c2",
+    "external": false,
+    "id": "RISCV-Simulator",
+    "path": "repos/RISCV-Simulator"
+  },
+  "retrieval": {
+    "expected_evidence": [
+      {
+        "path": "src/Common/Common.h",
+        "symbol": "using Immediate"
+      }
+    ],
+    "include_roots": [
+      "src",
+      "src/Common"
+    ],
+    "design_knowledge_mode": "fixed-v4-v5-verbatim-all-targets-v1",
+    "dependency_header_mode": "direct-project-local-quoted-include-whole-file-one-hop-v1",
+    "dependency_header_normalization": "utf8-bom-aware-newlines-to-lf-v1",
+    "fixed_design_knowledge_content_sha256": "13ffffe8c5c76b6493f36be79c56332ee2cd8ccfcf9b38685edfd6ab4137636f",
+    "fixed_design_knowledge_path": "configs/rag/roundtrip_ab_v1/prompts/fixed_v4_v5_design_knowledge.txt",
+    "fixed_design_knowledge_sha256": "72f781bedcb5cbd7d3caf7498440f9ed7023ac2ab61ba36c090e6fdcaadf9d5c",
+    "maximum_dependency_headers": 16,
+    "source_feature_selection": false,
+    "target_specific_manual_query": false
+  },
+  "stage": "formal_excluded_development_tuning",
+  "target_id": "riscv-simulator-instruction-ab-v1-dev01",
+  "target_owned_inputs": [
+    {
+      "content_sha256": "f1a2a6bfb8f5588fb1fd14fad5eac65c4eedb31b0d10febe9aade2084baa4cfd",
+      "file_id": "F01",
+      "path": "src/Common/Instruction.hpp",
+      "replacement_required": true,
+      "role": "complete header-only target implementation and declaration",
+      "scope": "full_file",
+      "source_file_sha256": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9",
+      "unit_id": "U01"
+    }
+  ]
+}
