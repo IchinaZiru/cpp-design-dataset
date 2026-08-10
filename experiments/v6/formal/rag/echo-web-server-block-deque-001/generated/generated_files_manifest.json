@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "files": [
+    {
+      "path": "include/containers/block_deque.h",
+      "sha256": "384ab1884221c5a98d5d6c8d5d0bcfcb380ad2fbd6296105a55a58e06969994a",
+      "character_count": 6260
+    }
+  ]
+}

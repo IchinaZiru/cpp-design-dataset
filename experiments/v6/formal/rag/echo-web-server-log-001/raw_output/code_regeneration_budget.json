@@ -1,0 +1,19 @@
+{
+  "schema_version": "6.0",
+  "rule": "assembled_code_regeneration_input_tokens + num_predict <= num_ctx",
+  "tokenizer": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "transformers_version": "4.57.6",
+  "assembled_code_regeneration_input_tokens": 12332,
+  "num_predict": 16384,
+  "num_ctx": 32768,
+  "input_plus_reserved_output": 28716,
+  "headroom_after_reserved_output": 4052,
+  "passed": true,
+  "system_sha256": "168808110dc98776ffa84d48473421a334d8edf7361eb8d2ddb4a81bb8b677d5",
+  "prompt_sha256": "f22938bd5ef64b90c8c3f62e0b34467141459913e62590b183f65dcbf57fab02",
+  "llm_call_attempted": true,
+  "llm_call_returned": false,
+  "retry": false,
+  "automatic_repair": false,
+  "llm_call_error": "TimeoutError: timed out"
+}

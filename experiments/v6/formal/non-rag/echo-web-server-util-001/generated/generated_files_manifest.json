@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "files": [
+    {
+      "path": "include/util.h",
+      "sha256": "3416968dc9b374ee16598c7ab8f76c81ae0bfe211c9aa0a0a0fc5ba85bb81fa4",
+      "character_count": 6428
+    },
+    {
+      "path": "src/util/util.cpp",
+      "sha256": "bf80d3939817cb2e011d43890ce1351b7e750a2ba820528b223504d176b96263",
+      "character_count": 6080
+    }
+  ]
+}

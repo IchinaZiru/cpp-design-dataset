@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "nonrag",
+  "target_id": "riscv-simulator-memory-v6-formal-non-rag",
+  "pair_id": "riscv-simulator-memory",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "src/Common/Memory.hpp"
+  ],
+  "target_fragment_sha256": {
+    "src/Common/Memory.hpp": "dc209000fb252e55a398cdc1fec1aff19cc445b21fe8152e0468d779b0ff1197"
+  },
+  "selected_dependency_paths": [],
+  "dependency_file_sha256": {},
+  "source_local_declaration_count": 1,
+  "all_call_count": 2,
+  "top_level_call_count": 2,
+  "dependency_symbol_match_count": 0,
+  "dependency_symbols": [],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [],
+  "source_contract_sha256": "7f6afe8465ca3bf6a3bfd2fff214c3add208096c299f3bef68135845d466b5d4",
+  "dependency_contract_sha256": null,
+  "combined_contract_sha256": "7f6afe8465ca3bf6a3bfd2fff214c3add208096c299f3bef68135845d466b5d4",
+  "source_contract_chars": 715,
+  "dependency_contract_chars": 0,
+  "combined_contract_chars": 715,
+  "retrieval_manifest_sha256": null,
+  "retrieval_context_sha256": null,
+  "llm_called": false,
+  "deterministic": true
+}

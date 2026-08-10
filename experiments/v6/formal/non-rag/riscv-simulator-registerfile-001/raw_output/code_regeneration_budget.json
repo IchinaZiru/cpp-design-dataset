@@ -1,0 +1,18 @@
+{
+  "schema_version": "6.0",
+  "rule": "assembled_code_regeneration_input_tokens + num_predict <= num_ctx",
+  "tokenizer": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "transformers_version": "4.57.6",
+  "assembled_code_regeneration_input_tokens": 2856,
+  "num_predict": 16384,
+  "num_ctx": 32768,
+  "input_plus_reserved_output": 19240,
+  "headroom_after_reserved_output": 13528,
+  "passed": true,
+  "system_sha256": "168808110dc98776ffa84d48473421a334d8edf7361eb8d2ddb4a81bb8b677d5",
+  "prompt_sha256": "2b4ba3e1354f6ff6ba9fcb4668ecd69873f4eac5e9181e0797c7230e785b6e5c",
+  "llm_call_attempted": true,
+  "llm_call_returned": true,
+  "retry": false,
+  "automatic_repair": false
+}

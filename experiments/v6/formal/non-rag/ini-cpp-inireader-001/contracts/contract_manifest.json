@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "nonrag",
+  "target_id": "ini-cpp-inireader-v6-formal-non-rag",
+  "pair_id": "ini-cpp-inireader",
+  "repository_id": "ini-cpp",
+  "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "ini/ini.h"
+  ],
+  "target_fragment_sha256": {
+    "ini/ini.h": "7b704984f285c25ca6c01c80ef527448675b11b9efa9677a8161e65d0b650b01"
+  },
+  "selected_dependency_paths": [],
+  "dependency_file_sha256": {},
+  "source_local_declaration_count": 30,
+  "all_call_count": 78,
+  "top_level_call_count": 64,
+  "dependency_symbol_match_count": 0,
+  "dependency_symbols": [],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [],
+  "source_contract_sha256": "ec0ec76fd84355626c139c3203e7728335a6bdcbdd200d1e1db9e66c4b0cc0d6",
+  "dependency_contract_sha256": null,
+  "combined_contract_sha256": "ec0ec76fd84355626c139c3203e7728335a6bdcbdd200d1e1db9e66c4b0cc0d6",
+  "source_contract_chars": 4400,
+  "dependency_contract_chars": 0,
+  "combined_contract_chars": 4400,
+  "retrieval_manifest_sha256": null,
+  "retrieval_context_sha256": null,
+  "llm_called": false,
+  "deterministic": true
+}

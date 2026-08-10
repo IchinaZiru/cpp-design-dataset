@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "rag",
+  "target_id": "echo-web-server-config-v6-formal-rag",
+  "pair_id": "echo-web-server-config",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/config.h",
+    "src/config/config.cpp"
+  ],
+  "target_fragment_sha256": {
+    "include/config.h": "91319999d37bb0cec369b2abb3b7f3bad474a8f763f18f6252f2fb42a9bff2be",
+    "src/config/config.cpp": "387412ae5c89533861063cbc727023c4b8145697a34c4172d56cf3e9cdd3c231"
+  },
+  "selected_dependency_paths": [
+    "include/util.h"
+  ],
+  "dependency_file_sha256": {
+    "include/util.h": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85"
+  },
+  "source_local_declaration_count": 28,
+  "all_call_count": 72,
+  "top_level_call_count": 45,
+  "dependency_symbol_match_count": 1,
+  "dependency_symbols": [
+    "LoadYamlString"
+  ],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [
+    "FromStr",
+    "FromString",
+    "IsMap",
+    "IsSequence",
+    "T",
+    "To",
+    "ToStr",
+    "begin",
+    "cbegin",
+    "cend",
+    "clear",
+    "data",
+    "emplace",
+    "emplace_back",
+    "empty",
+    "end",
+    "erase",
+    "fail",
+    "find",
+    "format",
+    "merge",
+    "name",
+    "push_back",
+    "second",
+    "str",
+    "string",
+    "to_string",
+    "typeid",
+    "visitor",
+    "what"
+  ],
+  "source_contract_sha256": "e2dbbdb0f49736c4969accaad7f54b92062be09f7bb2796368fd16a13a4c2071",
+  "dependency_contract_sha256": "ab31dcdc8ca4b57b30c7711e94673b3d87b37415365f5981ca5ed89e8a583c7c",
+  "combined_contract_sha256": "6332dd89d66b4067213f5f16da59e1e2f137c9f32d136d43d91824937f678de9",
+  "source_contract_chars": 4477,
+  "dependency_contract_chars": 847,
+  "combined_contract_chars": 5325,
+  "retrieval_manifest_sha256": "6a9aa75c0962f954726158ca8931d86ffbe29fb5d5820bfd460a00c5b0a6fe60",
+  "retrieval_context_sha256": "9f8646040c51462d8241371994b165fe2d51bc82589ca8625a8941299ed6ac5d",
+  "llm_called": false,
+  "deterministic": true
+}

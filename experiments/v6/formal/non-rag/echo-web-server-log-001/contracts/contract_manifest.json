@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "nonrag",
+  "target_id": "echo-web-server-log-v6-formal-non-rag",
+  "pair_id": "echo-web-server-log",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/log.h",
+    "src/log/log.cpp",
+    "src/log/appender.cpp",
+    "src/log/field.h",
+    "src/log/field.cpp",
+    "src/log/config_init.h",
+    "src/log/config_init.cpp"
+  ],
+  "target_fragment_sha256": {
+    "include/log.h": "999293a0df49ea566f60fd53d5300e62caae989b9c72433cc49ec5e67cc3e44a",
+    "src/log/log.cpp": "16b13ff09f1dc34e276c85fb8ca4e536847f3caea4b1c964b540825ceb2c01f6",
+    "src/log/appender.cpp": "fb1b359e4465670b56f358a3ccd00e906f67d29c1f1a746993d11e10a67ff245",
+    "src/log/field.h": "80e3129b25be98d98ac2459d1236999067f24ada91ad31ad460efa0ac86961f5",
+    "src/log/field.cpp": "b1cf708a7c083b7c529177b89da0b5b471a1fc928ae20145becd3838b367c447",
+    "src/log/config_init.h": "b7375ceac327e74bcd9485ffcc3969ee1f5d963ca39921855d1f68c5be7e8225",
+    "src/log/config_init.cpp": "f07ebe71f315c97828f044817ab95e0911cec53adb3bd61cba54e94c77650afc"
+  },
+  "selected_dependency_paths": [],
+  "dependency_file_sha256": {},
+  "source_local_declaration_count": 35,
+  "all_call_count": 180,
+  "top_level_call_count": 132,
+  "dependency_symbol_match_count": 0,
+  "dependency_symbols": [],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [],
+  "source_contract_sha256": "bf9259ee3e8a1c5578a8bcaeb0a7383edb8e904e07a7a226f5faccaa45b5e079",
+  "dependency_contract_sha256": null,
+  "combined_contract_sha256": "bf9259ee3e8a1c5578a8bcaeb0a7383edb8e904e07a7a226f5faccaa45b5e079",
+  "source_contract_chars": 10225,
+  "dependency_contract_chars": 0,
+  "combined_contract_chars": 10225,
+  "retrieval_manifest_sha256": null,
+  "retrieval_context_sha256": null,
+  "llm_called": false,
+  "deterministic": true
+}

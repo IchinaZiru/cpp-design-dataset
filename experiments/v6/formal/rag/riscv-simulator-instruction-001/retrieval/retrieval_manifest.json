@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "riscv-simulator-instruction",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "quoted_includes_only": true,
+  "tracked_files_only": true,
+  "whole_file": true,
+  "one_hop": true,
+  "exclude_target_source_files": true,
+  "target_specific_tuning": false,
+  "selected_file_count": 1,
+  "selected_paths": [
+    "src/Common/Common.h"
+  ],
+  "unresolved_count": 0,
+  "ambiguous_count": 0,
+  "combined_context_sha256": "9ceeeb5f0e5e0daa4fb3b8b42f7d92064cee764d9c5f89e1312873c70de44664",
+  "combined_context_bytes": 7229,
+  "generic_knowledge_sha256": "280f38b01f3ba1906fe297a344b978fe5cbc4e325655316163412ddc90f3ca08"
+}

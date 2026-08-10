@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "nonrag",
+  "target_id": "echo-web-server-io-v6-formal-non-rag",
+  "pair_id": "echo-web-server-io",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/io.h",
+    "src/io/io.cpp"
+  ],
+  "target_fragment_sha256": {
+    "include/io.h": "c17433f843772db49f268a1cbc452b2996ce8b1484ede3b651d3525a6b67360c",
+    "src/io/io.cpp": "8de04fbd253a977693aef5e0280c6b857ae7feefddc280a6a620f6390edfaf07"
+  },
+  "selected_dependency_paths": [],
+  "dependency_file_sha256": {},
+  "source_local_declaration_count": 9,
+  "all_call_count": 23,
+  "top_level_call_count": 18,
+  "dependency_symbol_match_count": 0,
+  "dependency_symbols": [],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [],
+  "source_contract_sha256": "1a53163bfdd3e3541ef69f84145238821aa7cffcb2b56cdd60e2796ffbe2b516",
+  "dependency_contract_sha256": null,
+  "combined_contract_sha256": "1a53163bfdd3e3541ef69f84145238821aa7cffcb2b56cdd60e2796ffbe2b516",
+  "source_contract_chars": 1746,
+  "dependency_contract_chars": 0,
+  "combined_contract_chars": 1746,
+  "retrieval_manifest_sha256": null,
+  "retrieval_context_sha256": null,
+  "llm_called": false,
+  "deterministic": true
+}

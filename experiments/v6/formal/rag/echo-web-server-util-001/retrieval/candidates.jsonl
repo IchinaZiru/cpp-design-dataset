@@ -1,0 +1,1 @@
+{"candidate_paths": ["include/util.h"], "include": "util.h", "line": 1, "resolution_rule": "unique_repository_suffix", "resolved_path": "include/util.h", "source_file": "src/util/util.cpp", "status": "target_source"}

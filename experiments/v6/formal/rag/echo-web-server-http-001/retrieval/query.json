@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "echo-web-server-http",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "source_files": [
+    "include/http.h",
+    "src/http/http.cpp",
+    "src/http/request.h",
+    "src/http/request.cpp",
+    "src/http/response.h",
+    "src/http/response.cpp"
+  ],
+  "quoted_includes": [
+    {
+      "source_file": "include/http.h",
+      "line": 15,
+      "include": "containers/buffer.h"
+    },
+    {
+      "source_file": "include/http.h",
+      "line": 16,
+      "include": "ip.h"
+    },
+    {
+      "source_file": "include/http.h",
+      "line": 17,
+      "include": "util.h"
+    },
+    {
+      "source_file": "src/http/http.cpp",
+      "line": 1,
+      "include": "http.h"
+    },
+    {
+      "source_file": "src/http/http.cpp",
+      "line": 2,
+      "include": "io.h"
+    },
+    {
+      "source_file": "src/http/http.cpp",
+      "line": 3,
+      "include": "request.h"
+    },
+    {
+      "source_file": "src/http/http.cpp",
+      "line": 4,
+      "include": "response.h"
+    },
+    {
+      "source_file": "src/http/request.h",
+      "line": 15,
+      "include": "containers/buffer.h"
+    },
+    {
+      "source_file": "src/http/request.h",
+      "line": 16,
+      "include": "http.h"
+    },
+    {
+      "source_file": "src/http/request.cpp",
+      "line": 1,
+      "include": "request.h"
+    },
+    {
+      "source_file": "src/http/request.cpp",
+      "line": 2,
+      "include": "util.h"
+    },
+    {
+      "source_file": "src/http/response.h",
+      "line": 15,
+      "include": "containers/buffer.h"
+    },
+    {
+      "source_file": "src/http/response.h",
+      "line": 16,
+      "include": "http.h"
+    },
+    {
+      "source_file": "src/http/response.h",
+      "line": 17,
+      "include": "util.h"
+    },
+    {
+      "source_file": "src/http/response.cpp",
+      "line": 1,
+      "include": "response.h"
+    }
+  ],
+  "query_generation": "deterministic_non_llm",
+  "target_specific_tuning": false
+}

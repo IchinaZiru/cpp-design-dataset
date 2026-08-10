@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "rag",
+  "target_id": "echo-web-server-thread-pool-v6-formal-rag",
+  "pair_id": "echo-web-server-thread-pool",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/containers/thread_pool.h",
+    "src/containers/thread_pool/thread_pool.cpp"
+  ],
+  "target_fragment_sha256": {
+    "include/containers/thread_pool.h": "2480e091de06ea7412f161d26249af421519ede6c6044a26605211bb6f2b739c",
+    "src/containers/thread_pool/thread_pool.cpp": "3ad7703fb87464f6360e29e5091112c8ee14d2e9a9237765ef22b7ad7188990f"
+  },
+  "selected_dependency_paths": [
+    "include/log.h",
+    "include/util.h"
+  ],
+  "dependency_file_sha256": {
+    "include/log.h": "3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252",
+    "include/util.h": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85"
+  },
+  "source_local_declaration_count": 5,
+  "all_call_count": 26,
+  "top_level_call_count": 20,
+  "dependency_symbol_match_count": 3,
+  "dependency_symbols": [
+    "Create",
+    "Log",
+    "RootLogger"
+  ],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [
+    "assert",
+    "emplace_back",
+    "empty",
+    "format",
+    "front",
+    "join",
+    "joinable",
+    "notify_all",
+    "notify_one",
+    "pop_front",
+    "push_back",
+    "task",
+    "value_or",
+    "wait",
+    "what"
+  ],
+  "source_contract_sha256": "48fa921fb325fbd11dfbb12b1347cd737120b20277f72dce2df2c690ab159afb",
+  "dependency_contract_sha256": "e12d3f5fc3d042d6638e93ccdafb62ffd9d03762c3600864ce1952ffcf0379d7",
+  "combined_contract_sha256": "eabb9b3e8b802778a4058a7f1e80441ffd4d64d9170bc21067df6ecb5a42a367",
+  "source_contract_chars": 1734,
+  "dependency_contract_chars": 1223,
+  "combined_contract_chars": 2958,
+  "retrieval_manifest_sha256": "f1b59ff47b745128fc5b7680e5db72cf716bc12f5837022c09adccbf97bf352b",
+  "retrieval_context_sha256": "e850902f505a868877deb54d6896b1b5b03549550bfc7afa665f68887d589743",
+  "llm_called": false,
+  "deterministic": true
+}

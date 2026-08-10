@@ -1,0 +1,167 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-thread-pool-v6-formal-non-rag",
+  "run_id": "echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001",
+  "condition": "full_source_deterministic_exact_contract_v6_non_rag",
+  "granularity": "module_files",
+  "completed_at_utc": "2026-08-09T23:06:09.252436+00:00",
+  "overall_pass": true,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "started_at_utc": "2026-08-09T23:05:28.703217+00:00",
+      "completed_at_utc": "2026-08-09T23:05:35.217657+00:00",
+      "elapsed_seconds": 6.5107717998325825,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-09T23:05:35.218173+00:00",
+      "completed_at_utc": "2026-08-09T23:06:06.129081+00:00",
+      "elapsed_seconds": 30.909015899989754,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='ThreadPoolTest.Execution'"
+      ],
+      "container_shell_command": "exe=$(find build -type f -name test-bundle -perm -111 | head -n 1); test -n \"$exe\"; \"$exe\" --gtest_color=no --gtest_filter='ThreadPoolTest.Execution'",
+      "started_at_utc": "2026-08-09T23:06:06.129081+00:00",
+      "completed_at_utc": "2026-08-09T23:06:06.767956+00:00",
+      "elapsed_seconds": 0.6369921998120844,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001/direct_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001/direct_test.stderr.txt",
+      "counts": {
+        "ran": 1,
+        "passed": 1,
+        "failed": 0
+      }
+    },
+    "full_test": {
+      "stage": "full_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "ctest --test-dir build --output-on-failure"
+      ],
+      "container_shell_command": "ctest --test-dir build --output-on-failure",
+      "started_at_utc": "2026-08-09T23:06:06.767956+00:00",
+      "completed_at_utc": "2026-08-09T23:06:09.191994+00:00",
+      "elapsed_seconds": 2.422230599913746,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001/full_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001/full_test.stderr.txt",
+      "counts": {
+        "ran": 63,
+        "passed": 63,
+        "failed": 0
+      }
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "include/containers/thread_pool.h",
+        "original_hash": "ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c",
+        "restored_hash": "ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c",
+        "restored": true
+      },
+      {
+        "path": "src/containers/thread_pool/thread_pool.cpp",
+        "original_hash": "234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6",
+        "restored_hash": "234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-09T23:05:28.565519+00:00",
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "fence_language": null,
+    "strict_format_pass": true,
+    "raw_sha256": "21647ad2f9f881cae716da922476f58464bc7e571ea39f9433a591d605c660c4",
+    "normalized_sha256": "21647ad2f9f881cae716da922476f58464bc7e571ea39f9433a591d605c660c4",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/echo-web-server-thread-pool-deterministic-exact-contract-v6-non-rag-formal-001"
+}

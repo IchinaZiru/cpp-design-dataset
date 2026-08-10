@@ -1,0 +1,223 @@
+# Machine-extracted Source-local Implementation Contract
+
+This appendix is deterministic evidence extracted from the target source.
+It is not an LLM summary and it does not contain complete function bodies.
+
+During regeneration:
+- preserve the exact local declaration types, containers, initializers, and literals listed below;
+- preserve the exact call targets and argument expressions listed below;
+- do not substitute a different representation or accessor merely because it looks similar;
+- treat these items as exact constraints, not as pseudocode suggestions.
+
+## Exact local declarations
+
+- `static constexpr std::string_view user_tag {"user"};`
+- `static constexpr std::string_view msg_tag {"msg"};`
+- `const auto user {request.Post(user_tag).value_or("")};`
+- `const auto msg {request.Post(msg_tag).value_or("")};`
+- `static const std::unordered_map<std::string_view, std::string_view> types { {".html", "text/html"}, {".xml", "text/xml"}, {".xhtml", "application/xhtml+xml"}, {".txt", "text/plain"}, {".rtf", "application/rtf"}, {".pdf", "application/pdf"}, {".word", "application/nsword"}, {".png", "image/png"}, {".gif", "image/gif"}, {".jpg", "image/jpeg"}, {".jpeg", "image/jpeg"}, {".au", "audio/basic"}, {".mpeg", "video/mpeg"}, {".mpg", "video/mpeg"}, {".avi", "video/x-msvideo"}, {".gz", "application/x-gzip"}, {".tar", "application/x-tar"}, {".css", "text/css"}, {".js", "text/javascript"}, };`
+- `const auto extension { StringToLower(std::filesystem::path {name}.extension())};`
+- `static const std::unordered_map<StatusCode, std::string_view> msgs { {StatusCode::OK, "OK"}, {StatusCode::BadRequest, "Bad Request"}, {StatusCode::Forbidden, "Forbidden"}, {StatusCode::NotFound, "Not Found"}};`
+- `static const std::unordered_map<Method, std::string_view> methods { {Method::Get, "GET"}, {Method::Patch, "PATCH"}, {Method::Post, "POST"}, {Method::Delete, "DELETE"}, {Method::Put, "PUT"}};`
+- `static const std::unordered_map<std::string_view, Method> methods { {"GET", Method::Get}, {"PATCH", Method::Patch}, {"POST", Method::Post}, {"DELETE", Method::Delete}, {"PUT", Method::Put}};`
+- `const auto method {methods.find(str)};`
+- `static constexpr std::size_t encoded_length {3};`
+- `const auto ascii {std::stoi(str.substr(1), nullptr, 16)};`
+- `std::ostringstream ss;`
+- `std::size_t i {0};`
+- `const auto encoded {str.substr(i, encoded_length)};`
+- `io::FileDescriptor io {socket_, socket_};`
+- `std::size_t size {0};`
+- `std::size_t header_size {0};`
+- `std::size_t file_size {0};`
+- `const auto size {write(socket_, file_.Data() + file_size, file_.Size() - file_size)};`
+- `static constexpr std::string_view index_page {"/index.html"};`
+- `static constexpr std::string_view hide_msg_tag {"hide-msg"};`
+- `Request request;`
+- `Response response {root_dir_};`
+- `std::optional<std::string> error_msg;`
+- `std::string path {request.Path()};`
+- `StatusCode status_code {StatusCode::OK};`
+- `auto params {ExtractUserMessage(request).value_or(Parameters {})};`
+- `auto file { response.Build(write_buf_, std::move(path), status_code)};`
+- `auto content {buf.ReadableString()};`
+- `const auto line_end {content.find(new_line)};`
+- `const auto line {content.substr(0, line_end)};`
+- `const auto conn {headers_.find("Connection")};`
+- `const auto val {post_.find(key.data())};`
+- `const auto val {headers_.find(key.data())};`
+- `const std::regex pattern {"^([^ ]*) ([^ ]*) HTTP/([^ ]*)$"};`
+- `std::smatch matches;`
+- `const std::regex pattern {"^([^:]*): ?(.*)$"};`
+- `const auto method {parser_.Method()};`
+- `const auto content_type {parser_.Header("Content-Type").value_or("")};`
+- `auto& post {parser_.post_};`
+- `auto decoded_body {DecodeURLEncodedString(body)};`
+- `std::string_view view {decoded_body};`
+- `std::string key, val;`
+- `std::size_t begin {0}, end {0};`
+- `static constexpr std::string_view http_status_page {"/http-status.html"};`
+- `static constexpr std::string_view status_code_tag {"status-code"};`
+- `static constexpr std::string_view status_tag {"status"};`
+- `const Parameters params { {status_code_tag.data(), std::to_string(StatusCodeToInteger(status_code_))}, {status_tag.data(), StatusCodeToMessage(status_code_).data()}, {msg_tag.data(), std::move(msg)} };`
+- `std::string content {reinterpret_cast<const char*>(file_.Data()), file_.Size()};`
+- `const auto lines {SplitStringToLines(content)};`
+- `std::size_t length {new_line.length() * (lines.size() - 1)};`
+- `auto i {0};`
+- `const auto body {ss.str()};`
+
+## Exact top-level call expressions
+
+- `std::move(addr)`
+- `addr_.IPAddress()`
+- `addr_.Port()`
+- `request.Post(user_tag).value_or("")`
+- `request.Post(msg_tag).value_or("")`
+- `user.empty()`
+- `user_tag.data()`
+- `user.data()`
+- `msg_tag.data()`
+- `msg.data()`
+- `StringToLower(std::filesystem::path {name}.extension())`
+- `types.contains(extension.c_str())`
+- `types.at(extension.c_str())`
+- `msgs.at(code)`
+- `StatusCodeToMessage(code)`
+- `static_cast<std::uint32_t>(code)`
+- `methods.at(method)`
+- `MethodToString(method).data()`
+- `StringToUpper(str)`
+- `methods.find(str)`
+- `methods.cend()`
+- `fmt::format("Invalid HTTP method: '{}'", str)`
+- `str.length()`
+- `str.front()`
+- `std::stoi(str.substr(1), nullptr, 16)`
+- `static_cast<char>(ascii)`
+- `fmt::format("Invalid HTTP URL-encoding character: '{}'", str)`
+- `str.size()`
+- `str.substr(i, encoded_length)`
+- `encoded.length()`
+- `DecodeURLEncodedCharacter(encoded)`
+- `fmt::format( "Invalid HTTP URL-encoding strings: '{}'", str)`
+- `ss.str()`
+- `fmt::format("<${}$>", key)`
+- `ReplaceAllSubstring(html, HTMLPlaceholder(key), val)`
+- `std::move(dir)`
+- `assert(IsValidFileDescriptor(socket_))`
+- `Close()`
+- `close(socket_)`
+- `read_buf_.ReadFrom(io)`
+- `err.code()`
+- `write_buf_.Empty()`
+- `write_buf_.WriteTo(io)`
+- `file_.Size()`
+- `write(socket_, file_.Data() + file_size, file_.Size() - file_size)`
+- `ThrowLastSystemError()`
+- `file_.Unmap()`
+- `read_buf_.ReadableSize()`
+- `request.Parse(read_buf_)`
+- `err.what()`
+- `request.KeepAlive()`
+- `response.SetKeepAlive(keep_alive_)`
+- `error_msg.has_value()`
+- `request.Path()`
+- `path.empty()`
+- `ExtractUserMessage(request).value_or(Parameters {})`
+- `params.insert({hide_msg_tag.data(), params.empty() ? true_tag.data() : false_tag.data()})`
+- `response.Build(write_buf_, index_page, params, status_code)`
+- `response.Build(write_buf_, std::move(path), status_code)`
+- `file.has_value()`
+- `std::move(*file)`
+- `response.Build(write_buf_, StatusCode::BadRequest, *error_msg)`
+- `ParseStatusLine(line)`
+- `Parse(buf)`
+- `Clear()`
+- `buf.Empty()`
+- `buf.ReadableString()`
+- `content.empty()`
+- `content.find(new_line)`
+- `content.substr(0, line_end)`
+- `assert(state_)`
+- `state_->Parse(line)`
+- `buf.Retrieve(line.length())`
+- `content.substr(line.length())`
+- `content.substr(new_line.length())`
+- `buf.Retrieve(new_line.length())`
+- `std::move(state)`
+- `SetState(std::make_unique<NotStarted>(*this))`
+- `version_.clear()`
+- `path_.clear()`
+- `headers_.clear()`
+- `post_.clear()`
+- `post_.size()`
+- `headers_.find("Connection")`
+- `headers_.cend()`
+- `post_.find(key.data())`
+- `post_.cend()`
+- `headers_.find(key.data())`
+- `std::regex_match(line, matches, pattern)`
+- `StringToMethod(matches[1])`
+- `parser_.SetState(std::make_unique<Header>(parser_))`
+- `fmt::format("Invalid HTTP status line: '{}'", line)`
+- `parser_.headers_.emplace(matches[1], matches[2])`
+- `line.empty()`
+- `parser_.SetState(std::make_unique<Body>(parser_))`
+- `parser_.Method()`
+- `ParsePost(body)`
+- `fmt::format( "Unsupported HTTP method: '{}'", to_string(method))`
+- `parser_.SetState(std::make_unique<Finished>(parser_))`
+- `parser_.Header("Content-Type").value_or("")`
+- `ParseURLEncodedPost(body)`
+- `fmt::format("Unsupported HTTP content type: '{}'", content_type)`
+- `DecodeURLEncodedString(body)`
+- `view.size()`
+- `view.substr(begin, end - begin)`
+- `key.empty()`
+- `post.emplace(std::move(key), std::move(val))`
+- `fmt::format("Invalid HTTP POST data: '{}'", body)`
+- `assert(begin <= end)`
+- `post.contains(key)`
+- `val.empty()`
+- `std::move(root_dir)`
+- `file_path_.clear()`
+- `std::move(file)`
+- `Build(buf)`
+- `std::move(file_)`
+- `Build(buf, &params)`
+- `status_code_tag.data()`
+- `std::to_string(StatusCodeToInteger(status_code_))`
+- `status_tag.data()`
+- `StatusCodeToMessage(status_code_).data()`
+- `std::move(msg)`
+- `root_dir_.empty()`
+- `file_.Map(root_dir_ / file_path_.relative_path())`
+- `file_.Map(file_path_)`
+- `AddStatusLine(buf)`
+- `AddHeaders(buf)`
+- `AddParamContent(buf, *params)`
+- `AddMappedContent(buf)`
+- `AddPredefinedErrorContent(buf, *error_msg)`
+- `buf.Append( fmt::format("HTTP/{} {} {}", version, StatusCodeToInteger(status_code_), StatusCodeToMessage(status_code_)), NewLine::CRLF)`
+- `buf.Append("Connection: ")`
+- `buf.Append("keep-alive", NewLine::CRLF)`
+- `buf.Append("keep-alive: max=6, timeout=120", NewLine::CRLF)`
+- `buf.Append("close", NewLine::CRLF)`
+- `assert(file_.Data())`
+- `buf.Append(fmt::format("Content-type: {}", ContentTypeByFileName(file_path_.c_str())), NewLine::CRLF)`
+- `buf.Append(fmt::format("Content-length: {}", file_.Size()), NewLine::CRLF)`
+- `buf.Append(new_line)`
+- `reinterpret_cast<const char*>(file_.Data())`
+- `ReplaceAllSubstring(content, HTMLPlaceholder(key), val)`
+- `SplitStringToLines(content)`
+- `lines.size()`
+- `std::for_each(lines.cbegin(), lines.cend(), [&length](const auto& line) { length += line.size(); })`
+- `buf.Append(fmt::format("Content-length: {}", length), NewLine::CRLF)`
+- `buf.Append(lines[i], NewLine::CRLF)`
+- `buf.Append(lines[i])`
+- `buf.Append("Content-type: text/html", NewLine::CRLF)`
+- `fmt::format("<p>{} : {}</p>", StatusCodeToInteger(status_code_), StatusCodeToMessage(status_code_))`
+- `msg.empty()`
+- `fmt::format("<p>{}</p>", msg)`
+- `buf.Append(fmt::format("Content-length: {}", body.size()), NewLine::CRLF)`
+- `buf.Append(body)`

@@ -1,0 +1,11 @@
+{
+  "schema_version": "6.0",
+  "construction": "one-shot LLM design + deterministic exact-contract append",
+  "llm_design_sha256": "67c9844dd2470e7051f808db638a350f9b76ab5c3f0e4d5878d780b0ac3dbf8a",
+  "combined_contract_sha256": "3c8e36cba892ae48def4b68ff5e3366b7c802a02f08dc20e6ff6e8fbbc38bc72",
+  "augmented_design_sha256": "b8002128a85fad1ae5e178f2775f23da7cd2a732207bd7ca196d08b03dbc030a",
+  "contract_mode": "rag",
+  "llm_generation_count": 1,
+  "contract_llm_called": false,
+  "deterministic_contract": true
+}

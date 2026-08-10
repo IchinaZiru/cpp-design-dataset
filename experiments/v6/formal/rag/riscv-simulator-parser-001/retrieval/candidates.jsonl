@@ -1,0 +1,1 @@
+{"candidate_paths": ["src/Common/Memory.hpp"], "include": "Memory.hpp", "line": 12, "resolution_rule": "including_file_directory", "resolved_path": "src/Common/Memory.hpp", "source_file": "src/Common/Parser.hpp", "status": "resolved_external"}

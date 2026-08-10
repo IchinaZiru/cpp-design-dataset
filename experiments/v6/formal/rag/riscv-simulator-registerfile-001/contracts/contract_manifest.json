@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "rag",
+  "target_id": "riscv-simulator-registerfile-v6-formal-rag",
+  "pair_id": "riscv-simulator-registerfile",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "src/Common/RegisterFile.hpp"
+  ],
+  "target_fragment_sha256": {
+    "src/Common/RegisterFile.hpp": "97ed5875d00bd8f82110ef960ed9e0b7336811004ae9d8f5f3049ba5c69487a0"
+  },
+  "selected_dependency_paths": [
+    "src/Common/Common.h",
+    "src/Common/Register.hpp",
+    "src/Common/utils.h"
+  ],
+  "dependency_file_sha256": {
+    "src/Common/Common.h": "1842fc10588b2c6997b0e25beca27c33b6dcfe978f6d22cf6f4869425844d575",
+    "src/Common/Register.hpp": "57fb42ae07816f444301153cdea5bf943b873262ff992e454b894ff990ad8e34",
+    "src/Common/utils.h": "74d3100141f38b67efdec002eae6dcf9803452fffec0bfb0f5bac8e56d10a61a"
+  },
+  "source_local_declaration_count": 4,
+  "all_call_count": 7,
+  "top_level_call_count": 7,
+  "dependency_symbol_match_count": 1,
+  "dependency_symbols": [
+    "debug_immediate"
+  ],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [
+    "memcpy",
+    "memset",
+    "sprintf"
+  ],
+  "source_contract_sha256": "569e9a0462b2c60d2ac14c75a863faced0f176eab6705f193abbc5077f99da19",
+  "dependency_contract_sha256": "0d519de626eb4b47e9fdee5be23cbaeb73f4ec6f6df3b95f152a2e70c849783e",
+  "combined_contract_sha256": "e6a0582d6b8717fe12e9ffc8daf5fd124dd54fac9a2868b3f2499466450ad354",
+  "source_contract_chars": 1133,
+  "dependency_contract_chars": 679,
+  "combined_contract_chars": 1813,
+  "retrieval_manifest_sha256": "5ebf458b72e72145649baa98b5e7469cc02133ef196ecbd19ffecbc57a57a235",
+  "retrieval_context_sha256": "167be5a044f30a02c81197501fac8e30079e3f46045fc1770263b1742d21e568",
+  "llm_called": false,
+  "deterministic": true
+}

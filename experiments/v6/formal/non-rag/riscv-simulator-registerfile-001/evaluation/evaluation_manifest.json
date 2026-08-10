@@ -1,0 +1,163 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-registerfile-v6-formal-non-rag",
+  "run_id": "riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001",
+  "condition": "full_source_deterministic_exact_contract_v6_non_rag",
+  "granularity": "target_span",
+  "completed_at_utc": "2026-08-10T01:32:14.343530+00:00",
+  "overall_pass": true,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-10T01:32:06.334250+00:00",
+      "completed_at_utc": "2026-08-10T01:32:09.719753+00:00",
+      "elapsed_seconds": 3.382808899972588,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-10T01:32:09.719753+00:00",
+      "completed_at_utc": "2026-08-10T01:32:13.444523+00:00",
+      "elapsed_seconds": 3.7235353998839855,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='RegisterFile.ReadWrite'"
+      ],
+      "container_shell_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='RegisterFile.ReadWrite'",
+      "started_at_utc": "2026-08-10T01:32:13.445072+00:00",
+      "completed_at_utc": "2026-08-10T01:32:13.848594+00:00",
+      "elapsed_seconds": 0.4025736004114151,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001/direct_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001/direct_test.stderr.txt",
+      "counts": {
+        "ran": 1,
+        "passed": 1,
+        "failed": 0
+      }
+    },
+    "full_test": {
+      "stage": "full_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "./build/RISCV_Simulator_Test --gtest_color=no"
+      ],
+      "container_shell_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+      "started_at_utc": "2026-08-10T01:32:13.849126+00:00",
+      "completed_at_utc": "2026-08-10T01:32:14.303035+00:00",
+      "elapsed_seconds": 0.4531729002483189,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001/full_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001/full_test.stderr.txt",
+      "counts": {
+        "ran": 18,
+        "passed": 18,
+        "failed": 0
+      }
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "src/Common/RegisterFile.hpp",
+        "original_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+        "restored_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": "",
+    "original_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110",
+    "restored_hash": "1c4bfe14b42ee4d49f6a87cfbd33f571de30982b263020d5a9e9c8548f7e1110"
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-10T01:32:06.235939+00:00",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "fence_language": "cpp",
+    "strict_format_pass": false,
+    "raw_sha256": "f8c7d0bf6a887e2e0bb9ec181bbd737fdabe4bd45f3b74d0b2ec37c64c8215b2",
+    "normalized_sha256": "7e74da63a5380ab8c54585fab7ef0f8c2dc858c6a8a1e88c4a535fcbd39e4295",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/riscv-simulator-registerfile-deterministic-exact-contract-v6-non-rag-formal-001"
+}

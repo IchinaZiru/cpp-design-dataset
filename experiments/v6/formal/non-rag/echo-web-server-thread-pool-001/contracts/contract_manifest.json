@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "nonrag",
+  "target_id": "echo-web-server-thread-pool-v6-formal-non-rag",
+  "pair_id": "echo-web-server-thread-pool",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/containers/thread_pool.h",
+    "src/containers/thread_pool/thread_pool.cpp"
+  ],
+  "target_fragment_sha256": {
+    "include/containers/thread_pool.h": "2480e091de06ea7412f161d26249af421519ede6c6044a26605211bb6f2b739c",
+    "src/containers/thread_pool/thread_pool.cpp": "3ad7703fb87464f6360e29e5091112c8ee14d2e9a9237765ef22b7ad7188990f"
+  },
+  "selected_dependency_paths": [],
+  "dependency_file_sha256": {},
+  "source_local_declaration_count": 5,
+  "all_call_count": 26,
+  "top_level_call_count": 20,
+  "dependency_symbol_match_count": 0,
+  "dependency_symbols": [],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [],
+  "source_contract_sha256": "48fa921fb325fbd11dfbb12b1347cd737120b20277f72dce2df2c690ab159afb",
+  "dependency_contract_sha256": null,
+  "combined_contract_sha256": "48fa921fb325fbd11dfbb12b1347cd737120b20277f72dce2df2c690ab159afb",
+  "source_contract_chars": 1734,
+  "dependency_contract_chars": 0,
+  "combined_contract_chars": 1734,
+  "retrieval_manifest_sha256": null,
+  "retrieval_context_sha256": null,
+  "llm_called": false,
+  "deterministic": true
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "2.1",
+  "target_id": "ini-cpp-inireader-v6-formal-rag",
+  "target_name": "INIReader",
+  "condition": "full_source_deterministic_exact_contract_v6_rag",
+  "repository_id": "ini-cpp",
+  "repository_commit": "e1779b837274de8be2051bef579c3b9ec3483522",
+  "granularity": "target_span",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "ini/ini.h"
+  ],
+  "source_files": [
+    "ini/ini.h"
+  ],
+  "observation_file_hashes": {
+    "ini/ini.h": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+  },
+  "source_file_hashes": {
+    "ini/ini.h": "30dfffabdda27182ddf2351193c9224b533b42349e9186a4cecf40f781b0c7f1"
+  },
+  "prepared_at_utc": "2026-08-10T00:18:12.854023+00:00",
+  "target_source_file": "ini/ini.h",
+  "replacement_scope": "target_span",
+  "locator": {
+    "kind": "class",
+    "symbol": "INIReader"
+  },
+  "target_start_offset": 3339,
+  "target_end_offset": 18186,
+  "target_sha256": "7b704984f285c25ca6c01c80ef527448675b11b9efa9677a8161e65d0b650b01"
+}

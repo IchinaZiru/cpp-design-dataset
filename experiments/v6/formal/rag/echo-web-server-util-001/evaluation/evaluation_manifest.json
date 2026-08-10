@@ -1,0 +1,111 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-util-v6-formal-rag",
+  "run_id": "echo-web-server-util-deterministic-exact-contract-v6-rag-formal-001",
+  "condition": "full_source_deterministic_exact_contract_v6_rag",
+  "granularity": "module_files",
+  "completed_at_utc": "2026-08-09T23:58:24.728253+00:00",
+  "overall_pass": false,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DECHO_WEB_SERVER_BUILD_TESTS=ON -DCMAKE_PROJECT_INCLUDE=/workspace/configs/roundtrip/cmake/echo_web_server_gtest.cmake",
+      "started_at_utc": "2026-08-09T23:58:16.589213+00:00",
+      "completed_at_utc": "2026-08-09T23:58:22.291046+00:00",
+      "elapsed_seconds": 5.699941899627447,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-util-deterministic-exact-contract-v6-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-util-deterministic-exact-contract-v6-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/Echo-Web-Server",
+        "cpp-roundtrip-env:echo-web-server-v2",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-09T23:58:22.291551+00:00",
+      "completed_at_utc": "2026-08-09T23:58:24.687136+00:00",
+      "elapsed_seconds": 2.3944465001113713,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 2,
+      "passed": false,
+      "stdout_log": "logs/roundtrip_v2/echo-web-server-util-deterministic-exact-contract-v6-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/echo-web-server-util-deterministic-exact-contract-v6-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "passed": false,
+      "skipped": true
+    },
+    "full_test": {
+      "stage": "full_test",
+      "passed": false,
+      "skipped": true
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "include/util.h",
+        "original_hash": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85",
+        "restored_hash": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85",
+        "restored": true
+      },
+      {
+        "path": "src/util/util.cpp",
+        "original_hash": "6400c263f1a882b68c6f5197ced15ba20327030490833df54b118ab57516ff44",
+        "restored_hash": "6400c263f1a882b68c6f5197ced15ba20327030490833df54b118ab57516ff44",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": ""
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-09T23:58:16.446719+00:00",
+    "normalization_applied": false,
+    "normalization_type": "none",
+    "fence_language": null,
+    "strict_format_pass": true,
+    "raw_sha256": "1852101594dc024c834536aa621a2c0acb0af24b0d851b66b08a07a94422c7e4",
+    "normalized_sha256": "1852101594dc024c834536aa621a2c0acb0af24b0d851b66b08a07a94422c7e4",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/echo-web-server-util-deterministic-exact-contract-v6-rag-formal-001"
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "echo-web-server-ip",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "quoted_includes_only": true,
+  "tracked_files_only": true,
+  "whole_file": true,
+  "one_hop": true,
+  "exclude_target_source_files": true,
+  "target_specific_tuning": false,
+  "selected_file_count": 1,
+  "selected_paths": [
+    "include/util.h"
+  ],
+  "unresolved_count": 0,
+  "ambiguous_count": 0,
+  "combined_context_sha256": "9f8646040c51462d8241371994b165fe2d51bc82589ca8625a8941299ed6ac5d",
+  "combined_context_bytes": 13764,
+  "generic_knowledge_sha256": "280f38b01f3ba1906fe297a344b978fe5cbc4e325655316163412ddc90f3ca08"
+}

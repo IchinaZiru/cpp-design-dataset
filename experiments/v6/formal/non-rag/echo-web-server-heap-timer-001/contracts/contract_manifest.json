@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "nonrag",
+  "target_id": "echo-web-server-heap-timer-v6-formal-non-rag",
+  "pair_id": "echo-web-server-heap-timer",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/containers/heap_timer.h"
+  ],
+  "target_fragment_sha256": {
+    "include/containers/heap_timer.h": "f3bb35fe0aaa3d971b57d392471e60afa6e64b78cba7ebc4fdd24bb8ef94d2d8"
+  },
+  "selected_dependency_paths": [],
+  "dependency_file_sha256": {},
+  "source_local_declaration_count": 13,
+  "all_call_count": 74,
+  "top_level_call_count": 62,
+  "dependency_symbol_match_count": 0,
+  "dependency_symbols": [],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [],
+  "source_contract_sha256": "cb0f3490df79835754d7b87279209e27e015c9f5e165c357bfd731c5da32e797",
+  "dependency_contract_sha256": null,
+  "combined_contract_sha256": "cb0f3490df79835754d7b87279209e27e015c9f5e165c357bfd731c5da32e797",
+  "source_contract_chars": 3098,
+  "dependency_contract_chars": 0,
+  "combined_contract_chars": 3098,
+  "retrieval_manifest_sha256": null,
+  "retrieval_context_sha256": null,
+  "llm_called": false,
+  "deterministic": true
+}

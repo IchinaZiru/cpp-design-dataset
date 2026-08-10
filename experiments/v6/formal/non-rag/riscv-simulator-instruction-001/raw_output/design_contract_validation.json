@@ -1,0 +1,138 @@
+{
+  "schema_version": "4.0",
+  "prompt_profile": "source-faithful-detailed-design-v6",
+  "condition": "full_source_deterministic_exact_contract_v6_non_rag",
+  "validation_mode": "advisory_non_blocking",
+  "generated_design_unchanged": true,
+  "blocking_passed": true,
+  "advisory_passed": false,
+  "headings": [
+    {
+      "level": 1,
+      "name": "デザイン文書: Instruction.hpp"
+    },
+    {
+      "level": 2,
+      "name": "責務"
+    },
+    {
+      "level": 2,
+      "name": "公開インターフェース"
+    },
+    {
+      "level": 2,
+      "name": "入力"
+    },
+    {
+      "level": 2,
+      "name": "出力"
+    },
+    {
+      "level": 2,
+      "name": "状態"
+    },
+    {
+      "level": 2,
+      "name": "処理手順"
+    },
+    {
+      "level": 2,
+      "name": "例外・失敗条件"
+    },
+    {
+      "level": 2,
+      "name": "依存関係"
+    },
+    {
+      "level": 2,
+      "name": "重要な不変条件"
+    },
+    {
+      "level": 1,
+      "name": "追加詳細設計情報"
+    },
+    {
+      "level": 2,
+      "name": "クラス図"
+    },
+    {
+      "level": 2,
+      "name": "クラス・メソッド・インターフェース詳細"
+    },
+    {
+      "level": 2,
+      "name": "シーケンス図"
+    },
+    {
+      "level": 2,
+      "name": "メソッド仕様書"
+    },
+    {
+      "level": 3,
+      "name": "`InstructionBase::nop`"
+    },
+    {
+      "level": 3,
+      "name": "`InstructionBase::is_nop`"
+    },
+    {
+      "level": 3,
+      "name": "`InstructionBase::bin_mask`"
+    },
+    {
+      "level": 3,
+      "name": "`InstructionBase::get_digits`"
+    },
+    {
+      "level": 3,
+      "name": "`InstructionBase::expand_digit`"
+    },
+    {
+      "level": 3,
+      "name": "`InstructionBase::is_valid`"
+    },
+    {
+      "level": 3,
+      "name": "`InstructionBase::verify`"
+    },
+    {
+      "level": 3,
+      "name": "`InstructionBase::debug`"
+    },
+    {
+      "level": 3,
+      "name": "`InstructionBase::has_op1`"
+    },
+    {
+      "level": 3,
+      "name": "`InstructionBase::has_op2`"
+    },
+    {
+      "level": 2,
+      "name": "処理フロー図"
+    },
+    {
+      "level": 2,
+      "name": "状態遷移・副作用"
+    },
+    {
+      "level": 2,
+      "name": "データ変換・制約"
+    },
+    {
+      "level": 2,
+      "name": "その他の詳細"
+    }
+  ],
+  "diagram_checks": {
+    "クラス図": true,
+    "シーケンス図": false,
+    "処理フロー図": false
+  },
+  "warnings": [
+    "シーケンス図: expected Mermaid type not detected; advisory only",
+    "処理フロー図: expected Mermaid type not detected; advisory only"
+  ],
+  "validated_at_utc": "2026-08-09T14:58:05.300149+00:00",
+  "base_prompt_profile": "source-faithful-detailed-design-v4"
+}

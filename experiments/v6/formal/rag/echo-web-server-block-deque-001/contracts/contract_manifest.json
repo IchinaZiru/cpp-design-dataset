@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "rag",
+  "target_id": "echo-web-server-block-deque-v6-formal-rag",
+  "pair_id": "echo-web-server-block-deque",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/containers/block_deque.h"
+  ],
+  "target_fragment_sha256": {
+    "include/containers/block_deque.h": "d113c9b83e793ceb3a0be2b555cc22f83913acab413e9482441c4f170930b3ad"
+  },
+  "selected_dependency_paths": [],
+  "dependency_file_sha256": {},
+  "source_local_declaration_count": 5,
+  "all_call_count": 30,
+  "top_level_call_count": 26,
+  "dependency_symbol_match_count": 0,
+  "dependency_symbols": [],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [
+    "T",
+    "assert",
+    "back",
+    "clear",
+    "empty",
+    "front",
+    "has_value",
+    "notify_all",
+    "notify_one",
+    "pop_front",
+    "push_back",
+    "push_front",
+    "size",
+    "wait",
+    "wait_for"
+  ],
+  "source_contract_sha256": "258a14154649f766d597ebf0d2b360da09fac1af794618bd493057086ec9a034",
+  "dependency_contract_sha256": "5242ff359a12abbb6afb607e0fc75b35610aaeabb9956f3f51c25f94a0703e1a",
+  "combined_contract_sha256": "6de5852d7fc6b7d2c7d766678e9c0e67959a70fa168a4a110a134231993aca24",
+  "source_contract_chars": 1925,
+  "dependency_contract_chars": 507,
+  "combined_contract_chars": 2433,
+  "retrieval_manifest_sha256": "e7169d6e5a07066f977de177c72ffd4d2b897bcd0d7cfd74637ca2c8ed17ae00",
+  "retrieval_context_sha256": "1dd4addb6eeb0bbf70e66813019c74d7fd712f9bd54a34aaa402bfb5618440e7",
+  "llm_called": false,
+  "deterministic": true
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "rag",
+  "target_id": "echo-web-server-buffer-v6-formal-rag",
+  "pair_id": "echo-web-server-buffer",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/containers/buffer.h",
+    "src/containers/buffer/buffer.cpp"
+  ],
+  "target_fragment_sha256": {
+    "include/containers/buffer.h": "8f0b0648f537d9c07ca6323e8f3d6c2a7400651d4319a96f683a60c64b6473d8",
+    "src/containers/buffer/buffer.cpp": "78e46902cd9b4706d24be0611df706feaf5b8e4b9b784347d68ecc8d8b6d9bb7"
+  },
+  "selected_dependency_paths": [
+    "include/io.h"
+  ],
+  "dependency_file_sha256": {
+    "include/io.h": "760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241"
+  },
+  "source_local_declaration_count": 8,
+  "all_call_count": 53,
+  "top_level_call_count": 42,
+  "dependency_symbol_match_count": 2,
+  "dependency_symbols": [
+    "ReadFrom",
+    "WriteTo"
+  ],
+  "overload_sets": {
+    "WriteTo": 3,
+    "ReadFrom": 3
+  },
+  "unmatched_candidate_symbols": [
+    "Append",
+    "Buffer",
+    "ReadableBytes",
+    "assert",
+    "base",
+    "begin",
+    "byte",
+    "data",
+    "has_value",
+    "length",
+    "load",
+    "reinterpret_cast",
+    "resize",
+    "size",
+    "size_bytes"
+  ],
+  "source_contract_sha256": "27fa7899eec340f7970c359b558ac8dec30d6cb9ad8f42b8cbf5baabfa13054b",
+  "dependency_contract_sha256": "7b070bd63d4f1395e66fc4c8aaef684c860c20b58495530af54ec96290bcf7e2",
+  "combined_contract_sha256": "3c8e36cba892ae48def4b68ff5e3366b7c802a02f08dc20e6ff6e8fbbc38bc72",
+  "source_contract_chars": 2159,
+  "dependency_contract_chars": 1006,
+  "combined_contract_chars": 3166,
+  "retrieval_manifest_sha256": "7c0fb2b5ab5f454e7bf270e9e9c6d26e9e7f7a60215986b2ce9c91668014d2e9",
+  "retrieval_context_sha256": "e891f01987e20d4be39709d48f5e7579bb93773e47b3a82c0961915cb51bd735",
+  "llm_called": false,
+  "deterministic": true
+}

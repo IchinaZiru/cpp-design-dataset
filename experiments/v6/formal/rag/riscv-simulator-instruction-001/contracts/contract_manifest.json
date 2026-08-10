@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "rag",
+  "target_id": "riscv-simulator-instruction-v6-formal-rag",
+  "pair_id": "riscv-simulator-instruction",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "src/Common/Instruction.hpp"
+  ],
+  "target_fragment_sha256": {
+    "src/Common/Instruction.hpp": "f1a2a6bfb8f5588fb1fd14fad5eac65c4eedb31b0d10febe9aade2084baa4cfd"
+  },
+  "selected_dependency_paths": [
+    "src/Common/Common.h"
+  ],
+  "dependency_file_sha256": {
+    "src/Common/Common.h": "1842fc10588b2c6997b0e25beca27c33b6dcfe978f6d22cf6f4869425844d575"
+  },
+  "source_local_declaration_count": 1,
+  "all_call_count": 21,
+  "top_level_call_count": 20,
+  "dependency_symbol_match_count": 0,
+  "dependency_symbols": [],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [
+    "InvalidAccess"
+  ],
+  "source_contract_sha256": "2289a632d9cd25a5b1df41a116d653e53b7dea9a7fa553f474e2ddea2c83551e",
+  "dependency_contract_sha256": "5242ff359a12abbb6afb607e0fc75b35610aaeabb9956f3f51c25f94a0703e1a",
+  "combined_contract_sha256": "0193b956679fa62d76efce2934b6be0e96f12753e463d258b154481bc07acdba",
+  "source_contract_chars": 1339,
+  "dependency_contract_chars": 507,
+  "combined_contract_chars": 1847,
+  "retrieval_manifest_sha256": "09997d119968d32655306bfc3470b886ceea8267fce5274b368f84c75d367656",
+  "retrieval_context_sha256": "9ceeeb5f0e5e0daa4fb3b8b42f7d92064cee764d9c5f89e1312873c70de44664",
+  "llm_called": false,
+  "deterministic": true
+}

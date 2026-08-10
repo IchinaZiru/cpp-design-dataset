@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "nonrag",
+  "target_id": "echo-web-server-http-v6-formal-non-rag",
+  "pair_id": "echo-web-server-http",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/http.h",
+    "src/http/http.cpp",
+    "src/http/request.h",
+    "src/http/request.cpp",
+    "src/http/response.h",
+    "src/http/response.cpp"
+  ],
+  "target_fragment_sha256": {
+    "include/http.h": "0b11e35f35439d3dd80fd35dcc80e9e035a052cfcb75469a89e229512c5933d6",
+    "src/http/http.cpp": "fcde3d290f963dd29d7977f858b07a637636b9386eddee25a2a95c05753ca2fb",
+    "src/http/request.h": "c3077bb58542e4bb6d19d5499931690844d10d8172a7ad48e4ee297e1820bec2",
+    "src/http/request.cpp": "f168535ce69953aff0d82f76b7fbe2253975eee9201090effc40ab5800d2e3f0",
+    "src/http/response.h": "d19647d9230979af82bd3547ca5e58d980fee5415d1d42c98b493a52bbec1e8c",
+    "src/http/response.cpp": "f718b947c4991f44b1bd59b05e605060496eaca35feebb1bd085408b3de8ec6c"
+  },
+  "selected_dependency_paths": [],
+  "dependency_file_sha256": {},
+  "source_local_declaration_count": 54,
+  "all_call_count": 193,
+  "top_level_call_count": 153,
+  "dependency_symbol_match_count": 0,
+  "dependency_symbols": [],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [],
+  "source_contract_sha256": "5b9411abc2751e6eed91d49fcf1deb5e05b1360f8928aaca68666f00456ef1aa",
+  "dependency_contract_sha256": null,
+  "combined_contract_sha256": "5b9411abc2751e6eed91d49fcf1deb5e05b1360f8928aaca68666f00456ef1aa",
+  "source_contract_chars": 9797,
+  "dependency_contract_chars": 0,
+  "combined_contract_chars": 9797,
+  "retrieval_manifest_sha256": null,
+  "retrieval_context_sha256": null,
+  "llm_called": false,
+  "deterministic": true
+}

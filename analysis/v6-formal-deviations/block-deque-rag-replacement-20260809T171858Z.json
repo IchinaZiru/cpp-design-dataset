@@ -1,0 +1,31 @@
+﻿{
+    "schema_version":  "1.0",
+    "recorded_before_replacement_utc":  "2026-08-09T17:18:59.8120705+00:00",
+    "protocol_deviation":  true,
+    "pair_id":  "echo-web-server-block-deque",
+    "condition":  "RAG",
+    "excluded_attempt":  {
+                             "original_experiment_id":  "v6/formal/rag/echo-web-server-block-deque-001",
+                             "archived_at":  "experiments\\v6\\formal-invalid-attempts\\rag\\echo-web-server-block-deque-001-infra-abort-20260809T171858Z",
+                             "exclusion_reason":  "infrastructure process abort after code-regeneration LLM call was attempted but before a response returned",
+                             "use_in_primary_aggregate":  false,
+                             "llm_call_attempted":  true,
+                             "llm_call_returned":  false,
+                             "evidence_sha256":  {
+                                                     "raw_output\\design_generation_metadata.json":  "d0e17a56b237daca09a769ecb617d9bbf75c31f32514e200a5f9705d5c2b7142",
+                                                     "generated\\design_document_llm.md":  "05b568d35a42a3ad6c65e2262551af2416b0f5f2dd65bea01274ff8a5159df0d",
+                                                     "generated\\design_document.md":  "8e8e1fb45619d04ad9f2211ab4aa8391f64283c5ccbba78bab862bb5b397c183",
+                                                     "raw_output\\code_regeneration_budget.json":  "f80cf51593558fe262bb47b66b6063d654e3b86f0bfed4836a12b7fc452a07a8"
+                                                 }
+                         },
+    "replacement":  {
+                        "canonical_experiment_id":  "v6/formal/rag/echo-web-server-block-deque-001",
+                        "start_from":  "fresh design generation",
+                        "use_in_primary_aggregate":  true,
+                        "model_or_prompt_change":  false,
+                        "retrieval_or_contract_change":  false,
+                        "frozen_config_change":  false,
+                        "automatic_retry":  false,
+                        "replacement_count":  1
+                    }
+}

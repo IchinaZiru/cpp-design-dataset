@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "nonrag",
+  "target_id": "echo-web-server-ip-v6-formal-non-rag",
+  "pair_id": "echo-web-server-ip",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/ip.h",
+    "src/ip/ip.cpp"
+  ],
+  "target_fragment_sha256": {
+    "include/ip.h": "6a2d6d8f9dac2133366304948e58212d248c04ef9714e2088a41fbadf70b23d0",
+    "src/ip/ip.cpp": "5adf7e6a622ab7de53b663f906453446b65e5e085e3b36fa71d74c8fb5524047"
+  },
+  "selected_dependency_paths": [],
+  "dependency_file_sha256": {},
+  "source_local_declaration_count": 1,
+  "all_call_count": 14,
+  "top_level_call_count": 11,
+  "dependency_symbol_match_count": 0,
+  "dependency_symbols": [],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [],
+  "source_contract_sha256": "8e387bdada5d5e29a86db1e80fcbc4703e796e066130b769e80240750c67f3a2",
+  "dependency_contract_sha256": null,
+  "combined_contract_sha256": "8e387bdada5d5e29a86db1e80fcbc4703e796e066130b769e80240750c67f3a2",
+  "source_contract_chars": 1078,
+  "dependency_contract_chars": 0,
+  "combined_contract_chars": 1078,
+  "retrieval_manifest_sha256": null,
+  "retrieval_context_sha256": null,
+  "llm_called": false,
+  "deterministic": true
+}

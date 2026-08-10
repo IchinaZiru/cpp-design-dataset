@@ -1,0 +1,2 @@
+{"candidate_paths": ["include/log.h"], "include": "log.h", "line": 16, "resolution_rule": "unique_repository_suffix", "resolved_path": "include/log.h", "source_file": "include/containers/heap_timer.h", "status": "resolved_external"}
+{"candidate_paths": ["include/util.h"], "include": "util.h", "line": 17, "resolution_rule": "unique_repository_suffix", "resolved_path": "include/util.h", "source_file": "include/containers/heap_timer.h", "status": "resolved_external"}

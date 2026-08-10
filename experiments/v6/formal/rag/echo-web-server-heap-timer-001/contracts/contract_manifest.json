@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "rag",
+  "target_id": "echo-web-server-heap-timer-v6-formal-rag",
+  "pair_id": "echo-web-server-heap-timer",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "include/containers/heap_timer.h"
+  ],
+  "target_fragment_sha256": {
+    "include/containers/heap_timer.h": "f3bb35fe0aaa3d971b57d392471e60afa6e64b78cba7ebc4fdd24bb8ef94d2d8"
+  },
+  "selected_dependency_paths": [
+    "include/log.h",
+    "include/util.h"
+  ],
+  "dependency_file_sha256": {
+    "include/log.h": "3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252",
+    "include/util.h": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85"
+  },
+  "source_local_declaration_count": 13,
+  "all_call_count": 74,
+  "top_level_call_count": 62,
+  "dependency_symbol_match_count": 3,
+  "dependency_symbols": [
+    "Create",
+    "Log",
+    "RootLogger"
+  ],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [
+    "Expired",
+    "Swap",
+    "assert",
+    "at",
+    "back",
+    "callback",
+    "clear",
+    "contains",
+    "emplace",
+    "empty",
+    "erase",
+    "format",
+    "front",
+    "has_value",
+    "now",
+    "pop_back",
+    "push_back",
+    "size",
+    "swap",
+    "what",
+    "zero"
+  ],
+  "source_contract_sha256": "cb0f3490df79835754d7b87279209e27e015c9f5e165c357bfd731c5da32e797",
+  "dependency_contract_sha256": "302f3daedab44f2acd11c454c99d88cb271b91bc859031d938e5f2498553d167",
+  "combined_contract_sha256": "56e1cc7db69540587f1d051a2fa6c8ca56f6978d8cf7d87e56c51da6e948cbc8",
+  "source_contract_chars": 3098,
+  "dependency_contract_chars": 1347,
+  "combined_contract_chars": 4446,
+  "retrieval_manifest_sha256": "b30db91089564930825f1cbbcad6177f71bce9d0234684cc64085cb8302516cd",
+  "retrieval_context_sha256": "e850902f505a868877deb54d6896b1b5b03549550bfc7afa665f68887d589743",
+  "llm_called": false,
+  "deterministic": true
+}

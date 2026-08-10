@@ -1,0 +1,137 @@
+{
+  "schema_version": "4.0",
+  "prompt_profile": "source-faithful-detailed-design-v6",
+  "condition": "full_source_deterministic_exact_contract_v6_rag",
+  "validation_mode": "advisory_non_blocking",
+  "generated_design_unchanged": true,
+  "blocking_passed": true,
+  "advisory_passed": false,
+  "headings": [
+    {
+      "level": 1,
+      "name": "設計文書"
+    },
+    {
+      "level": 2,
+      "name": "ファイル構造と責務"
+    },
+    {
+      "level": 3,
+      "name": "include/ip.h"
+    },
+    {
+      "level": 3,
+      "name": "src/ip/ip.cpp"
+    },
+    {
+      "level": 2,
+      "name": "基本設計項目"
+    },
+    {
+      "level": 3,
+      "name": "責務"
+    },
+    {
+      "level": 3,
+      "name": "公開インターフェース"
+    },
+    {
+      "level": 3,
+      "name": "入力"
+    },
+    {
+      "level": 3,
+      "name": "出力"
+    },
+    {
+      "level": 3,
+      "name": "状態"
+    },
+    {
+      "level": 3,
+      "name": "処理手順"
+    },
+    {
+      "level": 3,
+      "name": "例外・失敗条件"
+    },
+    {
+      "level": 3,
+      "name": "依存関係"
+    },
+    {
+      "level": 3,
+      "name": "重要な不変条件"
+    },
+    {
+      "level": 2,
+      "name": "追加詳細設計情報"
+    },
+    {
+      "level": 3,
+      "name": "クラス図"
+    },
+    {
+      "level": 3,
+      "name": "クラス・メソッド・インターフェース詳細"
+    },
+    {
+      "level": 3,
+      "name": "シーケンス図"
+    },
+    {
+      "level": 3,
+      "name": "メソッド仕様書"
+    },
+    {
+      "level": 4,
+      "name": "IPv4Addr::IPv4Addr(std::string ip, std::uint16_t port)"
+    },
+    {
+      "level": 4,
+      "name": "IPv4Addr::IPAddress()"
+    },
+    {
+      "level": 4,
+      "name": "IPv4Addr::Port()"
+    },
+    {
+      "level": 4,
+      "name": "IPv4Addr::Raw()"
+    },
+    {
+      "level": 4,
+      "name": "IPv4Addr::Version()"
+    },
+    {
+      "level": 4,
+      "name": "IPv4Addr::Size()"
+    },
+    {
+      "level": 3,
+      "name": "処理フロー図"
+    },
+    {
+      "level": 3,
+      "name": "状態遷移・副作用"
+    },
+    {
+      "level": 3,
+      "name": "データ変換・制約"
+    },
+    {
+      "level": 2,
+      "name": "まとめ"
+    }
+  ],
+  "diagram_checks": {
+    "クラス図": true,
+    "シーケンス図": true,
+    "処理フロー図": false
+  },
+  "warnings": [
+    "処理フロー図: expected Mermaid type not detected; advisory only"
+  ],
+  "validated_at_utc": "2026-08-09T21:23:23.878604+00:00",
+  "base_prompt_profile": "source-faithful-detailed-design-v4"
+}

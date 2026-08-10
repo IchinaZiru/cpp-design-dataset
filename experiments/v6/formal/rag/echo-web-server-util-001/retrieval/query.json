@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "echo-web-server-util",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "source_files": [
+    "include/util.h",
+    "src/util/util.cpp"
+  ],
+  "quoted_includes": [
+    {
+      "source_file": "src/util/util.cpp",
+      "line": 1,
+      "include": "util.h"
+    }
+  ],
+  "query_generation": "deterministic_non_llm",
+  "target_specific_tuning": false
+}

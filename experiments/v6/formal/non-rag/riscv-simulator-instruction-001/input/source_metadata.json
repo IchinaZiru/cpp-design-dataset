@@ -1,0 +1,25 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-instruction-v6-formal-non-rag",
+  "target_name": "Instruction",
+  "condition": "full_source_deterministic_exact_contract_v6_non_rag",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "granularity": "module_files",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "src/Common/Instruction.hpp"
+  ],
+  "source_files": [
+    "src/Common/Instruction.hpp"
+  ],
+  "observation_file_hashes": {
+    "src/Common/Instruction.hpp": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9"
+  },
+  "source_file_hashes": {
+    "src/Common/Instruction.hpp": "105d690fcf1f741f43136d8accd3c73c0fd1fc168e4ac809a5a12193268908a9"
+  },
+  "prepared_at_utc": "2026-08-09T14:51:08.298497+00:00",
+  "replacement_scope": "module_files",
+  "locator": {}
+}

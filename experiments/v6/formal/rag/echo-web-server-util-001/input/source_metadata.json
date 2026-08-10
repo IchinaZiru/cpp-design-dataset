@@ -1,0 +1,29 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-util-v6-formal-rag",
+  "target_name": "util",
+  "condition": "full_source_deterministic_exact_contract_v6_rag",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "include/util.h",
+    "src/util/util.cpp"
+  ],
+  "source_files": [
+    "include/util.h",
+    "src/util/util.cpp"
+  ],
+  "observation_file_hashes": {
+    "include/util.h": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85",
+    "src/util/util.cpp": "6400c263f1a882b68c6f5197ced15ba20327030490833df54b118ab57516ff44"
+  },
+  "source_file_hashes": {
+    "include/util.h": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85",
+    "src/util/util.cpp": "6400c263f1a882b68c6f5197ced15ba20327030490833df54b118ab57516ff44"
+  },
+  "prepared_at_utc": "2026-08-09T23:38:26.823871+00:00",
+  "replacement_scope": "module_files",
+  "locator": {}
+}

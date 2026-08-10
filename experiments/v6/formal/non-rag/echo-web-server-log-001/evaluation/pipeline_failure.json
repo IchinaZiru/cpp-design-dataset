@@ -1,0 +1,12 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-log-v6-formal-non-rag",
+  "run_id": "echo-web-server-log-deterministic-exact-contract-v6-non-rag-formal-001",
+  "condition": "full_source_deterministic_exact_contract_v6_non_rag",
+  "failed_stage": "code_regeneration",
+  "error_type": "TimeoutError",
+  "error": "timed out",
+  "recorded_at_utc": "2026-08-09T22:12:06.014560+00:00",
+  "retry_performed": false,
+  "automatic_repair_performed": false
+}

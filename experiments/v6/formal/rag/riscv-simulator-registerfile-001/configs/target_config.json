@@ -1,0 +1,213 @@
+{
+  "schema_version": "6.0-formal",
+  "enabled": true,
+  "pilot_only": false,
+  "formal_result_eligible": true,
+  "condition": "full_source_deterministic_exact_contract_v6_rag",
+  "target_id": "riscv-simulator-registerfile-v6-formal-rag",
+  "pair_id": "riscv-simulator-registerfile",
+  "pair_sequence": 17,
+  "experiment_id": "v6/formal/rag/riscv-simulator-registerfile-001",
+  "run_id": "riscv-simulator-registerfile-deterministic-exact-contract-v6-rag-formal-001",
+  "repository_id": "RISCV-Simulator",
+  "repository_path": "repos/RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "target_name": "RegisterFile",
+  "adoption_status": "条件付き採用",
+  "granularity": "class_span",
+  "observation_files": [
+    "src/Common/RegisterFile.hpp"
+  ],
+  "source_files": [
+    "src/Common/RegisterFile.hpp"
+  ],
+  "locator": {
+    "kind": "class",
+    "symbol": "RegisterFile"
+  },
+  "design_knowledge": {
+    "enabled": true,
+    "context_file": "knowledge/detailed-design/general-v4.md",
+    "instruction_mode": "required_additional_artifacts",
+    "query": "再実装に必要な型定義、直接依存API、利用方法、条件・具体値、使用/更新データ、状態・副作用・不変条件を、ソース全文コピーではなく正確な詳細設計情報として保持する"
+  },
+  "model": {
+    "name": "qwen2.5-coder:32b",
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "top_k": 40,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "stream": false,
+    "generations": 1,
+    "retry": false,
+    "automatic_repair": false
+  },
+  "evaluation": {
+    "docker_image": "cpp-roundtrip-env:riscv-simulator-v1",
+    "docker_image_id": "sha256:81e23cc94a387697d7979c847d81bf557543fece913065fbdbd329bf194f62cd",
+    "configure_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build_command": "cmake --build build --parallel",
+    "direct_test_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='RegisterFile.ReadWrite'",
+    "full_test_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+    "full_test_kind": "gtest",
+    "direct_test_filter": "RegisterFile.ReadWrite",
+    "direct_test_names": [
+      "RegisterFile.ReadWrite"
+    ],
+    "expected_direct_tests": 1,
+    "expected_full_tests": 18,
+    "stage_timeouts_seconds": {
+      "configure": 300,
+      "build": 600,
+      "direct_test": 300,
+      "full_test": 600
+    }
+  },
+  "protocol": {
+    "protocol_id": "deterministic-exact-contract-v6-formal-001",
+    "formal_target_set_member": true,
+    "formal_pair_id": "riscv-simulator-registerfile",
+    "observation_scope": "full_source_files",
+    "replacement_scope": "target_span",
+    "code_regeneration_inputs": [
+      "augmented_design_document",
+      "fixed_interface_scaffold",
+      "dependency_include_context"
+    ],
+    "original_source_in_code_regeneration": false,
+    "retrieved_context_in_code_regeneration": false,
+    "module_output_format": null,
+    "retry": false,
+    "automatic_repair": false,
+    "generated_code_manual_edit": false,
+    "generations_per_stage": 1,
+    "design_prompt_profile": "source-faithful-detailed-design-v6",
+    "base_level2_sections": [
+      "責務",
+      "公開インターフェース",
+      "入力",
+      "出力",
+      "状態",
+      "処理手順",
+      "例外・失敗条件",
+      "依存関係",
+      "重要な不変条件"
+    ],
+    "treatment_root_level2_section": "追加詳細設計情報",
+    "treatment_detail_level3_sections": [
+      "クラス図",
+      "クラス・メソッド・インターフェース詳細",
+      "シーケンス図",
+      "メソッド仕様書",
+      "処理フロー図",
+      "状態遷移・副作用",
+      "データ変換・制約"
+    ],
+    "allow_other_level2_sections": false,
+    "design_contract_validation_required": true,
+    "design_done_reason_required": "stop",
+    "code_regeneration_done_reason_required": "stop",
+    "num_ctx": 32768,
+    "num_predict": 16384,
+    "result_classification": "formal_paired_v6",
+    "design_contract_validation_mode": "advisory_non_blocking",
+    "design_contract_violation_is_terminal": false,
+    "allow_heading_level_variation": true,
+    "allow_heading_order_variation": true,
+    "allow_additional_headings": true,
+    "generated_design_automatic_normalization": false,
+    "v3_control_reference_config": "configs/roundtrip_v3/formal/non-rag/riscv-simulator-registerfile.json",
+    "v3_control_reference_experiment_id": "v3/formal/non-rag/riscv-simulator-registerfile-001",
+    "contract_extractor_version": "v6-ast-contract-1",
+    "source_local_contract_common_to_both_conditions": true,
+    "context_budget_rule": "assembled_code_regeneration_input_tokens + num_predict <= num_ctx",
+    "context_budget_tokenizer": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "formal_enablement_state": "enabled_formal",
+    "dependency_api_contract_required": true,
+    "repository_retrieval_during_design_generation": true
+  },
+  "provenance": {
+    "legacy_target_id": "riscv-simulator-registerfile",
+    "legacy_run_id": "riscv-simulator-registerfile-qwen25coder32b-001",
+    "legacy_experiment_id": "riscv-simulator-registerfile-roundtrip",
+    "source_config": "configs/roundtrip/targets/riscv-simulator-registerfile.json",
+    "source_note": null,
+    "legacy_results_are_not_direct_comparator": true,
+    "model_setting_policy": "Use v2 mechanics-pilot num_ctx=16384 and num_predict=8192 for both formal conditions; retain the canonical target's remaining model options.",
+    "v3_source_config": "configs/roundtrip_v2/formal/non-rag/riscv-simulator-registerfile.json",
+    "v2_results_are_not_v3_results": true,
+    "v3_change_scope": "Both conditions preserve the same nine base headings. The treatment additionally externalizes seven generic detailed-design artifacts.",
+    "context_preflight": "analysis/v3/context-preflight-final-prompt/v3_context_preflight.json",
+    "context_policy": "Use num_ctx=32768 and num_predict=16384 in both conditions; re-run the exact-prompt preflight after implementation before any LLM pilot.",
+    "v4_source_config": "configs/roundtrip_v3/formal/non-rag/riscv-simulator-registerfile.json",
+    "v4_refinement_is_posthoc": true,
+    "v3_formal_results_are_immutable": true,
+    "v4_change_scope": "Preserve source-level facts needed for regeneration and make Markdown heading validation advisory.",
+    "v4_control_reference": "frozen v3 non-RAG result for the same pair_id",
+    "confirmatory_statistical_claim": false,
+    "v5_source_config": "configs/roundtrip_v4/evaluation/rag/riscv-simulator-registerfile.json",
+    "v5_refinement_is_posthoc": true,
+    "v4_results_are_immutable": true,
+    "v5_change_scope": "Keep the v4 source-faithful prompt and generation/evaluation mechanics unchanged; add only whole-file repository-local headers directly included with quoted includes from target source_files, one hop, excluding target source_files themselves.",
+    "v5_control_reference": "frozen v4 evaluation result for the same pair_id",
+    "v6_source_config": "configs/roundtrip_v5/evaluation/rag/riscv-simulator-registerfile.json",
+    "v6_method": "deterministic exact-contract paired formal",
+    "v6_preformal_budget_audit": "analysis/v6-preformal-budget-audit/summary.json",
+    "v6_formal_results_not_started": true,
+    "v6_treatment_difference": "repository direct-include retrieval during design generation plus the deterministic dependency API contract derived from that selected context",
+    "v6_condition": "rag",
+    "v5_retrieval_reference": "experiments/v5/evaluation/rag/riscv-simulator-registerfile-001/retrieval/retrieval_manifest.json"
+  },
+  "target_source_file": "src/Common/RegisterFile.hpp",
+  "design_prompt_profile": "source-faithful-detailed-design-v6",
+  "repository_retrieval": {
+    "enabled": true,
+    "mode": "direct_include_whole_file_one_hop",
+    "quoted_includes_only": true,
+    "tracked_files_only": true,
+    "whole_file": true,
+    "depth": 1,
+    "exclude_target_source_files": true,
+    "target_specific_tuning": false,
+    "expected_combined_context_sha256": "167be5a044f30a02c81197501fac8e30079e3f46045fc1770263b1742d21e568",
+    "expected_selected_paths": [
+      "src/Common/Common.h",
+      "src/Common/Register.hpp",
+      "src/Common/utils.h"
+    ],
+    "frozen_reference_manifest": "experiments/v5/evaluation/rag/riscv-simulator-registerfile-001/retrieval/retrieval_manifest.json",
+    "frozen_reference_manifest_sha256": "5ebf458b72e72145649baa98b5e7469cc02133ef196ecbd19ffecbc57a57a235"
+  },
+  "design_context": {
+    "common_context_file": "knowledge/detailed-design/general-v4.md",
+    "common_render_mode": "v5_generic_guidance_prefix",
+    "common_context_sha256": "b9c7cc591d3b96a2dc7655c02543523a451bf47b77e29cd2bd57ebc1751cd1b1",
+    "repository_context_enabled": true
+  },
+  "deterministic_contract": {
+    "mode": "rag",
+    "extractor_version": "v6-ast-contract-1",
+    "source_local_required": true,
+    "dependency_api_required": true,
+    "expected_source_contract_sha256": "569e9a0462b2c60d2ac14c75a863faced0f176eab6705f193abbc5077f99da19",
+    "expected_dependency_contract_sha256": "0d519de626eb4b47e9fdee5be23cbaeb73f4ec6f6df3b95f152a2e70c849783e",
+    "expected_combined_contract_sha256": "e6a0582d6b8717fe12e9ffc8daf5fd124dd54fac9a2868b3f2499466450ad354",
+    "expected_selected_dependency_paths": [
+      "src/Common/Common.h",
+      "src/Common/Register.hpp",
+      "src/Common/utils.h"
+    ],
+    "expected_dependency_symbol_match_count": 1,
+    "expected_overload_sets": {}
+  },
+  "context_budget": {
+    "rule": "assembled_code_regeneration_input_tokens + num_predict <= num_ctx",
+    "tokenizer": "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "transformers_version": "4.57.6",
+    "preformal_audit": "analysis/v6-preformal-budget-audit/summary.json",
+    "action_on_violation": "stop_before_code_regeneration_no_retry"
+  }
+}

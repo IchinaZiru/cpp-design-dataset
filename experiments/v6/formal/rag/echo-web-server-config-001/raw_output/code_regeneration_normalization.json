@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "normalized_at_utc": "2026-08-09T16:18:25.043468+00:00",
+  "normalization_applied": false,
+  "normalization_type": "none",
+  "fence_language": null,
+  "strict_format_pass": true,
+  "raw_sha256": "7a9f55bb1cad591f08e42f5e77b0b44a07cb31c5c7a81bdf2204e02eccd6ddd1",
+  "normalized_sha256": "7a9f55bb1cad591f08e42f5e77b0b44a07cb31c5c7a81bdf2204e02eccd6ddd1",
+  "code_body_modified": false,
+  "retry_performed": false,
+  "automatic_repair_performed": false
+}

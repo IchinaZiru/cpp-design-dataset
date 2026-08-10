@@ -1,0 +1,154 @@
+{
+  "schema_version": "4.0",
+  "prompt_profile": "source-faithful-detailed-design-v6",
+  "condition": "full_source_deterministic_exact_contract_v6_rag",
+  "validation_mode": "advisory_non_blocking",
+  "generated_design_unchanged": true,
+  "blocking_passed": true,
+  "advisory_passed": false,
+  "headings": [
+    {
+      "level": 1,
+      "name": "設計文書: INIReader クラス"
+    },
+    {
+      "level": 2,
+      "name": "責務"
+    },
+    {
+      "level": 2,
+      "name": "公開インターフェース"
+    },
+    {
+      "level": 2,
+      "name": "入力"
+    },
+    {
+      "level": 2,
+      "name": "出力"
+    },
+    {
+      "level": 2,
+      "name": "状態"
+    },
+    {
+      "level": 2,
+      "name": "処理手順"
+    },
+    {
+      "level": 2,
+      "name": "例外・失敗条件"
+    },
+    {
+      "level": 2,
+      "name": "依存関係"
+    },
+    {
+      "level": 2,
+      "name": "重要な不変条件"
+    },
+    {
+      "level": 2,
+      "name": "追加詳細設計情報"
+    },
+    {
+      "level": 3,
+      "name": "クラス図"
+    },
+    {
+      "level": 3,
+      "name": "クラス・メソッド・インターフェース詳細"
+    },
+    {
+      "level": 3,
+      "name": "シーケンス図"
+    },
+    {
+      "level": 3,
+      "name": "メソッド仕様書"
+    },
+    {
+      "level": 4,
+      "name": "`INIReader(const std::string& filename)`"
+    },
+    {
+      "level": 4,
+      "name": "`INIReader(std::FILE* file)`"
+    },
+    {
+      "level": 4,
+      "name": "`int ParseError() const`"
+    },
+    {
+      "level": 4,
+      "name": "`std::set<std::string> Sections() const`"
+    },
+    {
+      "level": 4,
+      "name": "`std::set<std::string> Keys(const std::string& section) const`"
+    },
+    {
+      "level": 4,
+      "name": "`std::unordered_map<std::string, std::string> Get(const std::string& section) const`"
+    },
+    {
+      "level": 4,
+      "name": "`template <typename T = std::string> T Get(const std::string& section, const std::string& name) const`"
+    },
+    {
+      "level": 4,
+      "name": "`template <typename T> T Get(const std::string& section, const std::string& name, T&& default_v) const`"
+    },
+    {
+      "level": 4,
+      "name": "`template <typename T = std::string> std::vector<T> GetVector(const std::string& section, const std::string& name) const`"
+    },
+    {
+      "level": 4,
+      "name": "`template <typename T> std::vector<T> GetVector(const std::string& section, const std::string& name, const std::vector<T>& default_v) const`"
+    },
+    {
+      "level": 4,
+      "name": "`template <typename T = std::string> void InsertEntry(const std::string& section, const std::string& name, const T& v)`"
+    },
+    {
+      "level": 4,
+      "name": "`template <typename T = std::string> void InsertEntry(const std::string& section, const std::string& name, const std::vector<T>& vs)`"
+    },
+    {
+      "level": 4,
+      "name": "`template <typename T = std::string> void UpdateEntry(const std::string& section, const std::string& name, const T& v)`"
+    },
+    {
+      "level": 4,
+      "name": "`template <typename T = std::string> void UpdateEntry(const std::string& section, const std::string& name, const std::vector<T>& vs)`"
+    },
+    {
+      "level": 3,
+      "name": "処理フロー図"
+    },
+    {
+      "level": 3,
+      "name": "状態遷移・副作用"
+    },
+    {
+      "level": 3,
+      "name": "データ変換・制約"
+    },
+    {
+      "level": 2,
+      "name": "その他の情報"
+    }
+  ],
+  "diagram_checks": {
+    "クラス図": true,
+    "シーケンス図": false,
+    "処理フロー図": false
+  },
+  "warnings": [
+    "シーケンス図: expected Mermaid type not detected; advisory only",
+    "処理フロー図: expected Mermaid type not detected; advisory only"
+  ],
+  "validated_at_utc": "2026-08-10T00:31:21.070104+00:00",
+  "base_prompt_profile": "source-faithful-detailed-design-v4"
+}

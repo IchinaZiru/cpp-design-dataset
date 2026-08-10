@@ -1,0 +1,45 @@
+{
+  "schema_version": "2.1",
+  "target_id": "echo-web-server-http-v6-formal-rag",
+  "target_name": "http",
+  "condition": "full_source_deterministic_exact_contract_v6_rag",
+  "repository_id": "Echo-Web-Server",
+  "repository_commit": "fb2fadb7e7f4c340325b0a72847425f6e8b6367e",
+  "granularity": "module_files",
+  "observation_scope": "full_files",
+  "observation_files": [
+    "include/http.h",
+    "src/http/http.cpp",
+    "src/http/request.h",
+    "src/http/request.cpp",
+    "src/http/response.h",
+    "src/http/response.cpp"
+  ],
+  "source_files": [
+    "include/http.h",
+    "src/http/http.cpp",
+    "src/http/request.h",
+    "src/http/request.cpp",
+    "src/http/response.h",
+    "src/http/response.cpp"
+  ],
+  "observation_file_hashes": {
+    "include/http.h": "943fde3d6548c12620e27563a00dc121550891651da3e61d2958db94ebb664bd",
+    "src/http/http.cpp": "fd61a787220a54ae758bbb7c826d34ab15867968d055d10db9c8383e497bbf57",
+    "src/http/request.h": "738a5489150f0ab537281f6832127e784e08e009f2db3338751ca362500e3ef6",
+    "src/http/request.cpp": "551325144379c1297b7744acb813598cd27fdaf8ac21e39f0e3726f4ef1ae63c",
+    "src/http/response.h": "e159547a5f019e824d01facd977c9c2070a2b415db56b851a001608fb867aefc",
+    "src/http/response.cpp": "342a541c43e04792db14ef98886653086961d23a04ef76c039c4ff4f946a014d"
+  },
+  "source_file_hashes": {
+    "include/http.h": "943fde3d6548c12620e27563a00dc121550891651da3e61d2958db94ebb664bd",
+    "src/http/http.cpp": "fd61a787220a54ae758bbb7c826d34ab15867968d055d10db9c8383e497bbf57",
+    "src/http/request.h": "738a5489150f0ab537281f6832127e784e08e009f2db3338751ca362500e3ef6",
+    "src/http/request.cpp": "551325144379c1297b7744acb813598cd27fdaf8ac21e39f0e3726f4ef1ae63c",
+    "src/http/response.h": "e159547a5f019e824d01facd977c9c2070a2b415db56b851a001608fb867aefc",
+    "src/http/response.cpp": "342a541c43e04792db14ef98886653086961d23a04ef76c039c4ff4f946a014d"
+  },
+  "prepared_at_utc": "2026-08-09T20:03:14.950317+00:00",
+  "replacement_scope": "module_files",
+  "locator": {}
+}

@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "echo-web-server-log",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "source_files": [
+    "include/log.h",
+    "src/log/log.cpp",
+    "src/log/appender.cpp",
+    "src/log/field.h",
+    "src/log/field.cpp",
+    "src/log/config_init.h",
+    "src/log/config_init.cpp"
+  ],
+  "quoted_includes": [
+    {
+      "source_file": "include/log.h",
+      "line": 28,
+      "include": "config.h"
+    },
+    {
+      "source_file": "include/log.h",
+      "line": 29,
+      "include": "containers/block_deque.h"
+    },
+    {
+      "source_file": "include/log.h",
+      "line": 30,
+      "include": "util.h"
+    },
+    {
+      "source_file": "src/log/log.cpp",
+      "line": 1,
+      "include": "log.h"
+    },
+    {
+      "source_file": "src/log/log.cpp",
+      "line": 2,
+      "include": "config_init.h"
+    },
+    {
+      "source_file": "src/log/log.cpp",
+      "line": 3,
+      "include": "field.h"
+    },
+    {
+      "source_file": "src/log/appender.cpp",
+      "line": 1,
+      "include": "log.h"
+    },
+    {
+      "source_file": "src/log/field.h",
+      "line": 16,
+      "include": "log.h"
+    },
+    {
+      "source_file": "src/log/field.cpp",
+      "line": 1,
+      "include": "field.h"
+    },
+    {
+      "source_file": "src/log/config_init.h",
+      "line": 36,
+      "include": "log.h"
+    },
+    {
+      "source_file": "src/log/config_init.cpp",
+      "line": 1,
+      "include": "config_init.h"
+    }
+  ],
+  "query_generation": "deterministic_non_llm",
+  "target_specific_tuning": false
+}

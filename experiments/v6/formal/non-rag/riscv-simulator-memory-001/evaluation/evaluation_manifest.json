@@ -1,0 +1,163 @@
+{
+  "schema_version": "2.1",
+  "target_id": "riscv-simulator-memory-v6-formal-non-rag",
+  "run_id": "riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001",
+  "condition": "full_source_deterministic_exact_contract_v6_non_rag",
+  "granularity": "target_span",
+  "completed_at_utc": "2026-08-10T00:58:02.909294+00:00",
+  "overall_pass": true,
+  "error": null,
+  "stages": {
+    "configure": {
+      "stage": "configure",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "container_shell_command": "rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+      "started_at_utc": "2026-08-10T00:57:54.548953+00:00",
+      "completed_at_utc": "2026-08-10T00:57:58.228534+00:00",
+      "elapsed_seconds": 3.6776398001238704,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001/configure.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001/configure.stderr.txt"
+    },
+    "build": {
+      "stage": "build",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "cmake --build build --parallel"
+      ],
+      "container_shell_command": "cmake --build build --parallel",
+      "started_at_utc": "2026-08-10T00:57:58.229153+00:00",
+      "completed_at_utc": "2026-08-10T00:58:01.938428+00:00",
+      "elapsed_seconds": 3.707699299789965,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001/build.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001/build.stderr.txt"
+    },
+    "direct_test": {
+      "stage": "direct_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Memory.StoreWord:Memory.StoreShort:Memory.StoreData:Memory.Utility'"
+      ],
+      "container_shell_command": "./build/RISCV_Simulator_Test --gtest_color=no --gtest_filter='Memory.StoreWord:Memory.StoreShort:Memory.StoreData:Memory.Utility'",
+      "started_at_utc": "2026-08-10T00:58:01.938941+00:00",
+      "completed_at_utc": "2026-08-10T00:58:02.386685+00:00",
+      "elapsed_seconds": 0.44670519977808,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001/direct_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001/direct_test.stderr.txt",
+      "counts": {
+        "ran": 4,
+        "passed": 4,
+        "failed": 0
+      }
+    },
+    "full_test": {
+      "stage": "full_test",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "<CONTAINER_NAME>",
+        "--rm",
+        "--mount",
+        "type=bind,source=<PROJECT_ROOT>,target=/workspace",
+        "-w",
+        "/workspace/repos/RISCV-Simulator",
+        "cpp-roundtrip-env:riscv-simulator-v1",
+        "bash",
+        "-lc",
+        "./build/RISCV_Simulator_Test --gtest_color=no"
+      ],
+      "container_shell_command": "./build/RISCV_Simulator_Test --gtest_color=no",
+      "started_at_utc": "2026-08-10T00:58:02.387218+00:00",
+      "completed_at_utc": "2026-08-10T00:58:02.856121+00:00",
+      "elapsed_seconds": 0.4679123996756971,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "exit_code": 0,
+      "passed": true,
+      "stdout_log": "logs/roundtrip_v2/riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001/full_test.stdout.txt",
+      "stderr_log": "logs/roundtrip_v2/riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001/full_test.stderr.txt",
+      "counts": {
+        "ran": 18,
+        "passed": 18,
+        "failed": 0
+      }
+    }
+  },
+  "restoration": {
+    "restored": true,
+    "files": [
+      {
+        "path": "src/Common/Memory.hpp",
+        "original_hash": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec",
+        "restored_hash": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec",
+        "restored": true
+      }
+    ],
+    "repository_clean": true,
+    "tracked_status": "",
+    "original_hash": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec",
+    "restored_hash": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec"
+  },
+  "code_regeneration_normalization": {
+    "schema_version": "1.0",
+    "normalized_at_utc": "2026-08-10T00:57:54.435454+00:00",
+    "normalization_applied": true,
+    "normalization_type": "outer_markdown_fence",
+    "fence_language": "cpp",
+    "strict_format_pass": false,
+    "raw_sha256": "d635af8103b8c266d80cbf70d14d7af6c04d711835cf64a9c8e997ef69fd63ec",
+    "normalized_sha256": "64512a8a592e76da2a7afa2c22b8d73a0ba6256a0ae18784afef76dd958c6e03",
+    "code_body_modified": false,
+    "retry_performed": false,
+    "automatic_repair_performed": false
+  },
+  "local_raw_log_directory": "logs/roundtrip_v2/riscv-simulator-memory-deterministic-exact-contract-v6-non-rag-formal-001"
+}

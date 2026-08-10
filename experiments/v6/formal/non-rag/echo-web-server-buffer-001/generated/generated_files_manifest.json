@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "files": [
+    {
+      "path": "include/containers/buffer.h",
+      "sha256": "112f3bc6593519f228b839e4a60efba935e13ead6f8956f62922e7552000e00f",
+      "character_count": 5661
+    },
+    {
+      "path": "src/containers/buffer/buffer.cpp",
+      "sha256": "cc300db59548dd1627c0b9269234abf04ba10e4bceaad606f18a4dacec4cea9d",
+      "character_count": 5701
+    }
+  ]
+}

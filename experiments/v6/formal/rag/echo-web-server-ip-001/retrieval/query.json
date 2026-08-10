@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "pair_id": "echo-web-server-ip",
+  "retrieval_mode": "direct_include_whole_file_one_hop",
+  "source_files": [
+    "include/ip.h",
+    "src/ip/ip.cpp"
+  ],
+  "quoted_includes": [
+    {
+      "source_file": "src/ip/ip.cpp",
+      "line": 2,
+      "include": "ip.h"
+    },
+    {
+      "source_file": "src/ip/ip.cpp",
+      "line": 3,
+      "include": "util.h"
+    }
+  ],
+  "query_generation": "deterministic_non_llm",
+  "target_specific_tuning": false
+}

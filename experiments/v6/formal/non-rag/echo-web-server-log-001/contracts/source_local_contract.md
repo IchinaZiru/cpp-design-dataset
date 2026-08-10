@@ -1,0 +1,183 @@
+# Machine-extracted Source-local Implementation Contract
+
+This appendix is deterministic evidence extracted from the target source.
+It is not an LLM summary and it does not contain complete function bodies.
+
+During regeneration:
+- preserve the exact local declaration types, containers, initializers, and literals listed below;
+- preserve the exact call targets and argument expressions listed below;
+- do not substitute a different representation or accessor merely because it looks similar;
+- treat these items as exact constraints, not as pseudocode suggestions.
+
+## Exact local declarations
+
+- `static const std::unordered_map<Level, std::string_view> levels { {Level::Debug, "Debug"}, {Level::Info, "Info"}, {Level::Warn, "Warn"}, {Level::Error, "Error"}, {Level::Fatal, "Fatal"}};`
+- `static const std::unordered_map<std::string_view, Level> levels { {"DEBUG", Level::Debug}, {"INFO", Level::Info}, {"WARN", Level::Warn}, {"ERROR", Level::Error}, {"FATAL", Level::Fatal}};`
+- `const auto level {levels.find(str)};`
+- `static constexpr std::string_view pattern { "%d{%Y-%m-%d %H:%M:%S}%T%t%T[%p]%T[%c]%T<%f:%l>%T%m%n"};`
+- `static const auto ins {std::make_shared<Formatter>(pattern)};`
+- `std::ostringstream str;`
+- `const auto event {event_deque_->Pop()};`
+- `const std::lock_guard locker {mtx_};`
+- `YAML::Node node;`
+- `std::ostringstream ss;`
+- `const auto logger {loggers_.find(name.data())};`
+- `const auto new_logger {std::make_shared<Logger>(name, level, capacity)};`
+- `static std::once_flag init_flag;`
+- `static const auto ins {std::make_shared<Manager>("root")};`
+- `static const std::unordered_map<AppenderType, std::string_view> types { {AppenderType::StdOut, "StdOut"}, {AppenderType::File, "File"}};`
+- `static const std::unordered_map<std::string_view, AppenderType> types { {"STDOUT", AppenderType::StdOut}, {"FILE", AppenderType::File}};`
+- `const auto type {types.find(str)};`
+- `const auto time {Event::Clock::to_time_t(event.Time())};`
+- `char time_str[0x60] {0};`
+- `std::string raw_str;`
+- `std::list<RawField> raw_fields;`
+- `auto i {0};`
+- `auto j {i + 1}, fmt_begin {0};`
+- `std::string type, fmt;`
+- `auto processing {false};`
+- `static const std::unordered_map<std::string_view, Creator> supported_fields { {Message::tag, [](const std::string_view format) noexcept { return std::make_shared<Message>(format); }}, {Level::tag, [](const std::string_view format) noexcept { return std::make_shared<Level>(format); }}, {ThreadId::tag, [](const std::string_view format) noexcept { return std::make_shared<ThreadId>(format); }}, {NewLine::tag, [](const std::string_view format) noexcept { return std::make_shared<NewLine>(format); }}, {LoggerName::tag, [](const std::string_view format) noexcept { return std::make_shared<LoggerName>(format); }}, {DateTime::tag, [](const std::string_view format) noexcept { return std::make_shared<DateTime>(format); }}, {FileName::tag, [](const std::string_view format) noexcept { return std::make_shared<FileName>(format); }}, {LineNum::tag, [](const std::string_view format) noexcept { return std::make_shared<LineNum>(format); }}, {Tab::tag, [](const std::string_view format) noexcept { return std::make_shared<Tab>(format); }}};`
+- `std::list<Formatter::Field::Ptr> fields;`
+- `const auto field {supported_fields.find(raw_field.content)};`
+- `const YAML::Node node {LoadYamlString(str, {"type"})};`
+- `log::AppenderConfig appender {};`
+- `const YAML::Node node { LoadYamlString(str, {"name", "level", "appenders"})};`
+- `log::LoggerConfig logger {};`
+- `const auto cfg {old_cfgs.find(logger_cfg)};`
+- `const auto logger {manager->FindLogger( logger_cfg.name, logger_cfg.level, logger_cfg.capacity)};`
+- `Appender::Ptr appender;`
+
+## Exact top-level call expressions
+
+- `std::experimental::source_location::current()`
+- `CurrentThreadId()`
+- `Clock::now()`
+- `Formatter::Default()`
+- `levels.at(level)`
+- `LevelToString(level).data()`
+- `StringToUpper(str)`
+- `levels.find(str)`
+- `levels.cend()`
+- `fmt::format("Invalid log level: '{}'", str)`
+- `std::move(location)`
+- `std::move(time)`
+- `std::make_shared<MakeSharedEvent>(level, std::move(location), thread_id, std::move(time))`
+- `location.file_name()`
+- `location.line()`
+- `msg_.str()`
+- `event->MessageStream()`
+- `logger_.Log(event_)`
+- `event_->MessageStream()`
+- `std::make_shared<Formatter>(pattern)`
+- `field::RawFieldsToFormatFields(field::ParsePattern(pattern))`
+- `std::ranges::for_each(fields_, [&str, &logger, &event](auto& it) noexcept { it->Format(str, logger, event); })`
+- `str.str()`
+- `capacity.value_or(0)`
+- `std::make_unique<BlockDeque<Event::Ptr>>(capacity_)`
+- `std::make_unique<std::thread>(&Logger::AsyncLogProc, this)`
+- `assert(event_deque_)`
+- `event_deque_->Close()`
+- `assert(writer_thread_ && writer_thread_->joinable())`
+- `writer_thread_->join()`
+- `event_deque_->Pop()`
+- `SyncLog(**event)`
+- `std::ranges::for_each(appenders_, [&event, this](auto& it) noexcept { it->Log(*this, event); })`
+- `event->Level()`
+- `event_deque_->PushBack(std::move(event))`
+- `SyncLog(*event)`
+- `appender->GetFormatter()`
+- `appender->SetFormatter(formatter_)`
+- `appenders_.push_back(appender)`
+- `std::remove_if( appenders_.begin(), appenders_.end(), [&appender](const auto& it) noexcept { return it == appender; })`
+- `appenders_.clear()`
+- `std::ranges::for_each(appenders_, [&formatter](const auto& it) noexcept { it->SetFormatter(formatter); })`
+- `SetDefaultFormatter(std::make_shared<Formatter>(pattern))`
+- `LevelToString(level_).data()`
+- `formatter_->Pattern().data()`
+- `node["appenders"].push_back(YAML::Load(appender->ToYamlString()))`
+- `ss.str()`
+- `logger->Log(std::move(event))`
+- `Log(logger, std::move(event))`
+- `loggers_.find(name.data())`
+- `loggers_.cend()`
+- `std::make_shared<Logger>(name, level, capacity)`
+- `loggers_.emplace(name, new_logger)`
+- `loggers_.erase(name.data())`
+- `node.push_back(YAML::Load(logger.second->ToYamlString()))`
+- `std::call_once(init_flag, []() noexcept { SetListener( cfg::RootConfig()->Lookup( "loggers", std::unordered_set<LoggerConfig> {}, "Loggers"), RootManager()); })`
+- `std::make_shared<Manager>("root")`
+- `std::call_once(init_flag, []() noexcept { ins->FindLogger(root_logger_name) ->AddAppender(std::make_shared<StdOutAppender>()); })`
+- `RootManager()->FindLogger(root_logger_name)`
+- `RootManager()->FindLogger(name)`
+- `AppenderTypeToString(type)`
+- `types.at(type)`
+- `AppenderTypeToString(type).data()`
+- `types.find(str)`
+- `types.cend()`
+- `fmt::format("Invalid log appender type: '{}'", str)`
+- `SetFormatter(pattern)`
+- `SetFormatter(std::make_shared<log::Formatter>(pattern))`
+- `formatter_->Format(logger, event)`
+- `AppenderTypeToString(AppenderType::StdOut).data()`
+- `file_.open(file_name_, std::ofstream::app)`
+- `file_.good()`
+- `ThrowLastSystemError()`
+- `event.Message()`
+- `LevelToString(event.Level())`
+- `event.ThreadId()`
+- `format_.empty()`
+- `Event::Clock::to_time_t(event.Time())`
+- `std::strftime(time_str, sizeof(time_str), format_.c_str(), std::localtime(&time))`
+- `event.FileName()`
+- `event.LineNum()`
+- `logger.Name()`
+- `pattern.size()`
+- `raw_str.append(1, pattern[i])`
+- `raw_str.empty()`
+- `raw_fields.push_back({true, raw_str, ""})`
+- `raw_str.clear()`
+- `std::isalpha(pattern[j])`
+- `pattern.substr(i + 1, j - i - 1)`
+- `pattern.substr(fmt_begin + 1, j - fmt_begin - 1)`
+- `type.empty()`
+- `pattern.substr(i + 1)`
+- `raw_fields.push_back({false, type, fmt})`
+- `fmt::format( "Invalid log format pattern: '{}'", pattern.substr(i))`
+- `std::make_shared<Message>(format)`
+- `std::make_shared<Level>(format)`
+- `std::make_shared<ThreadId>(format)`
+- `std::make_shared<NewLine>(format)`
+- `std::make_shared<LoggerName>(format)`
+- `std::make_shared<DateTime>(format)`
+- `std::make_shared<FileName>(format)`
+- `std::make_shared<LineNum>(format)`
+- `std::make_shared<Tab>(format)`
+- `fields.push_back( std::make_shared<field::RawString>(raw_field.content))`
+- `supported_fields.find(raw_field.content)`
+- `supported_fields.cend()`
+- `fields.push_back(field->second(raw_field.format))`
+- `fmt::format( "Invalid log format field: '{}'", raw_field.content)`
+- `std::hash<std::string> {}(logger.name)`
+- `LoadYamlString(str, {"type"})`
+- `ThrowIfYamlFieldIsNotScalar(node, "type")`
+- `log::StringToAppenderType(node["type"].as<std::string>())`
+- `ThrowIfYamlFieldIsNotScalar(node, "file")`
+- `node["file"].as<std::string>()`
+- `ThrowIfYamlFieldIsNotScalar(node, "formatters")`
+- `node["formatters"].as<std::string>()`
+- `log::AppenderTypeToString(appender.type).data()`
+- `appender.file.empty()`
+- `appender.formatter.empty()`
+- `LoadYamlString(str, {"name", "level", "appenders"})`
+- `ThrowIfYamlFieldIsNotScalar(node, "name")`
+- `node["name"].as<std::string>()`
+- `ThrowIfYamlFieldIsNotScalar(node, "level")`
+- `log::StringToLevel(node["level"].as<std::string>())`
+- `ThrowIfYamlFieldIsNotScalar(node, "capacity")`
+- `node["capacity"].as<std::size_t>()`
+- `ThrowIfYamlFieldIsNotScalar(node, "formatter")`
+- `node["formatter"].as<std::string>()`
+- `VarConverter<std::string, std::list<log::AppenderConfig>> {}( ss.str())`
+- `log::LevelToString(logger.level).data()`
+- `VarConverter<std::list<log::AppenderConfig>, std::string> {}( logger.appenders)`
+- `loggers->AddListener( [manager](const std::unordered_set<LoggerConfig>& old_cfgs, const std::unordered_set<LoggerConfig>& new_cfgs) noexcept { for (const auto& logger_cfg : new_cfgs) { if (const auto cfg {old_cfgs.find(logger_cfg)}; cfg != old_cfgs.cend() && *cfg == logger_cfg) { continue; } // Remove the old logger. manager->RemoveLogger(logger_cfg.name); // Create a new logger. const auto logger {manager->FindLogger( logger_cfg.name, logger_cfg.level, logger_cfg.capacity)}; if (!logger_cfg.formatter.empty()) { logger->SetDefaultFormatter(logger_cfg.formatter); } // Add appenders. logger->ClearAppenders(); for (const auto& appender_cfg : logger_cfg.appenders) { Appender::Ptr appender; switch (appender_cfg.type) { case AppenderType::StdOut: { appender = std::make_shared<StdOutAppender>( logger->GetDefaultFormatter()); break; } case AppenderType::File: { appender = std::make_shared<FileAppender>( appender_cfg.file, logger->GetDefaultFormatter()); break; } default: { assert(false); } } logger->AddAppender(appender); } } })`

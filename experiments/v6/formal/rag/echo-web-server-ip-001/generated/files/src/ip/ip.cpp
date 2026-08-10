@@ -1,0 +1,88 @@
+#include "ip.h"
+#include "util.h"
+#include <arpa/inet.h>
+#include <array>
+
+namespace ws {
+
+IPv4Addr::IPv4Addr(sockaddr_in addr)
+    : raw_(std::move(addr))
+{
+    char ip[max_length + 1];
+    if (inet_ntop(version, &raw_.sin_addr, ip, sizeof(ip)) == nullptr) {
+        ThrowLastSystemError();
+    }
+    ip_ = std::string(ip);
+}
+
+IPv4Addr::IPv4Addr(std::string ip, std::uint16_t port)
+{
+    raw_.sin_family = version;
+    raw_.sin_port = htons(port);
+    if (inet_pton(version, ip.c_str(), &raw_.sin_addr) != 1) {
+        ThrowLastSystemError();
+    }
+    ip_ = std::move(ip);
+}
+
+int IPv4Addr::Version() const noexcept {
+    return version;
+}
+
+std::size_t IPv4Addr::Size() const noexcept {
+    return sizeof(raw_);
+}
+
+const sockaddr* IPv4Addr::Raw() const noexcept {
+    return reinterpret_cast<const sockaddr*>(&raw_);
+}
+
+std::uint16_t IPv4Addr::Port() const noexcept {
+    return ntohs(raw_.sin_port);
+}
+
+std::string IPv4Addr::IPAddress() const noexcept {
+    return ip_;
+}
+
+IPv6Addr::IPv6Addr(sockaddr_in6 addr)
+    : raw_(std::move(addr))
+{
+    char ip[max_length + 1];
+    if (inet_ntop(version, &raw_.sin6_addr, ip, sizeof(ip)) == nullptr) {
+        ThrowLastSystemError();
+    }
+    ip_ = std::string(ip);
+}
+
+IPv6Addr::IPv6Addr(std::string ip, std::uint16_t port)
+{
+    raw_.sin6_family = version;
+    raw_.sin6_port = htons(port);
+    if (inet_pton(version, ip.c_str(), &raw_.sin6_addr) != 1) {
+        ThrowLastSystemError();
+    }
+    ip_ = std::move(ip);
+}
+
+int IPv6Addr::Version() const noexcept {
+    return version;
+}
+
+std::size_t IPv6Addr::Size() const noexcept {
+    return sizeof(raw_);
+}
+
+const sockaddr* IPv6Addr::Raw() const noexcept {
+    return reinterpret_cast<const sockaddr*>(&raw_);
+}
+
+std::uint16_t IPv6Addr::Port() const noexcept {
+    return ntohs(raw_.sin6_port);
+}
+
+std::string IPv6Addr::IPAddress() const noexcept {
+    return ip_;
+}
+
+}  // namespace ws

@@ -1,0 +1,178 @@
+===== FILE: include/containers/thread_pool.h =====
+/**
+ * @file thread_pool.h
+ * @brief The thread pool.
+ *
+ * @author Zhenshuo Chen (chenzs108@outlook.com)
+ * @author Liu Guowen (liu.guowen@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-06-04
+ *
+ * @example tests/containers/thread_pool_test.cpp
+ */
+
+#pragma once
+
+#include "log.h"
+
+#include <condition_variable>
+#include <functional>
+#include <list>
+#include <mutex>
+#include <optional>
+#include <thread>
+
+
+namespace ws {
+
+//! The thread pool.
+class ThreadPool {
+public:
+    using Task = std::function<void()>;
+
+    /**
+     * @brief Create a thread pool.
+     *
+     * @param thread_count
+     * The number of working threads.
+     * If it is @p std::nullopt or zero, the thread pool will use the number of concurrent threads supported by hardware.
+     * @param logger
+     * A logger. If it is @p nullptr, the thread pool will use the global root logger.
+     */
+    explicit ThreadPool(std::optional<std::size_t> thread_count = std::nullopt,
+                        log::Logger::Ptr logger = log::RootLogger()) noexcept;
+
+    ~ThreadPool() noexcept;
+
+    ThreadPool(const ThreadPool&) = delete;
+
+    ThreadPool(ThreadPool&&) = delete;
+
+    ThreadPool& operator=(const ThreadPool&) = delete;
+
+    ThreadPool& operator=(ThreadPool&&) = delete;
+
+    //! Run the thread pool.
+    void Start() noexcept;
+
+    //! Push a task into the thread pool.
+    void Push(Task task) noexcept;
+
+    /**
+     * @brief Close the thread pool.
+     *
+     * @details
+     * The remaining tasks will not be executed.
+     */
+    void Close() noexcept;
+
+private:
+    /**
+     * @brief Continually pop and execute tasks.
+     *
+     * @warning
+     * Any exceptions raised in callbacks will not be rethrown.
+     * Exception messages will be recorded in the logger.
+     */
+    void ExecProc() noexcept;
+
+    log::Logger::Ptr logger_;
+
+    mutable std::mutex mtx_;
+    std::atomic_bool closed_ {true};
+    std::size_t thread_count_;
+    std::condition_variable cond_;
+
+    std::list<Task> tasks_;
+    std::list<std::thread> threads_;
+};
+
+}  // namespace ws
+
+===== FILE: src/containers/thread_pool/thread_pool.cpp =====
+#include "thread_pool.h"
+#include "util.h"
+
+#include <cassert>
+
+
+namespace ws {
+
+ThreadPool::ThreadPool(const std::optional<std::size_t> thread_count,
+                       log::Logger::Ptr logger) noexcept :
+    logger_ {std::move(logger)} {
+    if (!logger_) {
+        logger_ = log::RootLogger();
+    }
+
+    thread_count_ = thread_count.value_or(0);
+    if (thread_count_ == 0) {
+        thread_count_ = std::thread::hardware_concurrency();
+    }
+}
+
+ThreadPool::~ThreadPool() noexcept {
+    Close();
+    for (auto& thread : threads_) {
+        assert(thread.joinable());
+        thread.join();
+    }
+}
+
+void ThreadPool::Start() noexcept {
+    assert(closed_);
+    closed_ = false;
+    for (auto i {0}; i != thread_count_; ++i) {
+        threads_.emplace_back(&ThreadPool::ExecProc, this);
+    }
+}
+
+void ThreadPool::Push(Task task) noexcept {
+    assert(!closed_);
+    const std::lock_guard locker {mtx_};
+    tasks_.push_back(std::move(task));
+    cond_.notify_one();
+}
+
+void ThreadPool::ExecProc() noexcept {
+    const auto not_empty_or_closed {[this]() noexcept {
+        // Working threads may not have started to wait when closing the thread pool.
+        // If a close notification has been sent before they wait,
+        // the condition variable will permanently block the thread.
+        // So we should check if the thread pool has been closed when waiting.
+        return !tasks_.empty() || closed_;
+    }};
+
+    while (true) {
+        Task task;
+        {
+            std::unique_lock locker {mtx_};
+            cond_.wait(locker, not_empty_or_closed);
+            if (!closed_) {
+                task = std::move(tasks_.front());
+                tasks_.pop_front();
+            } else {
+                return;
+            }
+        }
+
+        try {
+            assert(task);
+            task();
+        } catch (const std::exception& err) {
+            logger_->Log(
+                log::Event::Create(log::Level::Error) << fmt::format(
+                    "Exception raised in thread pool's task: {}", err.what()));
+        }
+    }
+}
+
+void ThreadPool::Close() noexcept {
+    const std::lock_guard locker {mtx_};
+    closed_ = true;
+    cond_.notify_all();
+}
+
+}  // namespace ws

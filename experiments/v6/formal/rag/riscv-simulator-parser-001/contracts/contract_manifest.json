@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "extractor_version": "v6-ast-contract-1",
+  "mode": "rag",
+  "target_id": "riscv-simulator-parser-v6-formal-rag",
+  "pair_id": "riscv-simulator-parser",
+  "repository_id": "RISCV-Simulator",
+  "repository_commit": "8989a09c357a69b68612f653380d60816f5176c2",
+  "tree_sitter": {
+    "tree_sitter": "0.26.0",
+    "tree_sitter_cpp": "0.23.4"
+  },
+  "target_sources": [
+    "src/Common/Parser.hpp"
+  ],
+  "target_fragment_sha256": {
+    "src/Common/Parser.hpp": "5c1de587cd8ee8276439813e0c3a8a6a50bdfe0ba6934829c63a6b7ee7785106"
+  },
+  "selected_dependency_paths": [
+    "src/Common/Memory.hpp"
+  ],
+  "dependency_file_sha256": {
+    "src/Common/Memory.hpp": "9bd37c8ec5b994011bc27d93529bc5c12a09174418d50ead313ad35aada3f9ec"
+  },
+  "source_local_declaration_count": 5,
+  "all_call_count": 8,
+  "top_level_call_count": 6,
+  "dependency_symbol_match_count": 1,
+  "dependency_symbols": [
+    "write_word"
+  ],
+  "overload_sets": {},
+  "unmatched_candidate_symbols": [
+    "c_str",
+    "length",
+    "strtol"
+  ],
+  "source_contract_sha256": "1b3aa3bcfadab84e43771d6555088013cbf8a68c0583f72fac36fbb98d1e87eb",
+  "dependency_contract_sha256": "a06f4f2c324308469d902938df0c2d78255f3a04ee69b7a1484cb2c7854e5d81",
+  "combined_contract_sha256": "8a894dd37f5dc1d45ab821f375c25c8da5cc07181fb9251196ed7aced5a89f6a",
+  "source_contract_chars": 951,
+  "dependency_contract_chars": 683,
+  "combined_contract_chars": 1635,
+  "retrieval_manifest_sha256": "4a6a7f62033a234066c3b3378647833078cb2e963df2f0e709f02643fa04f9ae",
+  "retrieval_context_sha256": "aba14253c5390f362404210a5f48fcba87ab22f970f110f07e000e29d96591e8",
+  "llm_called": false,
+  "deterministic": true
+}
