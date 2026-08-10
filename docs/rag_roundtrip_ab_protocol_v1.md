@@ -21,7 +21,7 @@ Project-local dependency headers are not expanded.
 Condition B uses the byte-identical common prompt, target-owned inputs, model, and generation options used by Condition A. Its sole additional input is `RAG_CONTEXT`, composed deterministically from:
 
 1. the complete fixed V4/V5 expanded-design guidance from `prompts/fixed_v4_v5_design_knowledge.txt`;
-2. declaration-oriented content from directly referenced project-local dependency headers.
+2. complete content from directly referenced project-local dependency headers.
 
 The fixed guidance is used byte-for-byte for every target. It is not summarized, rewritten, ranked, selected by source features, or limited by Top-K. The removed seven-entry `design_knowledge_index_v1.json` mechanism is not part of this protocol. The target-owned header is excluded from dependency retrieval because it is already common A/B input.
 
@@ -33,7 +33,7 @@ The canonical common prompt is `configs/rag/roundtrip_ab_v1/prompts/design_gener
 
 ## Target-owned boundary
 
-Target-owned inputs are frozen explicitly per target. A project-local header included by those files is a dependency and is not recursively added to Condition A. Direct dependency retrieval is rule-based, has no target-specific manual query, excludes target-owned files, and serializes declaration-oriented header content with hashes and paths.
+Target-owned inputs are frozen explicitly per target. A project-local header included by those files is a dependency and is not recursively added to Condition A. Direct dependency retrieval is rule-based, has no target-specific manual query, excludes target-owned files, and serializes the complete header content with path, source SHA-256, normalized content SHA-256, and byte length.
 
 ## Code regeneration isolation
 
@@ -60,7 +60,9 @@ Each condition permits one design-generation request and one code-generation req
 
 ## Retrieval leakage rules
 
-Dependency retrieval excludes target-owned inputs and paths containing tests, benchmarks, build output, generated output, experiments, reports, logs, or previous LLM artifacts. Only project-local quoted includes are eligible. Retrieved headers are normalized to declarations; callable bodies are not included. Every selected item records path, source SHA-256, normalized SHA-256, and selection reason.
+Dependency retrieval is one-hop from target-owned inputs and excludes target-owned inputs and paths containing tests, benchmarks, build output, generated output, experiments, reports, logs, or previous LLM artifacts. Only project-local quoted includes (`#include "..."`) are eligible; system includes (`#include <...>`) are not retrieved. No recursive include expansion is performed.
+
+Each selected dependency header is included in full. The protocol does not summarize, extract, sanitize, or rewrite header content. It does not remove `#include` directives, comments, callable bodies, concepts, requires-clauses, or templates. The only permitted transformation is mechanical UTF-8 BOM handling and CRLF/CR-to-LF newline normalization. Every selected item records its path, original source SHA-256, source byte length, actual context-content SHA-256, context-content byte length, normalization identifier, and selection reason.
 
 The two RAG components are serialized in separate delimited sections: `FIXED V4/V5 DESIGN KNOWLEDGE` and `DIRECT DEPENDENCY HEADER CONTEXT`. Only dependency headers are target-dependent. The fixed design knowledge and its content SHA-256 must be identical for every target.
 

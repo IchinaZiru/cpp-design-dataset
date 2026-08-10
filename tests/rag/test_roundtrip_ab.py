@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 import subprocess
 import sys
 from pathlib import Path
@@ -24,7 +23,6 @@ from scripts.rag.roundtrip_ab import (
     load_json,
     resolve_repository_root,
     retrieve_dependency_headers,
-    sanitize_dependency_header,
     validate_generated_units,
     write_retrieval_bundle,
 )
@@ -70,6 +68,12 @@ def _minimal_config(repository_path: str = "repo") -> dict[str, object]:
             }
         ],
         "retrieval": {
+            "dependency_header_mode": (
+                "direct-project-local-quoted-include-whole-file-one-hop-v1"
+            ),
+            "dependency_header_normalization": (
+                "utf8-bom-aware-newlines-to-lf-v1"
+            ),
             "include_roots": ["include", "src"],
             "design_knowledge_mode": "fixed-v4-v5-verbatim-all-targets-v1",
             "fixed_design_knowledge_path": (
@@ -361,15 +365,25 @@ def test_dependency_retrieval_is_direct_generic_and_excludes_target_owned(
     (repository / "src").mkdir(parents=True)
     (repository / "include").mkdir(parents=True)
     (repository / "src/target.cpp").write_text(
-        '#include "target.h"\n#include "dep.h"\nint target() { return Alias{}; }\n',
+        '#include "target.h"\n#include "dep.h"\n#include <vector>\n'
+        "int target() { return Alias{}; }\n",
         encoding="utf-8",
     )
     (repository / "include/target.h").write_text(
         "int target();\n", encoding="utf-8"
     )
     (repository / "include/dep.h").write_text(
-        "using Alias = unsigned int;\ninline int helper() { return 1; }\n",
+        "// dependency comment\n"
+        '#include "nested.h"\n'
+        "#include <concepts>\n"
+        "using Alias = unsigned int;\n"
+        "template <typename T>\n"
+        "concept Addable = requires(T a, T b) { a + b; };\n"
+        "inline int helper() { return 1; }\n",
         encoding="utf-8",
+    )
+    (repository / "include/nested.h").write_text(
+        "using Nested = int;\n", encoding="utf-8"
     )
     config = _minimal_config()
     config["target_owned_inputs"].append(
@@ -383,7 +397,8 @@ def test_dependency_retrieval_is_direct_generic_and_excludes_target_owned(
     )
     inputs = (
         _target_input(
-            '#include "target.h"\n#include "dep.h"\nint target() { return Alias{}; }\n'
+            '#include "target.h"\n#include "dep.h"\n#include <vector>\n'
+            "int target() { return Alias{}; }\n"
         ),
         TargetInput(
             file_id="F02",
@@ -398,19 +413,55 @@ def test_dependency_retrieval_is_direct_generic_and_excludes_target_owned(
     )
 
     records = retrieve_dependency_headers(config, repository, inputs)
+    expected = (repository / "include/dep.h").read_text(encoding="utf-8")
 
     assert [record["path"] for record in records] == ["include/dep.h"]
-    assert "using Alias = unsigned int" in records[0]["content"]
-    assert "return 1" not in records[0]["content"]
+    assert records[0]["content"] == expected
+    assert records[0]["content_sha256"] == sha256_bytes(expected.encode("utf-8"))
+    assert "// dependency comment" in records[0]["content"]
+    assert '#include "nested.h"' in records[0]["content"]
+    assert "#include <concepts>" in records[0]["content"]
+    assert "concept Addable = requires" in records[0]["content"]
+    assert "return 1" in records[0]["content"]
 
 
-def test_dependency_sanitization_removes_callable_body() -> None:
-    sanitized = sanitize_dependency_header(
-        "struct Dep { int value() const { return 7; } };\n"
+def test_echo_io_util_header_is_injected_whole_with_concept_unchanged() -> None:
+    config = load_json(
+        PROJECT_ROOT
+        / "configs/rag/roundtrip_ab_v1/retrieval_pilots/echo-web-server-io.json"
     )
+    repository = resolve_repository_root(config, PROJECT_ROOT)
+    bundle = build_retrieval_bundle(config, PROJECT_ROOT, repository)
+    record = next(
+        item
+        for item in bundle.dependency_records
+        if item["path"] == "include/util.h"
+    )
+    raw = (repository / "include/util.h").read_bytes()
+    normalized = raw.decode("utf-8-sig").replace("\r\n", "\n").replace(
+        "\r", "\n"
+    )
+    expected_bytes = normalized.encode("utf-8")
+    marker = (
+        "----- BEGIN DEPENDENCY HEADER CONTENT: include/util.h -----\n"
+    ).encode("utf-8")
+    context_bytes = bundle.context.encode("utf-8")
+    start = context_bytes.index(marker) + len(marker)
+    injected = context_bytes[start : start + record["content_bytes"]]
 
-    assert "return 7" not in sanitized
-    assert re.search(r"int value\(\) const\s*;", sanitized)
+    assert record["source_sha256"] == sha256_bytes(raw)
+    assert record["content"] == normalized
+    assert record["content_bytes"] == len(expected_bytes)
+    assert record["content_sha256"] == sha256_bytes(expected_bytes)
+    assert injected == expected_bytes
+    assert (
+        "template <typename T, typename U, typename Ret = T>\n"
+        "concept Addable = requires(T t, U u) {\n"
+        "    { t + u } -> std::convertible_to<Ret>;\n"
+        "};"
+    ) in record["content"]
+    assert "@example tests/util_test.cpp" in record["content"]
+    assert "#include <concepts>" in record["content"]
 
 
 @pytest.mark.parametrize(

@@ -1,4 +1,4 @@
-RAG_CONTEXT v2
+RAG_CONTEXT v3
 
 ===== BEGIN FIXED V4/V5 DESIGN KNOWLEDGE =====
 # RAGによる追加詳細設計（内容必須・Markdown階層は柔軟）
@@ -128,7 +128,10 @@ bit幅、符号、byte数、index、offset、アドレス増分など、再実�
 
 ===== BEGIN DIRECT DEPENDENCY HEADER CONTEXT =====
 ### PATH: src/Common/Common.h
-```cpp
+SOURCE_SHA256: 1842fc10588b2c6997b0e25beca27c33b6dcfe978f6d22cf6f4869425844d575
+CONTENT_SHA256: 84bc60b8e0afa6b516cf63689a608968f560e3de4e640e651fd7c1a176de56ca
+CONTENT_BYTES: 203
+----- BEGIN DEPENDENCY HEADER CONTENT: src/Common/Common.h -----
 //
 // Created by Alex Chi on 2019-07-02.
 //
@@ -140,6 +143,7 @@ using Immediate = unsigned int;
 using SImmediate = int;
 
 #endif //RISCV_SIMULATOR_COMMON_H
-```
+
+----- END DEPENDENCY HEADER CONTENT: src/Common/Common.h -----
 
 ===== END DIRECT DEPENDENCY HEADER CONTEXT =====

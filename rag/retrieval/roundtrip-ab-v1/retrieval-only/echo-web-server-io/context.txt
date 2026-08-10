@@ -1,4 +1,4 @@
-RAG_CONTEXT v2
+RAG_CONTEXT v3
 
 ===== BEGIN FIXED V4/V5 DESIGN KNOWLEDGE =====
 # RAGによる追加詳細設計（内容必須・Markdown階層は柔軟）
@@ -128,7 +128,10 @@ bit幅、符号、byte数、index、offset、アドレス増分など、再実�
 
 ===== BEGIN DIRECT DEPENDENCY HEADER CONTEXT =====
 ### PATH: include/containers/buffer.h
-```cpp
+SOURCE_SHA256: 94807866681c70598b716d810ffd2bfe0d9cf3406f459b51f2d33013c37b9a09
+CONTENT_SHA256: 8f0b0648f537d9c07ca6323e8f3d6c2a7400651d4319a96f683a60c64b6473d8
+CONTENT_BYTES: 5924
+----- BEGIN DEPENDENCY HEADER CONTENT: include/containers/buffer.h -----
 /**
  * @file buffer.h
  * @brief The auto-expandable buffer, supporting storing bytes and strings.
@@ -145,6 +148,12 @@ bit幅、符号、byte数、index、offset、アドレス増分など、再実�
 
 #pragma once
 
+#include <atomic>
+#include <optional>
+#include <span>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace ws {
 
@@ -317,10 +326,13 @@ Buffer& operator<<(Buffer& buf,
                    std::initializer_list<std::byte> bytes) noexcept;
 
 }  // namespace ws
-```
+----- END DEPENDENCY HEADER CONTENT: include/containers/buffer.h -----
 
 ### PATH: include/util.h
-```cpp
+SOURCE_SHA256: bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85
+CONTENT_SHA256: b55d0fd816eb63e37e57892a9a362293851d5f6702d3784aa3a82055c4753270
+CONTENT_BYTES: 6747
+----- BEGIN DEPENDENCY HEADER CONTENT: include/util.h -----
 /**
  * @file util.h
  * @brief Commonly used utilities.
@@ -338,8 +350,20 @@ Buffer& operator<<(Buffer& buf,
 
 #pragma once
 
+#include <fmt/format.h>
+#include <yaml-cpp/yaml.h>
 
+#include <sys/stat.h>
 
+#include <concepts>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+#include <regex>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 //! @p ws means "web server".
 namespace ws {
@@ -388,7 +412,9 @@ void ThrowIfYamlFieldIsNotScalar(const YAML::Node& node,
  *
  * @note Assume the value of valid file descriptors should be greater than or equal to 0.
  */
-constexpr bool IsValidFileDescriptor(FileDescriptor fd) noexcept ;
+constexpr bool IsValidFileDescriptor(FileDescriptor fd) noexcept {
+    return fd >= 0;
+}
 
 /**
  * @brief Set a file descriptor as non-blocking.
@@ -438,7 +464,10 @@ public:
      * @tparam args The construction arguments.
      */
     template <Args... args>
-    static T& Instance() noexcept ;
+    static T& Instance() noexcept {
+        static T ins {std::move(args)...};
+        return ins;
+    }
 };
 
 /**
@@ -456,7 +485,11 @@ public:
      * @tparam args The construction arguments.
      */
     template <Args... args>
-    static std::shared_ptr<T> Instance() noexcept ;
+    static std::shared_ptr<T> Instance() noexcept {
+        static const std::shared_ptr<T> ins {
+            std::make_shared<T>(std::move(args)...)};
+        return ins;
+    }
 };
 
 template <typename T, typename Cleaner = std::function<void(T)>>
@@ -480,9 +513,13 @@ public:
 
     RAII& operator=(RAII&&) = delete;
 
-    ~RAII() noexcept ;
+    ~RAII() noexcept {
+        cleaner_(obj_);
+    }
 
-    const T& Object() const noexcept ;
+    const T& Object() const noexcept {
+        return obj_;
+    }
 
 private:
     T obj_;
@@ -547,9 +584,11 @@ private:
 };
 
 template <typename T, typename U, typename Ret = T>
-concept Addable = requires(T t, U u) ;;
+concept Addable = requires(T t, U u) {
+    { t + u } -> std::convertible_to<Ret>;
+};
 
 }  // namespace ws
-```
+----- END DEPENDENCY HEADER CONTENT: include/util.h -----
 
 ===== END DIRECT DEPENDENCY HEADER CONTEXT =====

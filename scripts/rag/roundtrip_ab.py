@@ -23,7 +23,6 @@ from scripts.rag.canonical import (
     sha256_bytes,
     sha256_file,
 )
-from scripts.rag.formal_run_runtime import strip_inline_callable_bodies
 
 
 SCHEMA_VERSION = "roundtrip-design-only-ab-target-v1"
@@ -299,23 +298,20 @@ def _resolve_local_include(
     return None
 
 
-def sanitize_dependency_header(text: str) -> str:
-    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
-    declaration_oriented = strip_inline_callable_bodies(normalized)
-    lines = [
-        line
-        for line in declaration_oriented.splitlines()
-        if not re.match(r'^\s*#\s*include\b', line)
-    ]
-    return "\n".join(lines).strip() + "\n"
-
-
 def retrieve_dependency_headers(
     config: Mapping[str, Any],
     repository_root: Path,
     inputs: Sequence[TargetInput],
 ) -> tuple[dict[str, Any], ...]:
     retrieval = _mapping(config.get("retrieval"), "retrieval")
+    expected_mode = "direct-project-local-quoted-include-whole-file-one-hop-v1"
+    if retrieval.get("dependency_header_mode") != expected_mode:
+        raise RoundtripABError(f"dependency_header_mode must be {expected_mode}")
+    expected_normalization = "utf8-bom-aware-newlines-to-lf-v1"
+    if retrieval.get("dependency_header_normalization") != expected_normalization:
+        raise RoundtripABError(
+            f"dependency_header_normalization must be {expected_normalization}"
+        )
     include_roots = [str(item) for item in retrieval.get("include_roots", [])]
     target_paths = {item.path for item in inputs}
     selected: dict[str, dict[str, Any]] = {}
@@ -329,29 +325,30 @@ def retrieve_dependency_headers(
                 continue
             path = repository_root / resolved
             raw = path.read_bytes()
-            text = _normalized_text(raw)
-            sanitized = sanitize_dependency_header(text)
+            context_content = _normalized_text(raw)
+            context_bytes = context_content.encode("utf-8")
             selected.setdefault(
                 resolved,
                 {
-                    "content": sanitized,
-                    "content_sha256": sha256_bytes(sanitized.encode("utf-8")),
+                    "content": context_content,
+                    "content_bytes": len(context_bytes),
+                    "content_sha256": sha256_bytes(context_bytes),
                     "include_spelling": include,
+                    "normalization": expected_normalization,
                     "owner_paths": [],
                     "path": resolved,
-                    "selection_reason": "direct_project_local_quoted_include",
+                    "selection_reason": (
+                        "direct_project_local_quoted_include_whole_file_one_hop"
+                    ),
+                    "source_bytes": len(raw),
                     "source_sha256": sha256_bytes(raw),
                 },
             )
             selected[resolved]["owner_paths"].append(item.path)
     records: list[dict[str, Any]] = []
-    seen_content: set[str] = set()
     for path in sorted(selected):
         record = selected[path]
         record["owner_paths"] = sorted(set(record["owner_paths"]))
-        if record["content_sha256"] in seen_content:
-            continue
-        seen_content.add(str(record["content_sha256"]))
         records.append(record)
     maximum = int(retrieval.get("maximum_dependency_headers", 32))
     if len(records) > maximum:
@@ -365,27 +362,26 @@ def compose_rag_context(
 ) -> str:
     if not fixed_design_knowledge:
         raise RoundtripABError("fixed V4/V5 design knowledge is empty")
-    parts = [
-        "RAG_CONTEXT v2",
-        "",
-        "===== BEGIN FIXED V4/V5 DESIGN KNOWLEDGE =====",
+    chunks = [
+        "RAG_CONTEXT v3\n\n",
+        "===== BEGIN FIXED V4/V5 DESIGN KNOWLEDGE =====\n",
         fixed_design_knowledge,
-        "===== END FIXED V4/V5 DESIGN KNOWLEDGE =====",
-        "",
-        "===== BEGIN DIRECT DEPENDENCY HEADER CONTEXT =====",
+        "\n===== END FIXED V4/V5 DESIGN KNOWLEDGE =====\n\n",
+        "===== BEGIN DIRECT DEPENDENCY HEADER CONTEXT =====\n",
     ]
     for record in dependencies:
-        parts.extend(
-            [
-                f"### PATH: {record['path']}",
-                "```cpp",
-                str(record["content"]).rstrip(),
-                "```",
-                "",
-            ]
+        path = str(record["path"])
+        chunks.append(
+            f"### PATH: {path}\n"
+            f"SOURCE_SHA256: {record['source_sha256']}\n"
+            f"CONTENT_SHA256: {record['content_sha256']}\n"
+            f"CONTENT_BYTES: {record['content_bytes']}\n"
+            f"----- BEGIN DEPENDENCY HEADER CONTENT: {path} -----\n"
         )
-    parts.append("===== END DIRECT DEPENDENCY HEADER CONTEXT =====")
-    return "\n".join(parts).rstrip() + "\n"
+        chunks.append(str(record["content"]))
+        chunks.append(f"\n----- END DEPENDENCY HEADER CONTENT: {path} -----\n\n")
+    chunks.append("===== END DIRECT DEPENDENCY HEADER CONTEXT =====\n")
+    return "".join(chunks)
 
 
 def build_retrieval_bundle(
@@ -444,7 +440,11 @@ def build_retrieval_bundle(
     )
     status = "pass" if all(item["passed"] for item in checks) and not leakage_failed else "fail"
     query = {
-        "artifact_schema_version": "roundtrip-ab-retrieval-query-v2",
+        "artifact_schema_version": "roundtrip-ab-retrieval-query-v3",
+        "dependency_header_mode": retrieval["dependency_header_mode"],
+        "dependency_header_normalization": retrieval[
+            "dependency_header_normalization"
+        ],
         "target_id": config["target_id"],
         "design_knowledge_mode": retrieval["design_knowledge_mode"],
         "fixed_design_knowledge_content_sha256": sha256_bytes(
@@ -456,12 +456,17 @@ def build_retrieval_bundle(
         "target_specific_override_used": False,
     }
     manifest = {
-        "artifact_schema_version": "roundtrip-ab-retrieval-manifest-v2",
+        "artifact_schema_version": "roundtrip-ab-retrieval-manifest-v3",
+        "callable_bodies_removed": False,
         "condition": "B",
         "context_bytes": len(context.encode("utf-8")),
         "context_characters": len(context),
         "context_sha256": sha256_bytes(context.encode("utf-8")),
         "dependency_header_count": len(dependencies),
+        "dependency_header_mode": retrieval["dependency_header_mode"],
+        "dependency_header_normalization": retrieval[
+            "dependency_header_normalization"
+        ],
         "design_knowledge_mode": retrieval["design_knowledge_mode"],
         "deterministic": True,
         "expected_evidence": checks,
@@ -473,6 +478,8 @@ def build_retrieval_bundle(
         "leakage": leakage,
         "llm_call_count": 0,
         "generation_server_contacted": False,
+        "header_comments_removed": False,
+        "header_includes_removed": False,
         "source_feature_selection_used": False,
         "status": status,
         "target_id": config["target_id"],
