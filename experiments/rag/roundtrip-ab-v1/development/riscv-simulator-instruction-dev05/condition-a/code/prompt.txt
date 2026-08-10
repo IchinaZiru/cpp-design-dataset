@@ -1,0 +1,366 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# 詳細設計仕様書
+
+## 目的
+与えられたC++ソースコードを再実装するために必要な詳細な設計情報を提供する。
+
+## クラス図
+```mermaid
+classDiagram
+    class InstructionBase {
+        +unsigned opcode
+        +unsigned rs1
+        +unsigned rs2
+        +unsigned rd
+        +unsigned funct3
+        +unsigned funct7
+        +Immediate imm
+        +Instruction inst
+        +Type t
+        +static constexpr unsigned int bin_mask(int digits)
+        +static unsigned int get_digits(unsigned int n, int hi, int lo)
+        +static unsigned int expand_digit(unsigned int digit, int lo)
+        +bool is_valid(const std::string &key)
+        +void verify(const std::string &key)
+        +void debug()
+        +bool has_op1()
+        +bool has_op2()
+    }
+    
+    class InstructionR {
+        +InstructionR(const Instruction &inst)
+    }
+
+    class InstructionI {
+        +InstructionI(const Instruction &inst)
+    }
+
+    class InstructionS {
+        +InstructionS(const Instruction &inst)
+    }
+
+    class InstructionB {
+        +InstructionB(const Instruction &inst)
+    }
+
+    class InstructionU {
+        +InstructionU(const Instruction &inst)
+    }
+
+    class InstructionJ {
+        +InstructionJ(const Instruction &inst)
+    }
+    
+    InstructionBase <|-- InstructionR
+    InstructionBase <|-- InstructionI
+    InstructionBase <|-- InstructionS
+    InstructionBase <|-- InstructionB
+    InstructionBase <|-- InstructionU
+    InstructionBase <|-- InstructionJ
+
+    class InvalidAccess {
+        -InvalidAccess()
+    }
+
+    InstructionBase *-- InvalidAccess : throws
+```
+
+## クラス・メソッド・インターフェース詳細
+
+| クラス名         | メンバ名          | 型 / 種別 / 実体                                                                                           |
+|------------------|-------------------|------------------------------------------------------------------------------------------------------------|
+| InstructionBase  | opcode            | unsigned int                                                                                               |
+|                  | rs1               | unsigned int                                                                                               |
+|                  | rs2               | unsigned int                                                                                               |
+|                  | rd                | unsigned int                                                                                               |
+|                  | funct3            | unsigned int                                                                                               |
+|                  | funct7            | unsigned int                                                                                               |
+|                  | imm               | Immediate                                                                                                |
+|                  | inst              | Instruction                                                                                                |
+|                  | t                 | Type                                                                                                       |
+|                  | bin_mask          | static constexpr unsigned int (int digits)                                                                 |
+|                  | get_digits        | static unsigned int (unsigned int n, int hi, int lo)                                                       |
+|                  | expand_digit      | static unsigned int (unsigned int digit, int lo)                                                           |
+|                  | is_valid          | bool (const std::string &key)                                                                              |
+|                  | verify            | void (const std::string &key)                                                                              |
+|                  | debug             | void ()                                                                                                    |
+|                  | has_op1           | bool ()                                                                                                    |
+|                  | has_op2           | bool ()                                                                                                    |
+| InstructionR     | コンストラクタ    | InstructionR(const Instruction &inst)                                                                      |
+| InstructionI     | コンストラクタ    | InstructionI(const Instruction &inst)                                                                      |
+| InstructionS     | コンストラクタ    | InstructionS(const Instruction &inst)                                                                      |
+| InstructionB     | コンストラクタ    | InstructionB(const Instruction &inst)                                                                      |
+| InstructionU     | コンストラクタ    | InstructionU(const Instruction &inst)                                                                      |
+| InstructionJ     | コンストラクタ    | InstructionJ(const Instruction &inst)                                                                      |
+
+## シーケンス図
+```mermaid
+sequenceDiagram
+    participant User
+    participant InstructionR
+    participant InstructionBase
+
+    User->>InstructionR: InstructionR(Instruction)
+    InstructionR->>InstructionBase: get_digits(inst, 6, 0)
+    InstructionR->>InstructionBase: get_digits(inst, 11, 7)
+    InstructionR->>InstructionBase: get_digits(inst, 14, 12)
+    InstructionR->>InstructionBase: get_digits(inst, 19, 15)
+    InstructionR->>InstructionBase: get_digits(inst, 24, 20)
+    InstructionR->>InstructionBase: get_digits(inst, 31, 25)
+    InstructionR->>InstructionBase: set t = R
+    InstructionR->>InstructionBase: set inst = inst
+
+    User->>InstructionI: InstructionI(Instruction)
+    InstructionI->>InstructionBase: get_digits(inst, 6, 0)
+    InstructionI->>InstructionBase: get_digits(inst, 11, 7)
+    InstructionI->>InstructionBase: get_digits(inst, 14, 12)
+    InstructionI->>InstructionBase: get_digits(inst, 19, 15)
+    InstructionI->>InstructionBase: get_digits(inst, 30, 20) | expand_digit(get_digits(inst, 31, 31), 11)
+    InstructionI->>InstructionBase: set t = I
+    InstructionI->>InstructionBase: set inst = inst
+
+    User->>InstructionS: InstructionS(Instruction)
+    InstructionS->>InstructionBase: get_digits(inst, 6, 0)
+    InstructionS->>InstructionBase: get_digits(inst, 14, 12)
+    InstructionS->>InstructionBase: get_digits(inst, 19, 15)
+    InstructionS->>InstructionBase: get_digits(inst, 24, 20)
+    InstructionS->>InstructionBase: get_digits(inst, 11, 7) | (get_digits(inst, 30, 25) << 5) | expand_digit(get_digits(inst, 31, 31), 11)
+    InstructionS->>InstructionBase: set t = S
+    InstructionS->>InstructionBase: set inst = inst
+
+    User->>InstructionB: InstructionB(Instruction)
+    InstructionB->>InstructionBase: get_digits(inst, 6, 0)
+    InstructionB->>InstructionBase: get_digits(inst, 14, 12)
+    InstructionB->>InstructionBase: get_digits(inst, 19, 15)
+    InstructionB->>InstructionBase: get_digits(inst, 24, 20)
+    InstructionB->>InstructionBase: (get_digits(inst, 11, 8) << 1) | (get_digits(inst, 30, 25) << 5) | (get_digits(inst, 7, 7) << 11) | expand_digit(get_digits(inst, 31, 31), 12)
+    InstructionB->>InstructionBase: set t = B
+    InstructionB->>InstructionBase: set inst = inst
+
+    User->>InstructionU: InstructionU(Instruction)
+    InstructionU->>InstructionBase: get_digits(inst, 6, 0)
+    InstructionU->>InstructionBase: get_digits(inst, 11, 7)
+    InstructionU->>InstructionBase: (get_digits(inst, 19, 12) << 12) | (get_digits(inst, 30, 20) << 20) | (get_digits(inst, 31, 31) << 31)
+    InstructionU->>InstructionBase: set t = U
+    InstructionU->>InstructionBase: set inst = inst
+
+    User->>InstructionJ: InstructionJ(Instruction)
+    InstructionJ->>InstructionBase: get_digits(inst, 6, 0)
+    InstructionJ->>InstructionBase: get_digits(inst, 11, 7)
+    InstructionJ->>InstructionBase: (get_digits(inst, 30, 21) << 1) | (get_digits(inst, 20, 20) << 11) | (get_digits(inst, 19, 12) << 12) | expand_digit(get_digits(inst, 31, 31), 20)
+    InstructionJ->>InstructionBase: set t = J
+    InstructionJ->>InstructionBase: set inst = inst
+```
+
+## メソッド仕様書
+
+### `InstructionBase::bin_mask`
+- **目的**: 指定されたビット数のマスクを生成する。
+- **引数**: 
+  - `digits`: ビット数 (int)
+- **戻り値**: マスク値 (unsigned int)
+- **動作**: `(1 << digits) - 1` を計算して返す。
+
+### `InstructionBase::get_digits`
+- **目的**: 指定された範囲のビットを抽出する。
+- **引数**: 
+  - `n`: 抽出元の値 (unsigned int)
+  - `hi`: 高位ビット位置 (int)
+  - `lo`: 低位ビット位置 (int)
+- **戻り値**: 抽出したビット値 (unsigned int)
+- **動作**: `(n >> lo) & bin_mask(hi - lo + 1)` を計算して返す。
+
+### `InstructionBase::expand_digit`
+- **目的**: 指定されたビットを拡張する。
+- **引数**: 
+  - `digit`: 抽出したビット値 (unsigned int)
+  - `lo`: 低位ビット位置 (int)
+- **戻り値**: 拡張したビット値 (unsigned int)
+- **動作**: `digit ? (0xffffffff << lo) : 0` を計算して返す。
+
+### `InstructionBase::is_valid`
+- **目的**: 指定されたキーが有効かどうかを確認する。
+- **引数**: 
+  - `key`: チェック対象のキー (const std::string &)
+- **戻り値**: 有効性 (bool)
+- **動作**: タイプに応じて、指定されたキーが無効な場合 false を返す。それ以外は true を返す。
+
+### `InstructionBase::verify`
+- **目的**: 指定されたキーが有効かどうかを確認し、無効な場合は例外を投げる。
+- **引数**: 
+  - `key`: チェック対象のキー (const std::string &)
+- **戻り値**: 無し
+- **動作**: `is_valid(key)` を呼び出し、false の場合 `InvalidAccess` 例外を投げる。
+
+### `InstructionBase::debug`
+- **目的**: インストラクションのデバッグ情報を出力する。
+- **引数**: 無し
+- **戻り値**: 無し
+- **動作**: インストラクションの opcode に応じて、適切な命令名を出力する。
+
+### `InstructionBase::has_op1`
+- **目的**: 命令がオペランド1を持っているかどうかを確認する。
+- **引数**: 無し
+- **戻り値**: オペランド1の有無 (bool)
+- **動作**: タイプが U または J の場合は false を返す。それ以外は true を返す。
+
+### `InstructionBase::has_op2`
+- **目的**: 命令がオペランド2を持っているかどうかを確認する。
+- **引数**: 無し
+- **戻り値**: オペランド2の有無 (bool)
+- **動作**: タイプが R, S, B の場合は true を返す。それ以外は false を返す。
+
+### `InstructionR::コンストラクタ`
+- **目的**: 命令型 R 型を初期化する。
+- **引数**: 
+  - `inst`: インストラクション (const Instruction &)
+- **戻り値**: 無し
+- **動作**: 各フィールドに適切なビットを抽出して設定し、タイプを R に設定する。
+
+### `InstructionI::コンストラクタ`
+- **目的**: 命令型 I 型を初期化する。
+- **引数**: 
+  - `inst`: インストラクション (const Instruction &)
+- **戻り値**: 無し
+- **動作**: 各フィールドに適切なビットを抽出して設定し、タイプを I に設定する。
+
+### `InstructionS::コンストラクタ`
+- **目的**: 命令型 S 型を初期化する。
+- **引数**: 
+  - `inst`: インストラクション (const Instruction &)
+- **戻り値**: 無し
+- **動作**: 各フィールドに適切なビットを抽出して設定し、タイプを S に設定する。
+
+### `InstructionB::コンストラクタ`
+- **目的**: 命令型 B 型を初期化する。
+- **引数**: 
+  - `inst`: インストラクション (const Instruction &)
+- **戻り値**: 無し
+- **動作**: 各フィールドに適切なビットを抽出して設定し、タイプを B に設定する。
+
+### `InstructionU::コンストラクタ`
+- **目的**: 命令型 U 型を初期化する。
+- **引数**: 
+  - `inst`: インストラクション (const Instruction &)
+- **戻り値**: 無し
+- **動作**: 各フィールドに適切なビットを抽出して設定し、タイプを U に設定する。
+
+### `InstructionJ::コンストラクタ`
+- **目的**: 命令型 J 型を初期化する。
+- **引数**: 
+  - `inst`: インストラクション (const Instruction &)
+- **戻り値**: 無し
+- **動作**: 各フィールドに適切なビットを抽出して設定し、タイプを J に設定する。
+
+## 処理フロー図
+
+### `InstructionBase::is_valid`
+```mermaid
+graph TD
+    A[開始] --> B{t == R?}
+    B -- 是 --> C{key == "imm"?}
+    C -- 是 --> D[false]
+    C -- 否 --> E[true]
+    B -- 否 --> F{t == I?}
+    F -- 是 --> G{key == "rs2" || key == "funct7"?}
+    G -- はい --> H[false]
+    G -- いいえ --> I[true]
+    F -- いいえ --> J{t == S?}
+    J -- はい --> K{key == "rd" || key == "funct7"?}
+    K -- はい --> L[false]
+    K -- いいえ --> M[true]
+    J -- いいえ --> N{t == B?}
+    N -- はい --> O{key == "rd" || key == "funct7"?}
+    O -- はい --> P[false]
+    O -- いいえ --> Q[true]
+    N -- いいえ --> R{t == U || t == J?}
+    R -- はい --> S{key == "rs1" || key == "rs2" || key == "funct3" || key == "funct7"?}
+    S -- はい --> T[false]
+    S -- いいえ --> U[true]
+    R -- いいえ --> V[true]
+    D --> W[終了]
+    E --> W
+    H --> W
+    I --> W
+    L --> W
+    M --> W
+    P --> W
+    Q --> W
+    T --> W
+    U --> W
+    V --> W
+```
+
+### `InstructionBase::verify`
+```mermaid
+graph TD
+    A[開始] --> B{is_valid(key)?}
+    B -- いいえ --> C[throw InvalidAccess()]
+    B -- はい --> D[終了]
+    C --> D
+```
+
+## 状態遷移・副作用
+
+| 更新前状態 | 遷移条件         | 変更対象       | 更新後状態 | 更新順序 | 副作用 |
+|------------|------------------|----------------|------------|----------|--------|
+| 任意       | コンストラクタ呼び出し | 各フィールド     | 初期化済み | 指定順   | 無し   |
+
+## データ変換・制約
+
+| 入力データ         | 出力データ        | 変換規則                                                                 |
+|--------------------|-------------------|--------------------------------------------------------------------------|
+| inst               | opcode            | get_digits(inst, 6, 0)                                                   |
+|                    | rd                | get_digits(inst, 11, 7)                                                  |
+|                    | funct3            | get_digits(inst, 14, 12)                                                 |
+|                    | rs1               | get_digits(inst, 19, 15)                                                 |
+|                    | rs2               | get_digits(inst, 24, 20)                                                 |
+|                    | funct7            | get_digits(inst, 31, 25)                                                 |
+|                    | imm               | 各命令型に応じたビット抽出と組み立て                                       |
+|                    | t                 | 命令型に応じた設定                                                       |
+
+## 追加詳細設計情報
+
+### タイプ定義
+- `Instruction`: unsigned int
+
+### 定数
+- なし
+
+### 列挙型
+- `Type`: R, I, S, B, U, J
+
+### マクロ
+- なし
+
+### 使用データ・更新データ
+- **参照**: opcode, rs1, rs2, rd, funct3, funct7, imm, inst, t
+- **更新**: 各フィールドの初期化と設定
+
+### 状態・副作用・不変条件
+- **状態**: インスタンス生成時に各フィールドが適切に初期化される。
+- **副作用**: なし
+- **不変条件**: 各命令型に応じたフィールドの有効性チェック
+
+### データ変換・制約
+- 各命令型に応じてビットを抽出し、適切なフィールドに設定する。
+- `imm` の値は各命令型に応じてビットを組み立てて設定する。
