@@ -1,0 +1,106 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+## Design Specification for RISC-V Instruction Parsing (F01/U01)
+
+This document details the design specification for parsing and representing RISC-V instructions, based on the provided C++ header file (`Instruction.hpp`).  It is intended to guide the re-implementation of this functionality in another LLM without access to the original source code.
+
+**1. Overview**
+
+The core purpose of this module is to decode a 32-bit RISC-V instruction (represented as an `unsigned int`) into its constituent parts and provide a structured representation for further processing (e.g., simulation). The design utilizes a base class (`InstructionBase`) with derived classes for each major instruction type (R, I, S, B, U, J).
+
+**2. Data Types & Definitions**
+
+*   `Instruction`:  An alias for `unsigned int`, representing the raw 32-bit instruction word.
+*   `Immediate`: This is an integer type used to store immediate values extracted from instructions. The underlying implementation in the provided code isn't explicitly defined, but it should be a suitable integer type (e.g., `int32_t`).
+*   `enum Type { R, I, S, B, U, J }`:  An enumeration representing the different instruction types:
+    *   **R**: Register-type instructions.
+    *   **I**: Immediate-type instructions.
+    *   **S**: Store instructions.
+    *   **B**: Branch instructions.
+    *   **U**: Upper immediate instructions.
+    *   **J**: Jump instructions.
+
+**3. Core Class: `InstructionBase`**
+
+This is the base class for all instruction types. It contains common fields and methods.
+
+*   **Member Variables:**
+    *   `opcode`:  `unsigned int` - The opcode of the instruction.
+    *   `rs1`: `unsigned int` - First source register number.
+    *   `rs2`: `unsigned int` - Second source register number.
+    *   `rd`: `unsigned int` - Destination register number.
+    *   `funct3`: `unsigned int` - Function code (3 bits).
+    *   `funct7`: `unsigned int` - Extended function code (7 bits).
+    *   `imm`: `Immediate` - The immediate value of the instruction.
+    *   `inst`: `Instruction` - The original, complete 32-bit instruction word.
+    *   `t`: `Type` -  The type of the instruction (R, I, S, B, U, J).
+
+*   **Constructors:**
+    *   Default Constructor: Initializes all member variables to 0.
+    *   Constructor with `unsigned int`: Sets opcode to `0b0010011`, t to `I`, and inst to -1.  Other members are initialized to 0. This appears to be a placeholder for a specific instruction (likely an immediate-type NOP).
+
+*   **Static Methods:**
+    *   `bin_mask(int digits)`: Returns a bitmask with the specified number of least significant bits set to 1.  Calculated as `(1 << digits) - 1`.
+    *   `get_digits(unsigned int n, int hi, int lo)`: Extracts a range of bits from an unsigned integer `n`, starting at bit position `lo` and ending at bit position `hi` (inclusive). Uses the `bin_mask` function to isolate the desired bits.
+    *   `expand_digit(unsigned int digit, int lo)`:  If `digit` is non-zero, returns a value with only the bit at position `lo` set; otherwise, returns 0. This is used for sign extension of immediate values.
+
+*   **Methods:**
+    *   `is_nop()`: Returns `true` if the instruction is considered a NOP (indicated by `inst == -1`), and `false` otherwise.
+    *   `is_valid(const std::string &key)`: Checks if a given "key" (representing an instruction field like "imm", "rs2", etc.) is valid for the current instruction type.  Returns `true` if valid, `false` otherwise. The logic depends on the value of `t`:
+        *   R: Invalid key is "imm".
+        *   I: Invalid keys are "rs2" and "funct7".
+        *   S: Invalid keys are "rd" and "funct7".
+        *   B: Invalid keys are "rd" and "funct7".
+        *   U & J: Invalid keys are "rs1", "rs2", "funct3", and "funct7".
+    *   `verify(const std::string &key)`: Throws an `InvalidAccess` exception if `is_valid(key)` returns `false`.  This is a validation mechanism.
+    *   `debug()`: Prints the instruction in hexadecimal format, along with a human-readable string representing the instruction type (e.g., "lui", "auipc", "jal", "load", "store", "addi", etc.). The specific strings printed depend on the `opcode` and `funct3` values.
+    *   `has_op1()`: Returns true if the instruction is not of type U or J, false otherwise.
+    *   `has_op2()`: Returns true if the instruction is of type R, S, or B, false otherwise.
+
+**4. Derived Classes (InstructionR, InstructionI, InstructionS, InstructionB, InstructionU, InstructionJ)**
+
+Each derived class represents a specific instruction type and inherits from `InstructionBase`.  The constructor for each class takes an `Instruction` as input and extracts the relevant fields by calling the static methods of `InstructionBase` (`get_digits`, `expand_digit`). The extracted values are then assigned to the corresponding member variables.
+
+*   **Common Pattern:** Each derived class's constructor:
+    1.  Calls `InstructionBase`’s default constructor (implicitly or explicitly).
+    2.  Extracts fields from the input `inst` using `get_digits` and `expand_digit`.
+    3.  Assigns extracted values to corresponding member variables in the base class.
+    4.  Sets the `t` member variable to the appropriate instruction type (R, I, S, B, U, or J).
+
+*   **Specific Field Extraction:** The specific bit ranges used in `get_digits` vary for each derived class based on the RISC-V instruction format. Refer to the provided code for exact details.  For example:
+    *   `InstructionR`: Extracts `opcode`, `rd`, `funct3`, `rs1`, `rs2`, and `funct7`.
+    *   `InstructionI`: Extracts `opcode`, `rd`, `funct3`, `rs1`, and `imm`.
+    *   `InstructionS`: Extracts `opcode`, `funct3`, `rs1`, `rs2`, and `imm`.
+    *   `InstructionB`: Extracts `opcode`, `funct3`, `rs1`, `rs2`, and `imm`.
+    *   `InstructionU`: Extracts `opcode`, `rd`, and `imm`.
+    *   `InstructionJ`: Extracts `opcode`, `rd`, and `imm`.
+
+**5. Error Handling**
+
+The `InstructionBase` class includes an `InvalidAccess` exception that is thrown by the `verify()` method when an invalid field access is attempted (as determined by `is_valid()`). This provides a mechanism for detecting errors during instruction parsing.
+
+**6.  Assumptions & Clarifications**
+
+*   The implementation of `Immediate` is not defined in the provided code, but it should be a suitable integer type to hold immediate values.
+*   The bit positions and masks used in `get_digits` are crucial for correct decoding. These must be implemented accurately based on the RISC-V instruction format specification.
+* The debug function relies on specific opcode/funct3 combinations to print meaningful output. This should be maintained during re-implementation.
+
+This design specification provides a comprehensive overview of the functionality and structure of the provided C++ code, enabling its accurate re-implementation in another LLM environment.  The key is to faithfully reproduce the data structures, class hierarchies, static methods, and field extraction logic described above.

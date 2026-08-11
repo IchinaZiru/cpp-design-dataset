@@ -1,0 +1,145 @@
+RAG_CONTEXT repository-dependencies-v1
+
+### PATH: include/io.h
+SOURCE_SHA256: 760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241
+CONTENT_SHA256: db325696a0c7f0f2d84b3e922597a8b86b531b512ab94d0f0c755df54213596a
+----- BEGIN DEPENDENCY HEADER CONTENT: include/io.h -----
+   
+             
+                                                                  
+  
+                                                
+                                              
+              
+                                 
+               
+                   
+  
+                             
+   
+
+#pragma once
+
+#include "util.h"
+
+#include <iostream>
+
+
+namespace ws {
+
+class Buffer;
+
+namespace io {
+
+                                                      
+class IReader {
+public:
+    virtual ~IReader() noexcept = default;
+
+                                
+    virtual std::size_t ReadFrom(Buffer& buf) = 0;
+};
+
+                                                      
+class IWriter {
+public:
+    virtual ~IWriter() noexcept = default;
+
+                               
+    virtual std::size_t WriteTo(Buffer& buf) = 0;
+};
+
+                                              
+class IReadWriter : public virtual IReader, public virtual IWriter {};
+
+   
+                   
+  
+           
+                                                                
+                                       
+   
+class Null : public virtual IReadWriter {
+public:
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+};
+
+                           
+class StringStream : public virtual IReadWriter {
+public:
+       
+                                                                 
+      
+                  
+                                   
+                                             
+                   
+                                   
+                                                
+      
+               
+                                                      
+                                                                          
+       
+    explicit StringStream(std::istream& read, std::ostream& write) noexcept;
+
+    StringStream(const StringStream&) = delete;
+
+    StringStream(StringStream&&) = delete;
+
+    StringStream& operator=(const StringStream&) = delete;
+
+    StringStream& operator=(StringStream&&) = delete;
+
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+
+private:
+    std::istream& read_;
+    std::ostream& write_;
+};
+
+                             
+class FileDescriptor : public virtual IReadWriter {
+public:
+       
+                                                         
+      
+                  
+                                     
+                                             
+                   
+                                     
+                                                
+      
+            
+                                                                      
+                                                                                     
+       
+    explicit FileDescriptor(ws::FileDescriptor read,
+                            ws::FileDescriptor write) noexcept;
+
+    FileDescriptor(const FileDescriptor&) = delete;
+
+    FileDescriptor(FileDescriptor&&) = delete;
+
+    FileDescriptor& operator=(const FileDescriptor&) = delete;
+
+    FileDescriptor& operator=(FileDescriptor&&) = delete;
+
+    std::size_t WriteTo(Buffer& buf) override;
+
+    std::size_t ReadFrom(Buffer& buf) override;
+
+private:
+    ws::FileDescriptor read_;
+    ws::FileDescriptor write_;
+};
+
+}                 
+
+}                 
+----- END DEPENDENCY HEADER CONTENT: include/io.h -----

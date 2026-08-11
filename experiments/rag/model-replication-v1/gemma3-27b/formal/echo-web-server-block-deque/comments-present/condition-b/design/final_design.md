@@ -1,0 +1,191 @@
+## BlockDeque 設計仕様書 (F01/U01)
+
+このドキュメントは、`ws::BlockDeque<T>` クラスの詳細な設計仕様書です。これは、提供されたヘッダーファイル `include/containers/block_deque.h` に基づいており、別のLLMがソースコードを再実装できるようにすることを目的としています。
+
+### 1. 正確な定義
+
+| 名前 | 種別 | 実体 |
+|---|---|---|
+| `Clock` | 型名 | `std::chrono::steady_clock` |
+| `capacity_` | メンバ変数 | `std::size_t` |
+| `closed_` | メンバ変数 | `std::atomic_bool` |
+| `deq_` | メンバ変数 | `std::deque<T>` |
+| `mtx_` | メンバ変数 | `std::mutex` |
+| `consumer_cond_` | メンバ変数 | `std::condition_variable` |
+| `producer_cond_` | メンバ変数 | `std::condition_variable` |
+
+### 2. 直接依存インターフェースと利用方法
+
+| 関数/メソッド名 | 名前空間 | 引数 | 戻り値型 | 可視性 | const | noexcept | 説明 |
+|---|---|---|---|---|---|---|---|
+| `assert` | `<cassert>` |  | void |  |  | true | アサーションマクロ。 |
+| `std::chrono::steady_clock::now()` | `<chrono>` |  | `Clock::time_point` |  |  | true | 現在時刻を取得。 |
+| `std::condition_variable::wait()` | `<condition_variable>` | `std::unique_lock<std::mutex>&`, `std::predicate` | void |  |  | true | 条件が満たされるまで待機。 |
+| `std::condition_variable::wait_for()` | `<condition_variable>` | `std::unique_lock<std::mutex>&`, `Clock::duration`, `std::predicate` | void |  |  | true | 指定時間、条件が満たされるまで待機。 |
+| `std::condition_variable::notify_one()` | `<condition_variable>` |  | void |  |  | true | 待機中のスレッドを一つ通知。 |
+| `std::condition_variable::notify_all()` | `<condition_variable>` |  | void |  |  | true | 待機中のすべてのスレッドに通知。 |
+| `std::deque<T>::push_back()` | `<deque>` | `T&&` | void |  |  | true | 末尾に要素を追加。 |
+| `std::deque<T>::push_front()` | `<deque>` | `T&&` | void |  |  | true | 先頭に要素を追加。 |
+| `std::deque<T>::pop_front()` | `<deque>` |  | void |  |  | true | 先頭の要素を削除。 |
+| `std::deque<T>::empty()` | `<deque>` |  | bool | const | true | 判定が空かどうか。 |
+| `std::deque<T>::size()` | `<deque>` |  | `std::size_t` | const | true | 要素数取得。 |
+| `std::lock_guard<std::mutex>` | `<mutex>` | `std::mutex&` | void |  |  | true | ミューテックスをロックし、スコープ終了時にアンロック。 |
+| `std::unique_lock<std::mutex>` | `<mutex>` | `std::mutex&` | void |  |  | true | ミューテックスを柔軟にロック/アンロック。 |
+| `std::optional<T>` | `<optional>` |  | `std::optional<T>` |  |  | true | 値が存在するかどうかを示す型。 |
+| `std::move()` | `<utility>` | T& | T&& |  |  | true | リソースを移動。 |
+
+### 3. 結果を決める式・具体値
+
+*   `capacity_ > 0`: コンストラクタでアサートされる条件。
+*   `size <= capacity_`: `Full()` メソッド内で暗黙的に仮定されている制約。
+*   `deq_.empty() || closed_`:  `Pop()` および `consumer_cond_.wait()` のpredicateで使用される条件。
+*   `deq_.size() < capacity_`: `WaitForSpace()` 内の producer_cond_.wait() の predicate で使用される条件。
+
+### 4. 使用データ・更新データ
+
+| データ | アクセス方法 | 更新条件 |
+|---|---|---|
+| `capacity_` | クラスメンバ変数 | コンストラクタで初期化、その後不変。 |
+| `closed_` | クラスメンバ変数 | `Close()` メソッドで true に設定。 |
+| `deq_` | クラスメンバ変数 | `PushBack()`, `PushFront()`, `Pop()` で要素の追加/削除が行われる。 |
+
+### 5. 状態・副作用・不変条件
+
+*   **状態:**  `closed_` フラグ、`deq_` の内容。
+*   **副作用:** `PushBack()`, `PushFront()`, `Pop()` は `deq_` の内容を変更する。 `Flush()` と `Close()` は condition variable に通知を送る。
+*   **不変条件:**  `capacity_` はコンストラクタで設定された後変更されない。
+
+### 6. クラス図
+
+```mermaid
+classDiagram
+    class BlockDeque {
+        - capacity_: std::size_t
+        - closed_: std::atomic_bool
+        - deq_: std::deque<T>
+        - mtx_: std::mutex
+        - consumer_cond_: std::condition_variable
+        - producer_cond_: std::condition_variable
+        + BlockDeque(std::size_t capacity)
+        + ~BlockDeque()
+        + Clear()
+        + Empty()
+        + Full()
+        + Size()
+        + Capacity()
+        + PushBack(T item)
+        + PushFront(T item)
+        + Front()
+        + Back()
+        + Pop(std::optional<Clock::duration>)
+        + Flush()
+        + Close()
+    }
+```
+
+### 7. クラス・メソッド・インターフェース詳細
+
+| メソッド名 | 引数 | 戻り値型 | 可視性 | const | noexcept | 説明 |
+|---|---|---|---|---|---|---|
+| `BlockDeque(std::size_t capacity)` | `capacity` (std::size_t) | void | public |  | true | コンストラクタ。容量を設定。 |
+| `~BlockDeque()` |  | void | public |  | true | デストラクタ。キューをクローズする。 |
+| `Clear()` |  | void | public |  | true | キューの内容をクリアする。 |
+| `Empty()` |  | bool | public | true | true | キューが空かどうかを返す。 |
+| `Full()` |  | bool | public | true | true | キューが満杯かどうかを返す。 |
+| `Size()` |  | std::size_t | public | true | true | キューの要素数を返す。 |
+| `Capacity()` |  | std::size_t | public | true | true | キューの最大容量を返す。 |
+| `PushBack(T item)` | `item` (T) | void | public |  | true | 末尾に要素を追加する。 |
+| `PushFront(T item)` | `item` (T) | void | public |  | true | 先頭に要素を追加する。 |
+| `Front()` |  | const T& | public | true | true | 先頭の要素へのconst参照を返す。 |
+| `Back()` |  | const T& | public | true | true | 最後の要素へのconst参照を返す。 |
+| `Pop(std::optional<Clock::duration> time_out)` | `time_out` (std::optional<Clock::duration>) | std::optional<T> | public |  | true | 先頭の要素を取り出す。タイムアウトを指定できる。 |
+| `Flush()` |  | void | public |  | true | コンシューマーに通知する。 |
+| `Close()` |  | void | public |  | true | キューをクローズする。 |
+
+### 8. シーケンス図
+
+(シーケンス図は、このコードの複雑さを考えると、簡略化されたものになります。)
+
+```mermaid
+sequenceDiagram
+    participant Producer
+    participant BlockDeque
+    participant Consumer
+
+    Producer->>BlockDeque: PushBack(item)
+    activate BlockDeque
+    BlockDeque->>BlockDeque: WaitForSpace()
+    BlockDeque-->>Producer: 
+    BlockDeque->>deq_: push_back(item)
+    BlockDeque->>Consumer: Flush()
+    deactivate BlockDeque
+
+    Consumer->>BlockDeque: Pop(timeout)
+    activate BlockDeque
+    BlockDeque->>BlockDeque: WaitForSpace()
+    BlockDeque-->>Consumer: 
+    BlockDeque->>deq_: pop_front()
+    BlockDeque->>Producer: NotifyOne()
+    deactivate BlockDeque
+```
+
+### 9. メソッド仕様書 (例: `PushBack`)
+
+**メソッド名:** `PushBack`
+
+**目的:** キューの末尾に要素を追加する。キューが満杯の場合は、空きが出るまで待機する。
+
+**引数:**
+
+*   `item`: 追加する要素 (`T` 型)。
+
+**戻り値:** なし (void)
+
+**動作:**
+
+1.  ミューテックスをロックする。
+2.  キューが満杯の場合、空きが出るまで `WaitForSpace()` を呼び出して待機する。
+3.  `deq_.push_back(std::move(item))` を呼び出して要素を追加する。
+4.  `Flush()` を呼び出してコンシューマーに通知する。
+5.  ミューテックスをアンロックする。
+
+**副作用:** `deq_` の内容が変更される。`consumer_cond_` に通知が送信される。
+
+**前提条件:** なし
+
+**事後条件:** キューの要素数が1つ増加する。
+
+### 10. 処理フロー図 (例: Pop)
+
+```mermaid
+graph TD
+    A[Pop()呼び出し] --> B{キューが空またはクローズされているか？};
+    B -- Yes --> C[std::nulloptを返す];
+    B -- No --> D[ミューテックスロック];
+    D --> E{タイムアウト指定あり？};
+    E -- Yes --> F[consumer_cond_.wait_for(locker, timeout, predicate)];
+    E -- No --> G[consumer_cond_.wait(locker, predicate)];
+    F --> H{タイムアウト発生？};
+    G --> I{キューがクローズされた？};
+    H -- Yes --> C;
+    I -- Yes --> C;
+    H -- No --> J[要素を取り出す];
+    I -- No --> J;
+    J --> K[producer_cond_.notify_one()];
+    K --> L[要素を返す];
+```
+
+### 11. 状態遷移・副作用
+
+| メソッド | 開始状態 | 更新対象 | 更新後状態 | 副作用 |
+|---|---|---|---|---|
+| `PushBack` | キューが空または満杯 | `deq_` | 要素が追加されたキュー | condition variableに通知 |
+| `Pop` | キューが空または満杯 | `deq_` | 先頭要素が削除されたキュー | condition variableに通知 |
+| `Close` | 通常状態 | `closed_`, `deq_` | `closed_` が true, `deq_` がクリアされた状態 | condition variableに全スレッドへ通知 |
+
+### 12. データ変換・制約
+
+| 入力データ | 型 | 制約 | 変換/加工 | 出力データ | 型 |
+|---|---|---|---|---|---|
+| `item` (PushBack, PushFront) | T |  | std::move(item) | キューの要素 | T |
+| タイムアウト値 (Pop) | std::optional<Clock::duration> |  |  |  |  |

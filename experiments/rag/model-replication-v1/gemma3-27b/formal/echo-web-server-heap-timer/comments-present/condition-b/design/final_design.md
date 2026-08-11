@@ -1,0 +1,145 @@
+## HeapTimer 設計仕様書 (F01/U01)
+
+### 1. 全体概要
+
+本ドキュメントは、min-heap を基盤としたタイマーシステム `HeapTimer` の設計を記述する。このシステムは、指定されたキーと有効期限を持つノードを管理し、有効期限が到来したノードのコールバック関数を実行する。
+
+### 2. クラス図
+
+```mermaid
+classDiagram
+    class HeapTimer<Key> {
+        - logger_ : log::Logger::Ptr
+        - key_to_idx_ : std::unordered_map<Key, std::size_t>
+        - nodes_ : std::deque<Node>
+        + HeapTimer(log::Logger::Ptr)
+        + Adjust(const Key&, Clock::duration)
+        + Adjust(const Key&, Clock::time_point)
+        + Push(const Key&, Clock::duration, TimeOutCallback)
+        + Push(const Key&, Clock::time_point, TimeOutCallback)
+        + Tick()
+        + Remove(const Key&)
+        + Invoke(const Key&)
+        + Pop()
+        + Clear()
+        + Contain(const Key&)
+        + Empty()
+        + Size()
+        + ToNextTick()
+    }
+    class HeapTimer<Key>::Node {
+        - key : Key
+        - expiration : Clock::time_point
+        - callback : TimeOutCallback
+        + Node()
+        + Expired()
+        + Swap(Node&)
+    }
+
+    HeapTimer -- Node : has a
+```
+
+### 3. クラス・メソッド・インターフェース詳細
+
+| 型/名前 | 可視性 | 引数 | 戻り値型 | 説明 |
+|---|---|---|---|---|
+| `HeapTimer<Key>` | public | `log::Logger::Ptr logger = log::RootLogger()` |  | コンストラクタ。ロガーを設定する。デフォルトはグローバルルートロガー。 |
+| `HeapTimer<Key>` | private |  |  | デフォルトコンストラクタ、コピーコンストラクタ、代入演算子は削除済み。 |
+| `Adjust(const Key& key, Clock::duration expiration)` | public | `const Key& key`, `Clock::duration expiration` | void | キーに対応するノードの有効期限を調整する。期間で指定。 |
+| `Adjust(const Key& key, Clock::time_point expiration)` | public | `const Key& key`, `Clock::time_point expiration` | void | キーに対応するノードの有効期限を調整する。絶対時間で指定。 |
+| `Push(const Key& key, Clock::duration expiration, TimeOutCallback callback)` | public | `const Key& key`, `Clock::duration expiration`, `TimeOutCallback callback` |  | 新しいノードを追加する。期間で有効期限を指定。 |
+| `Push(const Key& key, Clock::time_point expiration, TimeOutCallback callback)` | public | `const Key& key`, `Clock::time_point expiration`, `TimeOutCallback callback` |  | 新しいノードを追加する。絶対時間で有効期限を指定。 |
+| `Tick()` | public |  | void | 有効期限切れのノードを削除し、コールバックを実行する。 |
+| `Remove(const Key& key)` | public | `const Key& key` | bool | キーに対応するノードを削除する。削除成功時はtrue, 失敗時はfalseを返す。 |
+| `Invoke(const Key& key)` | public | `const Key& key` |  | キーに対応するノードのコールバックを実行し、ノードを削除する。 |
+| `Pop()` | public |  | Key | 最も有効期限が近いノードを削除し、そのキーを返す。 |
+| `Clear()` | public |  | void | すべてのノードをクリアする。 |
+| `Contain(const Key& key)` | public | `const Key& key` | bool | キーに対応するノードが存在するかどうかを返す。 |
+| `Empty()` | public |  | bool | タイマーが空かどうかを返す。 |
+| `Size()` | public |  | std::size_t | ノードの数を返す。 |
+| `ToNextTick()` | public |  | Clock::duration | 次に有効期限切れになるまでの時間を返す。 |
+| `HeapTimer<Key>::Node` | private |  |  | 内部ノード構造体。 |
+| `Node::Expired()` | public |  | bool | ノードが有効期限切れかどうかを返す。 |
+| `Node::Swap(Node& o)` | public | `Node& o` | void | ノードのメンバ変数を交換する。 |
+
+### 4. シーケンス図
+
+（複雑なシーケンスは省略。基本的なフローのみ記述）
+
+**Push -> Tick -> Callback:**
+
+1.  クライアントが `HeapTimer::Push()` を呼び出し、キー、有効期限、コールバックを渡す。
+2.  `HeapTimer` は新しいノードを作成し、内部データ構造に追加する。
+3.  クライアントが `HeapTimer::Tick()` を呼び出す。
+4.  `HeapTimer` は有効期限切れのノードを探す。
+5.  有効期限切れのノードが見つかった場合、そのコールバック関数を実行する。
+
+### 5. メソッド仕様書 (例: Push)
+
+**メソッド名:** `Push(const Key& key, Clock::time_point expiration, TimeOutCallback callback)`
+
+**目的:** 新しいタイマーノードをシステムに追加する。
+
+**引数:**
+
+*   `key`: タイマーノードのキー。
+*   `expiration`: タイマーノードの有効期限（絶対時間）。
+*   `callback`: 有効期限が切れたときに呼び出されるコールバック関数。
+
+**戻り値:** なし
+
+**動作:**
+
+1.  指定されたキーを持つノードがすでに存在するか確認する。
+2.  存在しない場合、新しい `Node` オブジェクトを作成し、引数で渡された情報で初期化する。
+3.  新しいノードを内部の `nodes_` デキューに追加する。
+4.  `key_to_idx_` マップにキーとデキュー内のインデックスのマッピングを追加する。
+5.  `ShiftUp()` メソッドを使用して、新しく追加されたノードを適切な位置に移動し、ヒーププロパティを維持する。
+
+**例外:** なし
+
+### 6. 処理フロー図 (例: Tick)
+
+```mermaid
+graph TD
+    A[Tick()] --> B{Empty()?};
+    B -- Yes --> C[Return];
+    B -- No --> D[Get front node];
+    D --> E{Expired()?};
+    E -- Yes --> F[Execute callback];
+    F --> G[Pop()];
+    G --> A;
+    E -- No --> H[Return];
+```
+
+### 7. 状態遷移・副作用
+
+*   `HeapTimer` は、内部の `nodes_` デキューと `key_to_idx_` マップの状態を管理する。
+*   `Push()` メソッドは、新しいノードを追加し、ヒープ構造を更新する。
+*   `Tick()` メソッドは、有効期限切れのノードを削除し、コールバック関数を実行する。コールバック関数内で例外が発生した場合、ロガーに記録されるが再スローされない。
+*   `Remove()` および `Invoke()` メソッドは、内部データ構造を更新する。
+
+### 8. データ変換・制約
+
+*   有効期限は `Clock::time_point` 型で表現される。
+*   コールバック関数は `TimeOutCallback` (std::function<void(const Key&)>) 型である。
+*   キーは型 `Key` であり、`key_to_idx_` マップのキーとして使用される。
+*   ヒープ構造を維持するために、ノードの挿入と削除時に `ShiftUp()` および `ShiftDown()` メソッドが呼び出される。
+
+### 9. 追加詳細設計情報
+
+**Node構造体:**
+
+*   `key`:  ユーザー定義の一意なキー。型はテンプレート引数 `Key` に依存する。
+*   `expiration`: ノードの有効期限を表す `Clock::time_point` 型の値。
+*   `callback`: 有効期限が切れたときに呼び出されるコールバック関数。`std::function<void(const Key&)>` 型。
+
+**ShiftUp/ShiftDown:**
+
+*   これらのメソッドは、ヒーププロパティを維持するために使用される。
+*   `ShiftUp()` は、ノードを親と比較し、必要に応じて交換することで、ノードを上に移動させる。
+*   `ShiftDown()` は、ノードを子と比較し、必要に応じて交換することで、ノードを下に移動させる。
+
+**Clock:**
+
+*   `std::chrono::steady_clock` を使用して時間を計測する。これは、システムクロックとは異なり、単調増加することを保証する。

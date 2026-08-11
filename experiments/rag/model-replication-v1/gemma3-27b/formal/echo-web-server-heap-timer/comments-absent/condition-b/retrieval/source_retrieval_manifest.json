@@ -1,0 +1,40 @@
+{
+  "artifact_schema_version": "comment-ablation-rag-retrieval-manifest-v1",
+  "target_id": "echo-web-server-heap-timer",
+  "condition": "B-comment-free",
+  "status": "pass",
+  "selection_frozen_from_formal_r2": true,
+  "source_formal_r2_retrieval_manifest_sha256": "4224fbc2481e61cb632334c68692dc1fb8b612159920657b354d343672ae1fc3",
+  "source_formal_r2_actual_rag_context_sha256": "181cdf4148b88d728a55bbb87a5e494b82247e1cb9a13a777eaad02584674cbd",
+  "dependency_header_mode": "direct-project-local-quoted-include-whole-file-one-hop-v1",
+  "dependency_header_count": 2,
+  "comments_removed": 66,
+  "query_unchanged_from_formal_r2": true,
+  "artifact_hashes": {
+    "query.json": "e24d38019a9dc154961e72da63339d145057ec237d4320c1d66ff26ef40dc061",
+    "candidates_selected_comment_free.jsonl": "ab79b0e49747b805c5e9f88dbb7623fa1e1191dd70e58cdc59424b8bfbf633d9",
+    "actual_rag_context_comment_free.txt": "540edc4af0e67dad14f12e3e10197a5cc7b356bbab6870b2af17ab35982cc630"
+  },
+  "context_bytes": 19538,
+  "context_sha256": "540edc4af0e67dad14f12e3e10197a5cc7b356bbab6870b2af17ab35982cc630",
+  "dependencies": [
+    {
+      "path": "include/log.h",
+      "source_sha256": "3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252",
+      "source_formal_r2_content_sha256": "999293a0df49ea566f60fd53d5300e62caae989b9c72433cc49ec5e67cc3e44a",
+      "comment_free_content_sha256": "2216f31c42e9d0b297090f540bdbdc3d94669e1e5655b2287200ccc942eefc84",
+      "line_comments_removed": 19,
+      "block_comments_removed": 17,
+      "total_comments_removed": 36
+    },
+    {
+      "path": "include/util.h",
+      "source_sha256": "bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85",
+      "source_formal_r2_content_sha256": "b55d0fd816eb63e37e57892a9a362293851d5f6702d3784aa3a82055c4753270",
+      "comment_free_content_sha256": "7c488acf8a20755ef84a93bd1418be48381161cd1da5506f28296618cad8b0fc",
+      "line_comments_removed": 16,
+      "block_comments_removed": 14,
+      "total_comments_removed": 30
+    }
+  ]
+}

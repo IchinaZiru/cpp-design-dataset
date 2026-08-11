@@ -1,0 +1,195 @@
+与えられたC++ソースコードを解析し、このソースコードを参照できない別のLLMが再実装できるように、詳細な設計仕様書を作成してください。
+
+入力から確認できない情報は推測しないでください。
+
+TARGET-OWNED INPUTS
+Fxx/Uxx identifiers are opaque. Preserve names, types, signatures, namespaces, and replacement boundaries in the final specification.
+
+REPLACEMENT UNIT CONTRACT
+Only replacement_required=true units will be regenerated. Reference-only units must inform the design but must not become output units.
+REPLACEMENT UNITS: F01/U01
+REFERENCE-ONLY INPUTS: none
+
+===== BEGIN F01/U01 =====
+path: ini/ini.h
+role: complete INIWriter class definition for Design-Only reconstruction
+replacement_required: true
+class INIWriter {
+   public:
+    INIWriter() = default;
+    /**
+     * @brief Write the contents of an INI file to a new file
+     * @param filepath The path of the output file
+     * @param reader The INIReader object to write to the file
+     * @param overwrite Whether to just overwrite an existing file
+     * @throws std::runtime_error if the output file already exists or cannot
+     * be opened
+     */
+    inline static void write(const std::string& filepath,
+                             const INIReader& reader,
+                             const bool overwrite = false) {
+        if (!overwrite && std::ifstream{filepath}) {
+            throw std::runtime_error("file: " + filepath + " already exists.");
+        }
+        std::ofstream out{filepath};
+        if (!out.is_open()) {
+            throw std::runtime_error("cannot open output file: " + filepath);
+        }
+        for (const auto& section : reader.Sections()) {
+            out << "[" << section << "]\n";
+            for (const auto& key : reader.Keys(section)) {
+                out << key << "=" << reader.Get(section, key) << "\n";
+            }
+        }
+    }
+};
+===== END F01/U01 =====
+
+===== BEGIN TREATMENT DESIGN KNOWLEDGE =====
+----- BEGIN V4/V5 DETAILED-DESIGN GUIDANCE -----
+# RAGによる追加詳細設計（内容必須・Markdown階層は柔軟）
+基本9項目に加えて、以下7項目の内容を設計文書に含めてください。
+`追加詳細設計情報`というまとめ見出しを使用しても構いませんが、見出しlevel、順序、追加見出しは固定しません。
+各成果物は基本9項目の言い換えだけで終わらせず、構造・関係・順序・制約・再実装に必要な具体的事実を記述してください。
+該当しない場合は「該当なし」、確認できない場合は「確認不能」としてください。
+図はMermaidを推奨しますが、形式より内容の正確性を優先してください。
+
+- クラス図
+- クラス・メソッド・インターフェース詳細
+- シーケンス図
+- メソッド仕様書
+- 処理フロー図
+- 状態遷移・副作用
+- データ変換・制約
+
+----- BEGIN RETRIEVED CONTEXT -----
+# 汎用詳細設計知識 v4
+
+## 目的
+
+対象コードから、再実装に必要な実装上の事実を失わない詳細設計情報を生成する。
+v3のクラス図・インターフェース詳細・シーケンス図・メソッド仕様・処理フロー・状態遷移・データ変換の観点は維持するが、単なる情報量の増加ではなく、再生成に必要な正確性を優先する。
+
+## 共通記述規則
+
+- 元コードと与えられた文脈から確認できる事実だけを記述する。
+- 元コードにない機能、API、型、状態、初期値、例外、依存関係、制約を推測で追加しない。
+- 確認できない情報は推測せず「確認不能」と記述する。
+- ソースコード全文を複製しない。再実装に必要な事実を、表、短い式、疑似コード、図、自然言語へ変換して記述する。
+- 識別子、型名、関数名、メソッド名、メンバ名、定数名、条件、演算子、数値は、再実装結果に影響する場合は元コードの表記と意味を保つ。
+- 同じsymbolを複数の表・図で記述する場合、型、可視性、const、副作用、呼び出し先、状態更新を互いに矛盾させない。矛盾が生じる場合は元コードで確認できる事実を正とする。
+- 対象に該当しない成果物は「該当なし」と簡潔な根拠を記述する。
+- 図はMarkdown内のMermaidで記述することを推奨するが、図の形式より設計内容の正確性を優先する。
+
+## 再実装忠実度の必須観点
+
+### 1. 正確な定義
+
+再実装に影響する `using`、`typedef`、`enum`、`concept`、`requires`、macro、定数、nested/base class、構造体フィールドについて、確認できる場合は名前だけでなく実体・値・構造を記述する。
+
+ソース全文の引用は不要であり、例えば型別名は「型名 / 種別 / 実体」の表として記述してよい。
+
+### 2. 直接依存インターフェースと利用方法
+
+対象が直接利用する関数・メソッド・型について、確認できる範囲で以下を記述する。
+
+- qualified name / namespace
+- 引数名と型
+- 戻り値型
+- `const`、`noexcept`、`static`、`virtual`
+- 参照・ポインタの区別
+- 実際に渡す値や型変換
+- 戻り値の消費方法
+- 呼び出し順序
+
+「Loggerを使う」「Memoryへ書く」のような抽象的記述だけで終わらせず、元コードから確認できる場合はどのAPIをどのように利用するかまで設計情報として残す。
+
+### 3. 結果を決める式・具体値
+
+次のような値や式が実装結果を決める場合、自然言語へ丸めず正確に保持する。
+
+- 条件式、比較演算子、switch case
+- bit位置、bit幅、mask、shift量、符号拡張
+- byte数、サイズ単位、長さ制約
+- 配列index、offset、アドレス増分
+- loop境界、増分値
+- literal、sentinel、default値、error code
+- 文字列・改行・encodingなどの変換規則
+
+関数本体全体を貼る必要はなく、表や短い式、疑似コードとして記述してよい。
+
+### 4. 使用データ・更新データ
+
+処理が参照・更新するデータについて、再実装に必要であれば具体的なアクセス対象を記述する。
+
+- `object.member.submember` のような参照先
+- 入力 / 出力 / 内部状態の区別
+- 初期値と更新後の値
+- 更新条件と更新順序
+- コピー元 / コピー先
+- データの所有権・寿命
+
+### 5. 状態・副作用・不変条件
+
+状態更新、所有権、寿命、lock範囲、wait predicate、notify、close、error contractなど、動作の正当性に必要な制約を記述する。
+
+「副作用なし」と記述する場合は、メンバ・外部資源・出力引数・ログ・I/Oの変更が本当にないことを元コードから確認する。
+
+## クラス図
+
+クラス、構造体、インターフェース相当の型が対象または対象に直接関係する場合、クラス・構造体、属性、主要メソッド、継承、所有・参照・直接依存関係を表す。
+可視性や型を推測で補正しない。
+
+## クラス・メソッド・インターフェース詳細
+
+対象のクラス、構造体、関数、メソッドについて、再実装に必要なインターフェース情報を表形式で記述する。
+完全な名前、属性、引数名と型、戻り値型、可視性、`const`、参照、ポインタ、`static`、`virtual`、`noexcept`、型別名、列挙型、定数、直接依存を確認できる範囲で含める。
+
+## シーケンス図
+
+複数の関数、メソッド、オブジェクト間の相互作用を元コードから確認できる場合、呼び出し順序、受け渡す値、戻り値の利用、条件分岐、状態変更、エラー経路を表す。
+確認できない応答や呼び出しを創作しない。
+
+## メソッド仕様書
+
+対象関数または主要メソッドについて、目的、引数、戻り値、動作、副作用、エラー処理、必要に応じて前提条件、事後条件、境界条件、不変条件を記述する。
+実際の利用方法を確認できる場合は短い利用例を記述し、確認できない場合は「確認不能」とする。
+
+## 処理フロー図
+
+主要処理について、分岐、反復、早期終了、主要な呼び出し、状態更新、処理順序を表す。
+条件や具体値が結果を左右する場合は、抽象的な「条件判定」だけでなく、その条件を識別可能な形で残す。
+
+## 状態遷移・副作用
+
+状態を保持または変更する処理について、更新前状態、遷移条件、変更対象、更新後状態、更新順序、外部資源への副作用を表形式で記述する。
+リソース取得・解放、並行処理上の制約、所有・寿命が存在する場合は、それらも確認できる範囲で記述する。
+
+## データ変換・制約
+
+入力から出力への変換、型変換、加工規則、値域、境界値、単位、精度、encoding、検証条件、特殊値・欠損値の扱いを表形式で記述する。
+bit幅、符号、byte数、index、offset、アドレス増分など、再実装結果を左右する具体値は正確に保持する。
+----- END RETRIEVED CONTEXT -----
+----- END V4/V5 DETAILED-DESIGN GUIDANCE -----
+
+----- BEGIN ROUND-TRIP COMPLETENESS KNOWLEDGE -----
+# Round-trip completeness knowledge v1
+
+これは個別targetの実装情報ではなく、再実装可能な設計仕様書を作るための汎用知識である。図や要約を作る前に、入力の各replacement unitについて「完全再構築台帳」を作成すること。
+
+## 完全再構築台帳
+
+- full-file/module-file unitでは、ファイル先頭から末尾までを再構築できるように、include guardまたはpragma、すべてのincludeを綴りと順序を保って記録し、すべてのtop-level宣言を出現順に列挙する。
+- `struct`/`class`、`typedef`/`using`、scoped/unscoped enum、継承、access、型、名前、const/static/constexpr、引数名、default値を別表現へ言い換えず記録する。
+- constructor、conversion、operator、method、free functionを一つも省略せず、完全なsignatureと、body内の各statement、式、literal、条件、比較演算子、分岐順、更新順、戻り値を入力どおり記録する。「同様」「各fieldを設定」「必要に応じて」のような要約で置き換えない。
+- 宣言数、型数、callable数を入力と台帳で照合し、代表例だけになっていないことを設計書内で確認する。
+- dependency headerの内容は参照情報であり、replacement unitの一部ではない。targetがそのheaderをincludeしている場合はincludeを保持し、dependency側のalias、enum、class、functionをtarget内へ再定義しない。どの外部symbolをどのincludeから利用するかを記録する。
+- 入力から確認できない項目は推測しない。確認できる構文や処理を一般化、簡略化、最適化、等価変形しない。
+
+最終設計仕様書では、図や説明より完全再構築台帳を優先し、別のLLMがreplacement unit全体を欠落なく生成できる粒度で記録すること。
+----- END ROUND-TRIP COMPLETENESS KNOWLEDGE -----
+===== END TREATMENT DESIGN KNOWLEDGE =====
+
+===== BEGIN RAG_CONTEXT =====
+RAG_CONTEXT repository-dependencies-v1
+===== END RAG_CONTEXT =====

@@ -1,0 +1,204 @@
+## Instruction.hpp 設計仕様書
+
+### 1. 正確な定義
+
+| 型名 / 種別 / 実体 | 説明 |
+|---|---|
+| `Instruction` | `unsigned int` |
+| `Immediate` | `unsigned int` (src/Common/Common.h) |
+| `SImmediate` | `int` (src/Common/Common.h) |
+| `InstructionBase::Type` | enum |
+| `R` | 0 |
+| `I` | 1 |
+| `S` | 2 |
+| `B` | 3 |
+| `U` | 4 |
+| `J` | 5 |
+
+### 2. 直接依存インターフェースと利用方法
+
+*   **`<utility>`**:  標準ライブラリ。`std::pair`, `std::move` などが使用されている可能性あり（コードから直接確認できず）。
+*   **`<string>`**: 標準ライブラリ。`std::string` が `debug()` メソッドで使用される。
+*   **`<iostream>`**: 標準ライブラリ。`std::cout` が `debug()` メソッドで使用される。
+*   **`Common.h`**:  `Immediate`, `SImmediate` 型の定義を提供。
+
+### 3. 結果を決める式・具体値
+
+*   `bin_mask(digits)`: `(1 << digits) - 1`
+*   `expand_digit(digit, lo)`: `digit ? (0xffffffff << lo) : 0`
+*   各 Instruction struct のコンストラクタにおけるビットマスクとシフト演算による値抽出。例：`get_digits(inst, 6, 0)`、`imm = get_digits(inst, 30, 20) | expand_digit(get_digits(inst, 31, 31), 11);`
+*   `is_valid()` メソッド内の条件分岐。各 Type に対して特定のフィールドが有効かどうかを判定。
+*   `debug()` メソッド内の opcode による処理分岐。
+
+### 4. 使用データ・更新データ
+
+*   **InstructionBase**: `opcode`, `rs1`, `rs2`, `rd`, `funct3`, `funct7`, `imm`, `inst`, `t` が主要なメンバ変数。
+    *   各 Instruction struct のコンストラクタで、`inst` からこれらのメンバ変数を計算し初期化する。
+*   **InstructionR, I, S, B, U, J**:  親クラスである `InstructionBase` のメンバ変数を継承し、それぞれの構造体内で追加の処理は行わない。
+
+### 5. 状態・副作用・不変条件
+
+*   `InstructionBase` は基本的に immutable なデータホルダーとして機能する。
+*   `verify()` メソッドは、指定されたキーが無効な場合に `InvalidAccess` 例外をスローする。
+*   `debug()` メソッドは標準出力にデバッグ情報を出力する（副作用）。
+
+### 6. クラス図
+
+```mermaid
+classDiagram
+    class InstructionBase {
+        - opcode : unsigned int
+        - rs1 : unsigned int
+        - rs2 : unsigned int
+        - rd : unsigned int
+        - funct3 : unsigned int
+        - funct7 : unsigned int
+        - imm : Immediate
+        - inst : Instruction
+        - t : Type
+        + bin_mask(digits) : unsigned int
+        + get_digits(n, hi, lo) : unsigned int
+        + expand_digit(digit, lo) : unsigned int
+        + is_valid(key) : bool
+        + verify(key) : void
+        + debug() : void
+        + has_op1() : bool
+        + has_op2() : bool
+    }
+    enum Type {
+        R
+        I
+        S
+        B
+        U
+        J
+    }
+    class InstructionR {
+        + InstructionR(const Instruction &inst)
+    }
+    class InstructionI {
+        + InstructionI(const Instruction &inst)
+    }
+    class InstructionS {
+        + InstructionS(const Instruction &inst)
+    }
+    class InstructionB {
+        + InstructionB(const Instruction &inst)
+    }
+    class InstructionU {
+        + InstructionU(const Instruction &inst)
+    }
+    class InstructionJ {
+        + InstructionJ(const Instruction &inst)
+    }
+
+    InstructionR --|> InstructionBase
+    InstructionI --|> InstructionBase
+    InstructionS --|> InstructionBase
+    InstructionB --|> InstructionBase
+    InstructionU --|> InstructionBase
+    InstructionJ --|> InstructionBase
+```
+
+### 7. クラス・メソッド・インターフェース詳細
+
+| Class/Method | Signature | Visibility | Description |
+|---|---|---|---|
+| `InstructionBase` |  | public | Base class for instructions |
+| `InstructionBase::bin_mask(int digits)` | `static unsigned int bin_mask(int digits)` | static public | Returns a mask with the specified number of least significant bits set to 1. |
+| `InstructionBase::get_digits(unsigned int n, int hi, int lo)` | `static unsigned int get_digits(unsigned int n, int hi, int lo)` | static public | Extracts digits from an unsigned integer within a given range. |
+| `InstructionBase::expand_digit(unsigned int digit, int lo)` | `static unsigned int expand_digit(unsigned int digit, int lo)` | static public | Expands a single digit to fill the specified number of least significant bits. |
+| `InstructionBase::is_valid(const std::string &key)` | `bool is_valid(const std::string &key)` | public | Checks if a given key is valid for the current instruction type. |
+| `InstructionBase::verify(const std::string &key)` | `void verify(const std::string &key)` | public | Throws an exception if the given key is invalid. |
+| `InstructionBase::debug()` | `void debug()` | public | Prints debugging information about the instruction to standard output. |
+| `InstructionBase::has_op1()` | `bool has_op1()` | public | Checks if the instruction has operation 1. |
+| `InstructionBase::has_op2()` | `bool has_op2()` | public | Checks if the instruction has operation 2. |
+| `InstructionR::InstructionR(const Instruction &inst)` | `InstructionR(const Instruction &inst)` | public | Constructor for R-type instructions. |
+| `InstructionI::InstructionI(const Instruction &inst)` | `InstructionI(const Instruction &inst)` | public | Constructor for I-type instructions. |
+| `InstructionS::InstructionS(const Instruction &inst)` | `InstructionS(const Instruction &inst)` | public | Constructor for S-type instructions. |
+| `InstructionB::InstructionB(const Instruction &inst)` | `InstructionB(const Instruction &inst)` | public | Constructor for B-type instructions. |
+| `InstructionU::InstructionU(const Instruction &inst)` | `InstructionU(const Instruction &inst)` | public | Constructor for U-type instructions. |
+| `InstructionJ::InstructionJ(const Instruction &inst)` | `InstructionJ(const Instruction &inst)` | public | Constructor for J-type instructions. |
+
+### 8. シーケンス図
+
+該当なし。このコードは主にデータ構造の定義であり、複雑なシーケンスインタラクションを含んでいないため。
+
+### 9. メソッド仕様書
+
+**InstructionBase::debug()**
+
+*   **目的**:  Instruction の内容を標準出力にデバッグ形式で表示する。
+*   **引数**: なし
+*   **戻り値**: void
+*   **動作**: Instruction の opcode に応じて、対応するニーモニック（例：lui, auipc, jal）を出力する。opcode が不明の場合は "unknown" を出力する。
+*   **副作用**: 標準出力への書き込み。
+
+### 10. 処理フロー図
+
+該当なし。このコードは主にデータ構造の定義であり、複雑な制御フローを含んでいないため。
+
+### 11. 状態遷移・副作用
+
+InstructionBase は immutable なクラスであるため、状態遷移はない。副作用としては debug() メソッドによる標準出力への書き込みのみ。
+
+### 12. データ変換・制約
+
+*   `inst` (unsigned int) から各フィールド (`opcode`, `rs1` など) への変換は、ビットマスクとシフト演算によって行われる。
+*   `imm` の計算では、符号拡張が必要な場合がある（例：InstructionI, InstructionS, InstructionB）。
+*   各フィールドの値は、RISC-V 命令セットアーキテクチャの仕様に従う必要がある。
+
+**完全再構築台帳 (抜粋)**
+
+```cpp
+#ifndef RISCV_SIMULATOR_INSTRUCTION_HPP
+#define RISCV_SIMULATOR_INSTRUCTION_HPP
+
+#include <utility>
+#include "Common.h"
+#include <string>
+#include <iostream>
+
+using Instruction = unsigned int;
+
+struct InstructionBase {
+    class InvalidAccess {
+    };
+
+    InstructionBase() {
+        rs1 = rs2 = rd = 0;
+        opcode = 0;
+        imm = 0;
+        funct3 = funct7 = 0;
+        this->inst = 0;
+    }
+
+    InstructionBase(unsigned) {
+        rs1 = rs2 = rd = 0;
+        opcode = 0b0010011;
+        t = I;
+        imm = 0;
+        funct3 = funct7 = 0;
+        this->inst = -1;
+    }
+
+    // ... (他のメソッド) ...
+};
+
+struct InstructionR : InstructionBase {
+    InstructionR(const Instruction &inst) {
+        opcode = get_digits(inst, 6, 0);
+        rd = get_digits(inst, 11, 7);
+        funct3 = get_digits(inst, 14, 12);
+        rs1 = get_digits(inst, 19, 15);
+        rs2 = get_digits(inst, 24, 20);
+        funct7 = get_digits(inst, 31, 25);
+        t = R;
+        this->inst = inst;
+    }
+};
+
+// ... (他の Instruction struct) ...
+
+#endif //RISCV_SIMULATOR_INSTRUCTION_HPP
+```

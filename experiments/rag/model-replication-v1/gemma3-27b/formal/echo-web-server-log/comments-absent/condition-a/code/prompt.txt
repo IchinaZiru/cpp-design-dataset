@@ -1,0 +1,95 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+## Design Specification for Logging System
+
+This document details the design of a logging system based on the provided C++ source code. It aims to provide enough information for another LLM to reimplement this system without access to the original code, adhering to the specified constraints (TARGET-OWNED INPUTS, REPLACEMENT UNIT CONTRACT).
+
+**1. Overview**
+
+The system provides a flexible and configurable logging framework with support for different log levels, appenders (output destinations), and formatting options.  It allows for asynchronous logging to improve performance. The core components are: `Logger`, `Appender`, `Formatter`, and `Event`. Configuration is handled externally via a configuration mechanism not detailed in the provided code but assumed to exist.
+
+**2. Modules & Components**
+
+The system consists of the following modules, corresponding to the source files:
+
+*   **`log.h`**:  Defines core classes and enums (`Logger`, `Appender`, `Formatter`, `Event`, `Level`, `AppenderType`). This is the primary header file for the logging system.
+*   **`log.cpp`**: Implements the declarations in `log.h`. Contains the logic for creating events, managing loggers and appenders, and handling asynchronous logging.
+*   **`appender.cpp` & `appender.h`**: Defines and implements different types of appenders (`StdOutAppender`, `FileAppender`).  Handles writing log messages to their respective destinations.
+*   **`field.h` & `field.cpp`**: Defines classes for formatting log messages, including fields like timestamp, level, thread ID, filename, line number and message content. Provides a mechanism to parse format patterns and create appropriate field objects.
+*   **`config_init.h` & `config_init.cpp`**: Handles configuration loading and applying it to the logging system. Defines structures for logger and appender configurations.
+
+**3. Data Structures & Classes**
+
+**3.1. Enums:**
+
+*   **`Level`**: Represents log severity levels: `Debug`, `Info`, `Warn`, `Error`, `Fatal`.
+*   **`AppenderType`**:  Represents the type of appender: `StdOut`, `File`.
+
+**3.2. Classes:**
+
+*   **`Event`**: Represents a single log event.
+    *   Attributes: `level_`, `file_name_`, `line_num_`, `thread_id_`, `time_`, `msg_`.
+    *   Methods:  `Create()` (static factory method), constructor (private, use `Create()`), getters for attributes, `MessageStream()` (returns an `ostringstream` to build the message).
+*   **`Formatter`**: Responsible for formatting log events into strings.
+    *   Attributes: `pattern_`, `fields_`.
+    *   Methods:  `Default()` (static method returning a default formatter), constructor, `Format()` (formats an event into a string), `Pattern()` (returns the format pattern).
+*   **`Formatter::Field`**: Abstract base class for individual formatting fields.
+    *   Methods: `Format()` (abstract virtual method to format the field), `Tag()` (virtual method returning a unique identifier for the field type).  Derived classes implement specific fields like `Message`, `Level`, `ThreadId`, etc.
+*   **`Appender`**: Abstract base class for log appenders.
+    *   Attributes: `formatter_`.
+    *   Methods: Constructor, destructor (virtual), `Log()` (abstract virtual method to write the log message), `ToYamlString()`, `GetFormatter()`, `SetFormatter()`.
+*   **`StdOutAppender`**: Appends logs to standard output.  Inherits from `Appender`.
+*   **`FileAppender`**: Appends logs to a file. Inherits from `Appender`. Attributes: `file_name_`, `file_`.
+*   **`Logger`**: Manages log events and appenders.
+    *   Attributes: `name_`, `level_`, `capacity_`, `async_`, `event_deque_`, `writer_thread_`, `appenders_`, `formatter_`.
+    *   Methods: Constructor, destructor, `Log()`, `AddAppender()`, `RemoveAppender()`, `ClearAppenders()`, `GetLevel()`, `SetLevel()`, `GetDefaultFormatter()`, `SetDefaultFormatter()`, `ToYamlString()`, `AsyncLogProc()` (internal thread function).
+*   **`EventWriter`**:  A helper class to automatically log an event when it goes out of scope.
+*   **`Manager`**: Manages a collection of loggers. Provides a central point for accessing and configuring loggers. Attributes: `name_`, `loggers_`. Methods: Constructor, destructor, `FindLogger()`, `RemoveLogger()`, `ToYamlString()`.
+
+**4. Key Functionality & Interactions**
+
+1.  **Event Creation:** An `Event` is created using the static factory method `Event::Create()`, providing level, source location, thread ID and timestamp.
+2.  **Logging:** A logger receives an event via its `Log()` method. If asynchronous logging is enabled, the event is added to a queue (`event_deque_`).
+3.  **Asynchronous Logging:** A dedicated thread (`writer_thread_`) continuously processes events from the queue and writes them to all registered appenders using the `SyncLog` function.
+4.  **Formatting:** Before writing to an appender, the event is formatted into a string by the logger's default formatter or the appender’s specific formatter. The formatter uses field objects to extract data from the event and format it according to the defined pattern.
+5.  **Appending:** Each appender writes the formatted log message to its designated destination (e.g., standard output, file).
+6. **Configuration**: A `Manager` is used to manage a set of `Logger` instances. The configuration system loads logger configurations and applies them to the managed loggers, setting their level, capacity, formatter, and appenders.
+
+**5.  Dependencies & External Interfaces**
+
+*   `<chrono>`: For time-related operations.
+*   `<experimental/source_location>`: To capture file name and line number information.
+*   `<fstream>`: For file I/O (used by `FileAppender`).
+*   `<iostream>`: For standard output (used by `StdOutAppender`).
+*   `<string>`, `<string_view>`, `<sstream>`: String manipulation.
+*   `<thread>`:  For asynchronous logging.
+*   `<mutex>`: For thread synchronization.
+*   YAML library: Used for configuration loading and serialization (not fully detailed in the provided code, but implied).
+
+**6. Error Handling**
+
+The code includes basic error handling such as throwing `std::invalid_argument` when invalid log levels or appender types are encountered.  File opening errors within `FileAppender` also trigger exceptions. More robust error handling might be required depending on the application's needs.
+
+**7. Future Considerations (Not in Provided Code)**
+
+*   More sophisticated configuration options (e.g., rolling file appenders, remote logging).
+*   Support for different output formats (e.g., JSON).
+*   Integration with other monitoring and alerting systems.

@@ -1,0 +1,240 @@
+与えられたC++ソースコードを解析し、このソースコードを参照できない別のLLMが再実装できるように、詳細な設計仕様書を作成してください。
+
+入力から確認できない情報は推測しないでください。
+
+TARGET-OWNED INPUTS
+Fxx/Uxx identifiers are opaque. Preserve names, types, signatures, namespaces, and replacement boundaries in the final specification.
+
+REPLACEMENT UNIT CONTRACT
+Only replacement_required=true units will be regenerated. Reference-only units must inform the design but must not become output units.
+REPLACEMENT UNITS: F01/U01, F02/U02
+REFERENCE-ONLY INPUTS: none
+
+===== BEGIN F01/U01 =====
+path: include/io.h
+role: complete target-owned implementation/declaration file
+replacement_required: true
+   
+             
+                                                                  
+  
+                                                
+                                              
+              
+                                 
+               
+                   
+  
+                             
+   
+
+#pragma once
+
+#include "util.h"
+
+#include <iostream>
+
+
+namespace ws {
+
+class Buffer;
+
+namespace io {
+
+                                                      
+class IReader {
+public:
+    virtual ~IReader() noexcept = default;
+
+                                
+    virtual std::size_t ReadFrom(Buffer& buf) = 0;
+};
+
+                                                      
+class IWriter {
+public:
+    virtual ~IWriter() noexcept = default;
+
+                               
+    virtual std::size_t WriteTo(Buffer& buf) = 0;
+};
+
+                                              
+class IReadWriter : public virtual IReader, public virtual IWriter {};
+
+   
+                   
+  
+           
+                                                                
+                                       
+   
+class Null : public virtual IReadWriter {
+public:
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+};
+
+                           
+class StringStream : public virtual IReadWriter {
+public:
+       
+                                                                 
+      
+                  
+                                   
+                                             
+                   
+                                   
+                                                
+      
+               
+                                                      
+                                                                          
+       
+    explicit StringStream(std::istream& read, std::ostream& write) noexcept;
+
+    StringStream(const StringStream&) = delete;
+
+    StringStream(StringStream&&) = delete;
+
+    StringStream& operator=(const StringStream&) = delete;
+
+    StringStream& operator=(StringStream&&) = delete;
+
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+
+private:
+    std::istream& read_;
+    std::ostream& write_;
+};
+
+                             
+class FileDescriptor : public virtual IReadWriter {
+public:
+       
+                                                         
+      
+                  
+                                     
+                                             
+                   
+                                     
+                                                
+      
+            
+                                                                      
+                                                                                     
+       
+    explicit FileDescriptor(ws::FileDescriptor read,
+                            ws::FileDescriptor write) noexcept;
+
+    FileDescriptor(const FileDescriptor&) = delete;
+
+    FileDescriptor(FileDescriptor&&) = delete;
+
+    FileDescriptor& operator=(const FileDescriptor&) = delete;
+
+    FileDescriptor& operator=(FileDescriptor&&) = delete;
+
+    std::size_t WriteTo(Buffer& buf) override;
+
+    std::size_t ReadFrom(Buffer& buf) override;
+
+private:
+    ws::FileDescriptor read_;
+    ws::FileDescriptor write_;
+};
+
+}                 
+
+}
+===== END F01/U01 =====
+
+===== BEGIN F02/U02 =====
+path: src/io/io.cpp
+role: complete target-owned implementation/declaration file
+replacement_required: true
+#include "io.h"
+#include "containers/buffer.h"
+
+#include <sys/uio.h>
+#include <unistd.h>
+
+#include <array>
+
+
+namespace ws::io {
+
+std::size_t Null::WriteTo(Buffer& buf) noexcept {
+    const auto size {buf.WritableSize()};
+    buf.HasWritten(size);
+    return size;
+}
+
+std::size_t Null::ReadFrom(Buffer& buf) noexcept {
+    return buf.RetrieveAll();
+}
+
+StringStream::StringStream(std::istream& read, std::ostream& write) noexcept :
+    read_ {read}, write_ {write} {}
+
+std::size_t StringStream::WriteTo(Buffer& buf) noexcept {
+    std::string str;
+    read_ >> str;
+    buf.Append(str);
+    return str.length();
+}
+
+std::size_t StringStream::ReadFrom(Buffer& buf) noexcept {
+    const std::string str {buf.RetrieveAllToString()};
+    write_ << str;
+    return str.length();
+}
+
+FileDescriptor::FileDescriptor(const ws::FileDescriptor read,
+                               const ws::FileDescriptor write) noexcept :
+    read_ {read}, write_ {write} {}
+
+std::size_t FileDescriptor::WriteTo(Buffer& buf) {
+    const auto buf_bytes {buf.WritableBytes()};
+    std::array<std::byte, 0x10000> ext_bytes;
+
+                                                  
+                                                              
+                                                                  
+                                         
+    const std::array bufs {
+        iovec {.iov_base = buf_bytes.data(), .iov_len = buf_bytes.size_bytes()},
+        iovec {.iov_base = ext_bytes.data(), .iov_len = ext_bytes.size()}};
+
+    const auto size {readv(read_, bufs.data(), bufs.size())};
+    if (size < 0) {
+        ThrowLastSystemError();
+    } else if (size <= buf_bytes.size_bytes()) {
+        buf.HasWritten(size);
+    } else {
+        buf.HasWritten(buf_bytes.size_bytes());
+        buf.Append({ext_bytes.cbegin(),
+                    ext_bytes.cbegin() + (size - buf_bytes.size_bytes())});
+    }
+
+    return size;
+}
+
+std::size_t FileDescriptor::ReadFrom(Buffer& buf) {
+    const auto bytes {buf.ReadableBytes()};
+    if (const auto size {write(write_, bytes.data(), bytes.size_bytes())};
+        size >= 0) {
+        buf.Retrieve(size);
+        return size;
+    } else {
+        ThrowLastSystemError();
+    }
+}
+
+}
+===== END F02/U02 =====

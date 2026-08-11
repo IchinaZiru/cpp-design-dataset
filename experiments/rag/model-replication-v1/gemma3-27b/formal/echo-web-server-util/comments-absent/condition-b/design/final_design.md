@@ -1,0 +1,149 @@
+## 設計仕様書
+
+### 1. 正確な定義
+
+| 型名 / 種別 / 実体 | 説明                                  |
+|-------------------|---------------------------------------|
+| `FileDescriptor`  | int                                   |
+| `invalid_file_descriptor` | constexpr int = -1                   |
+
+### 2. 直接依存インターフェースと利用方法
+
+#### 2.1 ヘッダーファイル
+
+*   `<fmt/format.h>`: フォーマット済み出力機能を提供。
+*   `<yaml-cpp/yaml.h>`: YAMLパーサーライブラリ。
+*   `<sys/stat.h>`: ファイルステータス取得のためのシステムコール定義。
+*   `<concepts>`: C++20のコンセプト機能。
+*   `<functional>`: 関数オブジェクト、`std::function`など。
+*   `<initializer_list>`: 初期化リスト。
+*   `<memory>`: スマートポインタ (`std::shared_ptr`)。
+*   `<regex>`: 正規表現ライブラリ。
+*   `<string>`: 文字列操作。
+*   `<string_view>`: 文字列ビュー。
+*   `<utility>`: `std::pair`, `std::move`など。
+*   `<vector>`: 動的配列。
+
+#### 2.2 関数・メソッド詳細 (ws名前空間)
+
+| qualified name | 引数                                   | 戻り値型 | 可視性 | const | noexcept | 説明                                     |
+|----------------|----------------------------------------|----------|--------|-------|----------|------------------------------------------|
+| `ws::StringToLower` | `std::string str`                      | `std::string` | public |       | yes      | 文字列を小文字に変換。                     |
+| `ws::StringToUpper` | `std::string str`                      | `std::string` | public |       | yes      | 文字列を大文字に変換。                     |
+| `ws::ReplaceAllSubstring` | `std::string_view str`, `std::string_view from`, `std::string_view to` | `std::string` | public |       | yes      | 文字列内の部分文字列を置換。               |
+| `ws::SplitString` | `const std::string& str`, `const std::regex& pattern` | `std::vector<std::string>` | public |       | yes      | 正規表現パターンで文字列を分割。           |
+| `ws::SplitStringToLines` | `const std::string& str`              | `std::vector<std::string>` | public |       | yes      | 文字列を行単位で分割。                     |
+| `ws::LoadYamlString` | `std::string_view str`, `std::initializer_list<std::string_view> required_fields` | `YAML::Node` | public |       | no      | YAML文字列をロードし、必須フィールドの存在を確認。 |
+| `ws::ThrowIfYamlFieldIsNotScalar` | `const YAML::Node& node`, `std::string_view field` | void     | public |       | no      | YAMLノードのフィールドがスカラーでない場合に例外を投げる。 |
+| `ws::IsValidFileDescriptor` | `FileDescriptor fd`                  | bool     | public |       | yes      | ファイルディスクリプタが有効かどうかを確認。   |
+| `ws::SetFileDescriptorAsNonblocking` | `FileDescriptor fd`                  | void     | public |       | no      | ファイルディスクリプタをノンブロッキングモードに設定。 |
+| `ws::ThrowLastSystemError` | なし                                 | void     | public |       | noreturn | 最後のシステムエラー例外を投げる。           |
+| `ws::CurrentThreadId` | なし                                 | `std::uint32_t` | public |       | yes      | 現在のスレッドIDを取得。                   |
+| `ws::Backtrace` (vector) | `std::vector<std::string>& stack`, `std::size_t size`, `std::size_t skip = 0` | void     | public |       | yes      | スタックトレース情報を取得し、ベクターに格納。 |
+| `ws::Backtrace` (string) | `std::size_t size`, `std::size_t skip = 0`, `std::string_view prefix = ""` | `std::string` | public |       | yes      | スタックトレース情報を文字列として取得。     |
+| `ws::Singleton<T, Args...>::Instance` | `Args... args`                      | `T&`     | public |       | yes      | Singletonインスタンスを取得 (引数あり)。   |
+| `ws::SingletonPtr<T, Args...>::Instance` | `Args... args`                      | `std::shared_ptr<T>` | public |       | yes      | Singletonインスタンスの共有ポインタを取得(引数あり)。 |
+| `ws::RAII<T, Cleaner>::RAII` | `T obj`, `Cleaner cleaner`            | なし     | public |       | no      | RAIIオブジェクトを構築。                   |
+| `ws::MappedReadOnlyFile::MappedReadOnlyFile` |  |  | public |   | no | MappedReadOnlyFileオブジェクトを構築/コピー/ムーブコンストラクタ、代入演算子、デストラクタ |
+| `ws::MappedReadOnlyFile::Map` | `std::string path`                    | `std::byte*` | public |       | no      | ファイルをメモリマップ。                     |
+| `ws::MappedReadOnlyFile::Unmap` | なし                                 | void     | public |       | yes      | メモリマップを解除。                       |
+| `ws::MappedReadOnlyFile::Size` | なし                                 | `std::size_t` | public |       | yes      | マップされたファイルのサイズを取得。         |
+| `ws::MappedReadOnlyFile::Data` | なし                                 | `std::byte*` | public |       | yes      | マップされたファイルデータへのポインタを取得。 |
+| `ws::MappedReadOnlyFile::Path` | なし                                 | `std::string_view` | public |       | yes      | ファイルパスを取得。                       |
+
+### 3. 結果を決める式・具体値
+
+*   `invalid_file_descriptor = -1`
+*   `Singleton<T, Args...>::Instance()` は静的メンバ変数 `ins` を初期化し、その参照を返す。
+*   `SingletonPtr<T, Args...>::Instance()` は静的メンバ変数 `ins` を初期化し、その共有ポインタを返す。
+*   `RAII<T, Cleaner>::Object()` は内部のオブジェクトへのconst参照を返す。
+*   `MappedReadOnlyFile::Check()` は `stat()` システムコールを使用してファイル情報を確認する。
+*   `MappedReadOnlyFile::Map()` は `mmap()` システムコールを使用してファイルをメモリマップする。
+*   `MappedReadOnlyFile::Unmap()` は `munmap()` システムコールを使用してメモリマップを解除する。
+
+### 4. 使用データ・更新データ
+
+*   `StringToLower`, `StringToUpper`: 入力文字列 `str` を変更し、小文字/大文字に変換した文字列を返す。
+*   `ReplaceAllSubstring`: 入力文字列 `str` 内の `from` を `to` で置換した文字列を返す。
+*   `SplitString`: 入力文字列 `str` を正規表現 `pattern` に基づいて分割し、部分文字列のベクターを返す。
+*   `LoadYamlString`: YAML文字列 `str` を解析し、YAMLノードを返す。必須フィールドが存在しない場合は例外を投げる。
+*   `MappedReadOnlyFile::Map()`: ファイルパス `path_` を使用してファイルをメモリマップし、ファイルデータへのポインタ `data_` とファイル情報を `stat_` に格納する。
+*   `MappedReadOnlyFile::Unmap()`: メモリマップされたデータを解放し、`data_` を nullptr に設定する。
+
+### 5. 状態・副作用・不変条件
+
+*   `SetFileDescriptorAsNonblocking`: ファイルディスクリプタの状態を変更 (ノンブロッキングモード)。
+*   `ThrowLastSystemError`: 例外を投げることでプログラムの実行を停止。
+*   `MappedReadOnlyFile::Map()`: ファイルをメモリマップするため、ファイルの内容は変更されないが、システムのリソースを使用する。
+*   `MappedReadOnlyFile::Unmap()`: メモリマップされたファイルを解放し、リソースを解放する。
+
+### 6. クラス図
+
+```mermaid
+classDiagram
+    class ws::Singleton {
+        +static T& Instance() noexcept
+    }
+    class ws::SingletonPtr {
+        +static std::shared_ptr<T> Instance() noexcept
+    }
+    class ws::RAII {
+        -T obj_
+        -Cleaner cleaner_
+        +RAII(T obj, Cleaner cleaner) noexcept
+        +const T& Object() const noexcept
+    }
+    class ws::MappedReadOnlyFile {
+        -std::string path_
+        -struct stat stat_
+        -std::byte* data_
+        +MappedReadOnlyFile() noexcept
+        +MappedReadOnlyFile(MappedReadOnlyFile&&) noexcept
+        +~MappedReadOnlyFile() noexcept
+        +std::byte* Map(std::string path)
+        +void Unmap() noexcept
+        +std::size_t Size() const noexcept
+        +std::byte* Data() const noexcept
+        +std::string_view Path() const noexcept
+    }
+```
+
+### 7. クラス・メソッド・インターフェース詳細
+
+上記「2. 直接依存インターフェースと利用方法」の表を参照。
+
+### 8. シーケンス図
+
+該当なし (複雑な相互作用がないため)。
+
+### 9. メソッド仕様書
+
+上記「2. 直接依存インターフェースと利用方法」の表を参照。各メソッドについて、引数、戻り値、動作、副作用が記述されている。
+
+### 追加詳細設計情報
+
+#### データ変換・制約
+
+*   `MappedReadOnlyFile::Map()`: ファイルパスは有効なファイルシステムパスである必要がある。
+*   `LoadYamlString`: YAML文字列は有効なYAML形式である必要がある。必須フィールドが存在しない場合は例外を投げる。
+*   `ReplaceAllSubstring`: `from` が空文字列の場合、無限ループになる可能性があるため、注意が必要。
+
+#### 状態遷移・副作用
+
+*   `MappedReadOnlyFile`: オブジェクトの破棄時にメモリマップされたファイルを解放する。
+*   `SetFileDescriptorAsNonblocking`: ファイルディスクリプタの状態を変更し、ノンブロッキングI/Oを可能にする。
+
+#### クラス・メソッド・インターフェース詳細 (補足)
+
+*   `Singleton<T, Args...>::Instance()` と `SingletonPtr<T, Args...>::Instance()` は、静的メンバ変数 `ins` を使用してインスタンスを保持する。
+*   `RAII<T, Cleaner>` は、オブジェクトのライフサイクルを管理し、デストラクタでクリーンアップ処理を実行する。
+
+#### テンプレート制約
+
+*   `RAII`: `Cleaner` は引数 `T` を受け取る呼び出し可能な型である必要がある (`std::is_invocable_v<Cleaner, T>`)。
+*   `Addable`: 型 `T` と `U` の加算結果は、型 `Ret` に変換可能でなければならない。
+
+#### その他
+
+*   `Backtrace`: スタックトレースの出力形式はシステムに依存する。
+*   `CurrentThreadId`: スレッドIDはシステムに依存する。

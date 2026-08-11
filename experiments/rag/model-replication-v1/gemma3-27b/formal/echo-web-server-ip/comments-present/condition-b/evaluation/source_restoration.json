@@ -1,0 +1,1 @@
+{"artifact_schema_version":"roundtrip-ab-restoration-v1","error":null,"repository_clean":true,"restored_hashes":{"include/ip.h":"82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1","src/ip/ip.cpp":"b61e08ee3f4d11802b86ff445586120f1d0ca48ede8fb22b0b39cc4841b0f9d7"},"status":"pass"}

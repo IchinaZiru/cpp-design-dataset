@@ -1,0 +1,19 @@
+RAG_CONTEXT repository-dependencies-v1
+
+### PATH: src/Common/Common.h
+SOURCE_SHA256: 1842fc10588b2c6997b0e25beca27c33b6dcfe978f6d22cf6f4869425844d575
+CONTENT_SHA256: 73a1a75453fd409ffa7d6229c9e74efcf26a821cb4e6f40253a0b70729039616
+----- BEGIN DEPENDENCY HEADER CONTENT: src/Common/Common.h -----
+  
+                                     
+  
+
+#ifndef RISCV_SIMULATOR_COMMON_H
+#define RISCV_SIMULATOR_COMMON_H
+
+using Immediate = unsigned int;
+using SImmediate = int;
+
+#endif                           
+
+----- END DEPENDENCY HEADER CONTENT: src/Common/Common.h -----

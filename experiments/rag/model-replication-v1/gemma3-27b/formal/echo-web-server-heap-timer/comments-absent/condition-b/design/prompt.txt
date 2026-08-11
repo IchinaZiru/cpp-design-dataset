@@ -1,0 +1,1396 @@
+与えられたC++ソースコードを解析し、このソースコードを参照できない別のLLMが再実装できるように、詳細な設計仕様書を作成してください。
+
+入力から確認できない情報は推測しないでください。
+
+TARGET-OWNED INPUTS
+Fxx/Uxx identifiers are opaque. Preserve names, types, signatures, namespaces, and replacement boundaries in the final specification.
+
+REPLACEMENT UNIT CONTRACT
+Only replacement_required=true units will be regenerated. Reference-only units must inform the design but must not become output units.
+REPLACEMENT UNITS: F01/U01
+REFERENCE-ONLY INPUTS: none
+
+===== BEGIN F01/U01 =====
+path: include/containers/heap_timer.h
+role: complete target-owned implementation/declaration file
+replacement_required: true
+   
+                     
+                                               
+  
+                                                
+              
+                                 
+               
+                   
+  
+                                                
+   
+
+#pragma once
+
+#include "log.h"
+#include "util.h"
+
+#include <algorithm>
+#include <cassert>
+#include <chrono>
+#include <compare>
+#include <deque>
+#include <functional>
+#include <optional>
+#include <stdexcept>
+#include <unordered_map>
+
+
+namespace ws {
+
+   
+         
+                                        
+  
+           
+                                                                  
+                                                      
+  
+                                     
+   
+template <typename Key>
+class HeapTimer {
+public:
+    using Clock = std::chrono::steady_clock;
+
+    using TimeOutCallback = std::function<void(const Key&)>;
+
+       
+                                    
+      
+                    
+                                                                                       
+       
+    explicit HeapTimer(log::Logger::Ptr logger = log::RootLogger()) noexcept;
+
+    HeapTimer(HeapTimer&&) = delete;
+
+    HeapTimer& operator=(HeapTimer&&) = delete;
+
+    HeapTimer(const HeapTimer&) = delete;
+
+    HeapTimer& operator=(const HeapTimer&) = delete;
+
+       
+                                              
+      
+                        
+                                                                        
+      
+                                                                                                     
+       
+    void Adjust(const Key& key, Clock::duration expiration);
+
+       
+                                              
+      
+                        
+                                               
+      
+                                                                                                     
+       
+    void Adjust(const Key& key, Clock::time_point expiration);
+
+       
+                                                
+      
+                        
+                                                                    
+                                                                                      
+       
+    void Push(const Key& key, Clock::duration expiration,
+              TimeOutCallback callback) noexcept;
+
+       
+                                                
+      
+                        
+                                            
+                                                                                      
+       
+    void Push(const Key& key, Clock::time_point expiration,
+              TimeOutCallback callback) noexcept;
+
+       
+                                                              
+      
+               
+                                                               
+                                                         
+       
+    void Tick() noexcept;
+
+       
+                                       
+      
+                                            
+       
+    bool Remove(const Key& key) noexcept;
+
+       
+                                                               
+      
+                                                                                                     
+      
+               
+                                                               
+                                                         
+       
+    void Invoke(const Key& key);
+
+       
+                                                  
+      
+                                                                                  
+       
+    Key Pop() noexcept;
+
+                               
+    void Clear() noexcept;
+
+                                                                       
+    bool Contain(const Key& key) const noexcept;
+
+                                          
+    bool Empty() const noexcept;
+
+                                
+    std::size_t Size() const noexcept;
+
+       
+             
+                                                       
+                                                                            
+                                                     
+      
+               
+                                                               
+                                                         
+       
+    Clock::duration ToNextTick() noexcept;
+
+private:
+    struct Node {
+                                      
+        Key key;
+
+                               
+        Clock::time_point expiration;
+
+                                                                            
+        TimeOutCallback callback;
+
+                                         
+        bool Expired() const noexcept;
+
+        void Swap(Node&) noexcept;
+
+        friend std::weak_ordering operator<=>(const Node& lhs,
+                                              const Node& rhs) noexcept {
+            return lhs.expiration <=> rhs.expiration;
+        }
+    };
+
+    void Swap(std::size_t idx1, std::size_t idx2) noexcept;
+
+       
+                            
+      
+                                                                                                     
+       
+    void Adjust(const Key& key, Clock::time_point expiration,
+                std::optional<TimeOutCallback> callback);
+
+                                         
+    Key RemoveByIndex(std::size_t idx) noexcept;
+
+       
+             
+                                                                                
+      
+               
+                                                                                  
+                                                                                     
+       
+    void ShiftUp(std::size_t idx) noexcept;
+
+                                                                                       
+    void ShiftDown(std::size_t idx) noexcept;
+
+    bool ValidIndex(std::size_t idx) const noexcept;
+
+                                                                                  
+    std::optional<std::size_t> Parent(std::size_t idx) const noexcept;
+
+       
+             
+                                                                          
+                                               
+       
+    std::optional<std::size_t> SmallChild(std::size_t idx) const noexcept;
+
+    log::Logger::Ptr logger_;
+
+                                                      
+    std::unordered_map<Key, std::size_t> key_to_idx_;
+    std::deque<Node> nodes_;
+};
+
+template <typename Key>
+bool HeapTimer<Key>::Node::Expired() const noexcept {
+    return Clock::now() >= expiration;
+}
+
+template <typename Key>
+void HeapTimer<Key>::Node::Swap(Node& o) noexcept {
+    using std::swap;
+    swap(key, o.key);
+    swap(expiration, o.expiration);
+    swap(callback, o.callback);
+}
+
+template <typename Key>
+HeapTimer<Key>::HeapTimer(log::Logger::Ptr logger) noexcept :
+    logger_ {std::move(logger)} {
+    if (!logger_) {
+        logger_ = log::RootLogger();
+    }
+}
+
+template <typename Key>
+void HeapTimer<Key>::Clear() noexcept {
+    nodes_.clear();
+    key_to_idx_.clear();
+}
+
+template <typename Key>
+bool HeapTimer<Key>::Remove(const Key& key) noexcept {
+    if (Contain(key)) {
+        RemoveByIndex(key_to_idx_[key]);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+template <typename Key>
+bool HeapTimer<Key>::ValidIndex(const std::size_t idx) const noexcept {
+    return idx < Size();
+}
+
+template <typename Key>
+bool HeapTimer<Key>::Contain(const Key& key) const noexcept {
+    return key_to_idx_.contains(key);
+}
+
+template <typename Key>
+void HeapTimer<Key>::Adjust(const Key& key, const Clock::duration expiration) {
+    Adjust(key, Clock::now() + expiration);
+}
+
+template <typename Key>
+void HeapTimer<Key>::Adjust(const Key& key,
+                            const Clock::time_point expiration) {
+    Adjust(key, expiration, std::nullopt);
+}
+
+template <typename Key>
+void HeapTimer<Key>::Adjust(const Key& key, const Clock::time_point expiration,
+                            const std::optional<TimeOutCallback> callback) {
+    const auto idx {key_to_idx_.at(key)};
+    if (callback.has_value()) {
+        nodes_[idx].callback = *callback;
+    }
+
+    const auto shift_up {expiration < nodes_[idx].expiration};
+    nodes_[idx].expiration = expiration;
+    if (shift_up) {
+        ShiftUp(idx);
+    } else {
+        ShiftDown(idx);
+    }
+}
+
+template <typename Key>
+void HeapTimer<Key>::Push(const Key& key, const Clock::duration expiration,
+                          TimeOutCallback callback) noexcept {
+    Push(key, Clock::now() + expiration, std::move(callback));
+}
+
+template <typename Key>
+void HeapTimer<Key>::Push(const Key& key, const Clock::time_point expiration,
+                          TimeOutCallback callback) noexcept {
+    if (!Contain(key)) {
+        const auto idx {Size()};
+        key_to_idx_.emplace(key, idx);
+        nodes_.push_back({key, expiration, std::move(callback)});
+        ShiftUp(idx);
+    } else {
+        Adjust(key, expiration, std::move(callback));
+    }
+}
+
+template <typename Key>
+bool HeapTimer<Key>::Empty() const noexcept {
+    assert(nodes_.empty() == key_to_idx_.empty());
+    return nodes_.empty();
+}
+
+template <typename Key>
+std::size_t HeapTimer<Key>::Size() const noexcept {
+    assert(nodes_.size() == key_to_idx_.size());
+    return nodes_.size();
+}
+
+template <typename Key>
+void HeapTimer<Key>::ShiftUp(std::size_t idx) noexcept {
+    assert(ValidIndex(idx));
+    auto parent {Parent(idx)};
+    while (parent.has_value()) {
+        assert(*parent < idx);
+        if (nodes_[*parent] >= nodes_[idx]) {
+            Swap(*parent, idx);
+            idx = *parent;
+            parent = Parent(idx);
+        } else {
+            break;
+        }
+    }
+}
+
+template <typename Key>
+void HeapTimer<Key>::ShiftDown(std::size_t idx) noexcept {
+    assert(ValidIndex(idx));
+    auto child {SmallChild(idx)};
+    while (child.has_value()) {
+        assert(*child > idx);
+        if (nodes_[idx] > nodes_[*child]) {
+            Swap(*child, idx);
+            idx = *child;
+            child = SmallChild(idx);
+        } else {
+            break;
+        }
+    }
+}
+
+template <typename Key>
+std::optional<std::size_t> HeapTimer<Key>::Parent(
+    const std::size_t idx) const noexcept {
+    assert(ValidIndex(idx));
+    return idx != 0 ? std::optional {(idx - 1) / 2} : std::nullopt;
+}
+
+template <typename Key>
+std::optional<std::size_t> HeapTimer<Key>::SmallChild(
+    const std::size_t idx) const noexcept {
+    assert(ValidIndex(idx));
+
+    const auto left {idx * 2 + 1};
+    const auto right {left + 1};
+    if (ValidIndex(left) && left > idx) {
+        auto smaller {left};
+        if (ValidIndex(right) && right > idx && nodes_[right] < nodes_[left]) {
+            smaller = right;
+        }
+        return smaller;
+    } else {
+        return std::nullopt;
+    }
+}
+
+template <typename Key>
+void HeapTimer<Key>::Swap(const std::size_t idx1,
+                          const std::size_t idx2) noexcept {
+    assert(ValidIndex(idx1) && ValidIndex(idx2));
+    if (idx1 != idx2) {
+        nodes_[idx1].Swap(nodes_[idx2]);
+        key_to_idx_[nodes_[idx1].key] = idx1;
+        key_to_idx_[nodes_[idx2].key] = idx2;
+    }
+}
+
+template <typename Key>
+void HeapTimer<Key>::Tick() noexcept {
+    while (!Empty()) {
+        if (auto& node {nodes_.front()}; node.Expired()) {
+            const auto callback {std::move(node.callback)};
+            const auto key {node.key};
+            Pop();
+
+            try {
+                assert(callback);
+                callback(key);
+            } catch (const std::exception& err) {
+                logger_->Log(
+                    log::Event::Create(log::Level::Error)
+                    << fmt::format("Exception raised in timer's callback: {}",
+                                   err.what()));
+            }
+        } else {
+            break;
+        }
+    }
+}
+
+template <typename Key>
+typename HeapTimer<Key>::Clock::duration HeapTimer<Key>::ToNextTick() noexcept {
+    Tick();
+    if (!Empty()) {
+        const auto interval {nodes_.front().expiration - Clock::now()};
+        if (interval > Clock::duration::zero()) {
+            return interval;
+        }
+    }
+
+    return Clock::duration::zero();
+}
+
+template <typename Key>
+Key HeapTimer<Key>::Pop() noexcept {
+    assert(!Empty());
+    return RemoveByIndex(0);
+}
+
+template <typename Key>
+void HeapTimer<Key>::Invoke(const Key& key) {
+    const auto idx {key_to_idx_.at(key)};
+
+    try {
+        assert(nodes_[idx].callback);
+        nodes_[idx].callback(key);
+    } catch (const std::exception& err) {
+        logger_->Log(log::Event::Create(log::Level::Error)
+                     << fmt::format("Exception raised in timer's callback: {}",
+                                    err.what()));
+    }
+
+    RemoveByIndex(idx);
+    assert(!Contain(key));
+}
+
+   
+        
+                                                          
+                                            
+                                                                                          
+   
+template <typename Key>
+Key HeapTimer<Key>::RemoveByIndex(const std::size_t idx) noexcept {
+    assert(ValidIndex(idx));
+    const auto key {nodes_[idx].key};
+    if (Size() == 1) {
+        Clear();
+        return key;
+    }
+
+                                                  
+    nodes_[idx].expiration = Clock::time_point {Clock::duration::zero()};
+    ShiftUp(idx);
+
+                                         
+    assert(nodes_.front().key == key);
+
+                                      
+    nodes_.front().Swap(nodes_.back());
+    std::swap(key_to_idx_[nodes_.front().key], key_to_idx_[nodes_.back().key]);
+
+                             
+    nodes_.pop_back();
+    key_to_idx_.erase(key);
+
+                                              
+    ShiftDown(0);
+
+    assert(key_to_idx_.size() == nodes_.size());
+    return key;
+}
+
+}
+===== END F01/U01 =====
+
+===== BEGIN TREATMENT DESIGN KNOWLEDGE =====
+----- BEGIN V4/V5 DETAILED-DESIGN GUIDANCE -----
+# RAGによる追加詳細設計（内容必須・Markdown階層は柔軟）
+基本9項目に加えて、以下7項目の内容を設計文書に含めてください。
+`追加詳細設計情報`というまとめ見出しを使用しても構いませんが、見出しlevel、順序、追加見出しは固定しません。
+各成果物は基本9項目の言い換えだけで終わらせず、構造・関係・順序・制約・再実装に必要な具体的事実を記述してください。
+該当しない場合は「該当なし」、確認できない場合は「確認不能」としてください。
+図はMermaidを推奨しますが、形式より内容の正確性を優先してください。
+
+- クラス図
+- クラス・メソッド・インターフェース詳細
+- シーケンス図
+- メソッド仕様書
+- 処理フロー図
+- 状態遷移・副作用
+- データ変換・制約
+
+----- BEGIN RETRIEVED CONTEXT -----
+# 汎用詳細設計知識 v4
+
+## 目的
+
+対象コードから、再実装に必要な実装上の事実を失わない詳細設計情報を生成する。
+v3のクラス図・インターフェース詳細・シーケンス図・メソッド仕様・処理フロー・状態遷移・データ変換の観点は維持するが、単なる情報量の増加ではなく、再生成に必要な正確性を優先する。
+
+## 共通記述規則
+
+- 元コードと与えられた文脈から確認できる事実だけを記述する。
+- 元コードにない機能、API、型、状態、初期値、例外、依存関係、制約を推測で追加しない。
+- 確認できない情報は推測せず「確認不能」と記述する。
+- ソースコード全文を複製しない。再実装に必要な事実を、表、短い式、疑似コード、図、自然言語へ変換して記述する。
+- 識別子、型名、関数名、メソッド名、メンバ名、定数名、条件、演算子、数値は、再実装結果に影響する場合は元コードの表記と意味を保つ。
+- 同じsymbolを複数の表・図で記述する場合、型、可視性、const、副作用、呼び出し先、状態更新を互いに矛盾させない。矛盾が生じる場合は元コードで確認できる事実を正とする。
+- 対象に該当しない成果物は「該当なし」と簡潔な根拠を記述する。
+- 図はMarkdown内のMermaidで記述することを推奨するが、図の形式より設計内容の正確性を優先する。
+
+## 再実装忠実度の必須観点
+
+### 1. 正確な定義
+
+再実装に影響する `using`、`typedef`、`enum`、`concept`、`requires`、macro、定数、nested/base class、構造体フィールドについて、確認できる場合は名前だけでなく実体・値・構造を記述する。
+
+ソース全文の引用は不要であり、例えば型別名は「型名 / 種別 / 実体」の表として記述してよい。
+
+### 2. 直接依存インターフェースと利用方法
+
+対象が直接利用する関数・メソッド・型について、確認できる範囲で以下を記述する。
+
+- qualified name / namespace
+- 引数名と型
+- 戻り値型
+- `const`、`noexcept`、`static`、`virtual`
+- 参照・ポインタの区別
+- 実際に渡す値や型変換
+- 戻り値の消費方法
+- 呼び出し順序
+
+「Loggerを使う」「Memoryへ書く」のような抽象的記述だけで終わらせず、元コードから確認できる場合はどのAPIをどのように利用するかまで設計情報として残す。
+
+### 3. 結果を決める式・具体値
+
+次のような値や式が実装結果を決める場合、自然言語へ丸めず正確に保持する。
+
+- 条件式、比較演算子、switch case
+- bit位置、bit幅、mask、shift量、符号拡張
+- byte数、サイズ単位、長さ制約
+- 配列index、offset、アドレス増分
+- loop境界、増分値
+- literal、sentinel、default値、error code
+- 文字列・改行・encodingなどの変換規則
+
+関数本体全体を貼る必要はなく、表や短い式、疑似コードとして記述してよい。
+
+### 4. 使用データ・更新データ
+
+処理が参照・更新するデータについて、再実装に必要であれば具体的なアクセス対象を記述する。
+
+- `object.member.submember` のような参照先
+- 入力 / 出力 / 内部状態の区別
+- 初期値と更新後の値
+- 更新条件と更新順序
+- コピー元 / コピー先
+- データの所有権・寿命
+
+### 5. 状態・副作用・不変条件
+
+状態更新、所有権、寿命、lock範囲、wait predicate、notify、close、error contractなど、動作の正当性に必要な制約を記述する。
+
+「副作用なし」と記述する場合は、メンバ・外部資源・出力引数・ログ・I/Oの変更が本当にないことを元コードから確認する。
+
+## クラス図
+
+クラス、構造体、インターフェース相当の型が対象または対象に直接関係する場合、クラス・構造体、属性、主要メソッド、継承、所有・参照・直接依存関係を表す。
+可視性や型を推測で補正しない。
+
+## クラス・メソッド・インターフェース詳細
+
+対象のクラス、構造体、関数、メソッドについて、再実装に必要なインターフェース情報を表形式で記述する。
+完全な名前、属性、引数名と型、戻り値型、可視性、`const`、参照、ポインタ、`static`、`virtual`、`noexcept`、型別名、列挙型、定数、直接依存を確認できる範囲で含める。
+
+## シーケンス図
+
+複数の関数、メソッド、オブジェクト間の相互作用を元コードから確認できる場合、呼び出し順序、受け渡す値、戻り値の利用、条件分岐、状態変更、エラー経路を表す。
+確認できない応答や呼び出しを創作しない。
+
+## メソッド仕様書
+
+対象関数または主要メソッドについて、目的、引数、戻り値、動作、副作用、エラー処理、必要に応じて前提条件、事後条件、境界条件、不変条件を記述する。
+実際の利用方法を確認できる場合は短い利用例を記述し、確認できない場合は「確認不能」とする。
+
+## 処理フロー図
+
+主要処理について、分岐、反復、早期終了、主要な呼び出し、状態更新、処理順序を表す。
+条件や具体値が結果を左右する場合は、抽象的な「条件判定」だけでなく、その条件を識別可能な形で残す。
+
+## 状態遷移・副作用
+
+状態を保持または変更する処理について、更新前状態、遷移条件、変更対象、更新後状態、更新順序、外部資源への副作用を表形式で記述する。
+リソース取得・解放、並行処理上の制約、所有・寿命が存在する場合は、それらも確認できる範囲で記述する。
+
+## データ変換・制約
+
+入力から出力への変換、型変換、加工規則、値域、境界値、単位、精度、encoding、検証条件、特殊値・欠損値の扱いを表形式で記述する。
+bit幅、符号、byte数、index、offset、アドレス増分など、再実装結果を左右する具体値は正確に保持する。
+----- END RETRIEVED CONTEXT -----
+----- END V4/V5 DETAILED-DESIGN GUIDANCE -----
+
+----- BEGIN ROUND-TRIP COMPLETENESS KNOWLEDGE -----
+# Round-trip completeness knowledge v1
+
+これは個別targetの実装情報ではなく、再実装可能な設計仕様書を作るための汎用知識である。図や要約を作る前に、入力の各replacement unitについて「完全再構築台帳」を作成すること。
+
+## 完全再構築台帳
+
+- full-file/module-file unitでは、ファイル先頭から末尾までを再構築できるように、include guardまたはpragma、すべてのincludeを綴りと順序を保って記録し、すべてのtop-level宣言を出現順に列挙する。
+- `struct`/`class`、`typedef`/`using`、scoped/unscoped enum、継承、access、型、名前、const/static/constexpr、引数名、default値を別表現へ言い換えず記録する。
+- constructor、conversion、operator、method、free functionを一つも省略せず、完全なsignatureと、body内の各statement、式、literal、条件、比較演算子、分岐順、更新順、戻り値を入力どおり記録する。「同様」「各fieldを設定」「必要に応じて」のような要約で置き換えない。
+- 宣言数、型数、callable数を入力と台帳で照合し、代表例だけになっていないことを設計書内で確認する。
+- dependency headerの内容は参照情報であり、replacement unitの一部ではない。targetがそのheaderをincludeしている場合はincludeを保持し、dependency側のalias、enum、class、functionをtarget内へ再定義しない。どの外部symbolをどのincludeから利用するかを記録する。
+- 入力から確認できない項目は推測しない。確認できる構文や処理を一般化、簡略化、最適化、等価変形しない。
+
+最終設計仕様書では、図や説明より完全再構築台帳を優先し、別のLLMがreplacement unit全体を欠落なく生成できる粒度で記録すること。
+----- END ROUND-TRIP COMPLETENESS KNOWLEDGE -----
+===== END TREATMENT DESIGN KNOWLEDGE =====
+
+===== BEGIN RAG_CONTEXT =====
+RAG_CONTEXT repository-dependencies-v1
+
+### PATH: include/log.h
+SOURCE_SHA256: 3c8053a11c2913df7da16de00b8ad432de358fd2ccbc3bb29535469aa86b4252
+CONTENT_SHA256: 2216f31c42e9d0b297090f540bdbdc3d94669e1e5655b2287200ccc942eefc84
+----- BEGIN DEPENDENCY HEADER CONTENT: include/log.h -----
+   
+              
+                             
+  
+           
+                                               
+                                     
+                                   
+                                 
+                             
+                                   
+                                  
+                                 
+                                   
+                                  
+  
+                                                
+              
+                                 
+               
+                   
+  
+                              
+   
+
+#pragma once
+
+#include "config.h"
+#include "containers/block_deque.h"
+#include "util.h"
+
+#include <chrono>
+#include <experimental/source_location>
+#include <fstream>
+#include <iostream>
+#include <list>
+#include <memory>
+#include <mutex>
+#include <optional>
+#include <sstream>
+#include <string>
+#include <string_view>
+#include <thread>
+#include <unordered_map>
+
+
+namespace ws::log {
+
+class Logger;
+
+enum class Level { Debug = 0, Info = 1, Warn = 2, Error = 3, Fatal = 4 };
+
+                                  
+std::string_view LevelToString(Level level) noexcept;
+
+std::string to_string(Level level) noexcept;
+
+std::ostream& operator<<(std::ostream& os, Level level) noexcept;
+
+   
+                                        
+  
+                                                                          
+   
+Level StringToLevel(std::string str);
+
+enum class AppenderType { StdOut = 0, File = 1 };
+
+                                           
+std::string_view AppenderTypeToString(AppenderType type) noexcept;
+
+std::string to_string(AppenderType type) noexcept;
+
+std::ostream& operator<<(std::ostream& os, AppenderType type) noexcept;
+
+   
+                                                 
+  
+                                                                                   
+   
+AppenderType StringToAppenderType(std::string str);
+
+                  
+class Event {
+public:
+    using Ptr = std::shared_ptr<Event>;
+
+    using Clock = std::chrono::system_clock;
+
+       
+                              
+      
+                                    
+                                          
+                                                                      
+                                  
+      
+                                                                                        
+       
+    static Ptr Create(log::Level level,
+                      std::experimental::source_location location =
+                          std::experimental::source_location::current(),
+                      std::uint32_t thread_id = CurrentThreadId(),
+                      Clock::time_point time = Clock::now()) noexcept;
+
+    Event(const Event&) = delete;
+
+    Event(Event&&) = delete;
+
+    Event& operator=(const Event&) = delete;
+
+    Event& operator=(Event&&) = delete;
+
+    log::Level Level() const noexcept;
+
+    std::string_view FileName() const noexcept;
+
+    std::size_t LineNum() const noexcept;
+
+    std::uint32_t ThreadId() const noexcept;
+
+    Clock::time_point Time() const noexcept;
+
+                                            
+    std::string Message() const noexcept;
+
+                                                                  
+    std::ostringstream& MessageStream() noexcept;
+
+protected:
+    explicit Event(log::Level level,
+                   std::experimental::source_location location,
+                   std::uint32_t thread_id, Clock::time_point time) noexcept;
+
+private:
+    log::Level level_;
+    std::string_view file_name_;
+    std::size_t line_num_;
+    std::uint32_t thread_id_;
+    Clock::time_point time_;
+
+    std::ostringstream msg_;
+};
+
+Event::Ptr operator<<(Event::Ptr event, std::string_view msg) noexcept;
+
+                        
+class Formatter {
+public:
+    using Ptr = std::shared_ptr<Formatter>;
+
+    static Formatter::Ptr Default() noexcept;
+
+       
+             
+                                                     
+                                                                                           
+      
+                           
+       
+    class Field {
+    public:
+        using Ptr = std::shared_ptr<Field>;
+
+           
+                                           
+          
+                                                                     
+           
+        explicit Field(std::string_view format = "") noexcept;
+
+        virtual ~Field() noexcept = default;
+
+                                         
+        virtual void Format(std::ostream& out, const Logger& logger,
+                            const Event& event) noexcept = 0;
+
+           
+                 
+                                            
+                                                              
+           
+        virtual std::string_view Tag() const noexcept = 0;
+    };
+
+       
+                                 
+      
+                                                                                       
+      
+                                                               
+       
+    explicit Formatter(std::string_view pattern);
+
+                                      
+    std::string Format(const Logger& logger, const Event& event) const noexcept;
+
+    std::string_view Pattern() const noexcept;
+
+private:
+    std::string pattern_;
+    std::list<Field::Ptr> fields_;
+};
+
+                                                        
+class Appender {
+public:
+    using Ptr = std::shared_ptr<Appender>;
+
+       
+                                                       
+      
+                                                               
+       
+    explicit Appender(std::string_view pattern);
+
+    explicit Appender(Formatter::Ptr formatter = Formatter::Default()) noexcept;
+
+    Appender(const Appender&) = delete;
+
+    Appender(Appender&&) = delete;
+
+    Appender& operator=(const Appender&) = delete;
+
+    Appender& operator=(Appender&&) = delete;
+
+    virtual ~Appender() noexcept = default;
+
+                                             
+    virtual void Log(const Logger& logger, const Event& event) noexcept = 0;
+
+                                                                             
+    virtual std::string ToYamlString() const noexcept = 0;
+
+    Formatter::Ptr GetFormatter() const noexcept;
+
+    void SetFormatter(Formatter::Ptr formatter) noexcept;
+
+       
+                                  
+      
+                                                                      
+       
+    void SetFormatter(std::string_view pattern);
+
+protected:
+    mutable std::mutex mtx_;
+    Formatter::Ptr formatter_;
+};
+
+                                                                  
+class StdOutAppender : public Appender {
+public:
+    using Ptr = std::shared_ptr<StdOutAppender>;
+
+    using Appender::Appender;
+
+    void Log(const Logger& logger, const Event& event) noexcept override;
+
+    std::string ToYamlString() const noexcept override;
+};
+
+                                              
+class FileAppender : public Appender {
+public:
+    using Ptr = std::shared_ptr<FileAppender>;
+
+       
+                                     
+      
+                                    
+                                    
+      
+                                                              
+       
+    explicit FileAppender(std::string_view file_name,
+                          Formatter::Ptr formatter = Formatter::Default());
+
+    void Log(const Logger& logger, const Event& event) noexcept override;
+
+    std::string ToYamlString() const noexcept override;
+
+private:
+    std::string file_name_;
+    std::ofstream file_;
+};
+
+   
+         
+                                              
+                                               
+   
+class Logger {
+public:
+    using Ptr = std::shared_ptr<Logger>;
+
+       
+                              
+      
+                          
+                   
+                              
+                                                                  
+                      
+                                   
+                                                                                        
+                                                                             
+       
+    explicit Logger(
+        std::string_view name, log::Level level = Level::Info,
+        std::optional<std::size_t> capacity = std::nullopt) noexcept;
+
+    ~Logger() noexcept;
+
+    Logger(const Logger&) = delete;
+
+    Logger(Logger&&) = delete;
+
+    Logger& operator=(const Logger&) = delete;
+
+    Logger& operator=(Logger&&) = delete;
+
+    void Log(Event::Ptr event) noexcept;
+
+    void AddAppender(Appender::Ptr appender) noexcept;
+
+    void RemoveAppender(Appender::Ptr appender) noexcept;
+
+    void ClearAppenders() noexcept;
+
+    log::Level GetLevel() const noexcept;
+
+    void SetLevel(log::Level level) noexcept;
+
+    Formatter::Ptr GetDefaultFormatter() const noexcept;
+
+       
+             
+                               
+      
+               
+                                                              
+                                          
+       
+    void SetDefaultFormatter(Formatter::Ptr formatter) noexcept;
+
+       
+                                      
+      
+                                                                      
+       
+    void SetDefaultFormatter(std::string_view pattern);
+
+    std::string_view Name() const noexcept;
+
+    std::size_t Capacity() const noexcept;
+
+                                                                           
+    std::string ToYamlString() const noexcept;
+
+private:
+                                                                             
+    void AsyncLogProc() noexcept;
+
+    void SyncLog(const Event& event) noexcept;
+
+    mutable std::mutex mtx_;
+    bool async_;
+    std::unique_ptr<std::thread> writer_thread_;
+
+    std::string name_;
+    std::size_t capacity_;
+    log::Level level_;
+    std::list<Appender::Ptr> appenders_;
+    std::unique_ptr<BlockDeque<Event::Ptr>> event_deque_;
+    Formatter::Ptr formatter_ {Formatter::Default()};
+};
+
+void Log(Logger::Ptr logger, Event::Ptr event) noexcept;
+
+Logger::Ptr operator<<(Logger::Ptr logger, Event::Ptr event) noexcept;
+
+   
+         
+                              
+                                                              
+  
+           
+                             
+  
+               
+                                                              
+           
+   
+class EventWriter {
+public:
+    explicit EventWriter(Logger& logger, Event::Ptr event) noexcept;
+
+    EventWriter(const EventWriter&) = delete;
+
+    EventWriter(EventWriter&&) = delete;
+
+    EventWriter& operator=(const EventWriter&) = delete;
+
+    EventWriter& operator=(EventWriter&&) = delete;
+
+    ~EventWriter() noexcept;
+
+    std::ostringstream& MessageStream() noexcept;
+
+private:
+    Logger& logger_;
+    Event::Ptr event_;
+};
+
+                                                            
+class Manager {
+public:
+       
+                                                                  
+      
+                                                                               
+       
+    static void InitConfig() noexcept;
+
+    using Ptr = std::shared_ptr<Manager>;
+
+    explicit Manager(std::string_view name) noexcept;
+
+    Manager(const Manager&) = delete;
+
+    Manager(Manager&&) = delete;
+
+    Manager& operator=(const Manager&) = delete;
+
+    Manager& operator=(Manager&&) = delete;
+
+    std::string_view Name() const noexcept;
+
+                                                                   
+    Logger::Ptr FindLogger(
+        std::string_view name, log::Level level = Level::Info,
+        std::optional<std::size_t> capacity = std::nullopt) noexcept;
+
+    void RemoveLogger(std::string_view name) noexcept;
+
+                                                                            
+    std::string ToYamlString() const noexcept;
+
+private:
+    mutable std::mutex mtx_;
+    std::string name_;
+    std::unordered_map<std::string, Logger::Ptr> loggers_;
+};
+
+Manager::Ptr RootManager() noexcept;
+
+Logger::Ptr RootLogger() noexcept;
+
+Logger::Ptr FindLogger(std::string_view name) noexcept;
+
+}                      
+----- END DEPENDENCY HEADER CONTENT: include/log.h -----
+
+### PATH: include/util.h
+SOURCE_SHA256: bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85
+CONTENT_SHA256: 7c488acf8a20755ef84a93bd1418be48381161cd1da5506f28296618cad8b0fc
+----- BEGIN DEPENDENCY HEADER CONTENT: include/util.h -----
+   
+               
+                                  
+  
+                                                
+              
+                                 
+               
+                   
+  
+                               
+  
+                                             
+   
+
+#pragma once
+
+#include <fmt/format.h>
+#include <yaml-cpp/yaml.h>
+
+#include <sys/stat.h>
+
+#include <concepts>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+#include <regex>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+                             
+namespace ws {
+
+                                            
+using FileDescriptor = int;
+
+                                                           
+inline constexpr FileDescriptor invalid_file_descriptor {-1};
+
+                                     
+std::string StringToLower(std::string str) noexcept;
+
+                                     
+std::string StringToUpper(std::string str) noexcept;
+
+                                                        
+std::string ReplaceAllSubstring(std::string_view str, std::string_view from,
+                                std::string_view to) noexcept;
+
+                                      
+std::vector<std::string> SplitString(const std::string& str,
+                                     const std::regex& pattern) noexcept;
+
+                              
+std::vector<std::string> SplitStringToLines(const std::string& str) noexcept;
+
+   
+                                            
+  
+                               
+                                          
+  
+                                                                                  
+   
+YAML::Node LoadYamlString(
+    std::string_view str,
+    std::initializer_list<std::string_view> required_fields = {});
+
+                                                                                                                
+void ThrowIfYamlFieldIsNotScalar(const YAML::Node& node,
+                                 std::string_view field);
+
+   
+                                             
+  
+                                                                                         
+   
+constexpr bool IsValidFileDescriptor(FileDescriptor fd) noexcept {
+    return fd >= 0;
+}
+
+   
+                                                
+  
+                                                                  
+   
+void SetFileDescriptorAsNonblocking(FileDescriptor fd);
+
+                                                                     
+[[noreturn]] void ThrowLastSystemError();
+
+                                     
+std::uint32_t CurrentThreadId() noexcept;
+
+   
+                                                  
+  
+                                      
+                                               
+                                                 
+   
+void Backtrace(std::vector<std::string>& stack, std::size_t size,
+               std::size_t skip = 0) noexcept;
+
+   
+                                                  
+  
+                                               
+                                                 
+                                             
+   
+std::string Backtrace(std::size_t size, std::size_t skip = 0,
+                      std::string_view prefix = "") noexcept;
+
+   
+                                                         
+  
+                                                
+                                                                                              
+   
+template <typename T, typename... Args>
+class Singleton {
+public:
+       
+                                         
+      
+                                               
+       
+    template <Args... args>
+    static T& Instance() noexcept {
+        static T ins {std::move(args)...};
+        return ins;
+    }
+};
+
+   
+                                                           
+  
+                                                
+                                                                                                   
+   
+template <typename T, typename... Args>
+class SingletonPtr {
+public:
+       
+                                         
+      
+                                               
+       
+    template <Args... args>
+    static std::shared_ptr<T> Instance() noexcept {
+        static const std::shared_ptr<T> ins {
+            std::make_shared<T>(std::move(args)...)};
+        return ins;
+    }
+};
+
+template <typename T, typename Cleaner = std::function<void(T)>>
+requires std::is_invocable_v<Cleaner, T>
+class RAII {
+public:
+       
+                                          
+      
+                                                  
+                                
+       
+    explicit RAII(T obj, Cleaner cleaner) noexcept :
+        obj_ {std::move(obj)}, cleaner_ {std::move(cleaner)} {}
+
+    RAII(const RAII&) = delete;
+
+    RAII(RAII&&) = delete;
+
+    RAII& operator=(const RAII&) = delete;
+
+    RAII& operator=(RAII&&) = delete;
+
+    ~RAII() noexcept {
+        cleaner_(obj_);
+    }
+
+    const T& Object() const noexcept {
+        return obj_;
+    }
+
+private:
+    T obj_;
+    Cleaner cleaner_;
+};
+
+   
+         
+                                                              
+  
+           
+                                                                  
+   
+class MappedReadOnlyFile {
+public:
+    MappedReadOnlyFile() noexcept;
+
+    MappedReadOnlyFile(const MappedReadOnlyFile&) = delete;
+
+    MappedReadOnlyFile(MappedReadOnlyFile&&) noexcept;
+
+    MappedReadOnlyFile& operator=(const MappedReadOnlyFile&) = delete;
+
+    MappedReadOnlyFile& operator=(MappedReadOnlyFile&&) noexcept;
+
+    ~MappedReadOnlyFile() noexcept;
+
+       
+                                     
+      
+                                                                       
+                                                                      
+                                                           
+       
+    std::byte* Map(std::string path);
+
+                       
+    void Unmap() noexcept;
+
+                          
+    std::size_t Size() const noexcept;
+
+                          
+    std::byte* Data() const noexcept;
+
+                          
+    std::string_view Path() const noexcept;
+
+private:
+       
+                             
+      
+                                                                       
+                                                                      
+                                                        
+       
+    void Check();
+
+    std::string path_;
+    struct stat stat_ {};
+    std::byte* data_ {nullptr};
+};
+
+template <typename T, typename U, typename Ret = T>
+concept Addable = requires(T t, U u) {
+    { t + u } -> std::convertible_to<Ret>;
+};
+
+}                 
+----- END DEPENDENCY HEADER CONTENT: include/util.h -----
+===== END RAG_CONTEXT =====

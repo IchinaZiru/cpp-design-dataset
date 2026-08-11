@@ -1,0 +1,169 @@
+## HeapTimer 設計仕様書 (F01/U01)
+
+### 1. 全体概要
+
+本設計は、優先度付きのタイマー管理を行う `HeapTimer` クラスの実装に関するものです。指定されたキーと有効期限に基づいてイベントをキューに入れ、有効期限が切れたときにコールバック関数を実行します。内部的には最小ヒープを使用してイベントを効率的に管理し、時間ベースの処理に適しています。
+
+### 2. 基本設計
+
+#### 2.1. クラス図
+
+```mermaid
+classDiagram
+    class HeapTimer {
+        - logger_ : log::Logger::Ptr
+        - key_to_idx_ : std::unordered_map<Key, std::size_t>
+        - nodes_ : std::deque<Node>
+        + HeapTimer(log::Logger::Ptr)
+        + Adjust(key: Key, expiration: Clock::duration)
+        + Adjust(key: Key, expiration: Clock::time_point)
+        + Push(key: Key, expiration: Clock::duration, callback: TimeOutCallback)
+        + Push(key: Key, expiration: Clock::time_point, callback: TimeOutCallback)
+        + Tick()
+        + Remove(key: Key)
+        + Invoke(key: Key)
+        + Pop()
+        + Clear()
+        + Contain(key: Key)
+        + Empty()
+        + Size()
+        + ToNextTick()
+    }
+    class HeapTimer::Node {
+        - key : Key
+        - expiration : Clock::time_point
+        - callback : TimeOutCallback
+        + Node()
+        + Expired()
+        + Swap(o: Node&)
+    }
+```
+
+#### 2.2. クラス・メソッド・インターフェース詳細
+
+| 名前 | 型 | 可視性 | 説明 |
+|---|---|---|---|
+| `HeapTimer` | class | public |  優先度付きタイマー管理クラス。 |
+| `Node` | struct | private | ヒープ内のノードを表す構造体。 |
+| `Clock` | typedef | public | `std::chrono::steady_clock` のエイリアス。 |
+| `TimeOutCallback` | typedef | public | コールバック関数の型定義 (`std::function<void(const Key&)>`)。 |
+| `HeapTimer(log::Logger::Ptr)` | constructor | public | ロガーへのポインタで初期化。ロガーが指定されない場合は、ルートロガーを使用。 |
+| `Adjust(const Key& key, Clock::duration expiration)` | method | public | キーに関連付けられた有効期限を調整（相対時間）。 |
+| `Adjust(const Key& key, Clock::time_point expiration)` | method | public | キーに関連付けられた有効期限を調整（絶対時間）。 |
+| `Push(const Key& key, Clock::duration expiration, TimeOutCallback callback)` | method | public | 指定されたキー、相対的な有効期限、コールバック関数でイベントをプッシュ。 |
+| `Push(const Key& key, Clock::time_point expiration, TimeOutCallback callback)` | method | public | 指定されたキー、絶対的な有効期限、コールバック関数でイベントをプッシュ。 |
+| `Tick()` | method | public | ヒープ内の有効期限切れのイベントを処理し、対応するコールバック関数を実行。 |
+| `Remove(const Key& key)` | method | public | キーに関連付けられたイベントを削除。 |
+| `Invoke(const Key& key)` | method | public | キーに関連付けられたコールバック関数を手動で実行。 |
+| `Pop()` | method | public | ヒープの先頭にあるイベント（最も近い有効期限）を削除して返す。 |
+| `Clear()` | method | public | ヒープ内のすべてのイベントをクリア。 |
+| `Contain(const Key& key)` | method | public | キーがヒープ内に存在するかどうかを確認。 |
+| `Empty()` | method | public | ヒープが空かどうかを確認。 |
+| `Size()` | method | public | ヒープ内のイベントの数を返す。 |
+| `ToNextTick()` | method | public | 次に有効期限切れになるまでの時間を返す。 |
+| `Node::Expired()` | method | private | ノードの有効期限が切れているかどうかを確認。 |
+| `Node::Swap(Node& o)` | method | private | 2つのノードの内容を交換。 |
+
+#### 2.3. シーケンス図 (例: Push -> Tick -> Invoke)
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant HeapTimer
+    participant Node
+    participant Callback
+
+    Client->>HeapTimer: Push(key, expiration, callback)
+    activate HeapTimer
+    HeapTimer->>HeapTimer: nodes_.push_back(Node(key, expiration, callback))
+    HeapTimer->>HeapTimer: ShiftUp(idx)
+    deactivate HeapTimer
+
+    Client->>HeapTimer: Tick()
+    activate HeapTimer
+    HeapTimer->>HeapTimer: while(!Empty())
+    HeapTimer->>Node: Expired()
+    alt Node.Expired() == true
+        HeapTimer->>Node: Pop()
+        HeapTimer->>Callback: callback(key)
+    else Node.Expired() == false
+        break
+    end
+    deactivate HeapTimer
+```
+
+### 3. 詳細設計
+
+#### 3.1. メソッド仕様書 (例: Push)
+
+**メソッド名:** `Push`
+
+**目的:** 指定されたキー、有効期限、コールバック関数でイベントをヒープに追加します。
+
+**引数:**
+
+*   `key`: イベントに関連付けられたキー (`Key`型)。
+*   `expiration`: イベントの有効期限 (`Clock::time_point`型)。
+*   `callback`: 有効期限が切れたときに実行されるコールバック関数 (`TimeOutCallback`型)。
+
+**戻り値:** なし。
+
+**処理内容:**
+
+1.  キーがヒープに存在しない場合:
+    *   新しい `Node` オブジェクトを作成し、指定されたキー、有効期限、コールバック関数で初期化します。
+    *   `nodes_` ベクターの末尾にノードを追加します。
+    *   追加されたノードのインデックスを `key_to_idx_` マップに追加します。
+    *   `ShiftUp()` メソッドを使用して、ヒープ構造を維持するために新しいノードを適切な位置まで移動します。
+
+2.  キーがすでにヒープに存在する場合:
+    *   `Adjust()` メソッドを使用して、既存のノードの有効期限とコールバック関数を更新します。
+
+**例外:** なし。
+
+#### 3.2. 処理フロー図 (例: Tick)
+
+```mermaid
+graph TD
+    A[Start] --> B{Heap is Empty?};
+    B -- Yes --> E[End];
+    B -- No --> C{nodes_.front().Expired()?};
+    C -- Yes --> D[Invoke Callback & Pop()];
+    D --> A;
+    C -- No --> E[End];
+```
+
+#### 3.3. 状態遷移・副作用
+
+*   `HeapTimer` クラスは、内部的に `nodes_` (イベントのキュー) と `key_to_idx_` (キーとインデックスのマッピング) を保持します。
+*   `Push()` メソッドは、新しいイベントをヒープに追加し、`nodes_` と `key_to_idx_` の状態を変更します。
+*   `Remove()` メソッドは、指定されたキーのイベントを削除し、`nodes_` と `key_to_idx_` の状態を変更します。
+*   `Tick()` メソッドは、有効期限切れのイベントを処理し、対応するコールバック関数を実行します。これにより、外部システムの状態が変更される可能性があります (副作用)。
+
+#### 3.4. データ変換・制約
+
+*   有効期限は `Clock::time_point` 型で表現されます。
+*   キーは任意の型 (`Key`) にすることができます。
+*   コールバック関数は `std::function<void(const Key&)>` 型で定義され、引数としてキーを受け取ります。
+*   ヒープ構造は、常に有効期限が最も近いイベントが先頭になるように維持されます。
+
+### 4. 追加詳細設計情報
+
+#### 4.1. 使用データ・更新データ
+
+*   **nodes_**: `std::deque<Node>` - イベントのキュー。要素は `Node` 構造体で、キー、有効期限、コールバック関数を保持します。
+*   **key\_to\_idx\_**: `std::unordered_map<Key, std::size_t>` - キーと `nodes_` 内の対応するインデックスのマッピング。これにより、特定のキーを持つイベントを効率的に検索できます。
+
+#### 4.2. 状態・副作用
+
+*   **状態:** `nodes_`, `key_to_idx_` の内容が内部状態です。
+*   **副作用:** コールバック関数の実行は外部システムの状態を変更する可能性があります。ロガーへのエラーログ出力も副作用です。
+
+#### 4.3. データ変換・制約
+
+*   有効期限の表現: `Clock::time_point` は、特定の時点を表す型です。
+*   キーの型: `Key` はテンプレートパラメータとして指定され、任意の型を使用できます。ただし、`std::unordered_map` のキーとして使用できる必要があります (ハッシュ関数が定義されていること)。
+
+### 5. その他
+
+本設計は、再実装に必要な情報を網羅的に記述することを目的としています。不明な点や疑問点がある場合は、元のコードを参照して確認してください。

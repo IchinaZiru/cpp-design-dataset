@@ -1,0 +1,175 @@
+## BlockDeque 詳細設計仕様書 (F01/U01)
+
+このドキュメントは、`ws::BlockDeque<T>` クラスの詳細な設計仕様を記述します。これは再実装のために提供されるものであり、入力ソースコードから確認できる情報のみに基づいています。推測に基づく情報は一切含みません。
+
+### 1. 正確な定義
+
+| 型/変数名 | 種別 | 実体 |
+|---|---|---|
+| `std::chrono::steady_clock` | クラス | `<chrono>`ヘッダで定義されたクロッククラス |
+| `std::size_t` | 型エイリアス |  符号なし整数型 |
+| `std::deque<T>` | クラス | `<deque>`ヘッダで定義されたdouble-ended queueクラス |
+| `std::mutex` | クラス | `<mutex>`ヘッダで定義されたミューテックスクラス |
+| `std::atomic_bool` | 型エイリアス | アトミックブール型 |
+| `std::condition_variable` | クラス | `<condition_variable>`ヘッダで定義された条件変数クラス |
+| `std::optional<T>` | テンプレートクラス | `<optional>`ヘッダで定義されたオプション型 |
+
+### 2. 直接依存インターフェースと利用方法
+
+| 関数/メソッド名 | 名前空間 | 引数 | 戻り値型 | 可視性 | const | noexcept |
+|---|---|---|---|---|---|---|
+| `assert` | `<cassert>` | `condition` (bool) | void |  |  | yes |
+| `std::lock_guard<std::mutex>` | `<mutex>` | `mtx` (`std::mutex&`) | N/A |  |  | yes |
+| `std::unique_lock<std::mutex>` | `<mutex>` | `mtx` (`std::mutex&`) | N/A |  |  | yes |
+| `consumer_cond_.wait()` | `ws` | `locker` (`std::unique_lock<std::mutex>&`) | void | private |  | yes |
+| `producer_cond_.wait()` | `ws` | `predicate` (bool) | void | private |  | yes |
+| `consumer_cond_.notify_one()` | `ws` | N/A | void | private |  | yes |
+| `producer_cond_.notify_all()` | `ws` | N/A | void | private |  | yes |
+| `deq_.push_back(item)` | `ws` | `item` (T) | void | private |  | yes |
+| `deq_.push_front(item)` | `ws` | `item` (T) | void | private |  | yes |
+| `deq_.pop_front()` | `ws` | N/A | void | private |  | yes |
+| `deq_.empty()` | `ws` | N/A | bool | private | yes | yes |
+| `deq_.size()` | `ws` | N/A | `std::size_t` | private | yes | yes |
+| `deq_.clear()` | `ws` | N/A | void | private | yes | yes |
+
+### 3. 結果を決める式・具体値
+
+*   `capacity > 0` (コンストラクタのassert)
+*   `size == capacity_` (Full() の戻り値判定)
+*   `deq_.size() < capacity_` (WaitForSpace() の condition variable wait predicate)
+*   `!deq_.empty() || closed_` (Pop() および WaitForSpace()のcondition variable wait predicate)
+
+### 4. 使用データ・更新データ
+
+| データ | アクセス方法 | 更新条件 |
+|---|---|---|
+| `mtx_` | ロックガード/ユニークロックによる排他制御 |  |
+| `closed_` | アトミック変数 | `Close()` メソッドで true に設定 |
+| `capacity_` | プライベートメンバ | コンストラクタで初期化、変更なし |
+| `deq_` | 標準dequeコンテナ | `PushBack()`, `PushFront()`, `Pop()`, `ClearNoLock()` で更新 |
+
+### 5. 状態・副作用・不変条件
+
+*   **状態:**  `closed_` フラグ、`deq_` の内容。
+*   **副作用:** `PushBack()`, `PushFront()`, `Pop()` は `deq_` の内容を変更する。 `Close()` は `deq_` をクリアし、`closed_` を true に設定する。
+*   **不変条件:**  `capacity_` はコンストラクタで初期化された後変更されない。 `deq_.size() <= capacity_` が常に成立する。
+
+### 6. クラス図
+
+```mermaid
+classDiagram
+    class BlockDeque {
+        - mtx_: std::mutex
+        - closed_: std::atomic<bool>
+        - capacity_: std::size_t
+        - deq_: std::deque<T>
+        - consumer_cond_: std::condition_variable
+        - producer_cond_: std::condition_variable
+
+        + BlockDeque(capacity: std::size_t)
+        + ~BlockDeque()
+        + Clear()
+        + Empty()
+        + Full()
+        + Size()
+        + Capacity()
+        + PushBack(item: T)
+        + PushFront(item: T)
+        + Front()
+        + Back()
+        + Pop(time_out: std::optional<Clock::duration>)
+        + Flush()
+        + Close()
+
+        private - WaitForSpace(locker: std::unique_lock<std::mutex>&)
+        private - ClearNoLock()
+    }
+```
+
+### 7. クラス・メソッド・インターフェース詳細
+
+| メソッド名 | 引数 | 戻り値型 | 可視性 | const | noexcept |
+|---|---|---|---|---|---|
+| `BlockDeque(std::size_t capacity)` | `capacity` (std::size_t) | void | public |  | yes |
+| `~BlockDeque()` | N/A | void | public |  | yes |
+| `Clear()` | N/A | void | public |  | yes |
+| `Empty()` | N/A | bool | public | yes | yes |
+| `Full()` | N/A | bool | public | yes | yes |
+| `Size()` | N/A | std::size_t | public | yes | yes |
+| `Capacity()` | N/A | std::size_t | public | yes | yes |
+| `PushBack(T item)` | `item` (T) | void | public |  | yes |
+| `PushFront(T item)` | `item` (T) | void | public |  | yes |
+| `Front()` | N/A | const T& | public | yes | yes |
+| `Back()` | N/A | const T& | public | yes | yes |
+| `Front()` | N/A | T& | public |  | yes |
+| `Back()` | N/A | T& | public |  | yes |
+| `Pop(std::optional<Clock::duration> time_out)` | `time_out` (std::optional<Clock::duration>) | std::optional<T> | public |  | yes |
+| `Flush()` | N/A | void | public |  | yes |
+| `Close()` | N/A | void | public |  | yes |
+
+### 8. シーケンス図
+
+(シーケンス図は、Pop()メソッドの処理を例として記述。他のメソッドについても同様に作成可能。)
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant BlockDeque
+    participant deque
+
+    Client->>BlockDeque: Pop(timeout)
+    activate BlockDeque
+    BlockDeque->>BlockDeque: Acquire lock (unique_lock)
+    alt timeout is present
+        BlockDeque->>consumer_cond: wait(locker, timeout, predicate)
+        deactivate BlockDeque
+        opt condition met within timeout
+            BlockDeque->>BlockDeque: Reacquire lock
+            activate BlockDeque
+        else timeout expired
+            BlockDeque-->>Client: return std::nullopt
+            deactivate BlockDeque
+            exit
+        end
+    else no timeout
+        BlockDeque->>consumer_cond: wait(locker, predicate)
+        deactivate BlockDeque
+    end
+
+    alt deque is empty and closed
+        BlockDeque-->>Client: return std::nullopt
+        deactivate BlockDeque
+    else deque has items
+        BlockDeque->>deque: pop_front()
+        BlockDeque->>producer_cond: notify_one()
+        BlockDeque-->>Client: return item
+        deactivate BlockDeque
+    end
+```
+
+### 9. メソッド仕様書 (例: Pop())
+
+**メソッド名:** `Pop`
+
+**目的:** キューから要素を取り出す。タイムアウトが指定された場合は、指定時間内に要素が利用可能になるまで待機する。
+
+**引数:**
+
+*   `time_out`:  オプションのタイムアウト期間 (`std::optional<Clock::duration>`)。省略した場合は無期限に待機する。
+
+**戻り値:**
+
+*   `std::optional<T>`: キューから取り出した要素。キューが空で、かつクローズされている場合は `std::nullopt` を返す。タイムアウト期間内に要素が利用可能にならなかった場合も `std::nullopt` を返す。
+
+**動作:**
+
+1.  ミューテックスをロックする。
+2.  タイムアウトが指定されている場合、条件変数で待機する。
+3.  キューが空でクローズされている場合は `std::nullopt` を返す。
+4.  キューから要素を取り出す。
+5.  プロデューサー条件変数を通知する。
+6.  取り出した要素を返す。
+
+**副作用:** キューの内容が変更される。
+
+**エラー処理:** なし (タイムアウトまたは空の場合は `std::nullopt` を返す)。

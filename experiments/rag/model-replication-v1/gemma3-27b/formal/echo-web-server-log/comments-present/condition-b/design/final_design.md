@@ -1,0 +1,183 @@
+## Detailed Design Specification
+
+This document details the design for re-implementing the provided C++ code, focusing on accuracy and completeness to facilitate a successful rebuild by another LLM.  It adheres to the guidelines outlined in "RAGによる追加詳細設計" and "Round-trip completeness knowledge v1".
+
+### 1. Accurate Definitions
+
+#### `config.h`
+
+| Name | Type | Description |
+|---|---|---|
+| `ws` | Namespace | Top-level namespace for web server components. |
+| `cfg` | Namespace | Nested namespace within `ws` for configuration related code. |
+| `VarConverter<From, To>` | Template Class | A class template for converting between types in the configuration system.  Supports custom conversion logic. |
+| `VarBase` | Abstract Class | Base class for configuration variables, providing name and description. |
+| `Var<T, FromStr, ToStr>` | Template Class | Represents a typed configuration variable with conversion capabilities. Inherits from `VarBase`. |
+| `Singleton<T, Args...>` | Template Class | Implements the Singleton pattern for type `T` with constructor arguments `Args...`. |
+| `SingletonPtr<T, Args...>` | Template Class | Implements the Singleton pattern using shared pointers for type `T` with constructor arguments `Args...`. |
+| `RAII<T, Cleaner>` | Template Class | Resource Acquisition Is Initialization class. Manages resource lifetime via a cleaner function. |
+| `MappedReadOnlyFile` | Class | RAII wrapper around memory-mapped files.  Handles file mapping and unmapping. |
+
+#### `containers/block_deque.h`
+
+| Name | Type | Description |
+|---|---|---|
+| `BlockDeque<T>` | Template Class | A blocking double-ended queue implementation. |
+| `Clock` | Nested Class | Alias for `std::chrono::steady_clock`. |
+
+#### `util.h`
+
+| Name | Type | Description |
+|---|---|---|
+| `ws` | Namespace | Top-level namespace for web server components. |
+| `FileDescriptor` | Typedef |  An integer type representing a file descriptor. |
+| `invalid_file_descriptor` | Constant | Integer constant representing an invalid file descriptor (-1). |
+| `StringToLower`, `StringToUpper` | Functions | String manipulation functions for case conversion. |
+| `ReplaceAllSubstring` | Function | Replaces all occurrences of a substring within a string. |
+| `SplitString` | Function | Splits a string based on a regular expression pattern. |
+| `LoadYamlString` | Function | Loads a YAML node from a string, optionally checking for required fields. |
+| `ThrowIfYamlFieldIsNotScalar` | Function | Throws an exception if a YAML field is not scalar. |
+| `IsValidFileDescriptor` | Function | Checks if a file descriptor is valid. |
+| `SetFileDescriptorAsNonblocking` | Function | Sets a file descriptor to non-blocking mode. |
+| `ThrowLastSystemError` | Function | Throws a system error exception based on the last error. |
+| `CurrentThreadId` | Function | Returns the ID of the current thread. |
+
+### 2. Direct Dependencies & Usage
+
+#### Logger and Appender Interaction (F01/U01, F02/U02, F03/U03)
+
+*   `Logger` objects hold a list of `Appender` objects.
+*   When `Logger::Log(Event::Ptr event)` is called:
+    *   It iterates through the `appenders_` list.
+    *   For each `Appender`, it calls `appender->Log(*this, *event)`.
+*   `Appender::Log()` formats the event using a `Formatter` and writes it to its destination (stdout or file).
+
+#### Event Creation (F01/U01, F02/U02)
+
+*   `Event::Create()` is a static factory method. It constructs an `Event` object with provided level, location, thread ID, and time.
+*   The constructor of `Event` takes these parameters and initializes the member variables: `level_`, `file_name_`, `line_num_`, `thread_id_`, `time_`, and a stringstream `msg_`.
+
+#### Configuration Loading (F06/U06)
+
+*   The configuration system uses `YAML` for defining loggers and appenders.
+*   `VarConverter` template specializations handle the conversion between YAML strings and C++ types.
+*   `Config::Lookup()` retrieves or creates a `Var<T>` object for a given name.
+*   `LoadYamlString()` parses the YAML string into a `YAML::Node`.
+
+### 3. Results Determining Expressions & Concrete Values
+
+*   **Log Level Comparison:**  `if (event->Level() >= level_)` in `Logger::Log()` determines whether an event is processed based on its severity.
+*   **Capacity Check:** `if (capacity_ > 0)` in `Logger` constructor determines if the logger operates synchronously or asynchronously.
+*   **File Descriptor Validity:**  `IsValidFileDescriptor(fd)` checks for valid file descriptors before operations like setting non-blocking mode.
+
+### 4. Used & Updated Data
+
+*   **Event Object:** The core data structure containing log information (level, timestamp, thread ID, message). Modified by `EventWriter` adding messages to the internal stringstream.
+*   **Logger Configuration:**  Stored in `Config` objects and used to determine logging level, appenders, and formatters. Updated via YAML configuration loading.
+*   **Appender State:** File appenders maintain an open file stream (`file_`) which is updated with log messages.
+
+### 5. State, Side Effects & Invariants
+
+*   **Thread Safety:** `Logger` uses a mutex (`mtx_`) to protect access to its internal data (appenders, event queue).
+*   **Asynchronous Logging:** When asynchronous logging is enabled, a separate thread (`writer_thread_`) consumes events from the `event_deque_`.  The deque's `Close()` method signals the thread to terminate.
+*   **File Appender Side Effects:** Writing to a file has external side effects (disk I/O).
+
+### 6. Class Diagram
+
+```mermaid
+classDiagram
+    class Logger {
+        -name : string
+        -level : Level
+        -capacity : size_t
+        -appenders : list<Appender>
+        +Log(event : Event)
+        +AddAppender(appender : Appender)
+    }
+
+    class Appender {
+        -formatter : Formatter
+        +Log(logger : Logger, event : Event)
+        +SetFormatter(formatter : Formatter)
+    }
+
+    class StdOutAppender extends Appender
+    class FileAppender extends Appender
+
+    class Formatter {
+        -pattern : string
+        +Format(logger : Logger, event : Event)
+    }
+
+    class Event {
+        -level : Level
+        -message : string
+        +Level()
+        +Message()
+    }
+
+    Logger -- "*" Appender : has
+    Appender -- "1" Formatter : uses
+    Logger -- "1" Event : processes
+```
+
+### 7. Class, Method & Interface Details
+
+(See section 1 for a detailed table of class members and their types.)  This information is repeated here to emphasize its importance for re-implementation.
+
+### 8. Sequence Diagram (Event Logging)
+
+```mermaid
+sequenceDiagram
+    participant Logger
+    participant Appender
+    participant Event
+
+    Logger->>Event: Create(level, location, thread_id, time)
+    activate Event
+    Event-->>Logger: Event object
+    deactivate Event
+    Logger->>Appender: Log(event)
+    activate Appender
+    Appender->>Formatter: Format(logger, event)
+    activate Formatter
+    Formatter-->>Appender: formatted_message
+    deactivate Formatter
+    Appender->>stdout/file: Write(formatted_message)
+    deactivate Appender
+```
+
+### 9. Method Specifications (Example: Logger::Log())
+
+**Method:** `Logger::Log(Event::Ptr event)`
+
+*   **Purpose:** Logs an event if its level is greater than or equal to the logger's configured level.
+*   **Parameters:**
+    *   `event`: A shared pointer to an `Event` object containing log information.
+*   **Return Value:** None.
+*   **Behavior:**
+    1.  Acquire a lock on the internal mutex (`mtx_`).
+    2.  Check if `event->Level() >= level_`.
+    3.  If true, iterate through the list of registered `Appender` objects.
+    4.  For each appender, call its `Log()` method with the logger and event.
+    5.  Release the lock on the mutex.
+*   **Side Effects:** Writes log messages to configured destinations (stdout, file).
+
+### Additional Detailed Design Information
+
+#### Data Structures & Algorithms
+
+*   `BlockDeque`: Uses a circular buffer-like structure internally for efficient enqueueing and dequeueing of events. The blocking behavior is achieved using condition variables to signal producers and consumers when the queue is full or empty.
+*   YAML Parsing: Relies on the `yaml-cpp` library for parsing YAML configuration files.
+
+#### Error Handling
+
+*   Exceptions are used to indicate errors during file operations, invalid input data, and other exceptional conditions.  The `ThrowLastSystemError()` function provides a convenient way to propagate system errors.
+*   Logging is used to record error messages and debugging information.
+
+#### Concurrency Considerations
+
+*   `Logger` uses mutexes and condition variables to ensure thread safety when accessing shared resources (appenders, event queue).
+*   Asynchronous logging utilizes a separate thread to process events concurrently.  Proper synchronization mechanisms are essential to prevent race conditions and data corruption.
+
+This detailed design specification provides a comprehensive guide for re-implementing the provided C++ code. It prioritizes accuracy, completeness, and clarity to ensure a successful rebuild by another LLM.

@@ -1,0 +1,53 @@
+与えられたC++ソースコードを解析し、このソースコードを参照できない別のLLMが再実装できるように、詳細な設計仕様書を作成してください。
+
+入力から確認できない情報は推測しないでください。
+
+TARGET-OWNED INPUTS
+Fxx/Uxx identifiers are opaque. Preserve names, types, signatures, namespaces, and replacement boundaries in the final specification.
+
+REPLACEMENT UNIT CONTRACT
+Only replacement_required=true units will be regenerated. Reference-only units must inform the design but must not become output units.
+REPLACEMENT UNITS: F01/U01
+REFERENCE-ONLY INPUTS: none
+
+===== BEGIN F01/U01 =====
+path: src/Common/Parser.hpp
+role: complete Parser class definition span
+replacement_required: true
+class Parser {
+public:
+    static unsigned parse_hex(const std::string &hex) {
+        return strtol(hex.c_str(), NULL, 16);
+    }
+
+    static void parse(std::istream &in, Memory &mem) {
+        if (!in) std::cerr << "parse failed, invalid stream" << std::endl;
+        unsigned base_addr = 0;
+        while (in) {
+            std::string line;
+            std::getline(in, line);
+            if (line[0] == '@') {
+                base_addr = strtol(line.c_str() + 1, NULL, 16);
+            } else {
+                std::stringstream ss(line);
+                std::string hex;
+                while (ss >> hex) {
+                    if (hex.length() == 0) break;
+                    char data = parse_hex(hex);
+                    mem[base_addr++] = data;
+                }
+            }
+        }
+    }
+
+    static void parse_hex(std::istream &in, Memory &mem) {
+        if (!in) std::cerr << "parse failed, invalid stream" << std::endl;
+        unsigned base_addr = 0;
+        std::string hex;
+        while(in >> hex) {
+            mem.write_word(base_addr, parse_hex(hex));
+            base_addr += 4;
+        }
+    }
+};
+===== END F01/U01 =====

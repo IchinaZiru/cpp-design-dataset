@@ -1,0 +1,140 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+## INIWriter クラス詳細設計書 (F01/U01)
+
+このドキュメントは、`INIWriter`クラスの再実装に必要な詳細な設計情報を提供します。
+
+### 1. 正確な定義
+
+| 型名 / 種別 / 実体 | 説明 |
+|---|---|
+| `std::string` | 文字列型 (標準ライブラリ) |
+| `std::ifstream` | 入力ファイルストリーム型 (標準ライブラリ) |
+| `std::ofstream` | 出力ファイルストリーム型 (標準ライブラリ) |
+| `std::runtime_error` | 例外クラス (標準ライブラリ) |
+
+### 2. 直接依存インターフェースと利用方法
+
+| 関数/メソッド名 | Namespace | 引数 | 戻り値型 | 可視性 | const | 備考 |
+|---|---|---|---|---|---|---|
+| `std::ifstream` コンストラクタ | `std` | `const std::string& filepath` |  `void` | public |  | ファイルパスを受け取り、ファイルを開く。 |
+| `std::ofstream` コンストラクタ | `std` | `const std::string& filepath` |  `void` | public |  | ファイルパスを受け取り、ファイルを作成または開く。 |
+| `std::ifstream::operator bool()` | `std` | なし | `bool` | public |  | ストリームが有効な状態かどうかを返す。 |
+| `std::ofstream::is_open()` | `std` | なし | `bool` | public |  | ストリームが開かれているかどうかを返す。 |
+| `std::ofstream::operator<<` | `std` | `const std::string& str` | `std::ostream&` | public |  | 文字列を出力ストリームに書き込む。 |
+| `std::runtime_error` コンストラクタ | `std` | `const std::string& message` | `void` | public |  | メッセージを受け取り、例外をスローする。 |
+| `INIReader::Sections()` | (不明) | なし | `const std::vector<std::string>&` | public |  | INIファイル内のセクションのベクターを返す。 |
+| `INIReader::Keys(const std::string& section)` | (不明) | `const std::string& section` | `const std::vector<std::string>&` | public |  | 指定されたセクション内のキーのベクターを返す。 |
+| `INIReader::Get(const std::string& section, const std::string& key)` | (不明) | `const std::string& section`, `const std::string& key` | `std::string` | public |  | 指定されたセクションとキーに対応する値を取得する。 |
+
+### 3. 結果を決める式・具体値
+
+*   ファイルが存在する場合、`std::ifstream{filepath}` が true を返す。
+*   ファイルが開けない場合、`out.is_open()` が false を返す。
+*   セクションとキーのループ処理は、`reader.Sections()` と `reader.Keys(section)` から得られるベクターの要素数によって決定される。
+
+### 4. 使用データ・更新データ
+
+*   **入力:** `filepath`, `reader`, `overwrite`
+*   **出力:** ファイルシステム上のINIファイル (`filepath`)
+*   **内部状態:** なし (静的メソッドのため)
+
+### 5. 状態・副作用・不変条件
+
+*   このクラスは静的メソッドのみを提供するため、オブジェクトの状態は存在しない。
+*   副作用: 指定された `filepath` にINIファイルを書き込む。既存のファイルが存在し、`overwrite` が false の場合、例外をスローする。
+*   不変条件: ファイルパスが有効な形式であること (確認不能)。
+
+### クラス図
+
+```mermaid
+classDiagram
+    class INIWriter {
+        +static void write(const std::string& filepath, const INIReader& reader, const bool overwrite = false)
+    }
+    INIWriter -- INIReader : uses
+```
+
+### クラス・メソッド・インターフェース詳細
+
+| 名前 | 可視性 | static | 引数 | 戻り値型 | 説明 |
+|---|---|---|---|---|---|
+| `write` | public | true | `const std::string& filepath`, `const INIReader& reader`, `const bool overwrite = false` | `void` | INIファイルを書き込む。 |
+
+### シーケンス図
+
+該当なし (静的メソッドのため、オブジェクト間のシーケンスは存在しない)。
+
+### メソッド仕様書
+
+**メソッド名:** `INIWriter::write`
+
+**目的:** INIファイルの内容を新しいファイルに書き込む。
+
+**引数:**
+
+*   `filepath`: 出力ファイルのパス (`std::string`)
+*   `reader`: 書き込み元の `INIReader` オブジェクト (`const INIReader&`)
+*   `overwrite`: 既存のファイルを上書きするかどうか (bool, デフォルトは false)
+
+**戻り値:** なし (void)
+
+**動作:**
+
+1.  `overwrite` が false で、指定されたファイルパスにファイルが存在する場合、`std::runtime_error` 例外をスローする。
+2.  出力ファイルストリーム `out` を作成し、指定されたファイルパスに関連付ける。
+3.  ファイルを開けなかった場合、`std::runtime_error` 例外をスローする。
+4.  `reader` オブジェクトからセクションを取得し、各セクションについて以下の処理を行う:
+    *   セクション名を `out` に書き込む (`[section]\n`)。
+    *   セクション内のキーを取得し、各キーについて以下の処理を行う:
+        *   キーと値を `out` に書き込む (`key=value\n`)。
+
+**副作用:** 指定されたファイルパスにINIファイルを書き込む。既存のファイルが存在し、`overwrite` が false の場合、例外をスローする。
+
+**エラー処理:** ファイルの存在確認およびファイルオープン時に例外をスローする。
+
+### 処理フロー図
+
+```mermaid
+graph TD
+    A[開始] --> B{overwrite == false かつ ファイルが存在するか?};
+    B -- Yes --> C[std::runtime_error スロー];
+    B -- No --> D[出力ファイルストリームを開く];
+    D -- 失敗 --> E[std::runtime_error スロー];
+    D -- 成功 --> F{セクションループ};
+    F --> G{キーループ};
+    G --> H[key=value をファイルに書き込む];
+    H --> G;
+    G --> I{セクションループ};
+    I --> F;
+    F --> J[出力ストリームを閉じる];
+    J --> K[終了];
+```
+
+### 状態遷移・副作用
+
+該当なし (静的メソッドのため、状態遷移は存在しない)。 副作用については上記「5. 状態・副作用・不変条件」を参照。
+
+### データ変換・制約
+
+*   `INIReader` から取得したセクション名とキーは文字列として `std::ofstream` に書き込まれる。
+*   `INIReader::Get()` から取得した値も文字列として `std::ofstream` に書き込まれる。
+*   ファイルパスの形式に関する制約は確認不能。

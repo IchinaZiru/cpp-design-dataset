@@ -1,0 +1,1 @@
+{"units":[{"content":"static unsigned parse_hex(const std::string &hex) {\n    char *endptr;\n    unsigned long val = strtol(hex.c_str(), &endptr, 16);\n    if (endptr == hex.c_str()) {\n        return 0; // Or handle error as appropriate\n    }\n    return static_cast<unsigned>(val);\n}","file_id":"F01","unit_id":"U01"}]}

@@ -1,0 +1,1 @@
+{"artifact_schema_version":"roundtrip-ab-aggregate-run-entry-v1","condition":"A","result_path":"failure.json","result_sha256":"1894b49cdefff8cebb201f936ad226863639a6c0d30a999a58ebe47f6894317f","status":"fail","target_id":"echo-web-server-thread-pool"}

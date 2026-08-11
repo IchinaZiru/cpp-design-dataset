@@ -1,0 +1,149 @@
+## Buffer 設計仕様書
+
+### 1. 全体概要
+
+本設計仕様書は、`Buffer`クラスとその関連クラス（`IOBuffer`）の実装に関する詳細な設計情報を記述する。このドキュメントは、別のLLMがソースコードを再実装するために必要な情報を提供する。
+
+### 2. クラス図
+
+```mermaid
+classDiagram
+    class Buffer {
+        - std::vector<std::byte> buf_
+        - std::atomic<std::size_t> read_pos_
+        - std::atomic<std::size_t> write_pos_
+        + Buffer(std::size_t size)
+        + Buffer(std::span<const std::byte> bytes)
+        + Buffer(std::initializer_list<std::byte> bytes)
+        + Buffer(std::string_view str)
+        + Buffer(const Buffer&)
+        + Buffer(Buffer&&)
+        + operator=(const Buffer&)
+        + operator=(Buffer&&)
+        + WritableSize()
+        + ReadableSize()
+        + Peek()
+        + ReadableBytes()
+        + ReadableString()
+        + WritableBytes()
+        + Append(std::span<const std::byte> bytes)
+        + Append(std::initializer_list<std::byte> bytes)
+        + Append(std::string_view str, std::optional<NewLine> new_line)
+        + Append(const void* data, std::size_t size)
+        + Append(const Buffer& buf)
+        + EnsureWriteableSize(std::size_t size)
+        + HasWritten(std::size_t size)
+        + Retrieve(std::size_t size)
+        + RetrieveUntil(const void* addr)
+        + RetrieveAll()
+        + RetrieveAllToString()
+        + Clear()
+        + Empty()
+        - PrependableSize()
+        - MakeSpace(std::size_t size)
+        - ReadIter()
+        - WriteIter()
+    }
+
+    class IOBuffer : public Buffer {
+        + ReadFrom(io::IReadWriter& io)
+        + WriteTo(io::IReadWriter& io)
+    }
+
+    class ws::io::IReadWriter{
+      + virtual ~IReadWriter() noexcept = default;
+      + virtual std::size_t ReadFrom(Buffer& buf) = 0;
+      + virtual std::size_t WriteTo(Buffer& buf) = 0;
+    }
+
+    Buffer -- IOBuffer : inheritance
+    IOBuffer ..> ws::io::IReadWriter : uses
+```
+
+### 3. クラス・メソッド・インターフェース詳細
+
+#### 3.1 Bufferクラス
+
+| 名前 | 型 | 可視性 | const | noexcept | 説明 |
+|---|---|---|---|---|---|
+| `buf_` | `std::vector<std::byte>` | private |  |  | バッファ本体。バイト列を格納する。 |
+| `read_pos_` | `std::atomic<std::size_t>` | private |  |  | 読み込み位置を示すアトミック変数。 |
+| `write_pos_` | `std::atomic<std::size_t>` | private |  |  | 書き込み位置を示すアトミック変数。 |
+| `Buffer(std::size_t size)` | コンストラクタ | public |  | true | 指定されたサイズのバッファを生成する。 |
+| `Buffer(std::span<const std::byte> bytes)` | コンストラクタ | public |  | true | バイトスパンからバッファを生成する。 |
+| `Buffer(std::initializer_list<std::byte> bytes)` | コンストラクタ | public |  | true | 初期化リストからバッファを生成する。 |
+| `Buffer(std::string_view str)` | コンストラクタ | public |  | true | 文字列ビューからバッファを生成する。 |
+| `Buffer(const Buffer& o)` | コピーコンストラクタ | public |  | true | 他のバッファのコピーを作成する。 |
+| `Buffer(Buffer&& o)` | ムーブコンストラクタ | public |  | true | 他のバッファから所有権を移譲する。 |
+| `operator=(const Buffer& o)` | 代入演算子 | public |  | true | 他のバッファの内容をコピーして代入する。 |
+| `operator=(Buffer&& o)` | ムーブ代入演算子 | public |  | true | 他のバッファから所有権を移譲して代入する。 |
+| `WritableSize()` | メソッド | public | true | true | 書き込み可能なサイズを返す。 |
+| `ReadableSize()` | メソッド | public | true | true | 読み取り可能なサイズを返す。 |
+| `Peek()` | メソッド | public | true | true | 先頭のバイトを返す（存在しない場合は`std::nullopt`）。 |
+| `ReadableBytes()` | メソッド | public | true | true | 読み取り可能なバイトのスパンを返す。 |
+| `ReadableString()` | メソッド | public | true | true | 読み取り可能なバイトを文字列として返す。 |
+| `WritableBytes()` | メソッド | public | true | true | 書き込み可能なバイトのスパンを返す。 |
+| `Append(std::span<const std::byte> bytes)` | メソッド | public | true | true | バイトスパンをバッファに追加する。 |
+| `Append(std::initializer_list<std::byte> bytes)` | メソッド | public | true | true | 初期化リストをバッファに追加する。 |
+| `Append(std::string_view str, std::optional<NewLine> new_line)` | メソッド | public | true | true | 文字列ビューと改行コードをバッファに追加する。 |
+| `Append(const void* data, std::size_t size)` | メソッド | public | true | true | 指定されたサイズのデータをバッファに追加する。 |
+| `Append(const Buffer& buf)` | メソッド | public | true | true | 他のバッファの内容をバッファに追加する。 |
+| `EnsureWriteableSize(std::size_t size)` | メソッド | public | true | true | バッファに指定されたサイズの書き込み領域を確保する。 |
+| `HasWritten(std::size_t size)` | メソッド | public | true | true | 指定されたサイズだけ書き込み位置を進める。 |
+| `Retrieve(std::size_t size)` | メソッド | public | true | true | 指定されたサイズのデータを読み込み位置から破棄する。 |
+| `RetrieveUntil(const void* addr)` | メソッド | public | true | true | 指定されたアドレスまでを読み込み位置から破棄する。 |
+| `RetrieveAll()` | メソッド | public | true | true | バッファの内容全体を破棄する。 |
+| `RetrieveAllToString()` | メソッド | public | true | true | バッファの内容全体を文字列として取得し、バッファをクリアする。 |
+| `Clear()` | メソッド | public | true | true | バッファを初期状態に戻す。 |
+| `Empty()` | メソッド | public | true | true | バッファが空かどうかを返す。 |
+| `PrependableSize()` | メソッド | protected | true | true | プリペンド可能なサイズを返す。 |
+| `MakeSpace(std::size_t size)` | メソッド | protected | true | true | バッファに指定されたサイズの領域を作る。 |
+| `ReadIter()` | メソッド | protected | true | true | 読み込みイテレータを取得する。 |
+| `WriteIter()` | メソッド | protected | true | true | 書き込みイテレータを取得する。 |
+
+#### 3.2 IOBufferクラス
+
+| 名前 | 型 | 可視性 | const | noexcept | 説明 |
+|---|---|---|---|---|---|
+| `IOBuffer(const Buffer&)` | コンストラクタ | public |  | true | Bufferのコピーコンストラクタを呼び出す。 |
+| `ReadFrom(io::IReadWriter& io)` | メソッド | public |  |  | IReadWriterからデータを読み込む。 |
+| `WriteTo(io::IReadWriter& io)` | メソッド | public |  |  | IReadWriterにデータを書き込む。 |
+
+### 4. シーケンス図
+
+（シーケンス図は、`IOBuffer`が`IReadWriter`インターフェースを介してデータの読み書きを行う様子を示すものとする。具体的なシーケンスは利用状況によって異なるため、ここでは省略する。）
+
+### 5. メソッド仕様書
+
+#### 5.1 `Buffer::Append(const void* data, std::size_t size)`
+
+**目的:** バッファに指定されたサイズのデータを追加する。
+**引数:**
+- `data`: 追加するデータのポインタ。
+- `size`: 追加するデータのサイズ（バイト単位）。
+**戻り値:** なし
+**副作用:** `write_pos_`が更新される。バッファのサイズが変更される可能性がある。
+**前提条件:** `data`は有効なメモリ領域を指していること。
+**事後条件:** データがバッファに追加され、`write_pos_`が更新されていること。
+
+### 6. 処理フロー図
+
+（Bufferクラスの主要なメソッド（Append, Retrieve, Clearなど）の処理フロー図を作成する。ここでは省略する。）
+
+### 7. 状態遷移・副作用
+
+| メソッド | 前の状態 | 更新される状態 | 副作用 |
+|---|---|---|---|
+| `Append` | バッファが空または書き込み領域がある | `write_pos_`が増加 | バッファのサイズが変更される可能性がある。 |
+| `Retrieve` | 読み取り可能なデータがある | `read_pos_`が増加 |  |
+| `Clear` | データが存在する | `read_pos_`, `write_pos_` が0になる | バッファの内容が破棄される。 |
+
+### 8. データ変換・制約
+
+- バッファはバイト列を格納するため、データのエンコーディングや文字コードに依存しない。
+- バッファのサイズは可変であり、必要に応じて自動的に拡張される。
+- `read_pos_`と`write_pos_`は常に有効な範囲内に収まるように管理される。
+
+### 9. その他
+
+本設計仕様書は、`Buffer`クラスとその関連クラスの実装に必要な情報を網羅していることを意図する。不明な点や疑問点がある場合は、元のソースコードを参照するか、追加の情報を要求すること。

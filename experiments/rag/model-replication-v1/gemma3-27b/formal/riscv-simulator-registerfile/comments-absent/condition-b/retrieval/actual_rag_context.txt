@@ -1,0 +1,79 @@
+RAG_CONTEXT repository-dependencies-v1
+
+### PATH: src/Common/Common.h
+SOURCE_SHA256: 1842fc10588b2c6997b0e25beca27c33b6dcfe978f6d22cf6f4869425844d575
+CONTENT_SHA256: 73a1a75453fd409ffa7d6229c9e74efcf26a821cb4e6f40253a0b70729039616
+----- BEGIN DEPENDENCY HEADER CONTENT: src/Common/Common.h -----
+  
+                                     
+  
+
+#ifndef RISCV_SIMULATOR_COMMON_H
+#define RISCV_SIMULATOR_COMMON_H
+
+using Immediate = unsigned int;
+using SImmediate = int;
+
+#endif                           
+
+----- END DEPENDENCY HEADER CONTENT: src/Common/Common.h -----
+
+### PATH: src/Common/Register.hpp
+SOURCE_SHA256: 57fb42ae07816f444301153cdea5bf943b873262ff992e454b894ff990ad8e34
+CONTENT_SHA256: 9e58abeb53012d1002f06ba204951005929aed1a2eb6d00054a5ad6e0f2adaa5
+----- BEGIN DEPENDENCY HEADER CONTENT: src/Common/Register.hpp -----
+  
+                                     
+  
+
+#ifndef RISCV_SIMULATOR_REGISTER_HPP
+#define RISCV_SIMULATOR_REGISTER_HPP
+
+template<typename T>
+class Register {                       
+public:
+    T prev, next;
+
+    bool _stall;
+
+    Register() : prev((T) 0), next((T) 0), _stall(false) {}
+
+    Register(T d) : prev(d), next(d), _stall(false) {}
+
+    T read() { return prev; }
+
+    T current() { return next; }
+
+    void write(const T &t) { next = t; }
+
+    void tick() { if (!_stall) prev = next; }
+
+    void stall(bool stall) { _stall = stall; }
+
+    operator T() { return read(); }
+
+    void operator=(T next) { write(next); }
+};
+
+#endif                               
+
+----- END DEPENDENCY HEADER CONTENT: src/Common/Register.hpp -----
+
+### PATH: src/Common/utils.h
+SOURCE_SHA256: 74d3100141f38b67efdec002eae6dcf9803452fffec0bfb0f5bac8e56d10a61a
+CONTENT_SHA256: f0298fb7fb0870302ee6fa2d46fae13fb15d15f3b5eb7ad0b2885b49353853f8
+----- BEGIN DEPENDENCY HEADER CONTENT: src/Common/utils.h -----
+  
+                                     
+  
+
+#ifndef RISCV_SIMULATOR_UTILS_H
+#define RISCV_SIMULATOR_UTILS_H
+
+#include "Instruction.hpp"
+
+void debug_immediate(Immediate v, unsigned width = 0);
+
+#endif                          
+
+----- END DEPENDENCY HEADER CONTENT: src/Common/utils.h -----

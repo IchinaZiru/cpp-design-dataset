@@ -1,0 +1,21 @@
+{
+  "artifact_schema_version": "comment-ablation-rag-retrieval-manifest-v1",
+  "target_id": "riscv-simulator-register",
+  "condition": "B-comment-free",
+  "status": "pass",
+  "selection_frozen_from_formal_r2": true,
+  "source_formal_r2_retrieval_manifest_sha256": "c41f623eeafaefdb54d56f0fce8a9e03e1bc8acec42c38a4c8a242ce899e23ec",
+  "source_formal_r2_actual_rag_context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31",
+  "dependency_header_mode": "direct-project-local-quoted-include-whole-file-one-hop-v1",
+  "dependency_header_count": 0,
+  "comments_removed": 0,
+  "query_unchanged_from_formal_r2": true,
+  "artifact_hashes": {
+    "query.json": "f13b8bd8b4561bd5c6f0839b274f9d460e44fff08bb0c117729c84c2f37186eb",
+    "candidates_selected_comment_free.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual_rag_context_comment_free.txt": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31"
+  },
+  "context_bytes": 39,
+  "context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31",
+  "dependencies": []
+}

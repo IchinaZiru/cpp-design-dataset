@@ -1,0 +1,177 @@
+## Buffer 設計仕様書
+
+### 1. 全体概要
+
+本設計書は、自動拡張可能なバッファクラス `Buffer` と、I/O機能を提供する `IOBuffer` クラスの詳細な設計情報を記述する。これらのクラスは、バイト列や文字列の格納・操作を効率的に行うことを目的とする。
+
+### 2. クラス図
+
+```mermaid
+classDiagram
+    class Buffer {
+        - std::vector<std::byte> buf_
+        - std::atomic<std::size_t> read_pos_
+        - std::atomic<std::size_t> write_pos_
+        + Buffer(std::size_t size)
+        + Buffer(std::span<const std::byte> bytes)
+        + Buffer(std::initializer_list<std::byte> bytes)
+        + Buffer(std::string_view str)
+        + Buffer(const Buffer&)
+        + Buffer(Buffer&&)
+        + operator=(const Buffer&)
+        + operator=(Buffer&&)
+        + WritableSize()
+        + ReadableSize()
+        + Peek()
+        + ReadableBytes()
+        + ReadableString()
+        + WritableBytes()
+        + Append(std::span<const std::byte> bytes)
+        + Append(std::initializer_list<std::byte> bytes)
+        + Append(std::string_view str, std::optional<NewLine> new_line)
+        + Append(const void* data, std::size_t size)
+        + Append(const Buffer& buf)
+        + EnsureWriteableSize(std::size_t size)
+        + HasWritten(std::size_t size)
+        + Retrieve(std::size_t size)
+        + RetrieveUntil(const void* addr)
+        + RetrieveAll()
+        + RetrieveAllToString()
+        + Clear()
+        + Empty()
+        - PrependableSize()
+        - MakeSpace(std::size_t size)
+        - ReadIter()
+        - WriteIter()
+    }
+
+    class IOBuffer : public Buffer {
+        + IOBuffer(std::size_t size)
+        + IOBuffer(std::span<const std::byte> bytes)
+        + IOBuffer(std::initializer_list<std::byte> bytes)
+        + IOBuffer(std::string_view str)
+        + ReadFrom(io::IReadWriter& io)
+        + WriteTo(io::IReadWriter& io)
+    }
+
+    class ws::io::IReadWriter {
+        + virtual ~IReadWriter() = default
+        + virtual std::size_t ReadFrom(Buffer& buf) = 0
+        + virtual std::size_t WriteTo(Buffer& buf) = 0
+    }
+
+    IOBuffer --|> Buffer
+    ws.io.IReadWriter <|-- IOBuffer
+```
+
+### 3. クラス・メソッド・インターフェース詳細
+
+#### 3.1 `Buffer`クラス
+
+| 名前 | 型 | 可視性 | 説明 |
+|---|---|---|---|
+| `buf_` | `std::vector<std::byte>` | private | バッファ本体。バイト列を格納する。 |
+| `read_pos_` | `std::atomic<std::size_t>` | private | 読み込み位置を示すインデックス。アトミック変数でスレッドセーフを実現。 |
+| `write_pos_` | `std::atomic<std::size_t>` | private | 書き込み位置を示すインデックス。アトミック変数でスレッドセーフを実現。 |
+| `Buffer(std::size_t size)` | コンストラクタ | public | 指定されたサイズのバッファを初期化する。 |
+| `Buffer(std::span<const std::byte> bytes)` | コンストラクタ | public | 指定されたバイト列でバッファを初期化する。 |
+| `Buffer(std::initializer_list<std::byte> bytes)` | コンストラクタ | public | 初期化リストで指定されたバイト列でバッファを初期化する。 |
+| `Buffer(std::string_view str)` | コンストラクタ | public | 指定された文字列でバッファを初期化する。 |
+| `Buffer(const Buffer&)` | コピーコンストラクタ | public | 他の`Buffer`オブジェクトをコピーして初期化する。 |
+| `Buffer(Buffer&&)` | ムーブコンストラクタ | public | 他の`Buffer`オブジェクトから所有権を移譲して初期化する。 |
+| `operator=(const Buffer&)` | 代入演算子 | public | 右辺の`Buffer`オブジェクトの内容で左辺のオブジェクトをコピーする。 |
+| `operator=(Buffer&&)` | ムーブ代入演算子 | public | 右辺の`Buffer`オブジェクトから所有権を移譲して左辺のオブジェクトを更新する。 |
+| `WritableSize()` | `std::size_t` | public | 書き込み可能なバッファのサイズを返す。 |
+| `ReadableSize()` | `std::size_t` | public | 読み取り可能なバッファのサイズを返す。 |
+| `Peek()` | `std::optional<std::byte>` | public | バッファの先頭のバイトを、読み込み位置を進めずに取得する。空の場合は`std::nullopt`を返す。 |
+| `ReadableBytes()` | `std::span<const std::byte>` | public | 読み取り可能なバッファの内容へのアクセスを提供する`std::span`オブジェクトを返す。 |
+| `ReadableString()` | `std::string` | public | バッファの先頭から読み取り可能なバイト列を文字列として取得する。 |
+| `WritableBytes()` | `std::span<std::byte>` | public | 書き込み可能なバッファの内容へのアクセスを提供する`std::span`オブジェクトを返す。 |
+| `Append(std::span<const std::byte> bytes)` | void | public | 指定されたバイト列をバッファに追加する。書き込み位置を進める。 |
+| `Append(std::initializer_list<std::byte> bytes)` | void | public | 初期化リストで指定されたバイト列をバッファに追加する。書き込み位置を進める。 |
+| `Append(std::string_view str, std::optional<NewLine> new_line)` | void | public | 指定された文字列と改行文字（オプション）をバッファに追加する。書き込み位置を進める。 |
+| `Append(const void* data, std::size_t size)` | void | public | 指定されたデータブロックをバッファに追加する。書き込み位置を進める。 |
+| `Append(const Buffer& buf)` | void | public | 他の`Buffer`オブジェクトの内容をバッファに追加する。書き込み位置を進める。 |
+| `EnsureWriteableSize(std::size_t size)` | void | public | バッファに指定されたサイズの書き込み領域が確保されているか確認し、必要であれば拡張する。 |
+| `HasWritten(std::size_t size)` | void | public | 書き込み位置を`size`だけ進める。 |
+| `Retrieve(std::size_t size)` | void | public | 読み込み位置を`size`だけ進める。 |
+| `RetrieveUntil(const void* addr)` | `std::size_t` | public | 指定されたアドレスまで読み込み位置を進め、読み込んだバイト数を返す。 |
+| `RetrieveAll()` | `std::size_t` | public | バッファの内容をすべて読み込み、読み込んだバイト数を返す。バッファをクリアする。 |
+| `RetrieveAllToString()` | `std::string` | public | バッファの内容をすべて文字列として取得し、バッファをクリアする。 |
+| `Clear()` | void | public | バッファの内容をクリアする（読み込み位置と書き込み位置をリセット）。 |
+| `Empty()` | bool | public | バッファが空かどうかを返す。 |
+| `PrependableSize()` | `std::size_t` | protected | 読み込み位置より前の未使用領域のサイズを返す。 |
+| `MakeSpace(std::size_t size)` | void | protected | バッファに指定されたサイズの書き込み領域を確保する。必要に応じてメモリを再配置する。 |
+| `ReadIter()` | `std::vector<std::byte>::iterator` | protected | 読み込み位置に対応するイテレータを返す。 |
+| `WriteIter()` | `std::vector<std::byte>::iterator` | protected | 書き込み位置に対応するイテレータを返す。 |
+
+#### 3.2 `IOBuffer`クラス
+
+| 名前 | 型 | 可視性 | 説明 |
+|---|---|---|---|
+| `IOBuffer(std::size_t size)` | コンストラクタ | public | 指定されたサイズのバッファを持つ`IOBuffer`オブジェクトを初期化する。 |
+| `IOBuffer(std::span<const std::byte> bytes)` | コンストラクタ | public | 指定されたバイト列でバッファを持つ`IOBuffer`オブジェクトを初期化する。 |
+| `IOBuffer(std::initializer_list<std::byte> bytes)` | コンストラクタ | public | 初期化リストで指定されたバイト列でバッファを持つ`IOBuffer`オブジェクトを初期化する。 |
+| `IOBuffer(std::string_view str)` | コンストラクタ | public | 指定された文字列でバッファを持つ`IOBuffer`オブジェクトを初期化する。 |
+| `ReadFrom(io::IReadWriter& io)` | `std::size_t` | public | I/Oインターフェースからデータを読み込み、バッファに追加する。読み込んだバイト数を返す。 |
+| `WriteTo(io::IReadWriter& io)` | `std::size_t` | public | バッファのデータをI/Oインターフェースに書き出す。書き出したバイト数を返す。 |
+
+### 4. シーケンス図
+
+（省略 - I/O操作の詳細なシーケンスは、`io::IReadWriter`の実装に依存するため、ここでは一般的なバッファへの読み書きのシーケンスのみを示す。）
+
+```mermaid
+sequenceDiagram
+    participant Buffer
+    participant IOReader
+    IOReader->>Buffer: ReadFrom()
+    activate Buffer
+    Buffer-->>IOReader: data, size
+    deactivate Buffer
+```
+
+### 5. メソッド仕様書 (例：`Append(std::span<const std::byte> bytes)`)
+
+**メソッド名:** `Append`
+
+**目的:** バッファにバイト列を追加する。
+
+**引数:**
+
+*   `bytes`: 追加するバイト列の`std::span`オブジェクト。
+
+**戻り値:** なし
+
+**動作:**
+
+1.  バッファに書き込むための十分な領域があるか確認する。
+2.  もし十分な領域がない場合は、`MakeSpace()`を呼び出して領域を確保する。
+3.  指定されたバイト列をバッファの書き込み位置からコピーする。
+4.  書き込み位置をコピーしたバイト数だけ進める。
+
+**副作用:** バッファの内容が変更される。書き込み位置が更新される。
+
+### 6. 処理フロー図 (例：`EnsureWriteableSize(std::size_t size)`)
+
+```mermaid
+graph TD
+    A[開始] --> B{WritableSize() < size?};
+    B -- Yes --> C[MakeSpace(size)];
+    B -- No --> D[終了];
+    C --> D;
+```
+
+### 7. 状態遷移・副作用
+
+`Buffer`クラスの状態は、主に `read_pos_` と `write_pos_` によって決定される。これらの変数はアトミックであるため、スレッドセーフな操作が可能。メソッドの呼び出しによってこれらの変数が更新され、バッファの内容が変更される。
+
+### 8. データ変換・制約
+
+*   入力データはバイト列として扱われる。
+*   文字列をバッファに追加する際、エンコーディングはUTF-8を想定している（明示的な指定はない）。
+*   バッファのサイズには上限がないが、システムのメモリ制限に依存する。
+*   `Retrieve()`や`HasWritten()`などのメソッドでは、読み込み位置や書き込み位置がバッファの範囲を超えないように注意する必要がある。
+
+### 9. その他
+
+本設計書は、`Buffer`クラスと`IOBuffer`クラスの実装に必要な情報を網羅していることを目指す。不明な点や疑問点があれば、必要に応じて詳細を調査し、設計書を更新する。

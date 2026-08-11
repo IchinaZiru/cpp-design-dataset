@@ -1,0 +1,156 @@
+## Design Specification for `ws` Namespace (F01/U01 & F02/U02)
+
+This document details the design specification for the `ws` namespace, based on the provided C++ source code. It aims to provide enough information for another LLM to reimplement this functionality without access to the original source.  It focuses *only* on the replacement units (F01/U01 and F02/U02) as per instructions.
+
+**Overall Namespace:** `ws`
+
+This namespace contains utility functions and classes related to web server functionalities, file handling, and general-purpose utilities.
+
+---
+
+### 1. Types & Constants (From F01/U01)
+
+*   **`FileDescriptor`**:  An alias for `int`, representing a file descriptor.
+*   **`invalid_file_descriptor`**: A constant integer with the value `-1`, indicating an invalid file descriptor.
+
+---
+
+### 2. Functions (From F01/U01 & F02/U02)
+
+#### 2.1 String Manipulation
+
+*   **`StringToLower(std::string str)`**:
+    *   **Purpose:** Converts a given string to lowercase.
+    *   **Parameters:** `str`: The input string (passed by value).
+    *   **Return Value:** A new `std::string` containing the lowercase version of the input string.
+    *   **Exceptions:** None (`noexcept`).
+
+*   **`StringToUpper(std::string str)`**:
+    *   **Purpose:** Converts a given string to uppercase.
+    *   **Parameters:** `str`: The input string (passed by value).
+    *   **Return Value:** A new `std::string` containing the uppercase version of the input string.
+    *   **Exceptions:** None (`noexcept`).
+
+*   **`ReplaceAllSubstring(std::string_view str, std::string_view from, std::string_view to)`**:
+    *   **Purpose:** Replaces all occurrences of a substring within a given string with another substring.
+    *   **Parameters:**
+        *   `str`: The input string (as `std::string_view`).
+        *   `from`: The substring to be replaced (as `std::string_view`).
+        *   `to`: The replacement substring (as `std::string_view`).
+    *   **Return Value:** A new `std::string` with all occurrences of `from` replaced by `to`.
+    *   **Exceptions:** None (`noexcept`).
+
+*   **`SplitString(const std::string& str, const std::regex& pattern)`**:
+    *   **Purpose:** Splits a string into a vector of strings based on a regular expression pattern.
+    *   **Parameters:**
+        *   `str`: The input string (passed by constant reference).
+        *   `pattern`: The regular expression pattern used for splitting.
+    *   **Return Value:** A `std::vector<std::string>` containing the split substrings.
+    *   **Exceptions:** None (`noexcept`).
+
+*   **`SplitStringToLines(const std::string& str)`**:
+    *   **Purpose:** Splits a string into lines based on newline characters (`\r*\n`).
+    *   **Parameters:** `str`: The input string (passed by constant reference).
+    *   **Return Value:** A `std::vector<std::string>` containing the individual lines.
+    *   **Exceptions:** None (`noexcept`).
+
+#### 2.2 YAML Handling
+
+*   **`LoadYamlString(std::string_view str, std::initializer_list<std::string_view> required_fields = {})`**:
+    *   **Purpose:** Loads a YAML node from a string and verifies that it contains all specified required fields.
+    *   **Parameters:**
+        *   `str`: The YAML string (as `std::string_view`).
+        *   `required_fields`: An optional initializer list of strings representing the required field names (as `std::string_view`).
+    *   **Return Value:** A `YAML::Node` object representing the loaded YAML data.
+    *   **Exceptions:**  `std::invalid_argument` if any of the `required_fields` are missing in the YAML string.
+
+*   **`ThrowIfYamlFieldIsNotScalar(const YAML::Node& node, std::string_view field)`**:
+    *   **Purpose:** Throws an exception if a specified field in a YAML node does not exist or is not a scalar value.
+    *   **Parameters:**
+        *   `node`: The `YAML::Node` object to check.
+        *   `field`: The name of the field to verify (as `std::string_view`).
+    *   **Return Value:** None.
+    *   **Exceptions:**  `std::invalid_argument` if the field is missing or not scalar.
+
+#### 2.3 File Descriptor Handling
+
+*   **`IsValidFileDescriptor(FileDescriptor fd)`**:
+    *   **Purpose:** Checks if a given file descriptor is valid (non-negative).
+    *   **Parameters:** `fd`: The file descriptor to check.
+    *   **Return Value:** `true` if the file descriptor is valid, `false` otherwise.
+    *   **Exceptions:** None (`noexcept`).
+
+*   **`SetFileDescriptorAsNonblocking(FileDescriptor fd)`**:
+    *   **Purpose:** Sets a given file descriptor to non-blocking mode.
+    *   **Parameters:** `fd`: The file descriptor to modify.
+    *   **Return Value:** None.
+    *   **Exceptions:**  `std::system_error` if the operation fails.
+
+*   **`ThrowLastSystemError()`**:
+    *   **Purpose:** Throws a `std::system_error` exception containing information about the last system error that occurred.
+    *   **Parameters:** None.
+    *   **Return Value:** None (uses `[[noreturn]]`).
+    *   **Exceptions:**  `std::system_error`.
+
+#### 2.4 Threading & Backtrace
+
+*   **`CurrentThreadId()`**:
+    *   **Purpose:** Gets the ID of the current thread.
+    *   **Parameters:** None.
+    *   **Return Value:** A `std::uint32_t` representing the thread ID.
+    *   **Exceptions:** None (`noexcept`).
+
+*   **`Backtrace(std::vector<std::string>& stack, std::size_t size, std::size_t skip = 0)`**:
+    *   **Purpose:** Captures a backtrace of the calling program and stores it in a vector of strings.
+    *   **Parameters:**
+        *   `stack`: A reference to a `std::vector<std::string>` where the backtrace will be stored.
+        *   `size`: The maximum number of stack frames to capture.
+        *   `skip`: The number of initial stack frames to skip.
+    *   **Return Value:** None.
+    *   **Exceptions:** None (`noexcept`).
+
+*   **`Backtrace(std::size_t size, std::size_t skip = 0, std::string_view prefix = "")`**:
+    *   **Purpose:** Captures a backtrace of the calling program and returns it as a single string.
+    *   **Parameters:**
+        *   `size`: The maximum number of stack frames to capture.
+        *   `skip`: The number of initial stack frames to skip.
+        *   `prefix`: A prefix to add to each line of the backtrace.
+    *   **Return Value:** A `std::string` containing the formatted backtrace.
+    *   **Exceptions:** None (`noexcept`).
+
+#### 2.5 RAII and File Mapping
+
+* **`RAII<T, Cleaner>`**:  A generic Resource Acquisition Is Initialization (RAII) class template.
+    *   **Purpose:** Manages the lifetime of a resource `T`, automatically cleaning it up using a provided cleaner function `Cleaner`.
+    *   **Template Parameters:**
+        *   `T`: The type of the resource to be managed.
+        *   `Cleaner`: A callable object (e.g., function, lambda) that takes an instance of `T` as input and cleans it up.
+
+* **`Singleton<T, Args...>`**:  A generic Singleton class template.
+    *   **Purpose:** Provides a thread-safe way to access a single instance of a class `T`.
+    *   **Template Parameters:**
+        *   `T`: The type of the singleton class.
+        *   `Args...`: The arguments to be passed to the constructor of the singleton class.
+
+* **`SingletonPtr<T, Args...>`**: A generic Singleton pointer class template. Similar to `Singleton`, but returns a shared pointer.
+
+*   **`MappedReadOnlyFile`**:  A class for mapping a read-only file into memory.
+    *   **Purpose:** Provides a convenient way to access the contents of a file as if it were in memory, without copying the entire file.
+    *   **Methods:**
+        *   `MappedReadOnlyFile()`: Default constructor.
+        *   `MappedReadOnlyFile(const MappedReadOnlyFile&) = delete;`: Deleted copy constructor.
+        *   `MappedReadOnlyFile(MappedReadOnlyFile&&)`: Move constructor.
+        *   `MappedReadOnlyFile& operator=(const MappedReadOnlyFile&) = delete;`: Deleted assignment operator.
+        *   `MappedReadOnlyFile& operator=(MappedReadOnlyFile&&)`: Move assignment operator.
+        *   `~MappedReadOnlyFile()`: Destructor (unmaps the file).
+        *   `Map(std::string path)`: Maps a file into memory.  Throws exceptions on error.
+        *   `Unmap()`: Unmaps the file from memory.
+        *   `Size() const`: Returns the size of the mapped file.
+        *   `Data() const`: Returns a pointer to the beginning of the mapped file data.
+        *   `Path() const`: Returns the path of the mapped file.
+
+---
+
+### 3. Concepts (From F01/U01)
+
+* **`Addable<T, U, Ret>`**: A concept that checks if types `T` and `U` can be added together to produce a result convertible to type `Ret`.

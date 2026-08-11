@@ -1,0 +1,93 @@
+## Design Specification for HeapTimer (F01/U01)
+
+This document details the design of the `HeapTimer` class, based on the provided C++ source code.  It is intended to be used by another LLM to re-implement this functionality without access to the original source.
+
+**1. Overview**
+
+The `HeapTimer` class implements a priority queue (min-heap) for managing time-based events. It allows adding tasks associated with a key and an expiration time, and automatically invokes callbacks when those times are reached.  It's designed for efficient retrieval of the next expiring task.
+
+**2. Namespaces & Includes**
+
+*   **Namespace:** `ws`
+*   **Includes:**
+    *   `log.h`: For logging functionality (details unknown - assume a basic logger with error level).
+    *   `util.h`:  Unknown utility functions, not used in the provided code.
+    *   `<algorithm>`: Standard algorithm library.
+    *   `<cassert>`: Assertions for debugging.
+    *   `<chrono>`: Time-related functionalities (steady clock and durations).
+    *   `<compare>`: For comparison operators.
+    *   `<deque>`: Double-ended queue used as the underlying storage for the heap.
+    *   `<functional>`: Function objects, specifically `std::function`.
+    *   `<optional>`:  For optional values.
+    *   `<stdexcept>`: Standard exception library.
+    *   `<unordered_map>`: Hash table for key-to-index mapping.
+
+**3. Class Definition: `HeapTimer<Key>`**
+
+A template class parameterized by a type `Key`.
+
+**4. Public Interface**
+
+*   **`using Clock = std::chrono::steady_clock;`**: Defines an alias for the steady clock.
+*   **`using TimeOutCallback = std::function<void(const Key&)>;`**:  Defines a function signature for callbacks that take a `Key` as input and return void.
+
+*   **`explicit HeapTimer(log::Logger::Ptr logger = log::RootLogger()) noexcept;`**: Constructor. Takes an optional logger pointer. If no logger is provided, it defaults to the root logger.
+*   **`HeapTimer(HeapTimer&&) = delete;`**: Move constructor deleted.
+*   **`HeapTimer& operator=(HeapTimer&&) = delete;`**: Move assignment operator deleted.
+*   **`HeapTimer(const HeapTimer&) = delete;`**: Copy constructor deleted.
+*   **`HeapTimer& operator=(const HeapTimer&) = delete;`**: Copy assignment operator deleted.
+
+*   **`void Adjust(const Key& key, Clock::duration expiration);`**:  Adjusts the expiration time of an existing task identified by `key`. Uses a duration relative to now.
+*   **`void Adjust(const Key& key, Clock::time_point expiration);`**: Adjusts the expiration time of an existing task identified by `key`. Uses an absolute time point.
+*   **`void Push(const Key& key, Clock::duration expiration, TimeOutCallback callback) noexcept;`**: Adds a new task with the given `key`, relative expiration `duration`, and `callback` function.
+*   **`void Push(const Key& key, Clock::time_point expiration, TimeOutCallback callback) noexcept;`**: Adds a new task with the given `key`, absolute expiration `time_point`, and `callback` function.
+*   **`void Tick() noexcept;`**: Processes expired tasks.  Iterates through the heap, invokes callbacks for expired tasks, and removes them from the heap.
+*   **`bool Remove(const Key& key) noexcept;`**: Removes a task identified by `key`. Returns `true` if successful, `false` otherwise.
+*   **`void Invoke(const Key& key);`**: Immediately invokes the callback associated with the given `key`, then removes the task from the heap.
+*   **`Key Pop() noexcept;`**: Removes and returns the key of the next expiring task (the root of the heap).  Assumes the heap is not empty.
+*   **`void Clear() noexcept;`**: Removes all tasks from the timer, resetting it to an initial state.
+*   **`bool Contain(const Key& key) const noexcept;`**: Checks if a task with the given `key` exists in the timer.
+*   **`bool Empty() const noexcept;`**:  Checks if the timer is empty (contains no tasks).
+*   **`std::size_t Size() const noexcept;`**: Returns the number of tasks currently managed by the timer.
+*   **`Clock::duration ToNextTick() noexcept;`**: Processes expired events and returns the time remaining until the next event expires, or zero if empty.
+
+**5. Private Members**
+
+*   **`struct Node { ... };`**:  An inner struct representing a node in the heap:
+    *   `Key key;`: The key associated with the task.
+    *   `Clock::time_point expiration;`: The absolute time point when the task expires.
+    *   `TimeOutCallback callback;`: The function to be called when the task expires.
+    *   `bool Expired() const noexcept;`: Returns `true` if the current time is greater than or equal to the expiration time, otherwise `false`.
+    *   `void Swap(Node&) noexcept;`: Swaps the contents of two `Node` objects.
+    *   `friend std::weak_ordering operator<=>(const Node& lhs, const Node& rhs) noexcept;`: Defines a comparison operator for nodes based on their expiration times (using three-way comparison).
+
+*   **`log::Logger::Ptr logger_;`**: A pointer to the logger instance.
+*   **`std::unordered_map<Key, std::size_t> key_to_idx_;`**:  A hash map that maps each `Key` to its index in the `nodes_` deque. This allows for efficient lookup of tasks by key.
+*   **`std::deque<Node> nodes_;`**: A double-ended queue used as the underlying storage for the min-heap.
+
+**6. Private Helper Functions**
+
+*   **`void Swap(std::size_t idx1, std::size_t idx2) noexcept;`**: Swaps two nodes in the `nodes_` deque and updates the `key_to_idx_` map accordingly.
+*   **`void Adjust(const Key& key, Clock::time_point expiration, std::optional<TimeOutCallback> callback);`**:  Internal helper function to adjust a task's expiration time and optionally its callback.
+*   **`Key RemoveByIndex(std::size_t idx) noexcept;`**: Removes the node at the given index from the heap, maintaining heap properties. Returns the key of the removed node.
+*   **`void ShiftUp(std::size_t idx) noexcept;`**: Moves a node up the heap to its correct position after insertion or adjustment.
+*   **`void ShiftDown(std::size_t idx) noexcept;`**: Moves a node down the heap to its correct position after removal or adjustment.
+*   **`bool ValidIndex(std::size_t idx) const noexcept;`**: Checks if an index is within the bounds of the `nodes_` deque.
+*   **`std::optional<std::size_t> Parent(std::size_t idx) const noexcept;`**: Returns the index of the parent node, or `std::nullopt` if the node is the root.
+*   **`std::optional<std::size_t> SmallChild(std::size_t idx) const noexcept;`**: Returns the index of the smaller child node (based on expiration time), or `std::nullopt` if the node has no children.
+
+**7.  Assumptions & Clarifications**
+
+*   The `log::Logger` class and its associated functionalities are not defined in this specification. Assume it provides a basic error logging mechanism.
+*   The implementation should ensure that the `key_to_idx_` map and the `nodes_` deque remain consistent at all times, especially after insertions, deletions, and adjustments.
+*   Exception safety is important.  Callbacks may throw exceptions; these should be caught and logged without crashing the timer.
+*   The heap property (min-heap) must be maintained throughout all operations. The root of the heap always contains the task with the earliest expiration time.
+*   `noexcept` specifiers indicate that a function will not throw exceptions, which is crucial for performance and reliability in certain contexts.
+
+**8.  Data Structures & Algorithms**
+
+*   **Min-Heap:** The core data structure used to store tasks. Implemented using a `std::deque`.
+*   **Hash Map:** Used for efficient key-to-index mapping (`std::unordered_map`).
+*   **Heapify (ShiftUp/ShiftDown):** Algorithms used to maintain the heap property after insertions, deletions, and adjustments.
+
+This specification provides a comprehensive overview of the `HeapTimer` class, enabling another LLM to reimplement it accurately based on the provided source code.  It focuses solely on the information available in the given input and avoids making any assumptions beyond that.
