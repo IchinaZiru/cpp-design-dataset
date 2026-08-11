@@ -1,0 +1,168 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+### Design Specification for Reimplementation of C++ Source Code
+
+#### Overview
+This document provides a detailed design specification for reimplementing the given C++ source code. The target-owned identifiers (Fxx/Uxx) are to be preserved, and only the units marked with `replacement_required: true` will be regenerated.
+
+#### Target Files
+1. **include/config.h**
+2. **src/config/config.cpp**
+
+### File: include/config.h
+
+#### Role
+Complete target-owned implementation/declaration file.
+
+#### Namespace
+- `ws::cfg`
+
+#### Included Headers
+```cpp
+#include "util.h"
+#include <algorithm>
+#include <initializer_list>
+#include <iostream>
+#include <list>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <set>
+#include <shared_mutex>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <syncstream>
+#include <typeinfo>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+```
+
+#### Classes and Templates
+
+1. **VarConverter**
+   - Template Class: `template <typename From, typename To>`
+     - Method: `To operator()(const From& val) const noexcept`
+   - Specialization: `template <typename From>`
+     - Method: `std::string operator()(const From& val) const noexcept`
+   - Specialization: `template <>`
+     - Method: `std::string operator()(const std::string_view val) const noexcept`
+   - Template Class: `template <typename To>`
+     - Method: `To operator()(const std::string_view str) const`
+   - Template Class: `template <typename T>`
+     - Methods:
+       - `std::list<T> operator()(const std::string_view str) const`
+       - `std::string operator()(const std::list<T>& vals) const noexcept`
+       - `std::vector<T> operator()(const std::string_view str) const`
+       - `std::string operator()(const std::vector<T>& vals) const noexcept`
+       - `std::set<T> operator()(const std::string_view str) const`
+       - `std::string operator()(const std::set<T>& vals) const noexcept`
+       - `std::unordered_set<T> operator()(const std::string_view str) const`
+       - `std::string operator()(const std::unordered_set<T>& vals) const noexcept`
+       - `std::map<std::string, T> operator()(const std::string_view str) const`
+       - `std::string operator()(const std::map<std::string, T>& vals) const noexcept`
+       - `std::unordered_map<std::string, T> operator()(const std::string_view str) const`
+       - `std::string operator()(const std::unordered_map<std::string, T>& vals) const noexcept`
+
+2. **VarBase**
+   - Methods:
+     - `explicit VarBase(std::string_view name, std::string_view description = "") noexcept`
+     - `virtual ~VarBase() noexcept = default`
+     - `std::string_view Name() const noexcept`
+     - `std::string_view Description() const noexcept`
+     - `virtual std::string ToString() const noexcept = 0`
+     - `virtual void FromString(std::string_view str) = 0`
+
+3. **Var**
+   - Template Class: `template <typename T, typename FromStr = VarConverter<std::string, T>, typename ToStr = VarConverter<T, std::string>>`
+   - Requires:
+     - `std::is_invocable_r_v<T, FromStr, std::string>`
+     - `std::is_nothrow_invocable_r_v<std::string, ToStr, T>`
+   - Methods:
+     - `explicit Var(const std::string_view name, const T& default_val, const std::string_view description = "") noexcept`
+     - `Var(const Var&) = delete`
+     - `Var(Var&&) = delete`
+     - `Var& operator=(const Var&) = delete`
+     - `Var& operator=(Var&&) = delete`
+     - `std::string ToString() const noexcept override`
+     - `void FromString(const std::string_view str) override`
+     - `T GetValue() const noexcept`
+     - `void SetValue(const T& val) noexcept`
+     - `std::string_view TypeName() const noexcept`
+     - `void RemoveListener(const std::uint64_t key) noexcept`
+     - `std::uint64_t AddListener(OnChange listener) noexcept`
+     - `void ClearListeners() noexcept`
+
+4. **Config**
+   - Methods:
+     - `explicit Config(std::string_view name) noexcept`
+     - `Config(const Config&) = delete`
+     - `Config(Config&&) = delete`
+     - `Config& operator=(const Config&) = delete`
+     - `Config& operator=(Config&&) = delete`
+     - `std::string_view Name() const noexcept`
+     - `template <typename T> typename Var<T>::Ptr Lookup(const std::string_view name, const T& default_val, const std::string_view description = "")`
+     - `template <typename T> typename Var<T>::Ptr Lookup(const std::string_view name) const`
+     - `VarBase::Ptr LookupBase(std::string_view name) const noexcept`
+     - `void LoadYaml(const YAML::Node& root)`
+     - `void Visit(std::function<void(VarBase::Ptr)> visitor) const noexcept`
+
+5. **RootConfig**
+   - Function: `Config::Ptr RootConfig() noexcept`
+
+### File: src/config/config.cpp
+
+#### Role
+Complete target-owned implementation/declaration file.
+
+#### Namespace
+- `ws::cfg`
+
+#### Included Headers
+```cpp
+#include "config.h"
+```
+
+#### Functions and Methods
+
+1. **ExtractMembers**
+   - Function: `std::list<std::pair<std::string, YAML::Node>> ExtractMembers(const YAML::Node& node, const std::string& prefix = "")`
+     - Description: Recursively extracts members from a YAML node.
+
+2. **VarBase Constructor and Methods**
+   - Constructor: `VarBase::VarBase(const std::string_view name, const std::string_view description) noexcept`
+   - Method: `std::string_view VarBase::Name() const noexcept`
+   - Method: `std::string_view VarBase::Description() const noexcept`
+
+3. **Config Constructor and Methods**
+   - Constructor: `Config::Config(const std::string_view name) noexcept`
+   - Method: `std::string_view Config::Name() const noexcept`
+   - Method: `VarBase::Ptr Config::LookupBase(std::string_view name) const noexcept`
+   - Method: `void Config::LoadYaml(const YAML::Node& root)`
+   - Method: `void Config::Visit(const std::function<void(VarBase::Ptr)> visitor) const noexcept`
+
+4. **RootConfig**
+   - Function: `Config::Ptr RootConfig() noexcept`
+
+### Summary
+This design specification provides a detailed breakdown of the classes, templates, and functions present in the given C++ source code. The reimplementation should strictly adhere to this structure while preserving all target-owned identifiers (Fxx/Uxx).

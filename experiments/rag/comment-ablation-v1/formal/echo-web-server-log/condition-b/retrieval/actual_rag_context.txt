@@ -1,0 +1,1041 @@
+RAG_CONTEXT repository-dependencies-v1
+
+### PATH: include/config.h
+SOURCE_SHA256: 8ec2dfd2cde43e818ecd1f16090180d961edaa7c3b4000a2549945a0c10b02fc
+CONTENT_SHA256: 9a879f5d175f9e5d1a119094ac512b9784db15dedb61f85a0be65ddd6dd65bf1
+----- BEGIN DEPENDENCY HEADER CONTENT: include/config.h -----
+   
+                 
+                                                     
+  
+                                                
+              
+                                 
+               
+                   
+  
+                                 
+   
+
+#pragma once
+
+#include "util.h"
+
+#include <algorithm>
+#include <initializer_list>
+#include <iostream>
+#include <list>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <set>
+#include <shared_mutex>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <syncstream>
+#include <typeinfo>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+
+namespace ws {
+
+namespace cfg {
+
+   
+         
+                                                      
+                                                      
+  
+                                  
+                         
+  
+        
+                                                              
+                                                                                       
+   
+template <typename From, typename To>
+class VarConverter {
+public:
+    To operator()(const From& val) const noexcept {
+        return static_cast<To>(val);
+    }
+};
+
+                                                                      
+template <typename From>
+class VarConverter<From, std::string> {
+public:
+    std::string operator()(const From& val) const noexcept {
+        using std::to_string;
+        return to_string(val);
+    }
+};
+
+                                                 
+template <>
+class VarConverter<std::string, std::string> {
+public:
+    std::string operator()(const std::string_view val) const noexcept {
+        return val.data();
+    }
+};
+
+   
+                                                                                     
+  
+                                                          
+   
+template <typename To>
+class VarConverter<std::string, To> {
+public:
+    To operator()(const std::string_view str) const {
+        To val {};
+        std::istringstream ss {str.data()};
+        ss >> val;
+        if (ss.fail()) {
+            throw std::invalid_argument {
+                fmt::format("Invalid value: '{}'", str)};
+        } else {
+            return val;
+        }
+    }
+};
+
+   
+                                                                  
+  
+                                                                         
+   
+template <typename T>
+class VarConverter<std::string, std::list<T>> {
+public:
+    std::list<T> operator()(const std::string_view str) const {
+        const auto node {LoadYamlString(str)};
+        if (!node.IsSequence()) {
+            throw std::invalid_argument {
+                fmt::format("Mismatched type: '{}'", str)};
+        }
+
+        std::list<T> vals;
+        std::ranges::for_each(node, [&vals](const YAML::Node& child) {
+            std::ostringstream ss;
+            ss << child;
+            vals.emplace_back(VarConverter<std::string, T> {}(ss.str()));
+        });
+
+        return vals;
+    }
+};
+
+                                                            
+template <typename T>
+class VarConverter<std::list<T>, std::string> {
+public:
+    std::string operator()(const std::list<T>& vals) const noexcept {
+        YAML::Node node;
+        std::ranges::for_each(vals, [&node](const T& val) {
+            node.push_back(
+                LoadYamlString(VarConverter<T, std::string> {}(val)));
+        });
+
+        std::ostringstream ss;
+        ss << node;
+        return ss.str();
+    }
+};
+
+                                                              
+template <typename T>
+class VarConverter<std::string, std::vector<T>> {
+public:
+    std::vector<T> operator()(const std::string_view str) const {
+        std::vector<T> vals;
+        std::ranges::move(VarConverter<std::string, std::list<T>> {}(str),
+                          std::back_inserter(vals));
+        return vals;
+    }
+};
+
+                                                              
+template <typename T>
+class VarConverter<std::vector<T>, std::string> {
+public:
+    std::string operator()(const std::vector<T>& vals) const noexcept {
+        return VarConverter<std::list<T>, std::string> {}(
+            {vals.cbegin(), vals.cend()});
+    }
+};
+
+                                                           
+template <typename T>
+class VarConverter<std::string, std::set<T>> {
+public:
+    std::set<T> operator()(const std::string_view str) const {
+        std::set<T> vals;
+        std::ranges::move(VarConverter<std::string, std::list<T>> {}(str),
+                          std::inserter(vals, vals.end()));
+        return vals;
+    }
+};
+
+                                                           
+template <typename T>
+class VarConverter<std::set<T>, std::string> {
+public:
+    std::string operator()(const std::set<T>& vals) const noexcept {
+        return VarConverter<std::list<T>, std::string> {}(
+            {vals.cbegin(), vals.cend()});
+    }
+};
+
+                                                                      
+template <typename T>
+class VarConverter<std::string, std::unordered_set<T>> {
+public:
+    std::unordered_set<T> operator()(const std::string_view str) const {
+        std::unordered_set<T> vals;
+        std::ranges::move(VarConverter<std::string, std::list<T>> {}(str),
+                          std::inserter(vals, vals.end()));
+        return vals;
+    }
+};
+
+                                                                      
+template <typename T>
+class VarConverter<std::unordered_set<T>, std::string> {
+public:
+    std::string operator()(const std::unordered_set<T>& vals) const noexcept {
+        return VarConverter<std::list<T>, std::string> {}(
+            {vals.cbegin(), vals.cend()});
+    }
+};
+
+   
+                                                                 
+  
+                                                                        
+   
+template <typename T>
+class VarConverter<std::string, std::map<std::string, T>> {
+public:
+    std::map<std::string, T> operator()(const std::string_view str) const {
+        const auto node {LoadYamlString(str)};
+        if (!node.IsMap()) {
+            throw std::invalid_argument {
+                fmt::format("Mismatched type: '{}'", str)};
+        }
+
+        std::map<std::string, T> vals;
+        std::ranges::for_each(
+            node, [&vals](const std::pair<YAML::Node, YAML::Node>& child) {
+                std::ostringstream key;
+                key << child.first;
+                std::ostringstream val;
+                val << child.second;
+                vals.emplace(key.str(),
+                             VarConverter<std::string, T> {}(val.str()));
+            });
+
+        return vals;
+    }
+};
+
+                                                           
+template <typename T>
+class VarConverter<std::map<std::string, T>, std::string> {
+public:
+    std::string operator()(
+        const std::map<std::string, T>& vals) const noexcept {
+        YAML::Node node;
+        std::ranges::for_each(
+            vals, [&node](const std::pair<std::string, T>& val) {
+                node[val.first] =
+                    LoadYamlString(VarConverter<T, std::string> {}(val.second));
+            });
+
+        std::ostringstream ss;
+        ss << node;
+        return ss.str();
+    }
+};
+
+                                                                      
+template <typename T>
+class VarConverter<std::string, std::unordered_map<std::string, T>> {
+public:
+    std::unordered_map<std::string, T> operator()(
+        const std::string_view str) const {
+        std::unordered_map<std::string, T> vals;
+        std::ranges::move(
+            VarConverter<std::string, std::map<std::string, T>> {}(str),
+            std::inserter(vals, vals.end()));
+        return vals;
+    }
+};
+
+                                                                      
+template <typename T>
+class VarConverter<std::unordered_map<std::string, T>, std::string> {
+public:
+    std::string operator()(
+        const std::unordered_map<std::string, T>& vals) const noexcept {
+        return VarConverter<std::map<std::string, T>, std::string> {}(
+            {vals.cbegin(), vals.cend()});
+    }
+};
+
+                                                     
+class VarBase {
+public:
+    using Ptr = std::shared_ptr<VarBase>;
+
+    explicit VarBase(std::string_view name,
+                     std::string_view description = "") noexcept;
+
+    virtual ~VarBase() noexcept = default;
+
+                              
+    std::string_view Name() const noexcept;
+
+                                     
+    std::string_view Description() const noexcept;
+
+                                           
+    virtual std::string ToString() const noexcept = 0;
+
+                                       
+    virtual void FromString(std::string_view str) = 0;
+
+protected:
+    std::string name_;
+    std::string description_;
+};
+
+   
+                                     
+  
+                               
+                                                                                    
+                                                                                  
+   
+template <typename T, typename FromStr = VarConverter<std::string, T>,
+          typename ToStr = VarConverter<T, std::string>>
+requires std::is_invocable_r_v<T, FromStr, std::string> && std::
+    is_nothrow_invocable_r_v<std::string, ToStr, T>
+class Var : public VarBase {
+public:
+    using Ptr = std::shared_ptr<Var>;
+
+       
+                                                   
+      
+                                                    
+                                                   
+       
+    using OnChange = std::function<void(const T& old_val, const T& new_val)>;
+
+    explicit Var(const std::string_view name, const T& default_val,
+                 const std::string_view description = "") noexcept :
+        VarBase {name, description}, val_ {default_val} {}
+
+    Var(const Var&) = delete;
+
+    Var(Var&&) = delete;
+
+    Var& operator=(const Var&) = delete;
+
+    Var& operator=(Var&&) = delete;
+
+    std::string ToString() const noexcept override {
+        return ToStr {}(GetValue());
+    }
+
+    void FromString(const std::string_view str) override {
+        SetValue(FromStr {}(str));
+    }
+
+    T GetValue() const noexcept {
+        const std::shared_lock locker {mtx_};
+        return val_;
+    }
+
+    void SetValue(const T& val) noexcept {
+        {
+            const std::shared_lock locker {mtx_};
+            if (val != val_) {
+                std::ranges::for_each(
+                    listeners_, [&val, this](const auto& listener) noexcept {
+                        try {
+                            listener.second(val_, val);
+                        } catch (const std::exception& err) {
+                            std::osyncstream {std::cerr} << err.what()
+                                                         << std::endl;
+                        }
+                    });
+            }
+        }
+
+        const std::unique_lock locker {mtx_};
+        val_ = val;
+    }
+
+                                                           
+    std::string_view TypeName() const noexcept {
+        return typeid(T).name();
+    }
+
+       
+                                
+      
+                                                             
+       
+    void RemoveListener(const std::uint64_t key) noexcept {
+        const std::unique_lock locker {mtx_};
+        listeners_.erase(key);
+    }
+
+       
+                                                     
+      
+                                  
+                                                          
+       
+    std::uint64_t AddListener(OnChange listener) noexcept {
+        const std::unique_lock locker {mtx_};
+        static std::uint64_t key {0};
+        listeners_[key] = std::move(listener);
+        return key++;
+    }
+
+                             
+    void ClearListeners() noexcept {
+        const std::unique_lock locker {mtx_};
+        listeners_.clear();
+    }
+
+private:
+    mutable std::shared_mutex mtx_;
+
+    T val_;
+    std::unordered_map<std::uint64_t, OnChange> listeners_;
+};
+
+                      
+class Config {
+public:
+    using Ptr = std::shared_ptr<Config>;
+
+    explicit Config(std::string_view name) noexcept;
+
+    Config(const Config&) = delete;
+
+    Config(Config&&) = delete;
+
+    Config& operator=(const Config&) = delete;
+
+    Config& operator=(Config&&) = delete;
+
+    std::string_view Name() const noexcept;
+
+                                                                        
+    template <typename T>
+    typename Var<T>::Ptr Lookup(const std::string_view name,
+                                const T& default_val,
+                                const std::string_view description = "") {
+        if (const auto var {Lookup<T>(name)}; !var) {
+            const auto new_var {
+                std::make_shared<Var<T>>(name, default_val, description)};
+            const std::unique_lock locker {mtx_};
+            vars_.emplace(name, new_var);
+            return new_var;
+        } else {
+            return var;
+        }
+    }
+
+       
+                                            
+      
+                                 
+                                   
+                                                
+      
+                                                                                           
+       
+    template <typename T>
+    typename Var<T>::Ptr Lookup(const std::string_view name) const {
+        if (const auto base {LookupBase(name)}; base) {
+            if (const auto var {std::dynamic_pointer_cast<Var<T>>(base)}; var) {
+                return var;
+            } else {
+                throw std::invalid_argument {
+                    fmt::format("Mismatched type: '{}'", name)};
+            }
+        } else {
+            return nullptr;
+        }
+    }
+
+                                                      
+    VarBase::Ptr LookupBase(std::string_view name) const noexcept;
+
+       
+                                                                       
+      
+               
+                                                                                     
+                                      
+       
+    void LoadYaml(const YAML::Node& root);
+
+                            
+    void Visit(std::function<void(VarBase::Ptr)> visitor) const noexcept;
+
+private:
+    using VarMap = std::unordered_map<std::string, VarBase::Ptr>;
+
+    mutable std::shared_mutex mtx_;
+    std::string name_;
+    VarMap vars_;
+};
+
+                               
+Config::Ptr RootConfig() noexcept;
+
+}                  
+
+}                 
+----- END DEPENDENCY HEADER CONTENT: include/config.h -----
+
+### PATH: include/containers/block_deque.h
+SOURCE_SHA256: fdda24e717e1bc6efc5ded961017a26c8e7912248143bd1c43c8f5ea8926678e
+CONTENT_SHA256: d24137174ea81b28c11d1bffdd24948dfbad97b384ca289a23b24cafa71d3fc6
+----- BEGIN DEPENDENCY HEADER CONTENT: include/containers/block_deque.h -----
+   
+                      
+                                       
+  
+                                                
+                                              
+              
+                                 
+               
+                   
+  
+                                                 
+   
+
+#pragma once
+
+#include <cassert>
+#include <condition_variable>
+#include <deque>
+#include <mutex>
+#include <optional>
+#include <utility>
+
+
+namespace ws {
+
+                                 
+template <typename T>
+class BlockDeque {
+public:
+    using Clock = std::chrono::steady_clock;
+
+       
+                                                
+      
+                      
+                            
+                                                              
+       
+    explicit BlockDeque(std::size_t capacity = 1000) noexcept;
+
+    BlockDeque(const BlockDeque&) = delete;
+
+    BlockDeque(BlockDeque&&) = delete;
+
+    BlockDeque& operator=(const BlockDeque&) = delete;
+
+    BlockDeque& operator=(BlockDeque&&) = delete;
+
+    ~BlockDeque() noexcept;
+
+                           
+    void Clear() noexcept;
+
+                                   
+    bool Empty() const noexcept;
+
+                                  
+    bool Full() const noexcept;
+
+                                   
+    std::size_t Size() const noexcept;
+
+                                 
+    std::size_t Capacity() const noexcept;
+
+                                                        
+    void PushBack(T item) noexcept;
+
+                                                                 
+    void PushFront(T item) noexcept;
+
+       
+                                       
+      
+                                                                           
+       
+    const T& Front() const noexcept;
+
+       
+                                      
+      
+                                                                           
+       
+    const T& Back() const noexcept;
+
+    T& Front() noexcept;
+
+    T& Back() noexcept;
+
+       
+                                           
+      
+                      
+                                        
+                                                                                                               
+      
+                                                                                                         
+       
+    std::optional<T> Pop(
+        std::optional<Clock::duration> time_out = std::nullopt) noexcept;
+
+                          
+    void Flush() noexcept;
+
+                                               
+    void Close() noexcept;
+
+private:
+                                                                                          
+    void WaitForSpace(std::unique_lock<std::mutex>& locker) noexcept;
+
+    void ClearNoLock() noexcept;
+
+    mutable std::mutex mtx_;
+    std::atomic_bool closed_ {false};
+    std::size_t capacity_;
+
+    std::deque<T> deq_;
+
+    std::condition_variable consumer_cond_;
+    std::condition_variable producer_cond_;
+};
+
+template <typename T>
+BlockDeque<T>::BlockDeque(const std::size_t capacity) noexcept :
+    capacity_ {capacity} {
+    assert(capacity > 0);
+}
+
+template <typename T>
+BlockDeque<T>::~BlockDeque() noexcept {
+    Close();
+}
+
+template <typename T>
+bool BlockDeque<T>::Empty() const noexcept {
+    const std::lock_guard locker {mtx_};
+    return deq_.empty();
+}
+
+template <typename T>
+bool BlockDeque<T>::Full() const noexcept {
+    const auto size {this->Size()};
+    assert(size <= capacity_);
+    return size == capacity_;
+}
+
+template <typename T>
+std::size_t BlockDeque<T>::Size() const noexcept {
+    const std::lock_guard locker {mtx_};
+    return deq_.size();
+}
+
+template <typename T>
+std::size_t BlockDeque<T>::Capacity() const noexcept {
+    return capacity_;
+}
+
+template <typename T>
+void BlockDeque<T>::Close() noexcept {
+    const std::lock_guard locker {mtx_};
+    ClearNoLock();
+    closed_ = true;
+    producer_cond_.notify_all();
+    consumer_cond_.notify_all();
+}
+
+template <typename T>
+void BlockDeque<T>::ClearNoLock() noexcept {
+    deq_.clear();
+}
+
+template <typename T>
+void BlockDeque<T>::Clear() noexcept {
+    const std::lock_guard locker {mtx_};
+    ClearNoLock();
+}
+
+template <typename T>
+void BlockDeque<T>::Flush() noexcept {
+    consumer_cond_.notify_one();
+}
+
+template <typename T>
+void BlockDeque<T>::PushBack(T item) noexcept {
+    std::unique_lock locker {mtx_};
+    WaitForSpace(locker);
+    deq_.push_back(std::move(item));
+    Flush();
+}
+
+template <typename T>
+void BlockDeque<T>::PushFront(T item) noexcept {
+    std::unique_lock locker {mtx_};
+    WaitForSpace(locker);
+    deq_.push_front(std::move(item));
+    Flush();
+}
+
+template <typename T>
+const T& BlockDeque<T>::Front() const noexcept {
+    const std::lock_guard locker {mtx_};
+    assert(!deq_.empty());
+    return deq_.front();
+}
+
+template <typename T>
+const T& BlockDeque<T>::Back() const noexcept {
+    const std::lock_guard locker {mtx_};
+    assert(!deq_.empty());
+    return deq_.back();
+}
+
+template <typename T>
+T& BlockDeque<T>::Front() noexcept {
+    return const_cast<T&>(std::as_const(*this).Front());
+}
+
+template <typename T>
+T& BlockDeque<T>::Back() noexcept {
+    return const_cast<T&>(std::as_const(*this).Back());
+}
+
+template <typename T>
+std::optional<T> BlockDeque<T>::Pop(
+    const std::optional<Clock::duration> time_out) noexcept {
+    const auto not_empty_or_closed {[this]() noexcept {
+                                                                                
+                                                                  
+                                                                    
+                                                                        
+        return !deq_.empty() || closed_;
+    }};
+
+    std::unique_lock locker {mtx_};
+    if (time_out.has_value()) {
+        if (!consumer_cond_.wait_for(locker, *time_out, not_empty_or_closed)) {
+            return std::nullopt;
+        }
+    } else {
+        consumer_cond_.wait(locker, not_empty_or_closed);
+    }
+
+    if (closed_) {
+        return std::nullopt;
+    } else {
+        const auto item {deq_.front()};
+        deq_.pop_front();
+        producer_cond_.notify_one();
+        return item;
+    }
+}
+
+template <typename T>
+void BlockDeque<T>::WaitForSpace(
+    std::unique_lock<std::mutex>& locker) noexcept {
+    producer_cond_.wait(locker, [this]() { return deq_.size() < capacity_; });
+}
+
+}                 
+----- END DEPENDENCY HEADER CONTENT: include/containers/block_deque.h -----
+
+### PATH: include/util.h
+SOURCE_SHA256: bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85
+CONTENT_SHA256: 7c488acf8a20755ef84a93bd1418be48381161cd1da5506f28296618cad8b0fc
+----- BEGIN DEPENDENCY HEADER CONTENT: include/util.h -----
+   
+               
+                                  
+  
+                                                
+              
+                                 
+               
+                   
+  
+                               
+  
+                                             
+   
+
+#pragma once
+
+#include <fmt/format.h>
+#include <yaml-cpp/yaml.h>
+
+#include <sys/stat.h>
+
+#include <concepts>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+#include <regex>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+                             
+namespace ws {
+
+                                            
+using FileDescriptor = int;
+
+                                                           
+inline constexpr FileDescriptor invalid_file_descriptor {-1};
+
+                                     
+std::string StringToLower(std::string str) noexcept;
+
+                                     
+std::string StringToUpper(std::string str) noexcept;
+
+                                                        
+std::string ReplaceAllSubstring(std::string_view str, std::string_view from,
+                                std::string_view to) noexcept;
+
+                                      
+std::vector<std::string> SplitString(const std::string& str,
+                                     const std::regex& pattern) noexcept;
+
+                              
+std::vector<std::string> SplitStringToLines(const std::string& str) noexcept;
+
+   
+                                            
+  
+                               
+                                          
+  
+                                                                                  
+   
+YAML::Node LoadYamlString(
+    std::string_view str,
+    std::initializer_list<std::string_view> required_fields = {});
+
+                                                                                                                
+void ThrowIfYamlFieldIsNotScalar(const YAML::Node& node,
+                                 std::string_view field);
+
+   
+                                             
+  
+                                                                                         
+   
+constexpr bool IsValidFileDescriptor(FileDescriptor fd) noexcept {
+    return fd >= 0;
+}
+
+   
+                                                
+  
+                                                                  
+   
+void SetFileDescriptorAsNonblocking(FileDescriptor fd);
+
+                                                                     
+[[noreturn]] void ThrowLastSystemError();
+
+                                     
+std::uint32_t CurrentThreadId() noexcept;
+
+   
+                                                  
+  
+                                      
+                                               
+                                                 
+   
+void Backtrace(std::vector<std::string>& stack, std::size_t size,
+               std::size_t skip = 0) noexcept;
+
+   
+                                                  
+  
+                                               
+                                                 
+                                             
+   
+std::string Backtrace(std::size_t size, std::size_t skip = 0,
+                      std::string_view prefix = "") noexcept;
+
+   
+                                                         
+  
+                                                
+                                                                                              
+   
+template <typename T, typename... Args>
+class Singleton {
+public:
+       
+                                         
+      
+                                               
+       
+    template <Args... args>
+    static T& Instance() noexcept {
+        static T ins {std::move(args)...};
+        return ins;
+    }
+};
+
+   
+                                                           
+  
+                                                
+                                                                                                   
+   
+template <typename T, typename... Args>
+class SingletonPtr {
+public:
+       
+                                         
+      
+                                               
+       
+    template <Args... args>
+    static std::shared_ptr<T> Instance() noexcept {
+        static const std::shared_ptr<T> ins {
+            std::make_shared<T>(std::move(args)...)};
+        return ins;
+    }
+};
+
+template <typename T, typename Cleaner = std::function<void(T)>>
+requires std::is_invocable_v<Cleaner, T>
+class RAII {
+public:
+       
+                                          
+      
+                                                  
+                                
+       
+    explicit RAII(T obj, Cleaner cleaner) noexcept :
+        obj_ {std::move(obj)}, cleaner_ {std::move(cleaner)} {}
+
+    RAII(const RAII&) = delete;
+
+    RAII(RAII&&) = delete;
+
+    RAII& operator=(const RAII&) = delete;
+
+    RAII& operator=(RAII&&) = delete;
+
+    ~RAII() noexcept {
+        cleaner_(obj_);
+    }
+
+    const T& Object() const noexcept {
+        return obj_;
+    }
+
+private:
+    T obj_;
+    Cleaner cleaner_;
+};
+
+   
+         
+                                                              
+  
+           
+                                                                  
+   
+class MappedReadOnlyFile {
+public:
+    MappedReadOnlyFile() noexcept;
+
+    MappedReadOnlyFile(const MappedReadOnlyFile&) = delete;
+
+    MappedReadOnlyFile(MappedReadOnlyFile&&) noexcept;
+
+    MappedReadOnlyFile& operator=(const MappedReadOnlyFile&) = delete;
+
+    MappedReadOnlyFile& operator=(MappedReadOnlyFile&&) noexcept;
+
+    ~MappedReadOnlyFile() noexcept;
+
+       
+                                     
+      
+                                                                       
+                                                                      
+                                                           
+       
+    std::byte* Map(std::string path);
+
+                       
+    void Unmap() noexcept;
+
+                          
+    std::size_t Size() const noexcept;
+
+                          
+    std::byte* Data() const noexcept;
+
+                          
+    std::string_view Path() const noexcept;
+
+private:
+       
+                             
+      
+                                                                       
+                                                                      
+                                                        
+       
+    void Check();
+
+    std::string path_;
+    struct stat stat_ {};
+    std::byte* data_ {nullptr};
+};
+
+template <typename T, typename U, typename Ret = T>
+concept Addable = requires(T t, U u) {
+    { t + u } -> std::convertible_to<Ret>;
+};
+
+}                 
+----- END DEPENDENCY HEADER CONTENT: include/util.h -----

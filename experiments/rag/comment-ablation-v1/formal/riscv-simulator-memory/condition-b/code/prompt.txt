@@ -1,0 +1,368 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# 詳細設計仕様書
+
+## 1. クラス図
+
+```mermaid
+classDiagram
+    class Memory {
+        +unsigned char mem[MEMORY_SIZE]
+        +unsigned char placeholder
+        +Memory()
+        +bool check_addr(unsigned int addr)
+        +Immediate read_word(unsigned int addr)
+        +void write_word(unsigned int addr, Immediate imm)
+        +unsigned short read_ushort(unsigned int addr)
+        +void write_ushort(unsigned int addr, unsigned short imm)
+        +unsigned char &operator[](unsigned int addr)
+        +void debug()
+    }
+```
+
+## 2. クラス・メソッド・インターフェース詳細
+
+| 完全な名前 | 属性 | 引数名と型 | 戻り値型 | 可視性 | const | 参照/ポインタ | static | virtual | noexcept |
+|------------|------|------------|----------|--------|-------|---------------|--------|---------|----------|
+| Memory::Memory() | コンストラクタ | - | void | public | false | - | false | false | false |
+| Memory::check_addr(unsigned int addr) | メソッド | addr: unsigned int | bool | public | false | - | false | false | false |
+| Memory::read_word(unsigned int addr) | メソッド | addr: unsigned int | Immediate | public | false | - | false | false | false |
+| Memory::write_word(unsigned int addr, Immediate imm) | メソッド | addr: unsigned int, imm: Immediate | void | public | false | - | false | false | false |
+| Memory::read_ushort(unsigned int addr) | メソッド | addr: unsigned int | unsigned short | public | false | - | false | false | false |
+| Memory::write_ushort(unsigned int addr, unsigned short imm) | メソッド | addr: unsigned int, imm: unsigned short | void | public | false | - | false | false | false |
+| Memory::operator[](unsigned int addr) | オペレータ | addr: unsigned int | unsigned char & | public | false | - | false | false | false |
+| Memory::debug() | メソッド | - | void | public | false | - | false | false | false |
+
+## 3. シーケンス図
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Memory
+
+    User->>Memory: check_addr(addr)
+    Memory-->>User: bool
+
+    User->>Memory: read_word(addr)
+    alt addr is valid
+        Memory->>Memory: check_addr(addr)
+        Memory-->>Memory: true
+        Memory->>Memory: *(Immediate *)(mem + addr)
+        Memory-->>User: Immediate
+    else addr is invalid
+        Memory->>Memory: check_addr(addr)
+        Memory-->>Memory: false
+        Memory-->>User: 0
+    end
+
+    User->>Memory: write_word(addr, imm)
+    alt addr is valid
+        Memory->>Memory: check_addr(addr)
+        Memory-->>Memory: true
+        Memory->>Memory: *(Immediate *)(mem + addr) = imm
+    else addr is invalid
+        Memory->>Memory: check_addr(addr)
+        Memory-->>Memory: false
+    end
+
+    User->>Memory: read_ushort(addr)
+    alt addr is valid
+        Memory->>Memory: check_addr(addr)
+        Memory-->>Memory: true
+        Memory->>Memory: *(short *)(mem + addr)
+        Memory-->>User: unsigned short
+    else addr is invalid
+        Memory->>Memory: check_addr(addr)
+        Memory-->>Memory: false
+        Memory-->>User: 0
+    end
+
+    User->>Memory: write_ushort(addr, imm)
+    alt addr is valid
+        Memory->>Memory: check_addr(addr)
+        Memory-->>Memory: true
+        Memory->>Memory: *(short *)(mem + addr) = imm
+    else addr is invalid
+        Memory->>Memory: check_addr(addr)
+        Memory-->>Memory: false
+    end
+
+    User->>Memory: operator[](addr)
+    alt addr is valid
+        Memory->>Memory: check_addr(addr)
+        Memory-->>Memory: true
+        Memory-->>User: mem[addr]
+    else addr is invalid
+        Memory->>Memory: check_addr(addr)
+        Memory-->>Memory: false
+        Memory-->>User: placeholder
+    end
+
+    User->>Memory: debug()
+    Memory->>Memory: for loop (i = 0x20000 - 0x10 to 0x20000)
+    Memory->>Memory: std::cout << mem[i]
+```
+
+## 4. メソッド仕様書
+
+### check_addr(unsigned int addr)
+
+- **目的**: アドレスが有効かどうかをチェックする。
+- **引数**: `addr`: チェックするアドレス。
+- **戻り値**: アドレスが有効な場合は`true`、それ以外は`false`。
+- **動作**: 
+  - `0 <= addr && addr < MEMORY_SIZE` の条件を満たすかチェックする。
+- **副作用**: 無し
+- **エラー処理**: 無し
+
+### read_word(unsigned int addr)
+
+- **目的**: 指定されたアドレスからワード（Immediate型）を読み込む。
+- **引数**: `addr`: 読み込むアドレス。
+- **戻り値**: アドレスが有効な場合は`mem[addr]`の値、それ以外は`0`。
+- **動作**: 
+  - `check_addr(addr)`を呼び出し、アドレスが有効かチェックする。
+  - アドレスが有効な場合、`(Immediate *)(mem + addr)`から値を読み込む。
+- **副作用**: 無し
+- **エラー処理**: 無し
+
+### write_word(unsigned int addr, Immediate imm)
+
+- **目的**: 指定されたアドレスにワード（Immediate型）を書き込む。
+- **引数**: `addr`: 書き込むアドレス、`imm`: 書き込む値。
+- **戻り値**: 無し
+- **動作**: 
+  - `check_addr(addr)`を呼び出し、アドレスが有効かチェックする。
+  - アドレスが有効な場合、`(Immediate *)(mem + addr)`に値を書き込む。
+- **副作用**: メモリの更新
+- **エラー処理**: 無し
+
+### read_ushort(unsigned int addr)
+
+- **目的**: 指定されたアドレスからunsigned short型の値を読み込む。
+- **引数**: `addr`: 読み込むアドレス。
+- **戻り値**: アドレスが有効な場合は`mem[addr]`の値、それ以外は`0`。
+- **動作**: 
+  - `check_addr(addr)`を呼び出し、アドレスが有効かチェックする。
+  - アドレスが有効な場合、`(short *)(mem + addr)`から値を読み込む。
+- **副作用**: 無し
+- **エラー処理**: 無し
+
+### write_ushort(unsigned int addr, unsigned short imm)
+
+- **目的**: 指定されたアドレスにunsigned short型の値を書き込む。
+- **引数**: `addr`: 書き込むアドレス、`imm`: 書き込む値。
+- **戻り値**: 無し
+- **動作**: 
+  - `check_addr(addr)`を呼び出し、アドレスが有効かチェックする。
+  - アドレスが有効な場合、`(short *)(mem + addr)`に値を書き込む。
+- **副作用**: メモリの更新
+- **エラー処理**: 無し
+
+### operator[](unsigned int addr)
+
+- **目的**: 指定されたアドレスのメモリへの参照を返す。
+- **引数**: `addr`: 参照するアドレス。
+- **戻り値**: アドレスが有効な場合は`mem[addr]`への参照、それ以外は`placeholder`への参照。
+- **動作**: 
+  - `check_addr(addr)`を呼び出し、アドレスが有効かチェックする。
+  - アドレスが有効な場合、`mem[addr]`への参照を返す。
+  - アドレスが無効な場合、`placeholder`への参照を返す。
+- **副作用**: 無し
+- **エラー処理**: 無し
+
+### debug()
+
+- **目的**: デバッグ用にメモリの一部を表示する。
+- **引数**: 無し
+- **戻り値**: 無し
+- **動作**: 
+  - `0x20000 - 0x10`から`0x20000`までのメモリの内容を16進数で表示する。
+- **副作用**: 標準出力への書き込み
+- **エラー処理**: 無し
+
+## 5. 処理フロー図
+
+### check_addr(unsigned int addr)
+
+```mermaid
+graph TD
+    A[開始] --> B{0 <= addr && addr < MEMORY_SIZE?}
+    B -- true --> C[return true]
+    B -- false --> D[return false]
+```
+
+### read_word(unsigned int addr)
+
+```mermaid
+graph TD
+    A[開始] --> B[check_addr(addr)]
+    B -- true --> C[*(Immediate *)(mem + addr)]
+    B -- false --> D[return 0]
+    C --> E[return value]
+```
+
+### write_word(unsigned int addr, Immediate imm)
+
+```mermaid
+graph TD
+    A[開始] --> B[check_addr(addr)]
+    B -- true --> C[*(Immediate *)(mem + addr) = imm]
+    B -- false --> D[終了]
+```
+
+### read_ushort(unsigned int addr)
+
+```mermaid
+graph TD
+    A[開始] --> B[check_addr(addr)]
+    B -- true --> C[*(short *)(mem + addr)]
+    B -- false --> D[return 0]
+    C --> E[return value]
+```
+
+### write_ushort(unsigned int addr, unsigned short imm)
+
+```mermaid
+graph TD
+    A[開始] --> B[check_addr(addr)]
+    B -- true --> C[*(short *)(mem + addr) = imm]
+    B -- false --> D[終了]
+```
+
+### operator[](unsigned int addr)
+
+```mermaid
+graph TD
+    A[開始] --> B[check_addr(addr)]
+    B -- true --> C[return mem[addr]]
+    B -- false --> D[return placeholder]
+```
+
+### debug()
+
+```mermaid
+graph TD
+    A[開始] --> B[i = 0x20000 - 0x10]
+    B --> C{i <= 0x20000?}
+    C -- true --> D[std::cout << mem[i]]
+    C -- false --> E[終了]
+    D --> F[i++]
+    F --> C
+```
+
+## 6. 状態遷移・副作用
+
+| 更新前状態 | 遷移条件 | 変更対象 | 更新後状態 | 更新順序 | 外部資源への副作用 |
+|------------|----------|----------|------------|----------|----------------------|
+| -          | アドレスが有効 | mem[addr]  | imm      | -        | メモリの更新         |
+| -          | アドレスが無効 | -          | -        | -        | 無し                 |
+| -          | アドレスが有効 | mem[addr]  | imm      | -        | メモリの更新         |
+| -          | アドレスが無効 | -          | -        | -        | 無し                 |
+
+## 7. データ変換・制約
+
+| 入力データ | 出力データ | 変換規則 | 値域 | 境界値 | 単位 | 精度 | encoding |
+|------------|------------|----------|------|--------|------|------|----------|
+| addr       | bool       | アドレスの範囲チェック | 0 <= addr < MEMORY_SIZE | 0, MEMORY_SIZE - 1 | -    | -    | -        |
+| addr       | Immediate  | メモリからの読み込み | -    | -      | -    | -    | -        |
+| addr, imm  | void       | メモリへの書き込み   | -    | -      | -    | -    | -        |
+| addr       | unsigned short | メモリからの読み込み | -    | -      | -    | -    | -        |
+| addr, imm  | void       | メモリへの書き込み   | -    | -      | -    | -    | -        |
+
+## 追加詳細設計情報
+
+- **定義**: `Immediate`は`unsigned int`型を表す。
+- **依存関係**: `Memory`クラスは`Common.h`ヘッダファイルから`Immediate`型を使用する。
+- **初期値**: `mem`配列はコンストラクタでゼロクリアされる。
+- **制約**: アドレス範囲は`0 <= addr < MEMORY_SIZE`である。
+
+## 完全再構築台帳
+
+### ファイルパス: src/Common/Memory.hpp
+
+```cpp
+#ifndef RISCV_SIMULATOR_MEMORY_HPP
+#define RISCV_SIMULATOR_MEMORY_HPP
+
+#include "Common.h"
+
+class Memory {
+public:
+    unsigned char mem[MEMORY_SIZE];
+    unsigned char placeholder;
+
+    Memory() { memset(mem, 0, sizeof(mem)); }
+
+    bool check_addr(unsigned int addr) {
+        if (0 <= addr && addr < MEMORY_SIZE) return true;
+        return false;
+    }
+
+    Immediate read_word(unsigned int addr) {
+        if (!check_addr(addr)) return 0;
+        return *(Immediate *) (mem + addr);
+    }
+
+    void write_word(unsigned int addr, Immediate imm) {
+        if (!check_addr(addr)) return;
+        *(Immediate *) (mem + addr) = imm;
+    }
+
+    unsigned short read_ushort(unsigned int addr) {
+        if (!check_addr(addr)) return 0;
+        return *(short *) (mem + addr);
+    }
+
+    void write_ushort(unsigned int addr, unsigned short imm) {
+        if (!check_addr(addr)) return;
+        *(short *) (mem + addr) = imm;
+    }
+
+    unsigned char &operator[](unsigned int addr) {
+        if (!check_addr(addr)) return placeholder;
+        return mem[addr];
+    }
+
+    void debug() {
+        for (int i = 0x20000 - 0x10; i <= 0x20000; i++) {
+            std::cout << std::hex << (unsigned) mem[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+};
+
+#endif // RISCV_SIMULATOR_MEMORY_HPP
+```
+
+### ファイルパス: src/Common/Common.h
+
+```cpp
+#ifndef RISCV_SIMULATOR_COMMON_H
+#define RISCV_SIMULATOR_COMMON_H
+
+using Immediate = unsigned int;
+using SImmediate = int;
+
+#endif
+```
+
+この設計仕様書は、`Memory`クラスの詳細なインターフェースと動作を記述し、別のLLMがソースコードを再実装できるようにするための情報提供を行います。

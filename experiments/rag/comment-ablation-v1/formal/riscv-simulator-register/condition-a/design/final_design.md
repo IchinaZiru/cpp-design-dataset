@@ -1,0 +1,86 @@
+# 設計仕様書
+
+## 1. 概要
+この設計仕様書は、`Register` クラスの定義を再実装するための詳細な指示を提供します。再実装対象は `F01/U01` ユニットであり、その他のユニットは参照のみとなります。
+
+## 2. 対象範囲
+- **ファイルパス**: `src/Common/Register.hpp`
+- **クラス名**: `Register`
+
+## 3. クラス定義
+
+### 3.1 クラス構造
+`Register` クラスは、ジェネリック型 `T` を使用して実装され、内部状態を管理します。主な機能として、データの読み取り、書き込み、クロックサイクルでの更新、およびステール状態の制御が含まれます。
+
+### 3.2 メンバ変数
+- **prev**: 前回の値を保持するメンバ変数。型 `T`。
+- **next**: 次の値を保持するメンバ変数。型 `T`。
+- **_stall**: クロックサイクルでの更新を停止させるフラグ。型 `bool`。
+
+### 3.3 コンストラクタ
+1. **デフォルトコンストラクタ**:
+   - 初期化: `prev = (T)0`, `next = (T)0`, `_stall = false`
+2. **パラメータ付きコンストラクタ** (`T d`):
+   - 初期化: `prev = d`, `next = d`, `_stall = false`
+
+### 3.4 メソッド
+1. **read()**:
+   - 戻り値: `prev`
+2. **current()**:
+   - 戻り値: `next`
+3. **write(const T &t)**:
+   - 機能: `next` を `t` に設定する。
+4. **tick()**:
+   - 機能: `_stall` が `false` の場合、`prev` を `next` に更新する。
+5. **stall(bool stall)**:
+   - 機能: `_stall` フラグを `stall` に設定する。
+
+### 3.5 オペレータオーバーロード
+1. **operator T()**:
+   - 戻り値: `read()` の結果
+2. **operator=(T next)**:
+   - 機能: `write(next)` を呼び出す。
+
+## 4. 注意事項
+- **不透明な識別子**: `Fxx/Uxx` 形式の識別子は、名前、型、シグネチャ、名前空間、および置換境界を保持する必要があります。
+- **再生成対象**: `replacement_required=true` のみが再生成されます。参照のみの入力は出力には含まれません。
+
+## 5. 出力仕様
+再実装後の `Register` クラスは以下の形式で定義されるべきです：
+
+```cpp
+// src/Common/Register.hpp
+
+class Register {                       
+public:
+    T prev, next;
+
+    bool _stall;
+
+    Register() : prev((T) 0), next((T) 0), _stall(false) {}
+
+    Register(T d) : prev(d), next(d), _stall(false) {}
+
+    T read() { return prev; }
+
+    T current() { return next; }
+
+    void write(const T &t) { next = t; }
+
+    void tick() { if (!_stall) prev = next; }
+
+    void stall(bool stall) { _stall = stall; }
+
+    operator T() { return read(); }
+
+    void operator=(T next) { write(next); }
+};
+```
+
+## 6. 確認事項
+- クラス名、メンバ変数名、メソッド名は変更しないこと。
+- 型 `T` の使用を保つこと。
+- コンストラクタの初期化リストと初期値が一致すること。
+- 各メソッドの機能が再現されること。
+
+この仕様書に基づいて `Register` クラスを再実装してください。

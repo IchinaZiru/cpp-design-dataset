@@ -1,0 +1,1 @@
+{"artifact_schema_version":"comment-ablation-restoration-v1","error":null,"repository_clean":true,"restored_hashes":{"include/containers/thread_pool.h":"ed967f9107174d6859d0cb49bcc0c94b3f7ca69e1837763981db15e539105e4c","src/containers/thread_pool/thread_pool.cpp":"234e76c51dc290f9a3c6737ac5b87de23de8038f205612ea06c98b587a8c64a6"},"status":"pass"}

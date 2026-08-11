@@ -1,0 +1,391 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# 詳細設計仕様書
+
+## 1. クラス図
+
+```mermaid
+classDiagram
+    class Singleton {
+        +static T& Instance() noexcept
+    }
+    
+    class SingletonPtr {
+        +static std::shared_ptr<T> Instance() noexcept
+    }
+
+    class RAII {
+        -T obj_
+        -Cleaner cleaner_
+        +RAII(T obj, Cleaner cleaner) noexcept
+        +const T& Object() const noexcept
+    }
+
+    class MappedReadOnlyFile {
+        -std::string path_
+        -struct stat stat_ {}
+        -std::byte* data_ {nullptr}
+        +MappedReadOnlyFile() noexcept
+        +MappedReadOnlyFile(MappedReadOnlyFile&&) noexcept
+        +MappedReadOnlyFile& operator=(MappedReadOnlyFile&&) noexcept
+        +~MappedReadOnlyFile() noexcept
+        +std::byte* Map(std::string path)
+        +void Unmap() noexcept
+        +std::size_t Size() const noexcept
+        +std::byte* Data() const noexcept
+        +std::string_view Path() const noexcept
+    }
+```
+
+## 2. クラス・メソッド・インターフェース詳細
+
+| 完全な名前 | 属性 | 引数名と型 | 戻り値型 | 可視性 | const | 参照/ポインタ | static | virtual | noexcept | 型別名 | 列挙型 | 定数 | 直接依存 |
+|------------|------|------------|----------|--------|-------|---------------|--------|---------|----------|--------|--------|------|----------|
+| ws::Singleton::Instance | メソッド | args... | T& | public | あり | なし | あり | なし | あり | なし | なし | なし | なし |
+| ws::SingletonPtr::Instance | メソッド | args... | std::shared_ptr<T> | public | あり | なし | あり | なし | あり | なし | なし | なし | なし |
+| ws::RAII::RAII | コンストラクタ | T obj, Cleaner cleaner | void | public | なし | なし | なし | なし | あり | なし | なし | なし | なし |
+| ws::RAII::Object | メソッド | なし | const T& | public | あり | なし | なし | なし | あり | なし | なし | なし | なし |
+| ws::MappedReadOnlyFile::MappedReadOnlyFile | コンストラクタ | なし | void | public | なし | なし | なし | なし | あり | なし | なし | なし | なし |
+| ws::MappedReadOnlyFile::MappedReadOnlyFile | コンストラクタ | MappedReadOnlyFile&& o | void | public | なし | なし | なし | なし | あり | なし | なし | なし | なし |
+| ws::MappedReadOnlyFile::operator= | メソッド | MappedReadOnlyFile&& o | MappedReadOnlyFile& | public | なし | なし | なし | なし | あり | なし | なし | なし | なし |
+| ws::MappedReadOnlyFile::~MappedReadOnlyFile | デストラクタ | なし | void | public | なし | なし | なし | なし | あり | なし | なし | なし | なし |
+| ws::MappedReadOnlyFile::Map | メソッド | std::string path | std::byte* | public | なし | なし | なし | なし | なし | なし | なし | なし | なし |
+| ws::MappedReadOnlyFile::Unmap | メソッド | なし | void | public | なし | なし | なし | なし | あり | なし | なし | なし | なし |
+| ws::MappedReadOnlyFile::Size | メソッド | なし | std::size_t | public | あり | なし | なし | なし | あり | なし | なし | なし | なし |
+| ws::MappedReadOnlyFile::Data | メソッド | なし | std::byte* | public | あり | なし | なし | なし | あり | なし | なし | なし | なし |
+| ws::MappedReadOnlyFile::Path | メソッド | なし | std::string_view | public | あり | なし | なし | なし | あり | なし | なし | なし | なし |
+
+## 3. シーケンス図
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant MappedReadOnlyFile
+    participant RAII
+
+    Caller->>MappedReadOnlyFile: Map(path)
+    MappedReadOnlyFile->>RAII: RAII(fd, cleaner)
+    RAII-->>MappedReadOnlyFile: ins
+    MappedReadOnlyFile->>Caller: data_
+```
+
+## 4. メソッド仕様書
+
+### ws::StringToLower
+
+- **目的**: 文字列を小文字に変換する。
+- **引数**: `std::string str`
+- **戻り値**: `std::string` (小文字に変換された文字列)
+- **動作**: 入力文字列の各文字を小文字に変換し、新しい文字列を返す。
+- **副作用**: なし
+- **エラー処理**: なし
+
+### ws::StringToUpper
+
+- **目的**: 文字列を大文字に変換する。
+- **引数**: `std::string str`
+- **戻り値**: `std::string` (大文字に変換された文字列)
+- **動作**: 入力文字列の各文字を大文字に変換し、新しい文字列を返す。
+- **副作用**: なし
+- **エラー処理**: なし
+
+### ws::ReplaceAllSubstring
+
+- **目的**: 文字列内の特定の部分文字列を別の文字列で置き換える。
+- **引数**: `std::string_view str`, `std::string_view from`, `std::string_view to`
+- **戻り値**: `std::string` (置き換え後の文字列)
+- **動作**: 入力文字列内の指定された部分文字列を別の文字列で全て置き換えて新しい文字列を返す。
+- **副作用**: なし
+- **エラー処理**: なし
+
+### ws::SplitString
+
+- **目的**: 正規表現に基づいて文字列を分割する。
+- **引数**: `const std::string& str`, `const std::regex& pattern`
+- **戻り値**: `std::vector<std::string>` (分割された文字列のリスト)
+- **動作**: 入力文字列を指定された正規表現に基づいて分割し、その結果をベクタとして返す。
+- **副作用**: なし
+- **エラー処理**: なし
+
+### ws::SplitStringToLines
+
+- **目的**: 文字列を行ごとに分割する。
+- **引数**: `const std::string& str`
+- **戻り値**: `std::vector<std::string>` (行ごとに分割された文字列のリスト)
+- **動作**: 入力文字列を改行コードに基づいて分割し、その結果をベクタとして返す。
+- **副作用**: なし
+- **エラー処理**: なし
+
+### ws::LoadYamlString
+
+- **目的**: YAML形式の文字列を解析し、必要なフィールドが存在することを確認する。
+- **引数**: `std::string_view str`, `std::initializer_list<std::string_view> required_fields`
+- **戻り値**: `YAML::Node` (解析されたYAMLノード)
+- **動作**: 入力文字列をYAML形式で解析し、必要なフィールドが存在することを確認する。存在しない場合は例外をスローする。
+- **副作用**: なし
+- **エラー処理**: 必要なフィールドが存在しない場合に`std::invalid_argument`をスローする。
+
+### ws::ThrowIfYamlFieldIsNotScalar
+
+- **目的**: YAMLノードの指定されたフィールドがスカラーであることを確認する。
+- **引数**: `const YAML::Node& node`, `std::string_view field`
+- **戻り値**: なし
+- **動作**: 指定されたYAMLノードのフィールドがスカラーであることを確認する。スカラーでない場合は例外をスローする。
+- **副作用**: なし
+- **エラー処理**: フィールドが存在しないかスカラーでない場合に`std::invalid_argument`をスローする。
+
+### ws::ThrowLastSystemError
+
+- **目的**: 最後のシステムエラーコードに対応する例外をスローする。
+- **引数**: なし
+- **戻り値**: なし
+- **動作**: `errno`の値に基づいて`std::system_error`をスローする。
+- **副作用**: なし
+- **エラー処理**: 常に例外をスローする。
+
+### ws::SetFileDescriptorAsNonblocking
+
+- **目的**: ファイルディスクリプタをノンブロッキングモードにする。
+- **引数**: `const FileDescriptor fd`
+- **戻り値**: なし
+- **動作**: 指定されたファイルディスクリプタをノンブロッキングモードに設定する。失敗した場合は例外をスローする。
+- **副作用**: ファイルディスクリプタの状態が変更される。
+- **エラー処理**: 失敗した場合に`std::system_error`をスローする。
+
+### ws::CurrentThreadId
+
+- **目的**: 現在のスレッドIDを取得する。
+- **引数**: なし
+- **戻り値**: `std::uint32_t` (現在のスレッドID)
+- **動作**: 現在のスレッドIDを取得して返す。
+- **副作用**: なし
+- **エラー処理**: なし
+
+### ws::Backtrace
+
+- **目的**: スタックトレース情報を取得する。
+- **引数**: `std::vector<std::string>& stack`, `const std::size_t size`, `const std::size_t skip`
+- **戻り値**: なし
+- **動作**: 指定されたサイズとスキップ数に基づいてスタックトレース情報を取得し、ベクタに格納する。
+- **副作用**: スタックトレース情報がベクタに追加される。
+- **エラー処理**: なし
+
+### ws::Backtrace (オーバーロード)
+
+- **目的**: スタックトレース情報を文字列として取得する。
+- **引数**: `const std::size_t size`, `const std::size_t skip`, `const std::string_view prefix`
+- **戻り値**: `std::string` (スタックトレース情報)
+- **動作**: 指定されたサイズとスキップ数に基づいてスタックトレース情報を取得し、指定されたプレフィックスを付加して文字列として返す。
+- **副作用**: なし
+- **エラー処理**: なし
+
+### ws::MappedReadOnlyFile::Map
+
+- **目的**: ファイルをメモリにマッピングする。
+- **引数**: `std::string path`
+- **戻り値**: `std::byte*` (マッピングされたデータのポインタ)
+- **動作**: 指定されたファイルパスのファイルをメモリにマッピングし、そのデータのポインタを返す。失敗した場合は例外をスローする。
+- **副作用**: ファイルがメモリにマッピングされる。
+- **エラー処理**: 失敗した場合に`std::system_error`や`std::invalid_argument`, `std::runtime_error`をスローする。
+
+### ws::MappedReadOnlyFile::Unmap
+
+- **目的**: メモリにマッピングされたファイルをアンマッピングする。
+- **引数**: なし
+- **戻り値**: なし
+- **動作**: メモリにマッピングされたファイルをアンマッピングする。
+- **副作用**: ファイルがメモリからアンマッピングされる。
+- **エラー処理**: なし
+
+## 5. 処理フロー図
+
+### ws::ReplaceAllSubstring
+
+```mermaid
+graph TD
+    A[開始] --> B[空文字列でないか確認]
+    B -- はい --> C[部分文字列検索]
+    B -- いいえ --> E[終了]
+    C --> D[部分文字列が見つかったか確認]
+    D -- はい --> F[置き換え後文字列に追加]
+    D -- いいえ --> G[残りの文字列を追加]
+    F --> H[部分文字列後の文字列に移動]
+    G --> E
+    H --> C
+```
+
+### ws::LoadYamlString
+
+```mermaid
+graph TD
+    A[開始] --> B[YAML解析]
+    B --> C[必要なフィールド確認ループ]
+    C --> D[フィールドが存在するか確認]
+    D -- いいえ --> E[例外スロー]
+    D -- はい --> F[次のフィールドへ移動]
+    E --> G[終了]
+    F --> H[全てのフィールドを確認したか確認]
+    H -- いいえ --> C
+    H -- はい --> I[YAMLノード返却]
+    I --> G
+```
+
+## 6. 状態遷移・副作用
+
+| 更新前状態 | 遷移条件 | 変更対象 | 更新後状態 | 更新順序 | 外部資源への副作用 |
+|------------|----------|----------|------------|----------|----------------------|
+| ファイル未マッピング | Map呼び出し | path_, stat_, data_ | ファイルマッピング済み | 1. path_設定, 2. Check実行, 3. fd取得, 4. mmap実行, 5. data_設定 | ファイルがメモリにマッピングされる |
+| ファイルマッピング済み | Unmap呼び出し | data_, stat_, path_ | ファイル未マッピング | 1. munmap実行, 2. data_初期化, 3. stat_初期化, 4. path_クリア | メモリからファイルがアンマッピングされる |
+
+## 7. データ変換・制約
+
+| 入力 | 出力 | 変換規則 | 値域 | 境界値 | 単位 | 精度 | encoding | 検証条件 | 特殊値・欠損値の扱い |
+|------|------|----------|------|--------|------|------|----------|------------|---------------------|
+| std::string | std::string | 小文字に変換 | 任意の文字列 | 空文字列 | 文字列 | 文字単位 | UTF-8 | なし | なし |
+| std::string | std::string | 大文字に変換 | 任意の文字列 | 空文字列 | 文字列 | 文字単位 | UTF-8 | なし | なし |
+| std::string_view, std::string_view, std::string_view | std::string | 部分文字列置き換え | 任意の文字列 | 空文字列 | 文字列 | 文字単位 | UTF-8 | なし | なし |
+| const std::string&, const std::regex& | std::vector<std::string> | 正規表現による分割 | 任意の文字列 | 空文字列 | 文字列 | 文字単位 | UTF-8 | なし | なし |
+| const std::string& | std::vector<std::string> | 改行コードによる分割 | 任意の文字列 | 空文字列 | 文字列 | 文字単位 | UTF-8 | なし | なし |
+| std::string_view, std::initializer_list<std::string_view> | YAML::Node | YAML解析とフィールド確認 | 有効なYAML形式の文字列 | 空文字列 | 文字列 | 文字単位 | UTF-8 | 必要なフィールドが存在するか確認 | なし |
+| const YAML::Node&, std::string_view | void | フィールドがスカラーであることを確認 | 有効なYAMLノード | 無効なノード | なし | なし | なし | フィールドが存在し、スカラーであるか確認 | なし |
+| const FileDescriptor | void | ノンブロッキングモードに設定 | 有効なファイルディスクリプタ | 無効なファイルディスクリプタ | ファイルディスクリプタ | 整数単位 | なし | fcntl呼び出しが成功するか確認 | なし |
+| void | std::uint32_t | スレッドID取得 | 任意のスレッドID | 無効なスレッドID | スレッドID | 整数単位 | なし | なし | なし |
+| const std::size_t, const std::size_t, const std::string_view | std::string | スタックトレース情報取得 | 任意のスタックトレース情報 | 空のスタックトレース情報 | 文字列 | 文字単位 | UTF-8 | なし | なし |
+| std::string | void | ファイルをメモリにマッピング | 有効なファイルパス | 無効なファイルパス | ファイルパス | 文字列 | なし | stat, mmap呼び出しが成功するか確認 | なし |
+| void | void | メモリからファイルをアンマッピング | マッピング済みのデータ | マッピングされていないデータ | データポインタ | バイト単位 | なし | munmap呼び出しが成功するか確認 | なし |
+
+## 8. 追加詳細設計情報
+
+### include guardとinclude文
+
+- **ファイル**: `include/util.h`
+- **include guard**: `#pragma once`
+- **include文**:
+  - `#include <fmt/format.h>`
+  - `#include <yaml-cpp/yaml.h>`
+  - `#include <sys/stat.h>`
+  - `#include <concepts>`
+  - `#include <functional>`
+  - `#include <initializer_list>`
+  - `#include <memory>`
+  - `#include <regex>`
+  - `#include <string>`
+  - `#include <string_view>`
+  - `#include <utility>`
+  - `#include <vector>`
+
+- **ファイル**: `src/util/util.cpp`
+- **include文**:
+  - `#include "util.h"`
+  - `#include <execinfo.h>`
+  - `#include <fcntl.h>`
+  - `#include <sys/mman.h>`
+  - `#include <sys/syscall.h>`
+  - `#include <unistd.h>`
+  - `#include <algorithm>`
+  - `#include <cassert>`
+  - `#include <cerrno>`
+  - `#include <iterator>`
+  - `#include <sstream>`
+  - `#include <system_error>`
+
+### top-level宣言
+
+- **ファイル**: `include/util.h`
+  - `namespace ws { ... }`
+    - `using FileDescriptor = int;`
+    - `inline constexpr FileDescriptor invalid_file_descriptor {-1};`
+    - `std::string StringToLower(std::string str) noexcept;`
+    - `std::string StringToUpper(std::string str) noexcept;`
+    - `std::string ReplaceAllSubstring(std::string_view str, std::string_view from, std::string_view to) noexcept;`
+    - `std::vector<std::string> SplitString(const std::string& str, const std::regex& pattern) noexcept;`
+    - `std::vector<std::string> SplitStringToLines(const std::string& str) noexcept;`
+    - `YAML::Node LoadYamlString(std::string_view str, std::initializer_list<std::string_view> required_fields = {});`
+    - `void ThrowIfYamlFieldIsNotScalar(const YAML::Node& node, std::string_view field);`
+    - `constexpr bool IsValidFileDescriptor(FileDescriptor fd) noexcept;`
+    - `void SetFileDescriptorAsNonblocking(FileDescriptor fd);`
+    - `[[noreturn]] void ThrowLastSystemError();`
+    - `std::uint32_t CurrentThreadId() noexcept;`
+    - `void Backtrace(std::vector<std::string>& stack, std::size_t size, std::size_t skip = 0) noexcept;`
+    - `std::string Backtrace(std::size_t size, std::size_t skip = 0, std::string_view prefix = "") noexcept;`
+    - `template <typename T, typename... Args> class Singleton { ... };`
+    - `template <typename T, typename... Args> class SingletonPtr { ... };`
+    - `template <typename T, typename Cleaner = std::function<void(T)>> requires std::is_invocable_v<Cleaner, T> class RAII { ... };`
+    - `class MappedReadOnlyFile { ... };`
+    - `template <typename T, typename U, typename Ret = T> concept Addable = requires(T t, U u) { ... };`
+
+- **ファイル**: `src/util/util.cpp`
+  - `namespace ws { ... }`
+    - 各関数の実装 (`StringToLower`, `StringToUpper`, `ReplaceAllSubstring`, `SplitString`, `SplitStringToLines`, `LoadYamlString`, `ThrowIfYamlFieldIsNotScalar`, `ThrowLastSystemError`, `SetFileDescriptorAsNonblocking`, `CurrentThreadId`, `Backtrace`)
+    - クラスの実装 (`MappedReadOnlyFile`)
+
+### 宣言数、型数、callable数
+
+- **ファイル**: `include/util.h`
+  - top-level宣言: 20個
+  - 型定義: 5個 (using, concept, class)
+  - callable: 14個 (関数, メソッド)
+
+- **ファイル**: `src/util/util.cpp`
+  - top-level宣言: 1個 (namespace)
+  - callable: 14個 (関数, メソッド)
+
+### dependency headerの内容
+
+- **依存ヘッダ**:
+  - `fmt/format.h`: `fmt::format`を利用
+  - `yaml-cpp/yaml.h`: `YAML::Node`, `YAML::Load`を利用
+  - `sys/stat.h`: `struct stat`, `stat`関数を利用
+  - `concepts`: `std::is_invocable_v`を利用
+  - `functional`: `std::function`を利用
+  - `initializer_list`: `std::initializer_list`を利用
+  - `memory`: `std::shared_ptr`, `std::move`を利用
+  - `regex`: `std::regex`, `std::sregex_token_iterator`を利用
+  - `string`: `std::string`を利用
+  - `string_view`: `std::string_view`を利用
+  - `utility`: `std::move`を利用
+  - `vector`: `std::vector`を利用
+
+- **依存ヘッダ**:
+  - `execinfo.h`: `backtrace`, `backtrace_symbols`関数を利用
+  - `fcntl.h`: `fcntl`関数を利用
+  - `sys/mman.h`: `mmap`, `munmap`関数を利用
+  - `sys/syscall.h`: `syscall`関数を利用
+  - `unistd.h`: `open`, `close`関数を利用
+  - `algorithm`: `std::ranges::transform`, `std::ranges::for_each`, `std::copy`を利用
+  - `cassert`: `assert`マクロを利用
+  - `cerrno`: `errno`変数を利用
+  - `iterator`: `std::back_inserter`を利用
+  - `sstream`: `std::ostringstream`を利用
+  - `system_error`: `std::system_error`, `std::system_category`を利用
+
+### 完全再構築台帳
+
+- **ファイル**: `include/util.h`
+  - include guard: `#pragma once`
+  - include文: 上記の通り
+  - namespace ws: 上記の通り
+
+- **ファイル**: `src/util/util.cpp`
+  - include文: 上記の通り
+  - namespace ws: 上記の通り
+
+この設計仕様書は、元コードから確認できる事実に基づいて作成され、別のLLMがreplacement unit全体を欠落なく生成できる粒度で記録されています。

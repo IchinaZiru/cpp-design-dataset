@@ -1,0 +1,21 @@
+{
+  "artifact_schema_version": "comment-ablation-rag-retrieval-manifest-v1",
+  "target_id": "echo-web-server-block-deque",
+  "condition": "B-comment-free",
+  "status": "pass",
+  "selection_frozen_from_formal_r2": true,
+  "source_formal_r2_retrieval_manifest_sha256": "4335fe435a0d3daf6b230a77e0b7fe9f5a9b51fc3d194f9389a6e9e01c829455",
+  "source_formal_r2_actual_rag_context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31",
+  "dependency_header_mode": "direct-project-local-quoted-include-whole-file-one-hop-v1",
+  "dependency_header_count": 0,
+  "comments_removed": 0,
+  "query_unchanged_from_formal_r2": true,
+  "artifact_hashes": {
+    "query.json": "6224e76af9cf70bfca57996bff9dd97f4e126e46d84bf95afd170e4deda117de",
+    "candidates_selected_comment_free.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual_rag_context_comment_free.txt": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31"
+  },
+  "context_bytes": 39,
+  "context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31",
+  "dependencies": []
+}

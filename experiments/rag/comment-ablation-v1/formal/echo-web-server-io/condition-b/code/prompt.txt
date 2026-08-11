@@ -1,0 +1,453 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# 詳細設計仕様書
+
+## 1. 目的
+与えられたC++ソースコードを解析し、再実装に必要な詳細な設計情報を提供する。
+
+## 2. クラス図
+```mermaid
+classDiagram
+    class IReader {
+        +virtual ~IReader() noexcept = default
+        +virtual std::size_t ReadFrom(Buffer& buf) = 0
+    }
+    
+    class IWriter {
+        +virtual ~IWriter() noexcept = default
+        +virtual std::size_t WriteTo(Buffer& buf) = 0
+    }
+
+    class IReadWriter {
+        .. IReader ..
+        .. IWriter ..
+    }
+
+    class Null {
+        .. IReadWriter ..
+        +std::size_t WriteTo(Buffer& buf) noexcept override
+        +std::size_t ReadFrom(Buffer& buf) noexcept override
+    }
+
+    class StringStream {
+        .. IReadWriter ..
+        -std::istream& read_
+        -std::ostream& write_
+        +StringStream(std::istream& read, std::ostream& write) noexcept
+        +std::size_t WriteTo(Buffer& buf) noexcept override
+        +std::size_t ReadFrom(Buffer& buf) noexcept override
+    }
+
+    class FileDescriptor {
+        .. IReadWriter ..
+        -ws::FileDescriptor read_
+        -ws::FileDescriptor write_
+        +FileDescriptor(ws::FileDescriptor read, ws::FileDescriptor write) noexcept
+        +std::size_t WriteTo(Buffer& buf) override
+        +std::size_t ReadFrom(Buffer& buf) override
+    }
+
+    IReader <|-- Null
+    IWriter <|-- Null
+    IReader <|-- StringStream
+    IWriter <|-- StringStream
+    IReader <|-- FileDescriptor
+    IWriter <|-- FileDescriptor
+```
+
+## 3. クラス・メソッド・インターフェース詳細
+
+### IReader
+| メンバ名 | 型 | 可視性 | const | noexcept | virtual | static |
+|----------|----|--------|-------|----------|---------|--------|
+| ~IReader() | void | public | - | true | true | false |
+| ReadFrom | std::size_t(Buffer&) | public | - | false | true | false |
+
+### IWriter
+| メンバ名 | 型 | 可視性 | const | noexcept | virtual | static |
+|----------|----|--------|-------|----------|---------|--------|
+| ~IWriter() | void | public | - | true | true | false |
+| WriteTo  | std::size_t(Buffer&) | public | - | false | true | false |
+
+### IReadWriter
+| メンバ名 | 型 | 可視性 | const | noexcept | virtual | static |
+|----------|----|--------|-------|----------|---------|--------|
+| ~IReadWriter() | void | public | - | true | true | false |
+
+### Null
+| メンバ名 | 型 | 可視性 | const | noexcept | virtual | static |
+|----------|----|--------|-------|----------|---------|--------|
+| WriteTo  | std::size_t(Buffer&) | public | - | true | true | false |
+| ReadFrom | std::size_t(Buffer&) | public | - | true | true | false |
+
+### StringStream
+| メンバ名 | 型 | 可視性 | const | noexcept | virtual | static |
+|----------|----|--------|-------|----------|---------|--------|
+| StringStream | void(std::istream&, std::ostream&) | public | - | true | false | false |
+| WriteTo  | std::size_t(Buffer&) | public | - | true | true | false |
+| ReadFrom | std::size_t(Buffer&) | public | - | true | true | false |
+
+### FileDescriptor
+| メンバ名 | 型 | 可視性 | const | noexcept | virtual | static |
+|----------|----|--------|-------|----------|---------|--------|
+| FileDescriptor | void(ws::FileDescriptor, ws::FileDescriptor) | public | - | true | false | false |
+| WriteTo  | std::size_t(Buffer&) | public | - | false | true | false |
+| ReadFrom | std::size_t(Buffer&) | public | - | false | true | false |
+
+## 4. シーケンス図
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Null
+    participant StringStream
+    participant FileDescriptor
+
+    Client->>Null: WriteTo(buf)
+    Null-->>Client: size
+
+    Client->>Null: ReadFrom(buf)
+    Null-->>Client: retrieved_size
+
+    Client->>StringStream: WriteTo(buf)
+    StringStream->>read_: >> str
+    StringStream->>buf: Append(str)
+    StringStream-->>Client: str.length()
+
+    Client->>StringStream: ReadFrom(buf)
+    StringStream->>buf: RetrieveAllToString()
+    StringStream->>write_: << str
+    StringStream-->>Client: str.length()
+
+    Client->>FileDescriptor: WriteTo(buf)
+    FileDescriptor->>readv: readv(read_, bufs, 2)
+    alt size < 0
+        FileDescriptor->>ThrowLastSystemError: ThrowLastSystemError()
+    else size <= buf_bytes.size_bytes()
+        FileDescriptor->>buf: HasWritten(size)
+    else
+        FileDescriptor->>buf: HasWritten(buf_bytes.size_bytes())
+        FileDescriptor->>buf: Append(ext_bytes.cbegin(), ext_bytes.cbegin() + (size - buf_bytes.size_bytes()))
+    end
+    FileDescriptor-->>Client: size
+
+    Client->>FileDescriptor: ReadFrom(buf)
+    FileDescriptor->>bytes: buf.ReadableBytes()
+    FileDescriptor->>write: write(write_, bytes.data(), bytes.size_bytes())
+    alt size >= 0
+        FileDescriptor->>buf: Retrieve(size)
+        FileDescriptor-->>Client: size
+    else
+        FileDescriptor->>ThrowLastSystemError: ThrowLastSystemError()
+    end
+```
+
+## 5. メソッド仕様書
+
+### Null::WriteTo(Buffer& buf) noexcept
+- **目的**: `Buffer`に書き込むが、実際には何も書き込まない。
+- **引数**: `buf` - 書き込み先のバッファ。
+- **戻り値**: 書き込んだサイズ（常に`buf.WritableSize()`）。
+- **動作**: 
+  - `buf.WritableSize()`を取得し、そのサイズ分だけ`buf.HasWritten(size)`を呼び出す。
+- **副作用**: `Buffer`の書き込み位置が更新される。
+
+### Null::ReadFrom(Buffer& buf) noexcept
+- **目的**: `Buffer`から読み込むが、実際には何も読み込まない。
+- **引数**: `buf` - 読み込み元のバッファ。
+- **戻り値**: 読み込んだサイズ（常に`buf.RetrieveAll()`）。
+- **動作**: 
+  - `buf.RetrieveAll()`を呼び出し、その結果を返す。
+
+### StringStream::StringStream(std::istream& read, std::ostream& write) noexcept
+- **目的**: `std::istream`と`std::ostream`を使用して初期化する。
+- **引数**: 
+  - `read` - 読み込み用のストリーム。
+  - `write` - 書き込み用のストリーム。
+
+### StringStream::WriteTo(Buffer& buf) noexcept
+- **目的**: `Buffer`に`std::istream`から読み取った文字列を書き込む。
+- **引数**: `buf` - 書き込み先のバッファ。
+- **戻り値**: 書き込んだサイズ（読み取った文字列の長さ）。
+- **動作**: 
+  - `std::istream`から文字列を読み取り、それを`Buffer`に追加する。
+
+### StringStream::ReadFrom(Buffer& buf) noexcept
+- **目的**: `Buffer`から読み取った文字列を`std::ostream`に書き込む。
+- **引数**: `buf` - 読み込み元のバッファ。
+- **戻り値**: 書き込んだサイズ（読み取った文字列の長さ）。
+- **動作**: 
+  - `Buffer`から文字列を読み取り、それを`std::ostream`に書き込む。
+
+### FileDescriptor::FileDescriptor(ws::FileDescriptor read, ws::FileDescriptor write) noexcept
+- **目的**: ファイルディスクリプタを使用して初期化する。
+- **引数**: 
+  - `read` - 読み込み用のファイルディスクリプタ。
+  - `write` - 書き込み用のファイルディスクリプタ。
+
+### FileDescriptor::WriteTo(Buffer& buf)
+- **目的**: `Buffer`に読み取ったデータを書き込む。
+- **引数**: `buf` - 書き込み先のバッファ。
+- **戻り値**: 読み込んだサイズ。
+- **動作**: 
+  - `readv`を使用してデータを読み取り、それを`Buffer`に追加する。
+  - エラーが発生した場合は`ThrowLastSystemError()`を呼び出す。
+
+### FileDescriptor::ReadFrom(Buffer& buf)
+- **目的**: `Buffer`から読み取ったデータをファイルディスクリプタに書き込む。
+- **引数**: `buf` - 読み込み元のバッファ。
+- **戻り値**: 書き込んだサイズ。
+- **動作**: 
+  - `Buffer`からデータを読み取り、それをファイルディスクリプタに書き込む。
+  - エラーが発生した場合は`ThrowLastSystemError()`を呼び出す。
+
+## 6. 処理フロー図
+```mermaid
+graph TD
+    A[開始] --> B{Null::WriteTo}
+    B --> C[buf.WritableSize()]
+    C --> D[buf.HasWritten(size)]
+    D --> E[size]
+    E --> F[終了]
+
+    G[開始] --> H{Null::ReadFrom}
+    H --> I[buf.RetrieveAll()]
+    I --> J[retrieved_size]
+    J --> K[終了]
+
+    L[開始] --> M{StringStream::WriteTo}
+    M --> N[read_ >> str]
+    N --> O[buf.Append(str)]
+    O --> P[str.length()]
+    P --> Q[終了]
+
+    R[開始] --> S{StringStream::ReadFrom}
+    S --> T[buf.RetrieveAllToString()]
+    T --> U[write_ << str]
+    U --> V[str.length()]
+    V --> W[終了]
+
+    X[開始] --> Y{FileDescriptor::WriteTo}
+    Y --> Z[readv(read_, bufs, 2)]
+    Z --> AA[size < 0?]
+    AA -- true --> AB[ThrowLastSystemError()]
+    AA -- false --> AC[size <= buf_bytes.size_bytes()?]
+    AC -- true --> AD[buf.HasWritten(size)]
+    AC -- false --> AE[buf.HasWritten(buf_bytes.size_bytes())]
+    AE --> AF[buf.Append(ext_bytes.cbegin(), ext_bytes.cbegin() + (size - buf_bytes.size_bytes()))]
+    AF --> AG[size]
+    AG --> AH[終了]
+
+    AI[開始] --> AJ{FileDescriptor::ReadFrom}
+    AJ --> AK[bytes = buf.ReadableBytes()]
+    AK --> AL[write(write_, bytes.data(), bytes.size_bytes())]
+    AL --> AM[size >= 0?]
+    AM -- true --> AN[buf.Retrieve(size)]
+    AM -- false --> AO[ThrowLastSystemError()]
+    AO --> AP[size]
+    AP --> AQ[終了]
+```
+
+## 7. 状態遷移・副作用
+| 更新前状態 | 遷移条件 | 変更対象 | 更新後状態 | 更新順序 | 副作用 |
+|------------|----------|----------|------------|----------|--------|
+| -          | WriteTo  | Buffer   | 書き込み位置更新 | -        | -      |
+| -          | ReadFrom | Buffer   | 読み込み位置更新 | -        | -      |
+
+## 8. データ変換・制約
+| 入力データ | 出力データ | 変換規則 | 値域 | 境界値 | 単位 | 精度 | encoding |
+|------------|------------|----------|------|--------|------|------|----------|
+| std::istream | Buffer     | 文字列読み取りと追加 | -    | -      | byte | -    | UTF-8  |
+| Buffer       | std::ostream | 文字列読み取りと書き込み | -    | -      | byte | -    | UTF-8  |
+| ファイルディスクリプタ | Buffer     | readvを使用してデータ読み取りと追加 | -    | -      | byte | -    | -      |
+| Buffer       | ファイルディスクリプタ | writeを使用してデータ書き込み | -    | -      | byte | -    | -      |
+
+## 9. 完全再構築台帳
+
+### include/io.h
+```cpp
+#pragma once
+
+#include "util.h"
+#include <iostream>
+
+namespace ws {
+
+class Buffer;
+
+namespace io {
+
+class IReader {
+public:
+    virtual ~IReader() noexcept = default;
+    virtual std::size_t ReadFrom(Buffer& buf) = 0;
+};
+
+class IWriter {
+public:
+    virtual ~IWriter() noexcept = default;
+    virtual std::size_t WriteTo(Buffer& buf) = 0;
+};
+
+class IReadWriter : public virtual IReader, public virtual IWriter {};
+
+class Null : public virtual IReadWriter {
+public:
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+};
+
+class StringStream : public virtual IReadWriter {
+public:
+    explicit StringStream(std::istream& read, std::ostream& write) noexcept;
+    StringStream(const StringStream&) = delete;
+    StringStream(StringStream&&) = delete;
+    StringStream& operator=(const StringStream&) = delete;
+    StringStream& operator=(StringStream&&) = delete;
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+
+private:
+    std::istream& read_;
+    std::ostream& write_;
+};
+
+class FileDescriptor : public virtual IReadWriter {
+public:
+    explicit FileDescriptor(ws::FileDescriptor read, ws::FileDescriptor write) noexcept;
+    FileDescriptor(const FileDescriptor&) = delete;
+    FileDescriptor(FileDescriptor&&) = delete;
+    FileDescriptor& operator=(const FileDescriptor&) = delete;
+    FileDescriptor& operator=(FileDescriptor&&) = delete;
+    std::size_t WriteTo(Buffer& buf) override;
+    std::size_t ReadFrom(Buffer& buf) override;
+
+private:
+    ws::FileDescriptor read_;
+    ws::FileDescriptor write_;
+};
+
+} // namespace io
+} // namespace ws
+```
+
+### src/io/io.cpp
+```cpp
+#include "io.h"
+#include "containers/buffer.h"
+
+#include <sys/uio.h>
+#include <unistd.h>
+
+#include <array>
+
+namespace ws::io {
+
+std::size_t Null::WriteTo(Buffer& buf) noexcept {
+    const auto size {buf.WritableSize()};
+    buf.HasWritten(size);
+    return size;
+}
+
+std::size_t Null::ReadFrom(Buffer& buf) noexcept {
+    return buf.RetrieveAll();
+}
+
+StringStream::StringStream(std::istream& read, std::ostream& write) noexcept :
+    read_ {read}, write_ {write} {}
+
+std::size_t StringStream::WriteTo(Buffer& buf) noexcept {
+    std::string str;
+    read_ >> str;
+    buf.Append(str);
+    return str.length();
+}
+
+std::size_t StringStream::ReadFrom(Buffer& buf) noexcept {
+    const std::string str {buf.RetrieveAllToString()};
+    write_ << str;
+    return str.length();
+}
+
+FileDescriptor::FileDescriptor(const ws::FileDescriptor read,
+                               const ws::FileDescriptor write) noexcept :
+    read_ {read}, write_ {write} {}
+
+std::size_t FileDescriptor::WriteTo(Buffer& buf) {
+    const auto buf_bytes {buf.WritableBytes()};
+    std::array<std::byte, 0x10000> ext_bytes;
+
+    const std::array bufs {
+        iovec {.iov_base = buf_bytes.data(), .iov_len = buf_bytes.size_bytes()},
+        iovec {.iov_base = ext_bytes.data(), .iov_len = ext_bytes.size()}};
+
+    const auto size {readv(read_, bufs.data(), bufs.size())};
+    if (size < 0) {
+        ThrowLastSystemError();
+    } else if (size <= buf_bytes.size_bytes()) {
+        buf.HasWritten(size);
+    } else {
+        buf.HasWritten(buf_bytes.size_bytes());
+        buf.Append({ext_bytes.cbegin(),
+                    ext_bytes.cbegin() + (size - buf_bytes.size_bytes())});
+    }
+
+    return size;
+}
+
+std::size_t FileDescriptor::ReadFrom(Buffer& buf) {
+    const auto bytes {buf.ReadableBytes()};
+    if (const auto size {write(write_, bytes.data(), bytes.size_bytes())};
+        size >= 0) {
+        buf.Retrieve(size);
+        return size;
+    } else {
+        ThrowLastSystemError();
+    }
+}
+
+} // namespace ws::io
+```
+
+## 10. 追加詳細設計情報
+
+### クラス図
+- `IReader`, `IWriter`は純粋仮想クラスで、それぞれのインターフェースを定義している。
+- `IReadWriter`は`IReader`と`IWriter`を多重継承して両方の機能を持つインターフェースを提供する。
+- `Null`, `StringStream`, `FileDescriptor`は`IReadWriter`を実装し、それぞれ異なる入出力ソースに対応している。
+
+### クラス・メソッド・インターフェース詳細
+- 各クラスのコンストラクタとデストラクタは明示的に定義されており、コピーとムーブセマンティクスは禁止されている。
+- `WriteTo`と`ReadFrom`メソッドはそれぞれバッファへの書き込みと読み取りを実装しており、例外処理も含まれている。
+
+### シーケンス図
+- 各クラスの主な操作（`WriteTo`, `ReadFrom`）におけるシーケンスが示されており、エラーハンドリングも考慮されている。
+
+### メソッド仕様書
+- 各メソッドの詳細な動作と副作用が記述されており、具体的な処理フローが理解できる。
+
+### 処理フロー図
+- 主なメソッドの内部処理フローが視覚的に示されており、条件分岐やエラーハンドリングも含まれている。
+
+### 状態遷移・副作用
+- 各クラスの状態変更とその影響が明記されており、外部リソースへの副作用も考慮されている。
+
+### データ変換・制約
+- 入力データから出力データへの具体的な変換規則や制約が示されており、バッファ操作における境界値の扱いも含まれている。

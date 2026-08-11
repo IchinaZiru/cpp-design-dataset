@@ -1,0 +1,156 @@
+# 詳細設計仕様書
+
+## 1. 目的
+`HeapTimer` クラスの再実装に必要な詳細な設計情報を提供する。
+
+## 2. ファイル構造と依存関係
+- **ファイルパス**: `include/containers/heap_timer.h`
+- **依存ヘッダ**:
+  - `log.h`: ロギング機能を提供。
+  - `util.h`: その他のユーティリティ関数やクラスを提供。
+
+## 3. クラス図
+```mermaid
+classDiagram
+    class HeapTimer {
+        +using Clock = std::chrono::steady_clock
+        +using TimeOutCallback = std::function<void(const Key&)>
+        +HeapTimer(log::Logger::Ptr logger = log::RootLogger()) noexcept
+        +void Adjust(const Key& key, Clock::duration expiration)
+        +void Adjust(const Key& key, Clock::time_point expiration)
+        +void Push(const Key& key, Clock::duration expiration, TimeOutCallback callback) noexcept
+        +void Push(const Key& key, Clock::time_point expiration, TimeOutCallback callback) noexcept
+        +void Tick() noexcept
+        +bool Remove(const Key& key) noexcept
+        +void Invoke(const Key& key)
+        +Key Pop() noexcept
+        +void Clear() noexcept
+        +bool Contain(const Key& key) const noexcept
+        +bool Empty() const noexcept
+        +std::size_t Size() const noexcept
+        +Clock::duration ToNextTick() noexcept
+    }
+    
+    class Node {
+        -Key key
+        -Clock::time_point expiration
+        -TimeOutCallback callback
+        +bool Expired() const noexcept
+        +void Swap(Node&) noexcept
+    }
+
+    HeapTimer *-- Node : contains >
+```
+
+## 4. クラス・メソッド・インターフェース詳細
+
+| クラス名 | メンバ名 | 種類 | 型 | 可視性 | const/noexcept | 引数 | 戻り値 |
+|----------|----------|------|----|--------|------------------|------|--------|
+| HeapTimer | Clock | using | std::chrono::steady_clock | public | - | - | - |
+| HeapTimer | TimeOutCallback | using | std::function<void(const Key&)> | public | - | - | - |
+| HeapTimer | HeapTimer | constructor | - | public | noexcept | log::Logger::Ptr logger = log::RootLogger() | - |
+| HeapTimer | Adjust | method | void | public | - | const Key& key, Clock::duration expiration | - |
+| HeapTimer | Adjust | method | void | public | - | const Key& key, Clock::time_point expiration | - |
+| HeapTimer | Push | method | void | public | noexcept | const Key& key, Clock::duration expiration, TimeOutCallback callback | - |
+| HeapTimer | Push | method | void | public | noexcept | const Key& key, Clock::time_point expiration, TimeOutCallback callback | - |
+| HeapTimer | Tick | method | void | public | noexcept | - | - |
+| HeapTimer | Remove | method | bool | public | noexcept | const Key& key | - |
+| HeapTimer | Invoke | method | void | public | - | const Key& key | - |
+| HeapTimer | Pop | method | Key | public | noexcept | - | - |
+| HeapTimer | Clear | method | void | public | noexcept | - | - |
+| HeapTimer | Contain | method | bool | public | const noexcept | const Key& key | - |
+| HeapTimer | Empty | method | bool | public | const noexcept | - | - |
+| HeapTimer | Size | method | std::size_t | public | const noexcept | - | - |
+| HeapTimer | ToNextTick | method | Clock::duration | public | noexcept | - | - |
+
+## 5. シーケンス図
+### Tick メソッドのシーケンス図
+```mermaid
+sequenceDiagram
+    participant HT as HeapTimer
+    participant N as Node
+    participant L as Logger
+
+    loop Until no expired nodes
+        HT->>N: nodes_.front().Expired()
+        alt Expired
+            N-->>HT: true
+            HT->>L: Log exception if any
+            HT->>HT: RemoveByIndex(0)
+        else Not Expired
+            N-->>HT: false
+            break
+        end
+    end
+```
+
+## 6. メソッド仕様書
+
+### Adjust(const Key& key, Clock::duration expiration)
+- **目的**: 指定したキーの有効期限を調整する。
+- **引数**:
+  - `key`: 調整したいノードのキー。
+  - `expiration`: 新しい有効期限（現在時刻からの相対時間）。
+- **戻り値**: 無し
+- **動作**: 指定したキーに対応するノードの有効期限を調整し、必要に応じてヒープを再構成する。
+
+### Push(const Key& key, Clock::time_point expiration, TimeOutCallback callback) noexcept
+- **目的**: 新しいノードを追加する。
+- **引数**:
+  - `key`: 追加したいノードのキー。
+  - `expiration`: ノードの有効期限（絶対時間）。
+  - `callback`: 有効期限切れ時に呼び出されるコールバック関数。
+- **戻り値**: 無し
+- **動作**: 新しいノードを追加し、ヒープを再構成する。既に同じキーが存在する場合はそのノードの有効期限とコールバックを更新する。
+
+### Tick() noexcept
+- **目的**: 有効期限切れのノードを処理する。
+- **引数**: 無し
+- **戻り値**: 無し
+- **動作**: ヒープの先頭から順に有効期限切れのノードを取り出し、コールバック関数を呼び出す。エラーが発生した場合はログに出力する。
+
+## 7. 処理フロー図
+
+### Push メソッドの処理フロー
+```mermaid
+graph TD
+    A[Start] --> B{Contain(key)?}
+    B -- Yes --> C[Adjust(key, expiration, callback)]
+    B -- No --> D[Create Node]
+    D --> E[key_to_idx_.emplace(key, Size())]
+    E --> F[nodes_.push_back(Node)]
+    F --> G[ShiftUp(Size() - 1)]
+    G --> H[End]
+    C --> H
+```
+
+## 8. 状態遷移・副作用
+
+| 状態 | 遷移条件 | 変更対象 | 更新後状態 | 副作用 |
+|------|----------|----------|------------|--------|
+| - | Push(key, expiration, callback) | nodes_, key_to_idx_ | ノード追加または更新 | ヒープ再構成 |
+| - | Adjust(key, expiration) | nodes_ | 有効期限更新 | ヒープ再構成 |
+| - | Tick() | nodes_, key_to_idx_ | 有効期限切れノード削除 | コールバック呼び出し、ログ出力 |
+
+## 9. データ変換・制約
+
+| 入力データ | 出力データ | 変換規則 | 値域 | 境界値 |
+|------------|------------|----------|------|--------|
+| expiration (duration) | expiration (time_point) | Clock::now() + duration | - | 現在時刻以降 |
+| key | index | key_to_idx_マッピング | 0からSize()-1までの整数 | Size()-1 |
+
+## 10. 追加詳細設計情報
+
+### データ構造
+- **Node**: キー、有効期限、コールバック関数を保持する。
+- **key_to_idx_**: キーとノードのインデックスをマッピングするハッシュマップ。
+- **nodes_**: ノードを格納するデック。
+
+### 制約
+- `HeapTimer` はコピー不可、ムーブ可能。
+- `Node::Swap` はノード間のデータ交換を行い、インデックスマッピングも更新する。
+- `Adjust`, `Push`, `Remove` メソッドはヒープ構造を維持するために内部で `ShiftUp` や `ShiftDown` を呼び出す。
+
+### 副作用
+- `Tick` は有効期限切れのノードに対してコールバック関数を呼び出し、エラーが発生した場合はログに出力する。
+- `Push`, `Adjust`, `Remove` メソッドはヒープ構造を維持するために内部でノードの位置を変更し、インデックスマッピングも更新する。

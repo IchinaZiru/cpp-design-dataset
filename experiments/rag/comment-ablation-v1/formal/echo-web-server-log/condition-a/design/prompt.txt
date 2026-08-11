@@ -1,0 +1,1689 @@
+与えられたC++ソースコードを解析し、このソースコードを参照できない別のLLMが再実装できるように、詳細な設計仕様書を作成してください。
+
+入力から確認できない情報は推測しないでください。
+
+TARGET-OWNED INPUTS
+Fxx/Uxx identifiers are opaque. Preserve names, types, signatures, namespaces, and replacement boundaries in the final specification.
+
+REPLACEMENT UNIT CONTRACT
+Only replacement_required=true units will be regenerated. Reference-only units must inform the design but must not become output units.
+REPLACEMENT UNITS: F01/U01, F02/U02, F03/U03, F04/U04, F05/U05, F06/U06, F07/U07
+REFERENCE-ONLY INPUTS: none
+
+===== BEGIN F01/U01 =====
+path: include/log.h
+role: complete target-owned implementation/declaration file
+replacement_required: true
+   
+              
+                             
+  
+           
+                                               
+                                     
+                                   
+                                 
+                             
+                                   
+                                  
+                                 
+                                   
+                                  
+  
+                                                
+              
+                                 
+               
+                   
+  
+                              
+   
+
+#pragma once
+
+#include "config.h"
+#include "containers/block_deque.h"
+#include "util.h"
+
+#include <chrono>
+#include <experimental/source_location>
+#include <fstream>
+#include <iostream>
+#include <list>
+#include <memory>
+#include <mutex>
+#include <optional>
+#include <sstream>
+#include <string>
+#include <string_view>
+#include <thread>
+#include <unordered_map>
+
+
+namespace ws::log {
+
+class Logger;
+
+enum class Level { Debug = 0, Info = 1, Warn = 2, Error = 3, Fatal = 4 };
+
+                                  
+std::string_view LevelToString(Level level) noexcept;
+
+std::string to_string(Level level) noexcept;
+
+std::ostream& operator<<(std::ostream& os, Level level) noexcept;
+
+   
+                                        
+  
+                                                                          
+   
+Level StringToLevel(std::string str);
+
+enum class AppenderType { StdOut = 0, File = 1 };
+
+                                           
+std::string_view AppenderTypeToString(AppenderType type) noexcept;
+
+std::string to_string(AppenderType type) noexcept;
+
+std::ostream& operator<<(std::ostream& os, AppenderType type) noexcept;
+
+   
+                                                 
+  
+                                                                                   
+   
+AppenderType StringToAppenderType(std::string str);
+
+                  
+class Event {
+public:
+    using Ptr = std::shared_ptr<Event>;
+
+    using Clock = std::chrono::system_clock;
+
+       
+                              
+      
+                                    
+                                          
+                                                                      
+                                  
+      
+                                                                                        
+       
+    static Ptr Create(log::Level level,
+                      std::experimental::source_location location =
+                          std::experimental::source_location::current(),
+                      std::uint32_t thread_id = CurrentThreadId(),
+                      Clock::time_point time = Clock::now()) noexcept;
+
+    Event(const Event&) = delete;
+
+    Event(Event&&) = delete;
+
+    Event& operator=(const Event&) = delete;
+
+    Event& operator=(Event&&) = delete;
+
+    log::Level Level() const noexcept;
+
+    std::string_view FileName() const noexcept;
+
+    std::size_t LineNum() const noexcept;
+
+    std::uint32_t ThreadId() const noexcept;
+
+    Clock::time_point Time() const noexcept;
+
+                                            
+    std::string Message() const noexcept;
+
+                                                                  
+    std::ostringstream& MessageStream() noexcept;
+
+protected:
+    explicit Event(log::Level level,
+                   std::experimental::source_location location,
+                   std::uint32_t thread_id, Clock::time_point time) noexcept;
+
+private:
+    log::Level level_;
+    std::string_view file_name_;
+    std::size_t line_num_;
+    std::uint32_t thread_id_;
+    Clock::time_point time_;
+
+    std::ostringstream msg_;
+};
+
+Event::Ptr operator<<(Event::Ptr event, std::string_view msg) noexcept;
+
+                        
+class Formatter {
+public:
+    using Ptr = std::shared_ptr<Formatter>;
+
+    static Formatter::Ptr Default() noexcept;
+
+       
+             
+                                                     
+                                                                                           
+      
+                           
+       
+    class Field {
+    public:
+        using Ptr = std::shared_ptr<Field>;
+
+           
+                                           
+          
+                                                                     
+           
+        explicit Field(std::string_view format = "") noexcept;
+
+        virtual ~Field() noexcept = default;
+
+                                         
+        virtual void Format(std::ostream& out, const Logger& logger,
+                            const Event& event) noexcept = 0;
+
+           
+                 
+                                            
+                                                              
+           
+        virtual std::string_view Tag() const noexcept = 0;
+    };
+
+       
+                                 
+      
+                                                                                       
+      
+                                                               
+       
+    explicit Formatter(std::string_view pattern);
+
+                                      
+    std::string Format(const Logger& logger, const Event& event) const noexcept;
+
+    std::string_view Pattern() const noexcept;
+
+private:
+    std::string pattern_;
+    std::list<Field::Ptr> fields_;
+};
+
+                                                        
+class Appender {
+public:
+    using Ptr = std::shared_ptr<Appender>;
+
+       
+                                                       
+      
+                                                               
+       
+    explicit Appender(std::string_view pattern);
+
+    explicit Appender(Formatter::Ptr formatter = Formatter::Default()) noexcept;
+
+    Appender(const Appender&) = delete;
+
+    Appender(Appender&&) = delete;
+
+    Appender& operator=(const Appender&) = delete;
+
+    Appender& operator=(Appender&&) = delete;
+
+    virtual ~Appender() noexcept = default;
+
+                                             
+    virtual void Log(const Logger& logger, const Event& event) noexcept = 0;
+
+                                                                             
+    virtual std::string ToYamlString() const noexcept = 0;
+
+    Formatter::Ptr GetFormatter() const noexcept;
+
+    void SetFormatter(Formatter::Ptr formatter) noexcept;
+
+       
+                                  
+      
+                                                                      
+       
+    void SetFormatter(std::string_view pattern);
+
+protected:
+    mutable std::mutex mtx_;
+    Formatter::Ptr formatter_;
+};
+
+                                                                  
+class StdOutAppender : public Appender {
+public:
+    using Ptr = std::shared_ptr<StdOutAppender>;
+
+    using Appender::Appender;
+
+    void Log(const Logger& logger, const Event& event) noexcept override;
+
+    std::string ToYamlString() const noexcept override;
+};
+
+                                              
+class FileAppender : public Appender {
+public:
+    using Ptr = std::shared_ptr<FileAppender>;
+
+       
+                                     
+      
+                                    
+                                    
+      
+                                                              
+       
+    explicit FileAppender(std::string_view file_name,
+                          Formatter::Ptr formatter = Formatter::Default());
+
+    void Log(const Logger& logger, const Event& event) noexcept override;
+
+    std::string ToYamlString() const noexcept override;
+
+private:
+    std::string file_name_;
+    std::ofstream file_;
+};
+
+   
+         
+                                              
+                                               
+   
+class Logger {
+public:
+    using Ptr = std::shared_ptr<Logger>;
+
+       
+                              
+      
+                          
+                   
+                              
+                                                                  
+                      
+                                   
+                                                                                        
+                                                                             
+       
+    explicit Logger(
+        std::string_view name, log::Level level = Level::Info,
+        std::optional<std::size_t> capacity = std::nullopt) noexcept;
+
+    ~Logger() noexcept;
+
+    Logger(const Logger&) = delete;
+
+    Logger(Logger&&) = delete;
+
+    Logger& operator=(const Logger&) = delete;
+
+    Logger& operator=(Logger&&) = delete;
+
+    void Log(Event::Ptr event) noexcept;
+
+    void AddAppender(Appender::Ptr appender) noexcept;
+
+    void RemoveAppender(Appender::Ptr appender) noexcept;
+
+    void ClearAppenders() noexcept;
+
+    log::Level GetLevel() const noexcept;
+
+    void SetLevel(log::Level level) noexcept;
+
+    Formatter::Ptr GetDefaultFormatter() const noexcept;
+
+       
+             
+                               
+      
+               
+                                                              
+                                          
+       
+    void SetDefaultFormatter(Formatter::Ptr formatter) noexcept;
+
+       
+                                      
+      
+                                                                      
+       
+    void SetDefaultFormatter(std::string_view pattern);
+
+    std::string_view Name() const noexcept;
+
+    std::size_t Capacity() const noexcept;
+
+                                                                           
+    std::string ToYamlString() const noexcept;
+
+private:
+                                                                             
+    void AsyncLogProc() noexcept;
+
+    void SyncLog(const Event& event) noexcept;
+
+    mutable std::mutex mtx_;
+    bool async_;
+    std::unique_ptr<std::thread> writer_thread_;
+
+    std::string name_;
+    std::size_t capacity_;
+    log::Level level_;
+    std::list<Appender::Ptr> appenders_;
+    std::unique_ptr<BlockDeque<Event::Ptr>> event_deque_;
+    Formatter::Ptr formatter_ {Formatter::Default()};
+};
+
+void Log(Logger::Ptr logger, Event::Ptr event) noexcept;
+
+Logger::Ptr operator<<(Logger::Ptr logger, Event::Ptr event) noexcept;
+
+   
+         
+                              
+                                                              
+  
+           
+                             
+  
+               
+                                                              
+           
+   
+class EventWriter {
+public:
+    explicit EventWriter(Logger& logger, Event::Ptr event) noexcept;
+
+    EventWriter(const EventWriter&) = delete;
+
+    EventWriter(EventWriter&&) = delete;
+
+    EventWriter& operator=(const EventWriter&) = delete;
+
+    EventWriter& operator=(EventWriter&&) = delete;
+
+    ~EventWriter() noexcept;
+
+    std::ostringstream& MessageStream() noexcept;
+
+private:
+    Logger& logger_;
+    Event::Ptr event_;
+};
+
+                                                            
+class Manager {
+public:
+       
+                                                                  
+      
+                                                                               
+       
+    static void InitConfig() noexcept;
+
+    using Ptr = std::shared_ptr<Manager>;
+
+    explicit Manager(std::string_view name) noexcept;
+
+    Manager(const Manager&) = delete;
+
+    Manager(Manager&&) = delete;
+
+    Manager& operator=(const Manager&) = delete;
+
+    Manager& operator=(Manager&&) = delete;
+
+    std::string_view Name() const noexcept;
+
+                                                                   
+    Logger::Ptr FindLogger(
+        std::string_view name, log::Level level = Level::Info,
+        std::optional<std::size_t> capacity = std::nullopt) noexcept;
+
+    void RemoveLogger(std::string_view name) noexcept;
+
+                                                                            
+    std::string ToYamlString() const noexcept;
+
+private:
+    mutable std::mutex mtx_;
+    std::string name_;
+    std::unordered_map<std::string, Logger::Ptr> loggers_;
+};
+
+Manager::Ptr RootManager() noexcept;
+
+Logger::Ptr RootLogger() noexcept;
+
+Logger::Ptr FindLogger(std::string_view name) noexcept;
+
+}
+===== END F01/U01 =====
+
+===== BEGIN F02/U02 =====
+path: src/log/log.cpp
+role: complete target-owned implementation/declaration file
+replacement_required: true
+#include "log.h"
+#include "config_init.h"
+#include "field.h"
+
+#include <algorithm>
+#include <cassert>
+#include <stdexcept>
+
+
+namespace ws {
+
+namespace log {
+
+namespace {
+constexpr std::string_view root_logger_name {"root"};
+}
+
+std::string_view LevelToString(const Level level) noexcept {
+    static const std::unordered_map<Level, std::string_view> levels {
+        {Level::Debug, "Debug"},
+        {Level::Info, "Info"},
+        {Level::Warn, "Warn"},
+        {Level::Error, "Error"},
+        {Level::Fatal, "Fatal"}};
+
+    return levels.at(level);
+}
+
+std::string to_string(const Level level) noexcept {
+    return LevelToString(level).data();
+}
+
+Level StringToLevel(std::string str) {
+    static const std::unordered_map<std::string_view, Level> levels {
+        {"DEBUG", Level::Debug},
+        {"INFO", Level::Info},
+        {"WARN", Level::Warn},
+        {"ERROR", Level::Error},
+        {"FATAL", Level::Fatal}};
+
+    str = StringToUpper(str);
+    if (const auto level {levels.find(str)}; level != levels.cend()) {
+        return level->second;
+    } else {
+        throw std::invalid_argument {
+            fmt::format("Invalid log level: '{}'", str)};
+    }
+}
+
+Event::Ptr Event::Create(const log::Level level,
+                         std::experimental::source_location location,
+                         const std::uint32_t thread_id,
+                         Clock::time_point time) noexcept {
+                                                                          
+    struct MakeSharedEvent : public Event {
+        MakeSharedEvent(const log::Level level,
+                        std::experimental::source_location location,
+                        const std::uint32_t thread_id,
+                        Clock::time_point time) noexcept :
+            Event {level, std::move(location), thread_id, std::move(time)} {}
+    };
+
+    return std::make_shared<MakeSharedEvent>(level, std::move(location),
+                                             thread_id, std::move(time));
+}
+
+Event::Event(const log::Level level,
+             const std::experimental::source_location location,
+             const std::uint32_t thread_id, Clock::time_point time) noexcept :
+    level_ {level},
+    file_name_ {location.file_name()},
+    line_num_ {location.line()},
+    thread_id_ {thread_id},
+    time_ {std::move(time)} {}
+
+log::Level Event::Level() const noexcept {
+    return level_;
+}
+
+std::string_view Event::FileName() const noexcept {
+    return file_name_;
+}
+
+std::size_t Event::LineNum() const noexcept {
+    return line_num_;
+}
+
+std::uint32_t Event::ThreadId() const noexcept {
+    return thread_id_;
+}
+
+Event::Clock::time_point Event::Time() const noexcept {
+    return time_;
+}
+
+std::string Event::Message() const noexcept {
+    return msg_.str();
+}
+
+std::ostringstream& Event::MessageStream() noexcept {
+    return msg_;
+}
+
+Event::Ptr operator<<(const Event::Ptr event,
+                      const std::string_view msg) noexcept {
+    event->MessageStream() << msg;
+    return event;
+}
+
+EventWriter::EventWriter(Logger& logger, const Event::Ptr event) noexcept :
+    logger_ {logger}, event_ {event} {}
+
+EventWriter::~EventWriter() noexcept {
+    logger_.Log(event_);
+}
+
+std::ostringstream& EventWriter::MessageStream() noexcept {
+    return event_->MessageStream();
+}
+
+Formatter::Ptr Formatter::Default() noexcept {
+    static constexpr std::string_view pattern {
+        "%d{%Y-%m-%d %H:%M:%S}%T%t%T[%p]%T[%c]%T<%f:%l>%T%m%n"};
+    static const auto ins {std::make_shared<Formatter>(pattern)};
+    return ins;
+}
+
+Formatter::Field::Field(const std::string_view format) noexcept {}
+
+Formatter::Formatter(const std::string_view pattern) :
+    pattern_ {pattern},
+    fields_ {field::RawFieldsToFormatFields(field::ParsePattern(pattern))} {}
+
+std::string Formatter::Format(const Logger& logger,
+                              const Event& event) const noexcept {
+    std::ostringstream str;
+    std::ranges::for_each(fields_, [&str, &logger, &event](auto& it) noexcept {
+        it->Format(str, logger, event);
+    });
+
+    return str.str();
+}
+
+std::string_view Formatter::Pattern() const noexcept {
+    return pattern_;
+}
+
+Logger::Logger(const std::string_view name, const log::Level level,
+               const std::optional<std::size_t> capacity) noexcept :
+    name_ {name}, level_ {level}, capacity_ {capacity.value_or(0)} {
+    if (capacity_ > 0) {
+        async_ = true;
+        event_deque_ = std::make_unique<BlockDeque<Event::Ptr>>(capacity_);
+        writer_thread_ =
+            std::make_unique<std::thread>(&Logger::AsyncLogProc, this);
+    } else {
+        async_ = false;
+    }
+}
+
+Logger::~Logger() noexcept {
+    if (async_) {
+        assert(event_deque_);
+        event_deque_->Close();
+
+        assert(writer_thread_ && writer_thread_->joinable());
+        writer_thread_->join();
+    }
+}
+
+void Logger::AsyncLogProc() noexcept {
+    while (true) {
+        if (const auto event {event_deque_->Pop()}; event) {
+            SyncLog(**event);
+        } else {
+            return;
+        }
+    }
+}
+
+void Logger::SyncLog(const Event& event) noexcept {
+    const std::lock_guard locker {mtx_};
+    std::ranges::for_each(appenders_, [&event, this](auto& it) noexcept {
+        it->Log(*this, event);
+    });
+}
+
+void Logger::Log(const Event::Ptr event) noexcept {
+    if (event->Level() >= level_) {
+        if (async_) {
+            const std::lock_guard locker {mtx_};
+            event_deque_->PushBack(std::move(event));
+        } else {
+            SyncLog(*event);
+        }
+    }
+}
+
+void Logger::AddAppender(const Appender::Ptr appender) noexcept {
+    const std::lock_guard locker {mtx_};
+    if (!appender->GetFormatter()) {
+        appender->SetFormatter(formatter_);
+    }
+
+    appenders_.push_back(appender);
+}
+
+void Logger::RemoveAppender(const Appender::Ptr appender) noexcept {
+    const std::lock_guard locker {mtx_};
+    std::remove_if(
+        appenders_.begin(), appenders_.end(),
+        [&appender](const auto& it) noexcept { return it == appender; });
+}
+
+void Logger::ClearAppenders() noexcept {
+    const std::lock_guard locker {mtx_};
+    appenders_.clear();
+}
+
+log::Level Logger::GetLevel() const noexcept {
+    const std::lock_guard locker {mtx_};
+    return level_;
+}
+
+void Logger::SetLevel(const log::Level level) noexcept {
+    const std::lock_guard locker {mtx_};
+    level_ = level;
+}
+
+Formatter::Ptr Logger::GetDefaultFormatter() const noexcept {
+    const std::lock_guard locker {mtx_};
+    return formatter_;
+}
+
+void Logger::SetDefaultFormatter(const Formatter::Ptr formatter) noexcept {
+    const std::lock_guard locker {mtx_};
+    formatter_ = formatter;
+    std::ranges::for_each(appenders_, [&formatter](const auto& it) noexcept {
+        it->SetFormatter(formatter);
+    });
+}
+
+void Logger::SetDefaultFormatter(const std::string_view pattern) {
+    SetDefaultFormatter(std::make_shared<Formatter>(pattern));
+}
+
+std::size_t Logger::Capacity() const noexcept {
+    return capacity_;
+}
+
+std::string_view Logger::Name() const noexcept {
+    return name_;
+}
+
+std::string Logger::ToYamlString() const noexcept {
+    const std::lock_guard locker {mtx_};
+
+    YAML::Node node;
+    node["name"] = name_;
+    node["level"] = LevelToString(level_).data();
+
+    if (formatter_) {
+        node["formatter"] = formatter_->Pattern().data();
+    }
+
+    for (const auto& appender : appenders_) {
+        node["appenders"].push_back(YAML::Load(appender->ToYamlString()));
+    }
+
+    std::ostringstream ss;
+    ss << node;
+    return ss.str();
+}
+
+void Log(const Logger::Ptr logger, Event::Ptr event) noexcept {
+    if (logger) {
+        logger->Log(std::move(event));
+    }
+}
+
+Logger::Ptr operator<<(const Logger::Ptr logger, Event::Ptr event) noexcept {
+    Log(logger, std::move(event));
+    return logger;
+}
+
+Manager::Manager(const std::string_view name) noexcept : name_ {name} {}
+
+std::string_view Manager::Name() const noexcept {
+    return name_;
+}
+
+Logger::Ptr Manager::FindLogger(
+    const std::string_view name, const log::Level level,
+    const std::optional<std::size_t> capacity) noexcept {
+    const std::lock_guard locker {mtx_};
+    if (const auto logger {loggers_.find(name.data())};
+        logger != loggers_.cend()) {
+        return logger->second;
+    } else {
+        const auto new_logger {std::make_shared<Logger>(name, level, capacity)};
+        loggers_.emplace(name, new_logger);
+        return new_logger;
+    }
+}
+
+void Manager::RemoveLogger(const std::string_view name) noexcept {
+    const std::lock_guard locker {mtx_};
+    loggers_.erase(name.data());
+}
+
+std::string Manager::ToYamlString() const noexcept {
+    const std::lock_guard locker {mtx_};
+
+    YAML::Node node;
+    for (const auto& logger : loggers_) {
+        node.push_back(YAML::Load(logger.second->ToYamlString()));
+    }
+
+    std::ostringstream ss;
+    ss << node;
+    return ss.str();
+}
+
+void Manager::InitConfig() noexcept {
+    static std::once_flag init_flag;
+    std::call_once(init_flag, []() noexcept {
+        SetListener(
+            cfg::RootConfig()->Lookup(
+                "loggers", std::unordered_set<LoggerConfig> {}, "Loggers"),
+            RootManager());
+    });
+}
+
+Manager::Ptr RootManager() noexcept {
+    static std::once_flag init_flag;
+    static const auto ins {std::make_shared<Manager>("root")};
+    std::call_once(init_flag, []() noexcept {
+        ins->FindLogger(root_logger_name)
+            ->AddAppender(std::make_shared<StdOutAppender>());
+    });
+
+    return ins;
+}
+
+Logger::Ptr RootLogger() noexcept {
+    return RootManager()->FindLogger(root_logger_name);
+}
+
+Logger::Ptr FindLogger(const std::string_view name) noexcept {
+    return RootManager()->FindLogger(name);
+}
+
+std::ostream& operator<<(std::ostream& os, const AppenderType type) noexcept {
+    return os << AppenderTypeToString(type);
+}
+
+std::ostream& operator<<(std::ostream& os, const Level level) noexcept {
+    return os << LevelToString(level);
+}
+
+}                  
+
+}
+===== END F02/U02 =====
+
+===== BEGIN F03/U03 =====
+path: src/log/appender.cpp
+role: complete target-owned implementation/declaration file
+replacement_required: true
+#include "log.h"
+
+#include <stdexcept>
+#include <syncstream>
+
+
+namespace ws::log {
+
+std::string_view AppenderTypeToString(const AppenderType type) noexcept {
+    static const std::unordered_map<AppenderType, std::string_view> types {
+        {AppenderType::StdOut, "StdOut"}, {AppenderType::File, "File"}};
+
+    return types.at(type);
+}
+
+std::string to_string(const AppenderType type) noexcept {
+    return AppenderTypeToString(type).data();
+}
+
+AppenderType StringToAppenderType(std::string str) {
+    static const std::unordered_map<std::string_view, AppenderType> types {
+        {"STDOUT", AppenderType::StdOut}, {"FILE", AppenderType::File}};
+
+    str = StringToUpper(str);
+    if (const auto type {types.find(str)}; type != types.cend()) {
+        return type->second;
+    } else {
+        throw std::invalid_argument {
+            fmt::format("Invalid log appender type: '{}'", str)};
+    }
+}
+
+Appender::Appender(const std::string_view pattern) {
+    SetFormatter(pattern);
+}
+
+Appender::Appender(const Formatter::Ptr formatter) noexcept :
+    formatter_ {formatter} {}
+
+Formatter::Ptr Appender::GetFormatter() const noexcept {
+    const std::lock_guard locker {mtx_};
+    return formatter_;
+}
+
+void Appender::SetFormatter(const Formatter::Ptr formatter) noexcept {
+    const std::lock_guard locker {mtx_};
+    formatter_ = formatter;
+}
+
+void Appender::SetFormatter(const std::string_view pattern) {
+    SetFormatter(std::make_shared<log::Formatter>(pattern));
+}
+
+void StdOutAppender::Log(const Logger& logger, const Event& event) noexcept {
+    const std::lock_guard locker {mtx_};
+    std::osyncstream {std::cout} << formatter_->Format(logger, event)
+                                 << std::flush;
+}
+
+std::string StdOutAppender::ToYamlString() const noexcept {
+    const std::lock_guard locker {mtx_};
+
+    YAML::Node node;
+    node["type"] = AppenderTypeToString(AppenderType::StdOut).data();
+    if (formatter_) {
+        node["formatter"] = formatter_->Pattern().data();
+    }
+
+    std::ostringstream ss;
+    ss << node;
+    return ss.str();
+}
+
+FileAppender::FileAppender(const std::string_view file_name,
+                           const Formatter::Ptr formatter) :
+    file_name_ {file_name}, Appender {formatter} {
+    file_.open(file_name_, std::ofstream::app);
+    if (!file_.good()) {
+        ThrowLastSystemError();
+    }
+}
+
+std::string FileAppender::ToYamlString() const noexcept {
+    const std::lock_guard locker {mtx_};
+
+    YAML::Node node;
+    node["type"] = AppenderTypeToString(AppenderType::StdOut).data();
+    node["file"] = file_name_;
+    if (formatter_) {
+        node["formatter"] = formatter_->Pattern().data();
+    }
+
+    std::ostringstream ss;
+    ss << node;
+    return ss.str();
+}
+
+void FileAppender::Log(const Logger& logger, const Event& event) noexcept {
+    const std::lock_guard locker {mtx_};
+    file_ << formatter_->Format(logger, event) << std::flush;
+}
+
+}
+===== END F03/U03 =====
+
+===== BEGIN F04/U04 =====
+path: src/log/field.h
+role: complete target-owned implementation/declaration file
+replacement_required: true
+   
+                
+                                                    
+  
+                                                
+              
+                                 
+               
+                   
+  
+                                  
+   
+
+#pragma once
+
+#include "log.h"
+
+#include <list>
+#include <string>
+#include <string_view>
+
+
+namespace ws::log::field {
+
+class Message : public Formatter::Field {
+public:
+    static constexpr std::string_view tag {"m"};
+
+    using Field::Field;
+
+    void Format(std::ostream& out, const Logger& logger,
+                const Event& event) noexcept override;
+
+    std::string_view Tag() const noexcept override;
+};
+
+class Level : public Formatter::Field {
+public:
+    static constexpr std::string_view tag {"p"};
+
+    using Field::Field;
+
+    void Format(std::ostream& out, const Logger& logger,
+                const Event& event) noexcept override;
+
+    std::string_view Tag() const noexcept override;
+};
+
+class ThreadId : public Formatter::Field {
+public:
+    static constexpr std::string_view tag {"t"};
+
+    using Field::Field;
+
+    void Format(std::ostream& out, const Logger& logger,
+                const Event& event) noexcept override;
+
+    std::string_view Tag() const noexcept override;
+};
+
+class DateTime : public Formatter::Field {
+public:
+    static constexpr std::string_view tag {"d"};
+
+    static constexpr std::string_view default_format {"%Y-%m-%d %H:%M:%S"};
+
+    DateTime(std::string_view format = default_format) noexcept;
+
+    void Format(std::ostream& out, const Logger& logger,
+                const Event& event) noexcept override;
+
+    std::string_view Tag() const noexcept override;
+
+private:
+    std::string format_;
+};
+
+class FileName : public Formatter::Field {
+public:
+    static constexpr std::string_view tag {"f"};
+
+    using Field::Field;
+
+    void Format(std::ostream& out, const Logger& logger,
+                const Event& event) noexcept override;
+
+    std::string_view Tag() const noexcept override;
+};
+
+class LineNum : public Formatter::Field {
+public:
+    static constexpr std::string_view tag {"l"};
+
+    using Field::Field;
+
+    void Format(std::ostream& out, const Logger& logger,
+                const Event& event) noexcept override;
+
+    std::string_view Tag() const noexcept override;
+};
+
+class NewLine : public Formatter::Field {
+public:
+    static constexpr std::string_view tag {"n"};
+
+    using Field::Field;
+
+    void Format(std::ostream& out, const Logger& logger,
+                const Event& event) noexcept override;
+
+    std::string_view Tag() const noexcept override;
+};
+
+class Tab : public Formatter::Field {
+public:
+    static constexpr std::string_view tag {"T"};
+
+    using Field::Field;
+
+    void Format(std::ostream& out, const Logger& logger,
+                const Event& event) noexcept override;
+
+    std::string_view Tag() const noexcept override;
+};
+
+class RawString : public Formatter::Field {
+public:
+    RawString(std::string_view content) noexcept;
+
+    void Format(std::ostream& out, const Logger& logger,
+                const Event& event) noexcept override;
+
+    std::string_view Tag() const noexcept override;
+
+private:
+    std::string content_;
+};
+
+class LoggerName : public Formatter::Field {
+public:
+    static constexpr std::string_view tag {"c"};
+
+    using Field::Field;
+
+    void Format(std::ostream& out, const Logger& logger,
+                const Event& event) noexcept override;
+
+    std::string_view Tag() const noexcept override;
+};
+
+   
+                        
+  
+           
+                                                                                    
+   
+struct RawField {
+                                              
+    bool raw_str;
+
+       
+                           
+      
+               
+                                                                          
+                                                                          
+       
+    std::string content;
+
+       
+                                 
+      
+               
+                                                             
+                                                                  
+       
+    std::string format;
+};
+
+bool operator==(const RawField&, const RawField&) noexcept;
+
+bool operator!=(const RawField&, const RawField&) noexcept;
+
+                                           
+std::list<RawField> ParsePattern(std::string_view pattern);
+
+                                           
+std::list<Formatter::Field::Ptr> RawFieldsToFormatFields(
+    const std::list<RawField>& raw_fields);
+
+}
+===== END F04/U04 =====
+
+===== BEGIN F05/U05 =====
+path: src/log/field.cpp
+role: complete target-owned implementation/declaration file
+replacement_required: true
+#include "field.h"
+
+#include <ctime>
+#include <functional>
+#include <stdexcept>
+#include <unordered_map>
+
+
+namespace ws::log::field {
+
+void Message::Format(std::ostream& out, const Logger& logger,
+                     const Event& event) noexcept {
+    out << event.Message();
+}
+
+std::string_view Message::Tag() const noexcept {
+    return tag;
+}
+
+void Level::Format(std::ostream& out, const Logger& logger,
+                   const Event& event) noexcept {
+    out << LevelToString(event.Level());
+}
+
+std::string_view Level::Tag() const noexcept {
+    return tag;
+}
+
+void ThreadId::Format(std::ostream& out, const Logger& logger,
+                      const Event& event) noexcept {
+    out << event.ThreadId();
+}
+
+std::string_view ThreadId::Tag() const noexcept {
+    return tag;
+}
+
+DateTime::DateTime(const std::string_view format) noexcept : format_ {format} {
+    if (format_.empty()) {
+        format_ = default_format;
+    }
+}
+
+std::string_view DateTime::Tag() const noexcept {
+    return tag;
+}
+
+void DateTime::Format(std::ostream& out, const Logger& logger,
+                      const Event& event) noexcept {
+    const auto time {Event::Clock::to_time_t(event.Time())};
+    char time_str[0x60] {0};
+    std::strftime(time_str, sizeof(time_str), format_.c_str(),
+                  std::localtime(&time));
+    out << time_str;
+}
+
+void FileName::Format(std::ostream& out, const Logger& logger,
+                      const Event& event) noexcept {
+    out << event.FileName();
+}
+
+std::string_view FileName::Tag() const noexcept {
+    return tag;
+}
+
+void LineNum::Format(std::ostream& out, const Logger& logger,
+                     const Event& event) noexcept {
+    out << event.LineNum();
+}
+
+std::string_view LineNum::Tag() const noexcept {
+    return tag;
+}
+
+void NewLine::Format(std::ostream& out, const Logger& logger,
+                     const Event& event) noexcept {
+    out << std::endl;
+}
+
+std::string_view NewLine::Tag() const noexcept {
+    return tag;
+}
+
+void Tab::Format(std::ostream& out, const Logger& logger,
+                 const Event& event) noexcept {
+    out << "\t";
+}
+
+std::string_view Tab::Tag() const noexcept {
+    return tag;
+}
+
+RawString::RawString(const std::string_view content) noexcept :
+    content_ {content} {}
+
+void RawString::Format(std::ostream& out, const Logger& logger,
+                       const Event& event) noexcept {
+    out << content_;
+}
+
+std::string_view RawString::Tag() const noexcept {
+    return "";
+}
+
+void LoggerName::Format(std::ostream& out, const Logger& logger,
+                        const Event& event) noexcept {
+    out << logger.Name();
+}
+
+std::string_view LoggerName::Tag() const noexcept {
+    return tag;
+}
+
+bool operator==(const RawField& lhs, const RawField& rhs) noexcept {
+    return lhs.raw_str == rhs.raw_str && lhs.content == rhs.content
+           && lhs.format == rhs.format;
+}
+
+bool operator!=(const RawField& lhs, const RawField& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+std::list<RawField> ParsePattern(const std::string_view pattern) {
+    std::string raw_str;
+    std::list<RawField> raw_fields;
+    for (auto i {0}; i < pattern.size(); ++i) {
+        if (pattern[i] != '%'
+            || (i + 1 < pattern.size() && pattern[i + 1] == '%')) {
+            raw_str.append(1, pattern[i]);
+            continue;
+        } else if (!raw_str.empty()) {
+            raw_fields.push_back({true, raw_str, ""});
+            raw_str.clear();
+        }
+
+        auto j {i + 1}, fmt_begin {0};
+        std::string type, fmt;
+        auto processing {false};
+        while (j < pattern.size()) {
+            if (!processing && !std::isalpha(pattern[j]) && pattern[j] != '{'
+                && pattern[j] != '}') {
+                type = pattern.substr(i + 1, j - i - 1);
+                break;
+            }
+
+            if (!processing && pattern[j] == '{') {
+                type = pattern.substr(i + 1, j - i - 1);
+                processing = true;
+                fmt_begin = j;
+                ++j;
+            } else if (processing && pattern[j] == '}') {
+                fmt = pattern.substr(fmt_begin + 1, j - fmt_begin - 1);
+                processing = false;
+                ++j;
+                break;
+            } else {
+                ++j;
+                if (j == pattern.size() && type.empty()) {
+                    type = pattern.substr(i + 1);
+                }
+            }
+        }
+
+        if (!processing) {
+            raw_fields.push_back({false, type, fmt});
+        } else {
+            throw std::invalid_argument {fmt::format(
+                "Invalid log format pattern: '{}'", pattern.substr(i))};
+        }
+
+        i = j - 1;
+    }
+
+    if (!raw_str.empty()) {
+        raw_fields.push_back({true, raw_str, ""});
+    }
+
+    return raw_fields;
+}
+
+std::list<Formatter::Field::Ptr> RawFieldsToFormatFields(
+    const std::list<RawField>& raw_fields) {
+    using Creator = std::function<Formatter::Field::Ptr(std::string_view)>;
+    static const std::unordered_map<std::string_view, Creator>
+        supported_fields {
+            {Message::tag,
+             [](const std::string_view format) noexcept {
+                 return std::make_shared<Message>(format);
+             }},
+            {Level::tag,
+             [](const std::string_view format) noexcept {
+                 return std::make_shared<Level>(format);
+             }},
+            {ThreadId::tag,
+             [](const std::string_view format) noexcept {
+                 return std::make_shared<ThreadId>(format);
+             }},
+            {NewLine::tag,
+             [](const std::string_view format) noexcept {
+                 return std::make_shared<NewLine>(format);
+             }},
+            {LoggerName::tag,
+             [](const std::string_view format) noexcept {
+                 return std::make_shared<LoggerName>(format);
+             }},
+            {DateTime::tag,
+             [](const std::string_view format) noexcept {
+                 return std::make_shared<DateTime>(format);
+             }},
+            {FileName::tag,
+             [](const std::string_view format) noexcept {
+                 return std::make_shared<FileName>(format);
+             }},
+            {LineNum::tag,
+             [](const std::string_view format) noexcept {
+                 return std::make_shared<LineNum>(format);
+             }},
+            {Tab::tag, [](const std::string_view format) noexcept {
+                 return std::make_shared<Tab>(format);
+             }}};
+
+    std::list<Formatter::Field::Ptr> fields;
+    for (const auto& raw_field : raw_fields) {
+        if (raw_field.raw_str) {
+            fields.push_back(
+                std::make_shared<field::RawString>(raw_field.content));
+        } else {
+            if (const auto field {supported_fields.find(raw_field.content)};
+                field != supported_fields.cend()) {
+                fields.push_back(field->second(raw_field.format));
+            } else {
+                throw std::invalid_argument {fmt::format(
+                    "Invalid log format field: '{}'", raw_field.content)};
+            }
+        }
+    }
+
+    return fields;
+}
+
+}
+===== END F05/U05 =====
+
+===== BEGIN F06/U06 =====
+path: src/log/config_init.h
+role: complete target-owned implementation/declaration file
+replacement_required: true
+   
+                      
+                                               
+  
+           
+                         
+                             
+  
+                
+           
+                 
+                  
+                   
+                 
+                       
+                     
+                        
+                   
+                   
+                            
+                 
+                       
+           
+  
+                                                
+              
+                                 
+               
+                   
+  
+                                        
+   
+
+#pragma once
+
+#include "log.h"
+
+
+namespace ws::log {
+
+                               
+struct AppenderConfig {
+    AppenderType type;
+
+                 
+    std::string formatter;
+
+                                        
+    std::string file;
+};
+
+bool operator==(const AppenderConfig&, const AppenderConfig&) noexcept;
+
+bool operator!=(const AppenderConfig&, const AppenderConfig&) noexcept;
+
+                             
+struct LoggerConfig {
+    std::string name;
+
+    Level level;
+
+                 
+    std::size_t capacity;
+
+                 
+    std::string formatter;
+
+    std::list<AppenderConfig> appenders;
+};
+
+bool operator==(const LoggerConfig&, const LoggerConfig&) noexcept;
+
+bool operator!=(const LoggerConfig&, const LoggerConfig&) noexcept;
+
+}                      
+
+                                
+template <>
+struct std::hash<ws::log::LoggerConfig> {
+    std::size_t operator()(const ws::log::LoggerConfig& logger) const noexcept {
+        return std::hash<std::string> {}(logger.name);
+    }
+};
+
+namespace ws {
+
+template <>
+class cfg::VarConverter<std::string, log::AppenderConfig> {
+public:
+    log::AppenderConfig operator()(const std::string_view str) const {
+        const YAML::Node node {LoadYamlString(str, {"type"})};
+
+        log::AppenderConfig appender {};
+        ThrowIfYamlFieldIsNotScalar(node, "type");
+        appender.type =
+            log::StringToAppenderType(node["type"].as<std::string>());
+
+        if (node["file"]) {
+            ThrowIfYamlFieldIsNotScalar(node, "file");
+            appender.file = node["file"].as<std::string>();
+        }
+
+        if (node["formatter"]) {
+            ThrowIfYamlFieldIsNotScalar(node, "formatters");
+            appender.formatter = node["formatters"].as<std::string>();
+        }
+
+        return appender;
+    }
+};
+
+template <>
+class cfg::VarConverter<log::AppenderConfig, std::string> {
+public:
+    std::string operator()(const log::AppenderConfig& appender) const noexcept {
+        YAML::Node node;
+        node["type"] = log::AppenderTypeToString(appender.type).data();
+
+        if (!appender.file.empty()) {
+            node["file"] = appender.file;
+        }
+
+        if (!appender.formatter.empty()) {
+            node["formatter"] = appender.formatter;
+        }
+
+        std::ostringstream ss;
+        ss << node;
+        return ss.str();
+    }
+};
+
+template <>
+class cfg::VarConverter<std::string, log::LoggerConfig> {
+public:
+    log::LoggerConfig operator()(const std::string_view str) const {
+        const YAML::Node node {
+            LoadYamlString(str, {"name", "level", "appenders"})};
+
+        log::LoggerConfig logger {};
+        ThrowIfYamlFieldIsNotScalar(node, "name");
+        logger.name = node["name"].as<std::string>();
+
+        ThrowIfYamlFieldIsNotScalar(node, "level");
+        logger.level = log::StringToLevel(node["level"].as<std::string>());
+
+        if (node["capacity"]) {
+            ThrowIfYamlFieldIsNotScalar(node, "capacity");
+            logger.capacity = node["capacity"].as<std::size_t>();
+        }
+
+        if (node["formatter"]) {
+            ThrowIfYamlFieldIsNotScalar(node, "formatter");
+            logger.formatter = node["formatter"].as<std::string>();
+        }
+
+        std::ostringstream ss;
+        ss << node["appenders"];
+        logger.appenders =
+            VarConverter<std::string, std::list<log::AppenderConfig>> {}(
+                ss.str());
+        return logger;
+    }
+};
+
+template <>
+class cfg::VarConverter<log::LoggerConfig, std::string> {
+public:
+    std::string operator()(const log::LoggerConfig& logger) const noexcept {
+        YAML::Node node;
+        node["name"] = logger.name;
+        node["level"] = log::LevelToString(logger.level).data();
+        node["capacity"] = logger.capacity;
+        node["formatter"] = logger.formatter;
+        node["appenders"] =
+            VarConverter<std::list<log::AppenderConfig>, std::string> {}(
+                logger.appenders);
+
+        std::ostringstream ss;
+        ss << node;
+        return ss.str();
+    }
+};
+
+namespace log {
+
+   
+                                                               
+  
+                                         
+                                                                                              
+   
+cfg::Var<std::unordered_set<LoggerConfig>>::Ptr SetListener(
+    cfg::Var<std::unordered_set<LoggerConfig>>::Ptr loggers,
+    Manager::Ptr manager) noexcept;
+
+}                  
+
+}
+===== END F06/U06 =====
+
+===== BEGIN F07/U07 =====
+path: src/log/config_init.cpp
+role: complete target-owned implementation/declaration file
+replacement_required: true
+#include "config_init.h"
+
+#include <cassert>
+
+
+namespace ws::log {
+
+bool operator==(const AppenderConfig& lhs, const AppenderConfig& rhs) noexcept {
+    return lhs.type == rhs.type && lhs.formatter == rhs.formatter
+           && lhs.file == rhs.file;
+}
+
+bool operator!=(const AppenderConfig& lhs, const AppenderConfig& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+bool operator==(const LoggerConfig& lhs, const LoggerConfig& rhs) noexcept {
+    return lhs.name == rhs.name && lhs.level == rhs.level
+           && lhs.capacity == rhs.capacity && lhs.formatter == rhs.formatter
+           && lhs.appenders == rhs.appenders;
+}
+
+bool operator!=(const LoggerConfig& lhs, const LoggerConfig& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+cfg::Var<std::unordered_set<LoggerConfig>>::Ptr SetListener(
+    const cfg::Var<std::unordered_set<LoggerConfig>>::Ptr loggers,
+    const ws::log::Manager::Ptr manager) noexcept {
+    loggers->AddListener(
+        [manager](const std::unordered_set<LoggerConfig>& old_cfgs,
+                  const std::unordered_set<LoggerConfig>& new_cfgs) noexcept {
+            for (const auto& logger_cfg : new_cfgs) {
+                if (const auto cfg {old_cfgs.find(logger_cfg)};
+                    cfg != old_cfgs.cend() && *cfg == logger_cfg) {
+                    continue;
+                }
+
+                                         
+                manager->RemoveLogger(logger_cfg.name);
+
+                                       
+                const auto logger {manager->FindLogger(
+                    logger_cfg.name, logger_cfg.level, logger_cfg.capacity)};
+                if (!logger_cfg.formatter.empty()) {
+                    logger->SetDefaultFormatter(logger_cfg.formatter);
+                }
+
+                                 
+                logger->ClearAppenders();
+                for (const auto& appender_cfg : logger_cfg.appenders) {
+                    Appender::Ptr appender;
+                    switch (appender_cfg.type) {
+                        case AppenderType::StdOut: {
+                            appender = std::make_shared<StdOutAppender>(
+                                logger->GetDefaultFormatter());
+                            break;
+                        }
+                        case AppenderType::File: {
+                            appender = std::make_shared<FileAppender>(
+                                appender_cfg.file, logger->GetDefaultFormatter());
+                            break;
+                        }
+                        default: {
+                            assert(false);
+                        }
+                    }
+
+                    logger->AddAppender(appender);
+                }
+            }
+        });
+
+    return loggers;
+}
+
+}
+===== END F07/U07 =====

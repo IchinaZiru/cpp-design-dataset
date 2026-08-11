@@ -1,0 +1,21 @@
+{
+  "artifact_schema_version": "comment-ablation-rag-retrieval-manifest-v1",
+  "target_id": "ini-cpp-inireader",
+  "condition": "B-comment-free",
+  "status": "pass",
+  "selection_frozen_from_formal_r2": true,
+  "source_formal_r2_retrieval_manifest_sha256": "ee51f6dfdcd3589d1644b5119d6195924a6de9261a37064d7538a73fd63d75c1",
+  "source_formal_r2_actual_rag_context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31",
+  "dependency_header_mode": "direct-project-local-quoted-include-whole-file-one-hop-v1",
+  "dependency_header_count": 0,
+  "comments_removed": 0,
+  "query_unchanged_from_formal_r2": true,
+  "artifact_hashes": {
+    "query.json": "b9ffe176b61c1a9186a4fbd8429463bfac6314978683cd313917ae3add41cabf",
+    "candidates_selected_comment_free.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "actual_rag_context_comment_free.txt": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31"
+  },
+  "context_bytes": 39,
+  "context_sha256": "610db9ed9f3babe88eada76ea2e2e51d4f0fb39174de46ea65faea1abc066e31",
+  "dependencies": []
+}

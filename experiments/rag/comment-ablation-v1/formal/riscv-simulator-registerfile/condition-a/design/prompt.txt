@@ -1,0 +1,54 @@
+与えられたC++ソースコードを解析し、このソースコードを参照できない別のLLMが再実装できるように、詳細な設計仕様書を作成してください。
+
+入力から確認できない情報は推測しないでください。
+
+TARGET-OWNED INPUTS
+Fxx/Uxx identifiers are opaque. Preserve names, types, signatures, namespaces, and replacement boundaries in the final specification.
+
+REPLACEMENT UNIT CONTRACT
+Only replacement_required=true units will be regenerated. Reference-only units must inform the design but must not become output units.
+REPLACEMENT UNITS: F01/U01
+REFERENCE-ONLY INPUTS: none
+
+===== BEGIN F01/U01 =====
+path: src/Common/RegisterFile.hpp
+role: complete RegisterFile class definition span
+replacement_required: true
+class RegisterFile {                       
+    static const int REG_NUM = 32;
+public:
+    Immediate prev[REG_NUM];
+    Immediate next[REG_NUM];
+
+    RegisterFile() {
+        memset(prev, 0, sizeof(prev));
+        memset(next, 0, sizeof(next));
+    }
+
+    void tick() { memcpy(prev, next, sizeof(prev)); }
+
+    Immediate read(int id) { return id == 0 ? 0 : prev[id]; }
+
+    void write(int id, Immediate val) { next[id] = val; }
+
+    void debug() {
+        static std::vector<std::string> rf_name = {"0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
+                                                   "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+                                                   "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+                                                   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
+        for (int i = 0; i < 4; i++) {
+            for (int j = i * 8; j < i * 8 + 8; j++) {
+                char buffer[20];
+                sprintf(buffer, "#%d", j);
+                std::cout << std::setw(20) << buffer
+                          << std::setw(4) << rf_name[j];
+            }
+            std::cout << std::endl;
+            for (int j = i * 8; j < i * 8 + 8; j++) {
+                debug_immediate(next[j], 11);
+            }
+            std::cout << std::endl;
+        }
+    }
+};
+===== END F01/U01 =====

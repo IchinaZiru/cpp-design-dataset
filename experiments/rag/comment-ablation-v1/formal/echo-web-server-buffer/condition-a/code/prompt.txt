@@ -1,0 +1,317 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# Design Specification for Buffer and IOBuffer Classes
+
+## Overview
+
+This document provides a detailed design specification for the `Buffer` and `IOBuffer` classes, which are part of a container library. The primary purpose of these classes is to manage byte buffers efficiently, supporting operations such as reading, writing, appending, and clearing data.
+
+## Namespace and Dependencies
+
+- **Namespace**: `ws`
+- **Dependencies**:
+  - `<atomic>`
+  - `<optional>`
+  - `<span>`
+  - `<string>`
+  - `<string_view>`
+  - `<vector>`
+  - `"io.h"` (for `IOBuffer` class)
+
+## Classes
+
+### Buffer Class
+
+#### Overview
+The `Buffer` class provides a flexible and efficient way to manage byte buffers. It supports various operations such as appending data, reading data, and managing the buffer's internal state.
+
+#### Constructors
+- **Default Constructor**:
+  ```cpp
+  explicit Buffer(std::size_t size = 1000) noexcept;
+  ```
+  Initializes the buffer with a default or specified size.
+  
+- **Span Constructor**:
+  ```cpp
+  explicit Buffer(std::span<const std::byte> bytes) noexcept;
+  ```
+  Initializes the buffer with data from a span of bytes.
+  
+- **Initializer List Constructor**:
+  ```cpp
+  explicit Buffer(std::initializer_list<std::byte> bytes) noexcept;
+  ```
+  Initializes the buffer with data from an initializer list of bytes.
+  
+- **String View Constructor**:
+  ```cpp
+  explicit Buffer(std::string_view str) noexcept;
+  ```
+  Initializes the buffer with data from a string view.
+  
+- **Copy Constructor**:
+  ```cpp
+  Buffer(const Buffer&) noexcept;
+  ```
+  Creates a copy of another `Buffer` object.
+  
+- **Move Constructor**:
+  ```cpp
+  Buffer(Buffer&&) noexcept;
+  ```
+  Moves the contents of another `Buffer` object.
+
+#### Assignment Operators
+- **Copy Assignment Operator**:
+  ```cpp
+  Buffer& operator=(const Buffer&) noexcept;
+  ```
+  Assigns the contents of one `Buffer` to another.
+  
+- **Move Assignment Operator**:
+  ```cpp
+  Buffer& operator=(Buffer&&) noexcept;
+  ```
+  Moves the contents of one `Buffer` to another.
+
+#### Public Methods
+
+- **Writable Size**:
+  ```cpp
+  std::size_t WritableSize() const noexcept;
+  ```
+  Returns the number of writable bytes in the buffer.
+  
+- **Readable Size**:
+  ```cpp
+  std::size_t ReadableSize() const noexcept;
+  ```
+  Returns the number of readable bytes in the buffer.
+  
+- **Peek**:
+  ```cpp
+  std::optional<std::byte> Peek() const noexcept;
+  ```
+  Returns the first byte that can be read without removing it from the buffer, or `std::nullopt` if the buffer is empty.
+  
+- **Readable Bytes**:
+  ```cpp
+  std::span<const std::byte> ReadableBytes() const noexcept;
+  ```
+  Returns a span of the readable bytes in the buffer.
+  
+- **Readable String**:
+  ```cpp
+  std::string ReadableString() const noexcept;
+  ```
+  Returns a string representation of the readable bytes in the buffer.
+  
+- **Writable Bytes**:
+  ```cpp
+  std::span<std::byte> WritableBytes() const noexcept;
+  ```
+  Returns a span of the writable bytes in the buffer.
+  
+- **Append (Span)**:
+  ```cpp
+  void Append(std::span<const std::byte> bytes) noexcept;
+  ```
+  Appends data from a span of bytes to the buffer.
+  
+- **Append (Initializer List)**:
+  ```cpp
+  void Append(std::initializer_list<std::byte> bytes) noexcept;
+  ```
+  Appends data from an initializer list of bytes to the buffer.
+  
+- **Append (String View)**:
+  ```cpp
+  void Append(std::string_view str, std::optional<NewLine> new_line = std::nullopt) noexcept;
+  ```
+  Appends a string view to the buffer, optionally adding a newline character.
+  
+- **Append (Void Pointer)**:
+  ```cpp
+  void Append(const void* data, std::size_t size) noexcept;
+  ```
+  Appends raw data from a pointer to the buffer.
+  
+- **Append (Buffer)**:
+  ```cpp
+  void Append(const Buffer& buf) noexcept;
+  ```
+  Appends another `Buffer`'s readable bytes to this buffer.
+  
+- **Ensure Writable Size**:
+  ```cpp
+  void EnsureWriteableSize(std::size_t size) noexcept;
+  ```
+  Ensures that the buffer has at least the specified number of writable bytes, resizing if necessary.
+  
+- **Has Written**:
+  ```cpp
+  void HasWritten(std::size_t size) noexcept;
+  ```
+  Marks a certain number of bytes as written.
+  
+- **Retrieve**:
+  ```cpp
+  void Retrieve(std::size_t size) noexcept;
+  ```
+  Removes a specified number of bytes from the beginning of the readable area.
+  
+- **Retrieve Until**:
+  ```cpp
+  std::size_t RetrieveUntil(const void* addr) noexcept;
+  ```
+  Retrieves all bytes up to a specified address.
+  
+- **Retrieve All**:
+  ```cpp
+  std::size_t RetrieveAll() noexcept;
+  ```
+  Removes all readable bytes from the buffer and returns their count.
+  
+- **Retrieve All To String**:
+  ```cpp
+  std::string RetrieveAllToString() noexcept;
+  ```
+  Retrieves all readable bytes as a string, then clears them from the buffer.
+  
+- **Clear**:
+  ```cpp
+  void Clear() noexcept;
+  ```
+  Clears all data in the buffer.
+  
+- **Empty**:
+  ```cpp
+  bool Empty() const noexcept;
+  ```
+  Checks if the buffer is empty.
+
+#### Protected Methods
+
+- **Prependable Size**:
+  ```cpp
+  std::size_t PrependableSize() const noexcept;
+  ```
+  Returns the number of bytes that can be prepended to the buffer.
+  
+- **Make Space**:
+  ```cpp
+  void MakeSpace(std::size_t size) noexcept;
+  ```
+  Ensures there is enough space for writing by either resizing or compacting the buffer.
+  
+- **Read Iterator**:
+  ```cpp
+  std::vector<std::byte>::iterator ReadIter() const noexcept;
+  ```
+  Returns an iterator to the beginning of the readable area.
+  
+- **Write Iterator**:
+  ```cpp
+  std::vector<std::byte>::iterator WriteIter() const noexcept;
+  ```
+  Returns an iterator to the beginning of the writable area.
+
+#### Member Variables
+
+- `buf_`: A vector of bytes that stores the buffer's data.
+- `read_pos_`: An atomic size_t representing the current read position in the buffer.
+- `write_pos_`: An atomic size_t representing the current write position in the buffer.
+
+### IOBuffer Class
+
+#### Overview
+The `IOBuffer` class extends the `Buffer` class to provide additional functionality for reading from and writing to I/O streams using an `IReadWriter` interface.
+
+#### Public Methods
+
+- **Read From**:
+  ```cpp
+  std::size_t ReadFrom(io::IReadWriter& io);
+  ```
+  Reads data from an `IReadWriter` object into the buffer.
+  
+- **Write To**:
+  ```cpp
+  std::size_t WriteTo(io::IReadWriter& io);
+  ```
+  Writes data from the buffer to an `IReadWriter` object.
+
+## Operators
+
+### Stream Insertion Operator (String View)
+```cpp
+Buffer& operator<<(Buffer& buf, std::string_view str) noexcept;
+```
+Appends a string view to the buffer.
+
+### Stream Insertion Operator (Buffer)
+```cpp
+Buffer& operator<<(Buffer& to, const Buffer& from) noexcept;
+```
+Appends another `Buffer`'s readable bytes to this buffer.
+
+### Stream Insertion Operator (Span)
+```cpp
+Buffer& operator<<(Buffer& buf, std::span<const std::byte> bytes) noexcept;
+```
+Appends data from a span of bytes to the buffer.
+
+### Stream Insertion Operator (Initializer List)
+```cpp
+Buffer& operator<<(Buffer& buf, std::initializer_list<std::byte> bytes) noexcept;
+```
+Appends data from an initializer list of bytes to the buffer.
+
+## Enumerations
+
+### NewLine
+```cpp
+enum class NewLine {
+    LF,
+    CRLF
+};
+```
+Defines newline characters for appending strings with newlines.
+
+## Usage Example
+
+```cpp
+#include "buffer.h"
+#include <iostream>
+
+int main() {
+    ws::Buffer buf(1024);
+    buf << std::string_view("Hello, World!") << ws::NewLine::LF;
+    
+    std::cout << buf.ReadableString();
+    return 0;
+}
+```
+
+## Conclusion
+
+This design specification provides a comprehensive overview of the `Buffer` and `IOBuffer` classes, including their constructors, methods, operators, and usage. The implementation should adhere to this specification to ensure consistency and functionality.
