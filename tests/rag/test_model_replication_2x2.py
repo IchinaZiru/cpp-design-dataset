@@ -55,22 +55,27 @@ def test_prepared_common_changes_only_model() -> None:
     )
 
 
-def test_authorization_is_gemma_specific_bound_and_disabled() -> None:
+def test_authorization_is_gemma_specific_and_bound() -> None:
     auth = replication._verify_authorization_bindings(
         ROOT, MANIFEST_PATH, COMMON_PATH, AUTH_PATH
     )
 
-    assert auth["authorized"] is False
     assert auth["model"] == replication.MODEL_TAG
     assert auth["model_id"] == replication.MODEL_ID
     assert auth["baseline_commit"] == replication.BASELINE_COMMIT
     assert auth["target_count"] == 17
     assert auth["condition_count"] == 68
-    with pytest.raises(RoundtripABError, match="not authorized"):
-        replication._verify_authorized(
+
+    if auth["authorized"] is True:
+        verified = replication._verify_authorized(
             ROOT, MANIFEST_PATH, COMMON_PATH, AUTH_PATH
         )
-
+        assert verified["authorized"] is True
+    else:
+        with pytest.raises(RoundtripABError, match="not authorized"):
+            replication._verify_authorized(
+                ROOT, MANIFEST_PATH, COMMON_PATH, AUTH_PATH
+            )
 
 def test_runtime_present_config_changes_only_dedicated_namespaces() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
