@@ -13,10 +13,10 @@
   "artifact_hashes": {
     "query.json": "a75cd1be29d9d617975011607b9ec73a801b4d47a4b0e2ec9e4753135c50a182",
     "candidates_selected_comment_free.jsonl": "180999b4bed18983b578ae2fb9d1f8fc4494c1b3d1a00ae7c64d41de6610116d",
-    "actual_rag_context_comment_free.txt": "641209e195dff1e999983edba057eeb0c297b6dece02df75d1336f76eadbab4e"
+    "actual_rag_context_comment_free.txt": "40a5894520499c1202a340a31f1286e6543676c463ee0edffa2e1f1526c7c336"
   },
-  "context_bytes": 1938,
-  "context_sha256": "641209e195dff1e999983edba057eeb0c297b6dece02df75d1336f76eadbab4e",
+  "context_bytes": 1939,
+  "context_sha256": "40a5894520499c1202a340a31f1286e6543676c463ee0edffa2e1f1526c7c336",
   "dependencies": [
     {
       "path": "src/Common/Memory.hpp",

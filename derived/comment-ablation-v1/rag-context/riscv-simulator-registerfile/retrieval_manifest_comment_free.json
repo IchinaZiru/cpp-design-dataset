@@ -13,10 +13,10 @@
   "artifact_hashes": {
     "query.json": "85370a81482a6c2dc4d94544c82c9e5187c98d02be5110c8d2345d4f91bde185",
     "candidates_selected_comment_free.jsonl": "0b01bb5a3a80bc5af172298405bc24ecaed40be819d73f03c9df007c95355781",
-    "actual_rag_context_comment_free.txt": "f8af1821ee583c176c8d5e36aef5e0a2af7111dd076378c9d9933478821c83a5"
+    "actual_rag_context_comment_free.txt": "cf67988346b90146bb52d9a44ba5af95599efbeea8a73850dd66c2d93403074c"
   },
-  "context_bytes": 2106,
-  "context_sha256": "f8af1821ee583c176c8d5e36aef5e0a2af7111dd076378c9d9933478821c83a5",
+  "context_bytes": 2109,
+  "context_sha256": "cf67988346b90146bb52d9a44ba5af95599efbeea8a73850dd66c2d93403074c",
   "dependencies": [
     {
       "path": "src/Common/Common.h",

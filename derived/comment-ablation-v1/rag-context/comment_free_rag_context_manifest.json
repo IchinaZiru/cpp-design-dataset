@@ -108,7 +108,7 @@
       "comments_removed": 4,
       "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/riscv-simulator-instruction/condition-b/retrieval",
       "output_path": "derived/comment-ablation-v1/rag-context/riscv-simulator-instruction",
-      "context_sha256": "a2427f242d401e3f090f8e38bce896d848cc2ad46eaf2e39692fb8297ca0763d"
+      "context_sha256": "17a590aafdc6f3304631e15bffc277c963fb5b30f2c44df1a6b3d53b9aa30938"
     },
     {
       "target_id": "riscv-simulator-memory",
@@ -116,7 +116,7 @@
       "comments_removed": 4,
       "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/riscv-simulator-memory/condition-b/retrieval",
       "output_path": "derived/comment-ablation-v1/rag-context/riscv-simulator-memory",
-      "context_sha256": "a2427f242d401e3f090f8e38bce896d848cc2ad46eaf2e39692fb8297ca0763d"
+      "context_sha256": "17a590aafdc6f3304631e15bffc277c963fb5b30f2c44df1a6b3d53b9aa30938"
     },
     {
       "target_id": "riscv-simulator-parser",
@@ -124,7 +124,7 @@
       "comments_removed": 7,
       "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/riscv-simulator-parser/condition-b/retrieval",
       "output_path": "derived/comment-ablation-v1/rag-context/riscv-simulator-parser",
-      "context_sha256": "641209e195dff1e999983edba057eeb0c297b6dece02df75d1336f76eadbab4e"
+      "context_sha256": "40a5894520499c1202a340a31f1286e6543676c463ee0edffa2e1f1526c7c336"
     },
     {
       "target_id": "riscv-simulator-register",
@@ -140,7 +140,7 @@
       "comments_removed": 13,
       "source_retrieval_path": "experiments/rag/roundtrip-ab-v1/formal-r2/riscv-simulator-registerfile/condition-b/retrieval",
       "output_path": "derived/comment-ablation-v1/rag-context/riscv-simulator-registerfile",
-      "context_sha256": "f8af1821ee583c176c8d5e36aef5e0a2af7111dd076378c9d9933478821c83a5"
+      "context_sha256": "cf67988346b90146bb52d9a44ba5af95599efbeea8a73850dd66c2d93403074c"
     }
   ],
   "total_dependency_headers": 22,

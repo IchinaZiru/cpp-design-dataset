@@ -199,8 +199,6 @@ def render_context(rows: list[dict]) -> str:
     for row in rows:
         path = row["path"]
         content = row["content"]
-        if content and not content.endswith("\n"):
-            content += "\n"
         parts.append(
             "\n"
             f"### PATH: {path}\n"
@@ -208,7 +206,7 @@ def render_context(rows: list[dict]) -> str:
             f"CONTENT_SHA256: {row['content_sha256']}\n"
             f"----- BEGIN DEPENDENCY HEADER CONTENT: {path} -----\n"
             f"{content}"
-            f"----- END DEPENDENCY HEADER CONTENT: {path} -----\n"
+            f"\n----- END DEPENDENCY HEADER CONTENT: {path} -----\n"
         )
     return "".join(parts)
 
