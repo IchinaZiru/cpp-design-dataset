@@ -1,0 +1,394 @@
+# ThreadPool 設計仕様書
+
+## 1. 概要
+
+この設計仕様書は、C++で実装されたスレッドプール（ThreadPool）クラスの詳細な設計情報を提供します。このクラスはタスクを並行して実行するためのスレッドプールを管理し、タスクのキューイングと実行を担当します。
+
+## 2. 完全再構築台帳
+
+### 2.1 ヘッダーファイル（include/containers/thread_pool.h）
+
+```cpp
+#pragma once
+
+#include "log.h"
+
+#include <condition_variable>
+#include <functional>
+#include <list>
+#include <mutex>
+#include <optional>
+#include <thread>
+
+namespace ws {
+
+class ThreadPool {
+public:
+    using Task = std::function<void()>;
+
+    explicit ThreadPool(std::optional<std::size_t> thread_count = std::nullopt,
+                        log::Logger::Ptr logger = log::RootLogger()) noexcept;
+
+    ~ThreadPool() noexcept;
+
+    ThreadPool(const ThreadPool&) = delete;
+    ThreadPool(ThreadPool&&) = delete;
+    ThreadPool& operator=(const ThreadPool&) = delete;
+    ThreadPool& operator=(ThreadPool&&) = delete;
+
+    void Start() noexcept;
+    void Push(Task task) noexcept;
+    void Close() noexcept;
+
+private:
+    void ExecProc() noexcept;
+
+    log::Logger::Ptr logger_;
+    mutable std::mutex mtx_;
+    std::atomic_bool closed_ {true};
+    std::size_t thread_count_;
+    std::condition_variable cond_;
+
+    std::list<Task> tasks_;
+    std::list<std::thread> threads_;
+};
+
+}
+```
+
+### 2.2 実装ファイル（src/containers/thread_pool/thread_pool.cpp）
+
+```cpp
+#include "thread_pool.h"
+#include "util.h"
+
+#include <cassert>
+
+namespace ws {
+
+ThreadPool::ThreadPool(const std::optional<std::size_t> thread_count,
+                       log::Logger::Ptr logger) noexcept :
+    logger_ {std::move(logger)} {
+    if (!logger_) {
+        logger_ = log::RootLogger();
+    }
+
+    thread_count_ = thread_count.value_or(0);
+    if (thread_count_ == 0) {
+        thread_count_ = std::thread::hardware_concurrency();
+    }
+}
+
+ThreadPool::~ThreadPool() noexcept {
+    Close();
+    for (auto& thread : threads_) {
+        assert(thread.joinable());
+        thread.join();
+    }
+}
+
+void ThreadPool::Start() noexcept {
+    assert(closed_);
+    closed_ = false;
+    for (auto i {0}; i != thread_count_; ++i) {
+        threads_.emplace_back(&ThreadPool::ExecProc, this);
+    }
+}
+
+void ThreadPool::Push(Task task) noexcept {
+    assert(!closed_);
+    const std::lock_guard locker {mtx_};
+    tasks_.push_back(std::move(task));
+    cond_.notify_one();
+}
+
+void ThreadPool::ExecProc() noexcept {
+    const auto not_empty_or_closed {[this]() noexcept {
+        return !tasks_.empty() || closed_;
+    }};
+
+    while (true) {
+        Task task;
+        {
+            std::unique_lock locker {mtx_};
+            cond_.wait(locker, not_empty_or_closed);
+            if (!closed_) {
+                task = std::move(tasks_.front());
+                tasks_.pop_front();
+            } else {
+                return;
+            }
+        }
+
+        try {
+            assert(task);
+            task();
+        } catch (const std::exception& err) {
+            logger_->Log(
+                log::Event::Create(log::Level::Error) << fmt::format(
+                    "Exception raised in thread pool's task: {}", err.what()));
+        }
+    }
+}
+
+void ThreadPool::Close() noexcept {
+    const std::lock_guard locker {mtx_};
+    closed_ = true;
+    cond_.notify_all();
+}
+
+}
+```
+
+## 3. クラス図
+
+```mermaid
+classDiagram
+    class ThreadPool {
+        -log::Logger::Ptr logger_
+        -mutable std::mutex mtx_
+        -std::atomic_bool closed_
+        -std::size_t thread_count_
+        -std::condition_variable cond_
+        -std::list<Task> tasks_
+        -std::list<std::thread> threads_
+
+        +using Task = std::function<void()>
+        +ThreadPool(std::optional<std::size_t>, log::Logger::Ptr) noexcept
+        +~ThreadPool() noexcept
+        +Start() noexcept
+        +Push(Task) noexcept
+        +Close() noexcept
+
+        -ExecProc() noexcept
+    }
+```
+
+## 4. クラス・メソッド・インターフェース詳細
+
+| メンバ | 型 | 可視性 | const | 副作用 |
+|--------|------|---------|-------|--------|
+| logger_ | log::Logger::Ptr | private | - | - |
+| mtx_ | mutable std::mutex | private | - | - |
+| closed_ | std::atomic_bool | private | - | - |
+| thread_count_ | std::size_t | private | - | - |
+| cond_ | std::condition_variable | private | - | - |
+| tasks_ | std::list<Task> | private | - | - |
+| threads_ | std::list<std::thread> | private | - | - |
+
+| メソッド | 戻り値型 | 引数 | const | noexcept | 副作用 |
+|----------|-----------|-------|-------|----------|--------|
+| ThreadPool | - | std::optional<std::size_t>, log::Logger::Ptr | - | yes | 初期化 |
+| ~ThreadPool | - | - | - | yes | リソース解放 |
+| Start | void | - | - | yes | スレッド作成 |
+| Push | void | Task | - | yes | タスク追加 |
+| Close | void | - | - | yes | プール終了 |
+| ExecProc | void | - | - | yes | タスク実行 |
+
+## 5. シーケンス図
+
+```mermaid
+sequenceDiagram
+    participant Main as メインスレッド
+    participant Pool as ThreadPool
+    participant Worker as ワーカースレッド
+
+    Main->>Pool: Start()
+    activate Pool
+    loop thread_count_回
+        Pool-->>Worker: スレッド作成
+        activate Worker
+    end
+
+    Main->>Pool: Push(task)
+    activate Pool
+    Pool->>Pool: タスク追加
+    Pool->>Worker: notify_one()
+    deactivate Pool
+
+    Worker->>Pool: wait(locker, not_empty_or_closed)
+    Pool-->>Worker: 条件満たすまで待機
+    Worker->>Pool: タスク取得
+    deactivate Pool
+    Worker->>Worker: タスク実行
+    deactivate Worker
+
+    Main->>Pool: Close()
+    activate Pool
+    Pool->>Pool: closed_ = true
+    Pool->>Worker: notify_all()
+    deactivate Pool
+
+    loop 全ワーカースレッド
+        Worker->>Pool: wait(locker, not_empty_or_closed)
+        Pool-->>Worker: 条件満たすまで待機
+        Worker->>Pool: closed_確認
+        deactivate Pool
+        deactivate Worker
+    end
+
+    Main->>Pool: ~ThreadPool()
+    activate Pool
+    loop 全スレッド
+        Pool->>Worker: join()
+    end
+    deactivate Pool
+```
+
+## 6. メソッド仕様書
+
+### 6.1 ThreadPool::ThreadPool
+
+- **目的**: スレッドプールを初期化する
+- **引数**:
+  - `thread_count`: スレッド数（std::nulloptの場合はハードウェアコンカレンシーに設定）
+  - `logger`: ロガー（std::nulloptの場合はルートロガーを使用）
+- **戻り値**: なし
+- **副作用**:
+  - logger_を初期化
+  - thread_count_を設定
+- **前提条件**: なし
+- **事後条件**: closed_がtrueに設定される
+
+### 6.2 ThreadPool::Start
+
+- **目的**: ワーカースレッドを起動する
+- **引数**: なし
+- **戻り値**: なし
+- **副作用**:
+  - closed_をfalseに設定
+  - thread_count_個のスレッドを作成し、ExecProcを実行開始
+- **前提条件**: closed_がtrueであること
+- **事後条件**: threads_にthread_count_個のスレッドが追加される
+
+### 6.3 ThreadPool::Push
+
+- **目的**: タスクをキューに追加する
+- **引数**:
+  - `task`: 実行するタスク（std::function<void()>）
+- **戻り値**: なし
+- **副作用**:
+  - tasks_にタスクを追加
+  - cond_を通知して1つのスレッドを起床させる
+- **前提条件**: closed_がfalseであること
+- **事後条件**: タスクがtasks_に追加される
+
+### 6.4 ThreadPool::Close
+
+- **目的**: スレッドプールを終了する
+- **引数**: なし
+- **戻り値**: なし
+- **副作用**:
+  - closed_をtrueに設定
+  - cond_を通知して全スレッドを起床させる
+- **前提条件**: なし
+- **事後条件**: closed_がtrueになる
+
+### 6.5 ThreadPool::ExecProc
+
+- **目的**: ワーカースレッドのメインルーチン
+- **引数**: なし
+- **戻り値**: なし
+- **副作用**:
+  - タスクを取得して実行
+  - 例外が発生した場合はログに記録
+- **前提条件**: closed_がfalseであること（初期状態）
+- **事後条件**: closed_がtrueになった場合、スレッドが終了する
+
+## 7. 処理フロー図
+
+```mermaid
+flowchart TD
+    A[Start] --> B{closed_ == true?}
+    B -- Yes --> C[closed_ = false]
+    C --> D[thread_count_回スレッド作成]
+    D --> E[End]
+
+    F[Push] --> G{closed_ == false?}
+    G -- No --> H[assert失敗]
+    G -- Yes --> I[mtx_ lock]
+    I --> J[タスク追加]
+    J --> K[cond_.notify_one()]
+    K --> L[End]
+
+    M[Close] --> N[mtx_ lock]
+    N --> O[closed_ = true]
+    O --> P[cond_.notify_all()]
+    P --> Q[End]
+
+    R[ExecProc] --> S{not_empty_or_closed?}
+    S -- No --> T[wait]
+    T --> S
+    S -- Yes --> U{closed_ == false?}
+    U -- No --> V[return]
+    U -- Yes --> W[タスク取得]
+    W --> X[mtx_ unlock]
+    X --> Y[タスク実行]
+    Y --> Z[例外処理]
+    Z --> S
+```
+
+## 8. 状態遷移・副作用
+
+| 状態 | 遷移条件 | 副作用 |
+|------|-----------|--------|
+| 初期化 | コンストラクタ呼び出し | closed_ = true, thread_count_設定 |
+| 起動中 | Start()呼び出し | closed_ = false, スレッド作成 |
+| 実行中 | Push()呼び出し | タスク追加、スレッド通知 |
+| 終了中 | Close()呼び出し | closed_ = true, 全スレッド通知 |
+| 破棄中 | デストラクタ呼び出し | スレッドjoin |
+
+## 9. データ変換・制約
+
+- **thread_count_**:
+  - std::nulloptの場合はstd::thread::hardware_concurrency()を使用
+  - 0以下の場合はハードウェアコンカレンシーに設定
+- **closed_**:
+  - 初期値: true
+  - Start()でfalseに設定
+  - Close()でtrueに設定
+- **tasks_**:
+  - std::list<Task>として管理
+  - FIFO順でタスクを実行
+- **threads_**:
+  - std::list<std::thread>として管理
+  - ExecProcを実行するスレッド
+
+## 10. 追加詳細設計情報
+
+### 10.1 並行制御
+
+- **mtx_**:
+  - 全ての共有データへのアクセスを保護
+  - Push()とExecProc()で使用
+- **cond_**:
+  - タスクの追加/取得を同期化
+  - notify_one()で1つのスレッドを起床
+  - notify_all()で全スレッドを起床
+
+### 10.2 エラー処理
+
+- **例外**:
+  - ExecProc()内でタスク実行中に発生した例外はログに記録される
+  - ロガーが設定されていない場合はルートロガーを使用
+- **assert**:
+  - closed_の状態をチェック（Start/Close/Push）
+
+### 10.3 リソース管理
+
+- **スレッド**:
+  - Start()で作成、Close()で終了要求、デストラクタでjoin
+  - joinable()を確認してからjoin
+- **タスク**:
+  - std::moveで移動代入される
+  - 実行後は破棄される
+
+## 11. 再実装注意事項
+
+1. **識別子の保持**: 全ての型名、関数名、変数名を元コードと同じにする
+2. **依存関係**: log.hとutil.hのincludeを保持する
+3. **並行制御**: mutexとcondition_variableの使用方法を正確に再現する
+4. **assert**: 条件チェックを省略しない
+5. **例外処理**: ログ記録の形式を変更しない
+
+この設計仕様書は、元コードから確認できる事実のみを記述しており、推測や補完は行っていません。再実装時には、この仕様書に従うことで元コードと同等の機能を持つスレッドプールを構築できます。

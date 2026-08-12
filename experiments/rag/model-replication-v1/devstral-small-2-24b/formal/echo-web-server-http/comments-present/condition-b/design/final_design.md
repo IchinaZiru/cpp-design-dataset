@@ -1,0 +1,643 @@
+以下は、与えられたC++ソースコードを解析し、別のLLMが再実装できるように詳細な設計仕様書を作成したものです。
+
+## 完全再構築台帳
+
+### F01/U01: include/http.h
+- **ファイル先頭**: `#pragma once`
+- **include**:
+  - `"containers/buffer.h"`
+  - `"ip.h"`
+  - `"util.h"`
+  - `<filesystem>`
+  - `<iostream>`
+  - `<memory>`
+  - `<string>`
+  - `<string_view>`
+  - `<unordered_map>`
+
+#### 型・定数
+- `inline constexpr std::string_view version {"1.1"}`
+- `using Parameters = std::unordered_map<std::string, std::string>`
+- `enum class StatusCode : std::uint32_t { OK = 200, BadRequest = 400, Forbidden = 403, NotFound = 404 }`
+- `inline constexpr std::string_view new_line {"\r\n"}`
+
+#### 関数
+1. `std::string_view StatusCodeToMessage(StatusCode code) noexcept;`
+2. `std::uint32_t StatusCodeToInteger(StatusCode code) noexcept;`
+3. `std::ostream& operator<<(std::ostream& os, StatusCode code) noexcept;`
+4. `enum class Method { Get, Post, Put, Patch, Delete };`
+5. `std::string_view MethodToString(Method method) noexcept;`
+6. `std::string to_string(Method method) noexcept;`
+7. `Method StringToMethod(std::string str);`
+8. `std::ostream& operator<<(std::ostream& os, Method method) noexcept;`
+9. `std::string_view ContentTypeByFileName(std::string_view name) noexcept;`
+10. `char DecodeURLEncodedCharacter(const std::string& str);`
+11. `std::string DecodeURLEncodedString(const std::string& str);`
+12. `std::string HTMLPlaceholder(std::string_view key) noexcept;`
+13. `std::string PutParamIntoHTML(std::string html, const Parameters& params);`
+
+#### クラス
+- **ConnectionImpl**:
+  - `using Ptr = std::shared_ptr<ConnectionImpl>;`
+  - `static void SetRootDirectory(std::filesystem::path dir) noexcept;`
+  - `static std::filesystem::path GetRootDirectory() noexcept;`
+  - `void Close() noexcept;`
+  - `bool Valid() const noexcept;`
+  - `FileDescriptor Socket() const noexcept;`
+  - `std::size_t Receive();`
+  - `std::size_t Send();`
+  - `bool KeepAlive() const noexcept;`
+  - `bool Process() noexcept;`
+  - `static constexpr std::string_view true_tag {"true"};`
+  - `static constexpr std::string_view false_tag {"false"};`
+  - `explicit ConnectionImpl(FileDescriptor socket) noexcept;`
+  - `virtual ~ConnectionImpl() noexcept;`
+  - `static std::filesystem::path root_dir_;`
+  - `FileDescriptor socket_ {invalid_file_descriptor};`
+  - `bool keep_alive_ {false};`
+  - `IOBuffer read_buf_;`
+  - `IOBuffer write_buf_;`
+  - `MappedReadOnlyFile file_;`
+
+- **Connection**:
+  - `template <ValidIPAddr IPAddr>`
+  - `using Ptr = std::shared_ptr<Connection>;`
+  - `explicit Connection(const FileDescriptor socket, IPAddr addr) noexcept;`
+  - `std::string IPAddress() const noexcept;`
+  - `std::uint16_t Port() const noexcept;`
+  - `IPAddr addr_;`
+
+### F02/U02: src/http/http.cpp
+- **include**:
+  - `"http.h"`
+  - `"io.h"`
+  - `"request.h"`
+  - `"response.h"`
+  - `<cassert>`
+  - `<filesystem>`
+  - `<sstream>`
+
+#### 関数実装
+1. `std::optional<Parameters> ExtractUserMessage(const Request& request) noexcept;`
+2. `std::string_view ContentTypeByFileName(const std::string_view name) noexcept;`
+3. `std::string_view StatusCodeToMessage(const StatusCode code) noexcept;`
+4. `std::ostream& operator<<(std::ostream& os, const StatusCode code) noexcept;`
+5. `std::uint32_t StatusCodeToInteger(const StatusCode code) noexcept;`
+6. `std::string_view MethodToString(const Method method) noexcept;`
+7. `std::string to_string(const Method method) noexcept;`
+8. `Method StringToMethod(std::string str);`
+9. `std::ostream& operator<<(std::ostream& os, const Method method) noexcept;`
+10. `char DecodeURLEncodedCharacter(const std::string& str);`
+11. `std::string DecodeURLEncodedString(const std::string& str);`
+12. `std::string HTMLPlaceholder(const std::string_view key) noexcept;`
+13. `std::string PutParamIntoHTML(std::string html, const Parameters& params);`
+
+#### クラス実装
+- **ConnectionImpl**:
+  - `static std::filesystem::path root_dir_;`
+  - `void SetRootDirectory(std::filesystem::path dir) noexcept;`
+  - `std::filesystem::path GetRootDirectory() noexcept;`
+  - `ConnectionImpl(const FileDescriptor socket) noexcept;`
+  - `~ConnectionImpl() noexcept;`
+  - `Close() noexcept;`
+  - `FileDescriptor Socket() const noexcept;`
+  - `bool KeepAlive() const noexcept;`
+  - `bool Valid() const noexcept;`
+  - `std::size_t Receive();`
+  - `std::size_t Send();`
+  - `bool Process() noexcept;`
+
+### F03/U03: src/http/request.h
+- **include**:
+  - `"containers/buffer.h"`
+  - `"http.h"`
+  - `<memory>`
+  - `<optional>`
+
+#### クラス
+- **Request**:
+  - `class State;`
+  - `Request() noexcept;`
+  - `explicit Request(Buffer& buf);`
+  - `~Request() noexcept;`
+  - `void Parse(Buffer& buf);`
+  - `std::optional<std::string_view> Header(std::string_view key) const noexcept;`
+  - `std::optional<std::string_view> Post(std::string_view key) const noexcept;`
+  - `std::size_t PostSize() const noexcept;`
+  - `http::Method Method() const noexcept;`
+  - `std::string_view Path() const noexcept;`
+  - `std::string_view Version() const noexcept;`
+  - `bool KeepAlive() const noexcept;`
+  - `void SetState(std::unique_ptr<State> state) noexcept;`
+  - `void Clear() noexcept;`
+  - `std::unique_ptr<State> state_;`
+  - `http::Method method_ {Method::Get};`
+  - `std::string version_;`
+  - `std::string path_;`
+  - `Parameters headers_;`
+  - `Parameters post_;`
+
+### F04/U04: src/http/request.cpp
+- **include**:
+  - `"request.h"`
+  - `"util.h"`
+  - `<cassert>`
+  - `<regex>`
+  - `<stdexcept>`
+
+#### クラス
+- **Request::State**:
+  - `explicit State(Request& parser) noexcept;`
+  - `virtual ~State() noexcept = default;`
+  - `virtual void Parse(const std::string& content) = 0;`
+  - `Request& parser_;`
+
+- **NotStarted**:
+  - `using State::State;`
+  - `void Parse(const std::string& line) override;`
+  - `void ParseStatusLine(const std::string& line);`
+
+- **Header**:
+  - `using State::State;`
+  - `void Parse(const std::string& line) override;`
+
+- **Body**:
+  - `using State::State;`
+  - `void Parse(const std::string& body) override;`
+  - `void ParsePost(const std::string& body);`
+  - `void ParseURLEncodedPost(const std::string& body);`
+
+- **Finished**:
+  - `using State::State;`
+  - `[[noreturn]] void Parse(const std::string& content) override;`
+
+### F05/U05: src/http/response.h
+- **include**:
+  - `"containers/buffer.h"`
+  - `"http.h"`
+  - `"util.h"`
+  - `<filesystem>`
+  - `<optional>`
+
+#### クラス
+- **Response**:
+  - `explicit Response(std::filesystem::path root_dir) noexcept;`
+  - `~Response() noexcept;`
+  - `Response(const Response&) = delete;`
+  - `Response(Response&&) = delete;`
+  - `Response& operator=(const Response&) = delete;`
+  - `Response& operator=(Response&&) = delete;`
+  - `Response& SetKeepAlive(bool set) noexcept;`
+  - `std::optional<MappedReadOnlyFile> Build(Buffer& buf, std::filesystem::path file, StatusCode& code) noexcept;`
+  - `void Build(Buffer& buf, std::filesystem::path html, const Parameters& params, StatusCode& code) noexcept;`
+  - `void Build(Buffer& buf, StatusCode code, std::string msg = "") noexcept;`
+  - `void Clear() noexcept;`
+  - `void Build(Buffer& buf, const Parameters* params = nullptr) noexcept;`
+  - `void CheckFile();`
+  - `void MapFile();`
+  - `void AddStatusLine(Buffer& buf) const noexcept;`
+  - `void AddHeaders(Buffer& buf) const noexcept;`
+  - `void AddMappedContent(Buffer& buf) noexcept;`
+  - `void AddParamContent(Buffer& buf, const Parameters& params) const noexcept;`
+  - `void AddPredefinedErrorContent(Buffer& buf, std::string_view msg = "") noexcept;`
+  - `std::filesystem::path root_dir_;`
+  - `std::filesystem::path file_path_;`
+  - `MappedReadOnlyFile file_;`
+  - `bool keep_alive_ {false};`
+  - `StatusCode status_code_ {StatusCode::OK};`
+
+### F06/U06: src/http/response.cpp
+- **include**:
+  - `"response.h"`
+  - `<cassert>`
+  - `<sstream>`
+
+#### クラス実装
+- **Response**:
+  - `Response(std::filesystem::path root_dir) noexcept;`
+  - `~Response() noexcept;`
+  - `void Clear() noexcept;`
+  - `Response& SetKeepAlive(const bool set) noexcept;`
+  - `std::optional<MappedReadOnlyFile> Build(Buffer& buf, std::filesystem::path file, StatusCode& code) noexcept;`
+  - `void Build(Buffer& buf, std::filesystem::path file, const Parameters& params, StatusCode& code) noexcept;`
+  - `void Build(Buffer& buf, const StatusCode code, std::string msg) noexcept;`
+  - `void Build(Buffer& buf, const Parameters* const params) noexcept;`
+  - `void AddStatusLine(Buffer& buf) const noexcept;`
+  - `void AddHeaders(Buffer& buf) const noexcept;`
+  - `void AddMappedContent(Buffer& buf) noexcept;`
+  - `void AddParamContent(Buffer& buf, const Parameters& params) const noexcept;`
+  - `void AddPredefinedErrorContent(Buffer& buf, const std::string_view msg) noexcept;`
+
+## クラス図
+
+```mermaid
+classDiagram
+    class Buffer {
+        <<abstract>>
+        +Buffer(size)
+        +Buffer(bytes)
+        +Buffer(str)
+        +WritableSize() const
+        +ReadableSize() const
+        +Peek() const
+        +ReadableBytes() const
+        +ReadableString() const
+        +WritableBytes() const
+        +Append(bytes)
+        +Append(str, new_line)
+        +Append(data, size)
+        +Append(buf)
+        +EnsureWriteableSize(size)
+        +HasWritten(size)
+        +Retrieve(size)
+        +RetrieveUntil(addr)
+        +RetrieveAll()
+        +RetrieveAllToString()
+        +Clear()
+        +Empty() const
+    }
+
+    class IOBuffer {
+        +ReadFrom(io::IReadWriter& io)
+        +WriteTo(io::IReadWriter& io)
+    }
+
+    Buffer <|-- IOBuffer
+
+    class Request {
+        -State* state_
+        -Method method_
+        -string version_
+        -string path_
+        -Parameters headers_
+        -Parameters post_
+        +Request() noexcept
+        +Request(buf) throw invalid_argument
+        +~Request() noexcept
+        +Parse(buf)
+        +Header(key) const
+        +Post(key) const
+        +PostSize() const
+        +Method() const
+        +Path() const
+        +Version() const
+        +KeepAlive() const
+    }
+
+    class Response {
+        -filesystem::path root_dir_
+        -filesystem::path file_path_
+        -MappedReadOnlyFile file_
+        -bool keep_alive_
+        -StatusCode status_code_
+        +Response(root_dir) noexcept
+        +~Response() noexcept
+        +SetKeepAlive(set) noexcept
+        +Build(buf, file, code) noexcept
+        +Build(buf, html, params, code) noexcept
+        +Build(buf, code, msg) noexcept
+    }
+
+    class ConnectionImpl {
+        <<abstract>>
+        -static filesystem::path root_dir_
+        -FileDescriptor socket_
+        -bool keep_alive_
+        -IOBuffer read_buf_
+        -IOBuffer write_buf_
+        -MappedReadOnlyFile file_
+        +SetRootDirectory(dir) noexcept
+        +GetRootDirectory() noexcept
+        +Close() noexcept
+        +Valid() const noexcept
+        +Socket() const noexcept
+        +Receive()
+        +Send()
+        +KeepAlive() const noexcept
+        +Process() noexcept
+    }
+
+    class Connection {
+        -IPAddr addr_
+        +Connection(socket, addr) noexcept
+        +IPAddress() const noexcept
+        +Port() const noexcept
+    }
+
+    ConnectionImpl <|-- Connection
+
+    class Request::State {
+        <<abstract>>
+        -Request& parser_
+        +State(parser) noexcept
+        +~State() noexcept
+        +Parse(content) = 0
+    }
+
+    class NotStarted {
+        +Parse(line)
+        +ParseStatusLine(line)
+    }
+
+    class Header {
+        +Parse(line)
+    }
+
+    class Body {
+        +Parse(body)
+        +ParsePost(body)
+        +ParseURLEncodedPost(body)
+    }
+
+    class Finished {
+        +Parse(content) [[noreturn]]
+    }
+
+    Request::State <|-- NotStarted
+    Request::State <|-- Header
+    Request::State <|-- Body
+    Request::State <|-- Finished
+
+    Request o-- Request::State : state_
+```
+
+## クラス・メソッド・インターフェース詳細
+
+### Buffer
+- **コンストラクタ**:
+  - `Buffer(std::size_t size = 1000) noexcept;`
+  - `Buffer(std::span<const std::byte> bytes) noexcept;`
+  - `Buffer(std::initializer_list<std::byte> bytes) noexcept;`
+  - `Buffer(std::string_view str) noexcept;`
+
+- **メソッド**:
+  - `std::size_t WritableSize() const noexcept;`
+  - `std::size_t ReadableSize() const noexcept;`
+  - `std::optional<std::byte> Peek() const noexcept;`
+  - `std::span<const std::byte> ReadableBytes() const noexcept;`
+  - `std::string ReadableString() const noexcept;`
+  - `std::span<std::byte> WritableBytes() const noexcept;`
+  - `void Append(std::span<const std::byte> bytes) noexcept;`
+  - `void Append(std::initializer_list<std::byte> bytes) noexcept;`
+  - `void Append(std::string_view str, std::optional<NewLine> new_line = std::nullopt) noexcept;`
+  - `void Append(const void* data, std::size_t size) noexcept;`
+  - `void Append(const Buffer& buf) noexcept;`
+  - `void EnsureWriteableSize(std::size_t size) noexcept;`
+  - `void HasWritten(std::size_t size) noexcept;`
+  - `void Retrieve(std::size_t size) noexcept;`
+  - `std::size_t RetrieveUntil(const void* addr) noexcept;`
+  - `std::size_t RetrieveAll() noexcept;`
+  - `std::string RetrieveAllToString() noexcept;`
+  - `void Clear() noexcept;`
+  - `bool Empty() const noexcept;`
+
+### IOBuffer
+- **メソッド**:
+  - `std::size_t ReadFrom(io::IReadWriter& io);`
+  - `std::size_t WriteTo(io::IReadWriter& io);`
+
+### Request
+- **コンストラクタ**:
+  - `Request() noexcept;`
+  - `explicit Request(Buffer& buf);`
+
+- **メソッド**:
+  - `void Parse(Buffer& buf);`
+  - `std::optional<std::string_view> Header(std::string_view key) const noexcept;`
+  - `std::optional<std::string_view> Post(std::string_view key) const noexcept;`
+  - `std::size_t PostSize() const noexcept;`
+  - `http::Method Method() const noexcept;`
+  - `std::string_view Path() const noexcept;`
+  - `std::string_view Version() const noexcept;`
+  - `bool KeepAlive() const noexcept;`
+
+### Response
+- **コンストラクタ**:
+  - `explicit Response(std::filesystem::path root_dir) noexcept;`
+
+- **メソッド**:
+  - `Response& SetKeepAlive(bool set) noexcept;`
+  - `std::optional<MappedReadOnlyFile> Build(Buffer& buf, std::filesystem::path file, StatusCode& code) noexcept;`
+  - `void Build(Buffer& buf, std::filesystem::path html, const Parameters& params, StatusCode& code) noexcept;`
+  - `void Build(Buffer& buf, StatusCode code, std::string msg = "") noexcept;`
+
+### ConnectionImpl
+- **コンストラクタ**:
+  - `explicit ConnectionImpl(FileDescriptor socket) noexcept;`
+
+- **メソッド**:
+  - `static void SetRootDirectory(std::filesystem::path dir) noexcept;`
+  - `static std::filesystem::path GetRootDirectory() noexcept;`
+  - `void Close() noexcept;`
+  - `bool Valid() const noexcept;`
+  - `FileDescriptor Socket() const noexcept;`
+  - `std::size_t Receive();`
+  - `std::size_t Send();`
+  - `bool KeepAlive() const noexcept;`
+  - `bool Process() noexcept;`
+
+### Connection
+- **コンストラクタ**:
+  - `explicit Connection(const FileDescriptor socket, IPAddr addr) noexcept;`
+
+- **メソッド**:
+  - `std::string IPAddress() const noexcept;`
+  - `std::uint16_t Port() const noexcept;`
+
+## シーケンス図
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant ConnectionImpl
+    participant Request
+    participant Response
+
+    Client->>ConnectionImpl: Receive()
+    ConnectionImpl->>Request: Parse(read_buf_)
+    Request-->>ConnectionImpl: method_, path_, headers_, post_
+    ConnectionImpl->>Response: Build(write_buf_, index_page, params, status_code)
+    Response-->>ConnectionImpl: write_buf_ (HTTP response)
+    ConnectionImpl->>Client: Send()
+```
+
+## メソッド仕様書
+
+### Request::Parse(Buffer& buf)
+- **目的**: HTTPリクエストを解析する。
+- **引数**:
+  - `buf`: 解析対象のバッファ。
+- **戻り値**: なし。
+- **動作**:
+  1. バッファをクリアする。
+  2. バッファが空であれば例外を投げる。
+  3. バッファから読み取り可能な文字列を取得する。
+  4. 文字列が空になるまで以下を繰り返す：
+     - 改行までの部分文字列を取得する。
+     - 現在の状態に応じて解析を行う。
+     - 読み取り位置を進める。
+- **副作用**: `method_`, `version_`, `path_`, `headers_`, `post_` を更新する。
+- **例外**:
+  - `std::invalid_argument`: バッファが空であるか、HTTPリクエストが無効である場合。
+
+### Response::Build(Buffer& buf, std::filesystem::path file, StatusCode& code) noexcept
+- **目的**: ファイルリクエストからHTTPレスポンスを構築する。
+- **引数**:
+  - `buf`: レスポンス内容を書き込むバッファ。
+  - `file`: リクエストされたファイルのパス。
+  - `code`: HTTPステータスコード（出力）。
+- **戻り値**: マップされた読み取り専用ファイル（成功時）または `std::nullopt`（失敗時）。
+- **動作**:
+  1. 内部状態をクリアする。
+  2. ファイルパスとステータスコードを設定する。
+  3. レスポンスを構築する。
+  4. ステータスコードを更新する。
+- **副作用**: `buf` にレスポンスヘッダーを書き込む。
+
+## 処理フロー図
+
+```mermaid
+graph TD
+    A[Start] --> B[Receive HTTP Request]
+    B --> C[Parse Request]
+    C --> D{Valid Request?}
+    D -->|Yes| E[Process Request]
+    D -->|No| F[Send Error Response]
+    E --> G[Build Response]
+    G --> H[Send Response]
+    H --> I[End]
+```
+
+## 状態遷移・副作用
+
+### Request::State
+- **状態**:
+  - `NotStarted`: 初期状態。
+  - `Header`: ヘッダーを解析中。
+  - `Body`: ボディを解析中。
+  - `Finished`: 解析完了。
+
+- **遷移**:
+  - `NotStarted` → `Header`: ステータスラインが正しく解析された場合。
+  - `Header` → `Body`: 空行が検出された場合。
+  - `Body` → `Finished`: ボディが正しく解析された場合。
+
+- **副作用**:
+  - `NotStarted::ParseStatusLine`: `method_`, `path_`, `version_` を更新する。
+  - `Header::Parse`: `headers_` にヘッダーを追加する。
+  - `Body::ParsePost`: `post_` にPOSTデータを追加する。
+
+## データ変換・制約
+
+### URLエンコード/デコード
+- **入力**: `%XX` 形式の文字列（例: `%20`）。
+- **出力**: デコードされた文字（例: ` `）。
+- **制約**:
+  - `DecodeURLEncodedCharacter`: 入力は3文字で、先頭が `%` でなければならない。
+  - `DecodeURLEncodedString`: 入力に無効なエンコード文字列が含まれていてはならない。
+
+### HTTPメソッド変換
+- **入力**: 大文字小文字を区別しないHTTPメソッド名（例: `get`, `GET`）。
+- **出力**: `Method` 列挙型の値。
+- **制約**:
+  - 有効なメソッド名は `GET`, `POST`, `PUT`, `PATCH`, `DELETE` のみ。
+
+### HTTPステータスコード変換
+- **入力**: `StatusCode` 列挙型の値。
+- **出力**: ステータスメッセージ（例: `OK`）。
+- **制約**:
+  - 有効なステータスコードは `200`, `400`, `403`, `404` のみ。
+
+## 追加詳細設計情報
+
+### クラス・メソッド・インターフェース詳細
+- **Request::State**:
+  - `virtual void Parse(const std::string& content) = 0;`
+  - `Request& parser_;`
+
+- **NotStarted**:
+  - `void ParseStatusLine(const std::string& line);`
+
+- **Header**:
+  - `void Parse(const std::string& line) override;`
+
+- **Body**:
+  - `void ParsePost(const std::string& body);`
+  - `void ParseURLEncodedPost(const std::string& body);`
+
+- **Finished**:
+  - `[[noreturn]] void Parse(const std::string& content) override;`
+
+### シーケンス図
+```mermaid
+sequenceDiagram
+    participant Client
+    participant ConnectionImpl
+    participant Request
+    participant Response
+
+    Client->>ConnectionImpl: Receive()
+    ConnectionImpl->>Request: Parse(read_buf_)
+    Request-->>ConnectionImpl: method_, path_, headers_, post_
+    alt Valid Request
+        ConnectionImpl->>Response: Build(write_buf_, index_page, params, status_code)
+        Response-->>ConnectionImpl: write_buf_ (HTTP response)
+    else Invalid Request
+        ConnectionImpl->>Response: Build(write_buf_, StatusCode::BadRequest, error_msg)
+        Response-->>ConnectionImpl: write_buf_ (Error response)
+    end
+    ConnectionImpl->>Client: Send()
+```
+
+### メソッド仕様書
+- **Response::Build(Buffer& buf, std::filesystem::path html, const Parameters& params, StatusCode& code) noexcept**:
+  - **目的**: HTMLテンプレートとパラメータからHTTPレスポンスを構築する。
+  - **引数**:
+    - `buf`: レスポンス内容を書き込むバッファ。
+    - `html`: HTMLテンプレートのパス。
+    - `params`: テンプレートに挿入するパラメータ。
+    - `code`: HTTPステータスコード（出力）。
+  - **戻り値**: なし。
+  - **動作**:
+    1. 内部状態をクリアする。
+    2. ファイルパスとステータスコードを設定する。
+    3. レスポンスを構築し、パラメータをテンプレートに挿入する。
+    4. ステータスコードを更新する。
+  - **副作用**: `buf` にレスポンスヘッダーとボディを書き込む。
+
+### 処理フロー図
+```mermaid
+graph TD
+    A[Start] --> B[Receive HTTP Request]
+    B --> C[Parse Request]
+    C --> D{Valid Request?}
+    D -->|Yes| E[Check for User Message]
+    E --> F[Build Response with Parameters]
+    D -->|No| G[Send Error Response]
+    F --> H[Send Response]
+    H --> I[End]
+```
+
+### 状態遷移・副作用
+- **ConnectionImpl::Process() noexcept**:
+  - **状態**:
+    - `read_buf_`: リクエストデータを保持する。
+    - `write_buf_`: レスポンスデータを保持する。
+    - `file_`: マップされたファイルデータを保持する。
+  - **遷移**:
+    - `read_buf_` が空であれば `false` を返す。
+    - リクエストを解析し、レスポンスを構築する。
+    - レスポンスを送信する。
+  - **副作用**:
+    - `keep_alive_` を更新する。
+    - `write_buf_` にレスポンスヘッダーとボディを書き込む。
+
+### データ変換・制約
+- **ContentTypeByFileName**:
+  - **入力**: ファイル名（例: `index.html`）。
+  - **出力**: コンテンツタイプ（例: `text/html`）。
+  - **制約**:
+    - 拡張子は小文字に変換される。
+    - 未知の拡張子には `application/octet-stream` が返される。
+
+この設計仕様書を使用することで、別のLLMが与えられたC++ソースコードを参照せずに再実装できるようになります。

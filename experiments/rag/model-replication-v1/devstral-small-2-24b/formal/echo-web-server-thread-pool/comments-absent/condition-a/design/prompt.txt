@@ -1,0 +1,198 @@
+与えられたC++ソースコードを解析し、このソースコードを参照できない別のLLMが再実装できるように、詳細な設計仕様書を作成してください。
+
+入力から確認できない情報は推測しないでください。
+
+TARGET-OWNED INPUTS
+Fxx/Uxx identifiers are opaque. Preserve names, types, signatures, namespaces, and replacement boundaries in the final specification.
+
+REPLACEMENT UNIT CONTRACT
+Only replacement_required=true units will be regenerated. Reference-only units must inform the design but must not become output units.
+REPLACEMENT UNITS: F01/U01, F02/U02
+REFERENCE-ONLY INPUTS: none
+
+===== BEGIN F01/U01 =====
+path: include/containers/thread_pool.h
+role: complete target-owned implementation/declaration file
+replacement_required: true
+   
+                      
+                          
+  
+                                                
+                                              
+              
+                                 
+               
+                   
+  
+                                                 
+   
+
+#pragma once
+
+#include "log.h"
+
+#include <condition_variable>
+#include <functional>
+#include <list>
+#include <mutex>
+#include <optional>
+#include <thread>
+
+
+namespace ws {
+
+                    
+class ThreadPool {
+public:
+    using Task = std::function<void()>;
+
+       
+                                   
+      
+                          
+                                     
+                                                                                                                         
+                    
+                                                                                      
+       
+    explicit ThreadPool(std::optional<std::size_t> thread_count = std::nullopt,
+                        log::Logger::Ptr logger = log::RootLogger()) noexcept;
+
+    ~ThreadPool() noexcept;
+
+    ThreadPool(const ThreadPool&) = delete;
+
+    ThreadPool(ThreadPool&&) = delete;
+
+    ThreadPool& operator=(const ThreadPool&) = delete;
+
+    ThreadPool& operator=(ThreadPool&&) = delete;
+
+                            
+    void Start() noexcept;
+
+                                         
+    void Push(Task task) noexcept;
+
+       
+                                    
+      
+               
+                                                
+       
+    void Close() noexcept;
+
+private:
+       
+                                                
+      
+               
+                                                               
+                                                         
+       
+    void ExecProc() noexcept;
+
+    log::Logger::Ptr logger_;
+
+    mutable std::mutex mtx_;
+    std::atomic_bool closed_ {true};
+    std::size_t thread_count_;
+    std::condition_variable cond_;
+
+    std::list<Task> tasks_;
+    std::list<std::thread> threads_;
+};
+
+}
+===== END F01/U01 =====
+
+===== BEGIN F02/U02 =====
+path: src/containers/thread_pool/thread_pool.cpp
+role: complete target-owned implementation/declaration file
+replacement_required: true
+#include "thread_pool.h"
+#include "util.h"
+
+#include <cassert>
+
+
+namespace ws {
+
+ThreadPool::ThreadPool(const std::optional<std::size_t> thread_count,
+                       log::Logger::Ptr logger) noexcept :
+    logger_ {std::move(logger)} {
+    if (!logger_) {
+        logger_ = log::RootLogger();
+    }
+
+    thread_count_ = thread_count.value_or(0);
+    if (thread_count_ == 0) {
+        thread_count_ = std::thread::hardware_concurrency();
+    }
+}
+
+ThreadPool::~ThreadPool() noexcept {
+    Close();
+    for (auto& thread : threads_) {
+        assert(thread.joinable());
+        thread.join();
+    }
+}
+
+void ThreadPool::Start() noexcept {
+    assert(closed_);
+    closed_ = false;
+    for (auto i {0}; i != thread_count_; ++i) {
+        threads_.emplace_back(&ThreadPool::ExecProc, this);
+    }
+}
+
+void ThreadPool::Push(Task task) noexcept {
+    assert(!closed_);
+    const std::lock_guard locker {mtx_};
+    tasks_.push_back(std::move(task));
+    cond_.notify_one();
+}
+
+void ThreadPool::ExecProc() noexcept {
+    const auto not_empty_or_closed {[this]() noexcept {
+                                                                                     
+                                                                  
+                                                                    
+                                                                              
+        return !tasks_.empty() || closed_;
+    }};
+
+    while (true) {
+        Task task;
+        {
+            std::unique_lock locker {mtx_};
+            cond_.wait(locker, not_empty_or_closed);
+            if (!closed_) {
+                task = std::move(tasks_.front());
+                tasks_.pop_front();
+            } else {
+                return;
+            }
+        }
+
+        try {
+            assert(task);
+            task();
+        } catch (const std::exception& err) {
+            logger_->Log(
+                log::Event::Create(log::Level::Error) << fmt::format(
+                    "Exception raised in thread pool's task: {}", err.what()));
+        }
+    }
+}
+
+void ThreadPool::Close() noexcept {
+    const std::lock_guard locker {mtx_};
+    closed_ = true;
+    cond_.notify_all();
+}
+
+}
+===== END F02/U02 =====

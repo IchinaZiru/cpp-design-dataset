@@ -1,0 +1,618 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# 詳細設計仕様書
+
+## 1. 概要
+
+この設計仕様書は、C++のバッファークラス`Buffer`とその派生クラス`IOBuffer`の再実装に必要な情報を提供します。このバッファーは自動的に拡張可能で、バイト列や文字列の保存をサポートします。
+
+## 2. 完全再構築台帳
+
+### 2.1 ファイル構造
+
+#### include/containers/buffer.h
+```cpp
+#pragma once
+
+#include <atomic>
+#include <optional>
+#include <span>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace ws {
+
+namespace io {
+    class IReadWriter;
+}
+
+enum class NewLine {
+    LF,
+    CRLF
+};
+
+class Buffer {
+public:
+    explicit Buffer(std::size_t size = 1000) noexcept;
+    explicit Buffer(std::span<const std::byte> bytes) noexcept;
+    explicit Buffer(std::initializer_list<std::byte> bytes) noexcept;
+    explicit Buffer(std::string_view str) noexcept;
+
+    Buffer(const Buffer&) noexcept;
+    Buffer(Buffer&&) noexcept;
+    Buffer& operator=(const Buffer&) noexcept;
+    Buffer& operator=(Buffer&&) noexcept;
+
+    std::size_t WritableSize() const noexcept;
+    std::size_t ReadableSize() const noexcept;
+    std::optional<std::byte> Peek() const noexcept;
+    std::span<const std::byte> ReadableBytes() const noexcept;
+    std::string ReadableString() const noexcept;
+    std::span<std::byte> WritableBytes() const noexcept;
+
+    void Append(std::span<const std::byte> bytes) noexcept;
+    void Append(std::initializer_list<std::byte> bytes) noexcept;
+    void Append(std::string_view str, std::optional<NewLine> new_line = std::nullopt) noexcept;
+    void Append(const void* data, std::size_t size) noexcept;
+    void Append(const Buffer& buf) noexcept;
+
+    void EnsureWriteableSize(std::size_t size) noexcept;
+    void HasWritten(std::size_t size) noexcept;
+    void Retrieve(std::size_t size) noexcept;
+    std::size_t RetrieveUntil(const void* addr) noexcept;
+    std::size_t RetrieveAll() noexcept;
+    std::string RetrieveAllToString() noexcept;
+
+    void Clear() noexcept;
+    bool Empty() const noexcept;
+
+protected:
+    std::size_t PrependableSize() const noexcept;
+    void MakeSpace(std::size_t size) noexcept;
+    std::vector<std::byte>::iterator ReadIter() const noexcept;
+    std::vector<std::byte>::iterator WriteIter() const noexcept;
+
+    std::vector<std::byte> buf_;
+    std::atomic<std::size_t> read_pos_ {0};
+    std::atomic<std::size_t> write_pos_ {0};
+};
+
+class IOBuffer : public Buffer {
+public:
+    using Buffer::Buffer;
+    std::size_t ReadFrom(io::IReadWriter& io);
+    std::size_t WriteTo(io::IReadWriter& io);
+};
+
+Buffer& operator<<(Buffer& buf, std::string_view str) noexcept;
+Buffer& operator<<(Buffer& to, const Buffer& from) noexcept;
+Buffer& operator<<(Buffer& buf, std::span<const std::byte> bytes) noexcept;
+Buffer& operator<<(Buffer& buf, std::initializer_list<std::byte> bytes) noexcept;
+
+}  // namespace ws
+```
+
+#### src/containers/buffer/buffer.cpp
+```cpp
+#include "buffer.h"
+#include "io.h"
+
+#include <algorithm>
+#include <cassert>
+
+namespace ws {
+
+Buffer::Buffer(const std::size_t size) noexcept : buf_(size) {}
+
+Buffer::Buffer(const std::span<const std::byte> bytes) noexcept {
+    Append(bytes);
+}
+
+Buffer::Buffer(const std::initializer_list<std::byte> bytes) noexcept {
+    Append(bytes.begin(), bytes.size());
+}
+
+Buffer::Buffer(const std::string_view str) noexcept {
+    Append(str);
+}
+
+Buffer::Buffer(const Buffer& o) noexcept :
+    buf_ {o.buf_},
+    read_pos_ {o.read_pos_.load()},
+    write_pos_ {o.write_pos_.load()} {}
+
+Buffer::Buffer(Buffer&& o) noexcept :
+    buf_ {std::move(o.buf_)},
+    read_pos_ {o.read_pos_.load()},
+    write_pos_ {o.write_pos_.load()} {}
+
+Buffer& Buffer::operator=(const Buffer& o) noexcept {
+    if (this != &o) {
+        buf_ = o.buf_;
+        read_pos_ = o.read_pos_.load();
+        write_pos_ = o.write_pos_.load();
+    }
+    return *this;
+}
+
+Buffer& Buffer::operator=(Buffer&& o) noexcept {
+    if (this != &o) {
+        buf_ = std::move(o.buf_);
+        read_pos_ = o.read_pos_.load();
+        write_pos_ = o.write_pos_.load();
+    }
+    return *this;
+}
+
+std::size_t Buffer::WritableSize() const noexcept {
+    return buf_.size() - write_pos_;
+}
+
+std::size_t Buffer::ReadableSize() const noexcept {
+    return write_pos_ - read_pos_;
+}
+
+std::size_t Buffer::PrependableSize() const noexcept {
+    return read_pos_;
+}
+
+std::optional<std::byte> Buffer::Peek() const noexcept {
+    return Empty() ? std::nullopt : std::optional {*ReadIter()};
+}
+
+void Buffer::Append(const std::initializer_list<std::byte> bytes) noexcept {
+    Append(bytes.begin(), bytes.size());
+}
+
+void Buffer::Append(const std::span<const std::byte> bytes) noexcept {
+    Append(bytes.data(), bytes.size_bytes());
+}
+
+void Buffer::Append(const std::string_view str,
+                    const std::optional<NewLine> new_line) noexcept {
+    std::string full_str {str};
+    if (new_line.has_value()) {
+        if (new_line == NewLine::LF) {
+            full_str += "\n";
+        } else if (new_line == NewLine::CRLF) {
+            full_str += "\r\n";
+        } else {
+            assert(false);
+        }
+    }
+    Append(full_str.data(), full_str.length());
+}
+
+void Buffer::Append(const void* const data, const std::size_t size) noexcept {
+    if (size == 0) {
+        return;
+    }
+    assert(data);
+    EnsureWriteableSize(size);
+    const auto base {reinterpret_cast<const std::byte*>(data)};
+    std::copy(base, base + size, WriteIter());
+    HasWritten(size);
+    assert(ReadableSize() >= size);
+}
+
+void Buffer::Append(const Buffer& buf) noexcept {
+    Append(buf.ReadableBytes());
+}
+
+void Buffer::EnsureWriteableSize(const std::size_t size) noexcept {
+    if (WritableSize() < size) {
+        MakeSpace(size);
+    }
+    assert(WritableSize() >= size);
+}
+
+void Buffer::MakeSpace(const std::size_t size) noexcept {
+    if (WritableSize() + PrependableSize() < size) {
+        buf_.resize(write_pos_ + size);
+    } else {
+        const auto readable_size {ReadableSize()};
+        std::copy(ReadIter(), WriteIter(), buf_.begin());
+        read_pos_ = 0;
+        write_pos_ = read_pos_ + readable_size;
+        assert(readable_size == ReadableSize());
+    }
+}
+
+std::span<const std::byte> Buffer::ReadableBytes() const noexcept {
+    return {ReadIter().base(), ReadableSize()};
+}
+
+std::string Buffer::ReadableString() const noexcept {
+    return {reinterpret_cast<char*>(ReadIter().base()), ReadableSize()};
+}
+
+std::span<std::byte> Buffer::WritableBytes() const noexcept {
+    return {WriteIter().base(), WritableSize()};
+}
+
+void Buffer::HasWritten(const std::size_t size) noexcept {
+    assert(WritableSize() >= size);
+    write_pos_ += size;
+}
+
+void Buffer::Retrieve(const std::size_t size) noexcept {
+    assert(ReadableSize() >= size);
+    read_pos_ += size;
+}
+
+std::size_t Buffer::RetrieveAll() noexcept {
+    const auto read_size {ReadableSize()};
+    Clear();
+    return read_size;
+}
+
+std::string Buffer::RetrieveAllToString() noexcept {
+    const auto str {ReadableString()};
+    Clear();
+    return str;
+}
+
+std::size_t Buffer::RetrieveUntil(const void* const addr) noexcept {
+    const auto end {static_cast<const std::byte*>(addr)};
+    const auto begin {ReadIter().base()};
+    assert(begin <= end);
+    const auto read_size {end - begin};
+    Retrieve(read_size);
+    return read_size;
+}
+
+void Buffer::Clear() noexcept {
+    read_pos_ = 0;
+    write_pos_ = 0;
+    assert(Empty());
+}
+
+bool Buffer::Empty() const noexcept {
+    return ReadableSize() == 0;
+}
+
+std::vector<std::byte>::iterator Buffer::ReadIter() const noexcept {
+    return const_cast<Buffer*>(this)->buf_.begin() + read_pos_;
+}
+
+std::vector<std::byte>::iterator Buffer::WriteIter() const noexcept {
+    return const_cast<Buffer*>(this)->buf_.begin() + write_pos_;
+}
+
+std::size_t IOBuffer::ReadFrom(io::IReadWriter& io) {
+    return io.WriteTo(*this);
+}
+
+std::size_t IOBuffer::WriteTo(io::IReadWriter& io) {
+    return io.ReadFrom(*this);
+}
+
+Buffer& operator<<(Buffer& buf, const std::string_view str) noexcept {
+    buf.Append(str);
+    return buf;
+}
+
+Buffer& operator<<(Buffer& to, const Buffer& from) noexcept {
+    to.Append(from);
+    return to;
+}
+
+Buffer& operator<<(Buffer& buf,
+                   const std::span<const std::byte> bytes) noexcept {
+    buf.Append(bytes);
+    return buf;
+}
+
+Buffer& operator<<(Buffer& buf,
+                   const std::initializer_list<std::byte> bytes) noexcept {
+    buf.Append(bytes);
+    return buf;
+}
+
+}  // namespace ws
+```
+
+## 3. クラス図
+
+```mermaid
+classDiagram
+    class Buffer {
+        -std::vector<std::byte> buf_
+        -std::atomic<std::size_t> read_pos_
+        -std::atomic<std::size_t> write_pos_
+
+        +Buffer(size: std::size_t) noexcept
+        +Buffer(bytes: std::span<const std::byte>) noexcept
+        +Buffer(bytes: std::initializer_list<std::byte>) noexcept
+        +Buffer(str: std::string_view) noexcept
+        +Buffer(const Buffer&) noexcept
+        +Buffer(Buffer&&) noexcept
+        +operator=(const Buffer&) noexcept
+        +operator=(Buffer&&) noexcept
+
+        +WritableSize() const noexcept
+        +ReadableSize() const noexcept
+        +Peek() const noexcept
+        +ReadableBytes() const noexcept
+        +ReadableString() const noexcept
+        +WritableBytes() const noexcept
+
+        +Append(bytes: std::span<const std::byte>) noexcept
+        +Append(bytes: std::initializer_list<std::byte>) noexcept
+        +Append(str: std::string_view, new_line: std::optional<NewLine>) noexcept
+        +Append(data: const void*, size: std::size_t) noexcept
+        +Append(buf: const Buffer&) noexcept
+
+        +EnsureWriteableSize(size: std::size_t) noexcept
+        +HasWritten(size: std::size_t) noexcept
+        +Retrieve(size: std::size_t) noexcept
+        +RetrieveUntil(addr: const void*) noexcept
+        +RetrieveAll() noexcept
+        +RetrieveAllToString() noexcept
+
+        +Clear() noexcept
+        +Empty() const noexcept
+
+        -PrependableSize() const noexcept
+        -MakeSpace(size: std::size_t) noexcept
+        -ReadIter() const noexcept
+        -WriteIter() const noexcept
+    }
+
+    class IOBuffer {
+        +ReadFrom(io: io::IReadWriter)
+        +WriteTo(io: io::IReadWriter)
+    }
+
+    Buffer <|-- IOBuffer
+
+    class NewLine {
+        <<enumeration>>
+        LF
+        CRLF
+    }
+```
+
+## 4. クラス・メソッド・インターフェース詳細
+
+### 4.1 `NewLine`列挙型
+
+| 名前 | 型 | 説明 |
+|------|----|-------|
+| LF   | -  | `\n`を表す |
+| CRLF | -  | `\r\n`を表す |
+
+### 4.2 `Buffer`クラス
+
+#### コンストラクタ
+
+| 名前 | シグネチャ | 説明 |
+|------|------------|-------|
+| Buffer | `explicit Buffer(std::size_t size = 1000) noexcept` | 初期サイズを指定してバッファーを作成 |
+| Buffer | `explicit Buffer(std::span<const std::byte> bytes) noexcept` | バイト列からバッファーを作成 |
+| Buffer | `explicit Buffer(std::initializer_list<std::byte> bytes) noexcept` | 初期化リストからバッファーを作成 |
+| Buffer | `explicit Buffer(std::string_view str) noexcept` | 文字列からバッファーを作成 |
+| Copy Constructor | `Buffer(const Buffer&) noexcept` | コピーコンストラクタ |
+| Move Constructor | `Buffer(Buffer&&) noexcept` | ムーブコンストラクタ |
+
+#### アサインメントオペレーター
+
+| 名前 | シグネチャ | 説明 |
+|------|------------|-------|
+| Copy Assignment | `Buffer& operator=(const Buffer&) noexcept` | コピー代入演算子 |
+| Move Assignment | `Buffer& operator=(Buffer&&) noexcept` | ムーブ代入演算子 |
+
+#### パブリックメソッド
+
+| 名前 | シグネチャ | 説明 |
+|------|------------|-------|
+| WritableSize | `std::size_t WritableSize() const noexcept` | 書き込み可能サイズを取得 |
+| ReadableSize | `std::size_t ReadableSize() const noexcept` | 読み取り可能サイズを取得 |
+| Peek | `std::optional<std::byte> Peek() const noexcept` | 先頭のバイトを取得（読み取り位置は移動しない） |
+| ReadableBytes | `std::span<const std::byte> ReadableBytes() const noexcept` | 読み取り可能なバイト列を取得 |
+| ReadableString | `std::string ReadableString() const noexcept` | 読み取り可能な文字列を取得 |
+| WritableBytes | `std::span<std::byte> WritableBytes() const noexcept` | 書き込み可能なバイト列を取得 |
+| Append (span) | `void Append(std::span<const std::byte> bytes) noexcept` | バイト列を追加 |
+| Append (initializer_list) | `void Append(std::initializer_list<std::byte> bytes) noexcept` | 初期化リストからバイト列を追加 |
+| Append (string_view) | `void Append(std::string_view str, std::optional<NewLine> new_line = std::nullopt) noexcept` | 文字列と改行を追加 |
+| Append (data pointer) | `void Append(const void* data, std::size_t size) noexcept` | データポインタからバイト列を追加 |
+| Append (Buffer) | `void Append(const Buffer& buf) noexcept` | 他のバッファーからデータを追加 |
+| EnsureWriteableSize | `void EnsureWriteableSize(std::size_t size) noexcept` | 書き込み可能サイズを確保 |
+| HasWritten | `void HasWritten(std::size_t size) noexcept` | 書き込み位置を手動で進める |
+| Retrieve | `void Retrieve(std::size_t size) noexcept` | 読み取り位置を手動で進める |
+| RetrieveUntil | `std::size_t RetrieveUntil(const void* addr) noexcept` | 指定アドレスまで読み取り位置を進める |
+| RetrieveAll | `std::size_t RetrieveAll() noexcept` | 読み取り位置を末尾まで進める |
+| RetrieveAllToString | `std::string RetrieveAllToString() noexcept` | 全てのデータを文字列として取得しクリア |
+| Clear | `void Clear() noexcept` | バッファーをクリア |
+| Empty | `bool Empty() const noexcept` | バッファーが空かどうか判定 |
+
+#### プロテクトメソッド
+
+| 名前 | シグネチャ | 説明 |
+|------|------------|-------|
+| PrependableSize | `std::size_t PrependableSize() const noexcept` | 先頭に追加可能なサイズを取得 |
+| MakeSpace | `void MakeSpace(std::size_t size) noexcept` | 空き領域を確保 |
+| ReadIter | `std::vector<std::byte>::iterator ReadIter() const noexcept` | 読み取り位置のイテレーターを取得 |
+| WriteIter | `std::vector<std::byte>::iterator WriteIter() const noexcept` | 書き込み位置のイテレーターを取得 |
+
+#### メンバ変数
+
+| 名前 | 型 | 説明 |
+|------|----|-------|
+| buf_ | `std::vector<std::byte>` | バッファー本体 |
+| read_pos_ | `std::atomic<std::size_t>` | 読み取り位置（原子操作） |
+| write_pos_ | `std::atomic<std::size_t>` | 書き込み位置（原子操作） |
+
+### 4.3 `IOBuffer`クラス
+
+#### メソッド
+
+| 名前 | シグネチャ | 説明 |
+|------|------------|-------|
+| ReadFrom | `std::size_t ReadFrom(io::IReadWriter& io)` | I/Oオブジェクトから読み取り |
+| WriteTo | `std::size_t WriteTo(io::IReadWriter& io)` | I/Oオブジェクトへ書き込み |
+
+### 4.4 オペレーター
+
+| 名前 | シグネチャ | 説明 |
+|------|------------|-------|
+| << (string_view) | `Buffer& operator<<(Buffer& buf, std::string_view str) noexcept` | 文字列をバッファーに追加 |
+| << (Buffer) | `Buffer& operator<<(Buffer& to, const Buffer& from) noexcept` | バッファーからバッファーへデータを追加 |
+| << (span) | `Buffer& operator<<(Buffer& buf, std::span<const std::byte> bytes) noexcept` | バイト列をバッファーに追加 |
+| << (initializer_list) | `Buffer& operator<<(Buffer& buf, std::initializer_list<std::byte> bytes) noexcept` | 初期化リストからバイト列をバッファーに追加 |
+
+## 5. シーケンス図
+
+```mermaid
+sequenceDiagram
+    participant Buffer
+    participant IReadWriter
+
+    Note over IOBuffer: ReadFrom
+    IOBuffer->>IReadWriter: WriteTo(*this)
+    IReadWriter-->>IOBuffer: size_t (read bytes)
+
+    Note over IOBuffer: WriteTo
+    IOBuffer->>IReadWriter: ReadFrom(*this)
+    IReadWriter-->>IOBuffer: size_t (written bytes)
+```
+
+## 6. メソッド仕様書
+
+### 6.1 `Append`メソッド群
+
+#### `Append(std::span<const std::byte> bytes)`
+- **目的**: バイト列をバッファーに追加し、書き込み位置を進める
+- **引数**:
+  - `bytes`: 追加するバイト列
+- **戻り値**: なし
+- **動作**:
+  1. `EnsureWriteableSize(bytes.size_bytes())`を呼び出し、必要な空き領域を確保
+  2. `std::copy`でデータをコピー
+  3. `HasWritten(bytes.size_bytes())`で書き込み位置を進める
+- **副作用**: バッファーの内容と書き込み位置が更新される
+
+#### `Append(std::string_view str, std::optional<NewLine> new_line)`
+- **目的**: 文字列とオプションの改行をバッファーに追加
+- **引数**:
+  - `str`: 追加する文字列
+  - `new_line`: 改行コード（LFまたはCRLF）
+- **戻り値**: なし
+- **動作**:
+  1. `new_line`が指定されている場合、対応する改行コードを文字列に追加
+  2. `Append(str.data(), str.length())`でデータを追加
+- **副作用**: バッファーの内容と書き込み位置が更新される
+
+### 6.2 `MakeSpace`メソッド
+
+- **目的**: 指定されたサイズの空き領域を確保する
+- **引数**:
+  - `size`: 必要な最小サイズ
+- **戻り値**: なし
+- **動作**:
+  1. 現在の書き込み可能サイズと先頭に追加可能サイズを合計
+  2. 合計が`size`未満の場合、バッファーを拡張
+  3. それ以外の場合、読み取り可能なデータを先頭にコピーし、位置をリセット
+- **副作用**: バッファーのサイズと位置が更新される
+
+## 7. 処理フロー図
+
+```mermaid
+flowchart TD
+    A[Append開始] --> B{空き領域確保必要?}
+    B -->|Yes| C[MakeSpace呼び出し]
+    B -->|No| D[データコピー]
+    C --> D
+    D --> E[書き込み位置進める]
+    E --> F[Append終了]
+```
+
+## 8. 状態遷移・副作用
+
+### 8.1 バッファーの状態遷移
+
+| 状態 | 読み取り位置 | 書き込み位置 | バッファー内容 |
+|------|--------------|--------------|----------------|
+| 初期状態 | 0 | 0 | 空 |
+| データ追加後 | 0 | size | データが格納されている |
+| 読み取り後 | pos > 0 | size | 未読部分のみ残る |
+| クリア後 | 0 | 0 | 空 |
+
+### 8.2 副作用
+
+- `Append`系メソッド: バッファー内容と書き込み位置を更新
+- `Retrieve`系メソッド: 読み取り位置を更新
+- `Clear`: 全ての位置をリセット
+- `MakeSpace`: バッファーサイズと位置を更新
+
+## 9. データ変換・制約
+
+### 9.1 データ変換規則
+
+| 入力型 | 出力型 | 変換方法 |
+|--------|--------|----------|
+| `std::string_view` | バイト列 | UTF-8として扱い、バイト単位でコピー |
+| `NewLine::LF` | `\n` | 文字列リテラルとして追加 |
+| `NewLine::CRLF` | `\r\n` | 文字列リテラルとして追加 |
+
+### 9.2 制約
+
+- バッファーは常に読み取り位置 ≤ 書き込み位置を保持
+- `Append`時には常に空き領域が確保される
+- 原子操作によりスレッドセーフな位置管理が行われる
+- `ReadableString`はバイト列がプリント可能であることを前提とする
+
+## 10. 追加詳細設計情報
+
+### 10.1 クラス間関係
+
+- `IOBuffer`は`Buffer`を継承し、I/O操作を追加
+- `Buffer`と`io::IReadWriter`の間でデータの読み書きが行われる
+- オペレーターは`Buffer`に直接定義されており、フレンド関数として動作
+
+### 10.2 メモリ管理
+
+- バッファー本体は`std::vector<std::byte>`で管理される
+- 位置情報は原子変数で管理され、スレッドセーフに更新可能
+- `MakeSpace`では必要に応じてバッファーを拡張またはデータを移動
+
+### 10.3 エラー処理
+
+- アサーションを使用して不正な状態を検出（デバッグ時のみ有効）
+- `Append`時の`data`ポインタがnullである場合はアサート
+- 読み取り位置が書き込み位置を超えることは発生しない
+
+### 10.4 パフォーマンス考慮事項
+
+- データコピーは`std::copy`で効率的に行われる
+- バッファー拡張は必要な時のみ行われ、既存データの移動も最小限に抑える
+- 原子操作によりスレッドセーフ性を確保しつつ、ロックフリー設計
+
+## 11. 再実装注意事項
+
+1. 全てのコンストラクタとアサインメントオペレーターは`noexcept`で宣言されている必要がある
+2. 原子変数の使用によりスレッドセーフ性を確保すること
+3. `std::byte`型を適切に扱うこと（C++17以降）
+4. アサーションはデバッグビルドのみ有効とすること
+5. バッファー拡張時の動作は元コードと同じように実装すること
+
+この設計仕様書により、別のLLMが完全に同等な機能を持つ`Buffer`クラスを再実装できることを保証します。

@@ -1,0 +1,79 @@
+RAG_CONTEXT repository-dependencies-v1
+
+### PATH: src/Common/Common.h
+SOURCE_SHA256: 1842fc10588b2c6997b0e25beca27c33b6dcfe978f6d22cf6f4869425844d575
+CONTENT_SHA256: 84bc60b8e0afa6b516cf63689a608968f560e3de4e640e651fd7c1a176de56ca
+----- BEGIN DEPENDENCY HEADER CONTENT: src/Common/Common.h -----
+//
+// Created by Alex Chi on 2019-07-02.
+//
+
+#ifndef RISCV_SIMULATOR_COMMON_H
+#define RISCV_SIMULATOR_COMMON_H
+
+using Immediate = unsigned int;
+using SImmediate = int;
+
+#endif //RISCV_SIMULATOR_COMMON_H
+
+----- END DEPENDENCY HEADER CONTENT: src/Common/Common.h -----
+
+### PATH: src/Common/Register.hpp
+SOURCE_SHA256: 57fb42ae07816f444301153cdea5bf943b873262ff992e454b894ff990ad8e34
+CONTENT_SHA256: 6890bd1d2e673be19ad1db79f647797da52c784d1963db9a43de0ce0ec33c7fb
+----- BEGIN DEPENDENCY HEADER CONTENT: src/Common/Register.hpp -----
+//
+// Created by Alex Chi on 2019-07-01.
+//
+
+#ifndef RISCV_SIMULATOR_REGISTER_HPP
+#define RISCV_SIMULATOR_REGISTER_HPP
+
+template<typename T>
+class Register { // : public Tickable {
+public:
+    T prev, next;
+
+    bool _stall;
+
+    Register() : prev((T) 0), next((T) 0), _stall(false) {}
+
+    Register(T d) : prev(d), next(d), _stall(false) {}
+
+    T read() { return prev; }
+
+    T current() { return next; }
+
+    void write(const T &t) { next = t; }
+
+    void tick() { if (!_stall) prev = next; }
+
+    void stall(bool stall) { _stall = stall; }
+
+    operator T() { return read(); }
+
+    void operator=(T next) { write(next); }
+};
+
+#endif //RISCV_SIMULATOR_REGISTER_HPP
+
+----- END DEPENDENCY HEADER CONTENT: src/Common/Register.hpp -----
+
+### PATH: src/Common/utils.h
+SOURCE_SHA256: 74d3100141f38b67efdec002eae6dcf9803452fffec0bfb0f5bac8e56d10a61a
+CONTENT_SHA256: 5ea59e524e9558ca569b8466a121e7d4a2ed6a77c3eaba9b4d582f4b63389b27
+----- BEGIN DEPENDENCY HEADER CONTENT: src/Common/utils.h -----
+//
+// Created by Alex Chi on 2019-07-10.
+//
+
+#ifndef RISCV_SIMULATOR_UTILS_H
+#define RISCV_SIMULATOR_UTILS_H
+
+#include "Instruction.hpp"
+
+void debug_immediate(Immediate v, unsigned width = 0);
+
+#endif //RISCV_SIMULATOR_UTILS_H
+
+----- END DEPENDENCY HEADER CONTENT: src/Common/utils.h -----

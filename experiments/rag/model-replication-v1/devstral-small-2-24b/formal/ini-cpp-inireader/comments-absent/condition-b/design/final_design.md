@@ -1,0 +1,259 @@
+# INIReader クラスの詳細設計仕様書
+
+## 1. 概要
+INIReader クラスは、INI ファイルを読み込み、操作するための機能を提供します。このクラスは、セクションとキー値ペアの構造を持つ INI ファイルを扱い、各種データ型への変換やベクター形式での取得など、柔軟な操作をサポートします。
+
+## 2. クラス図
+
+```mermaid
+classDiagram
+    class INIReader {
+        -int _error
+        -std::unordered_map<std::string, std::unordered_map<std::string, std::string>> _values
+
+        +INIReader()
+        +INIReader(const std::string& filename)
+        +INIReader(std::FILE* file)
+        +ParseError() const
+        +Sections() const
+        +Keys(const std::string& section) const
+        +Get(const std::string& section) const
+        +Get<T>(const std::string& section, const std::string& name) const
+        +Get<T>(const std::string& section, const std::string& name, T&& default_v) const
+        +GetVector<T>(const std::string& section, const std::string& name) const
+        +GetVector<T>(const std::string& section, const std::string& name, const std::vector<T>& default_v) const
+        +InsertEntry<T>(const std::string& section, const std::string& name, const T& v)
+        +InsertEntry<T>(const std::string& section, const std::string& name, const std::vector<T>& vs)
+        +UpdateEntry<T>(const std::string& section, const std::string& name, const T& v)
+        +UpdateEntry<T>(const std::string& section, const std::string& name, const std::vector<T>& vs)
+
+        -GetSection(const std::string& section) const
+        -FindEntry(const std::string& section, const std::string& name)
+        -Parse(std::string_view content)
+        -Converter<T>(const std::string& s) const
+        -BoolConverter(std::string s) const
+        -V2String<T>(const T& v) const
+        -Vec2String<T>(const std::vector<T>& v) const
+    }
+```
+
+## 3. クラス・メソッド・インターフェース詳細
+
+| メソッド名 | 可視性 | 引数 | 戻り値型 | 概要 |
+|-------------|--------|------|----------|------|
+| INIReader() | public | - | - | デフォルトコンストラクタ |
+| INIReader(const std::string& filename) | public | const std::string& filename | - | ファイル名を指定してINIファイルを読み込む |
+| INIReader(std::FILE* file) | public | std::FILE* file | - | FILEポインタを指定してINIファイルを読み込む |
+| ParseError() const | public | - | int | エラー状態を確認し、必要に応じて例外を投げる |
+| Sections() const | public | - | std::set<std::string> | 存在するセクション名のリストを返す |
+| Keys(const std::string& section) const | public | const std::string& section | std::set<std::string> | 指定したセクション内のキー名のリストを返す |
+| Get(const std::string& section) const | public | const std::string& section | std::unordered_map<std::string, std::string> | 指定したセクション内の全てのキー値ペアを返す |
+| Get<T>(const std::string& section, const std::string& name) const | public | const std::string& section, const std::string& name | T | 指定したセクションとキーに対応する値を型Tで返す |
+| Get<T>(const std::string& section, const std::string& name, T&& default_v) const | public | const std::string& section, const std::string& name, T&& default_v | T | 指定したセクションとキーに対応する値を型Tで返す。見つからない場合はデフォルト値を返す |
+| GetVector<T>(const std::string& section, const std::string& name) const | public | const std::string& section, const std::string& name | std::vector<T> | 指定したセクションとキーに対応する値をベクターとして返す |
+| GetVector<T>(const std::string& section, const std::string& name, const std::vector<T>& default_v) const | public | const std::string& section, const std::string& name, const std::vector<T>& default_v | std::vector<T> | 指定したセクションとキーに対応する値をベクターとして返す。見つからない場合はデフォルト値を返す |
+| InsertEntry<T>(const std::string& section, const std::string& name, const T& v) | public | const std::string& section, const std::string& name, const T& v | void | 新しいキー値ペアを挿入する |
+| InsertEntry<T>(const std::string& section, const std::string& name, const std::vector<T>& vs) | public | const std::string& section, const std::string& name, const std::vector<T>& vs | void | 新しいキー値ペアをベクターとして挿入する |
+| UpdateEntry<T>(const std::string& section, const std::string& name, const T& v) | public | const std::string& section, const std::string& name, const T& v | void | 既存のキー値ペアを更新する |
+| UpdateEntry<T>(const std::string& section, const std::string& name, const std::vector<T>& vs) | public | const std::string& section, const std::string& name, const std::vector<T>& vs | void | 既存のキー値ペアをベクターとして更新する |
+| GetSection(const std::string& section) const | private | const std::string& section | const std::unordered_map<std::string, std::string>& | 指定したセクションの内容を返す |
+| FindEntry(const std::string& section, const std::string& name) | private | const std::string& section, const std::string& name | std::string& | 指定したセクションとキーに対応する値への参照を返す |
+| Parse(std::string_view content) | private | std::string_view content | void | INIファイルの内容を解析して内部データ構造に格納する |
+| Converter<T>(const std::string& s) const | private | const std::string& s | T | 文字列を型Tに変換する |
+| BoolConverter(std::string s) const | private | std::string s | bool | 文字列をブール値に変換する |
+| V2String<T>(const T& v) const | private | const T& v | std::string | 値を文字列に変換する |
+| Vec2String<T>(const std::vector<T>& v) const | private | const std::vector<T>& v | std::string | ベクターを文字列に変換する |
+
+## 4. シーケンス図
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant INIReader
+    participant FileSystem
+
+    User->>INIReader: INIReader("config.ini")
+    activate INIReader
+    INIReader->>FileSystem: open file
+    FileSystem-->>INIReader: file content
+    INIReader->>INIReader: Parse(content)
+    INIReader-->>User: constructed
+    deactivate INIReader
+
+    User->>INIReader: Get<int>("section", "key")
+    activate INIReader
+    INIReader->>INIReader: GetSection("section")
+    INIReader->>INIReader: Converter<int>(value)
+    INIReader-->>User: int value
+    deactivate INIReader
+```
+
+## 5. メソッド仕様書
+
+### ParseError()
+- **目的**: エラー状態を確認し、必要に応じて例外を投げる
+- **引数**: なし
+- **戻り値**: int (常に0)
+- **動作**:
+  - `_error` の値に応じて以下の処理を行う
+    - 0: 何もしない
+    - -1: ファイルが見つからない旨の例外を投げる
+    - -2: メモリ割り当てエラー旨の例外を投げる
+    - その他: 指定した行番号でのパースエラー旨の例外を投げる
+- **副作用**: 例外を投げる場合がある
+
+### Get<T>(const std::string& section, const std::string& name) const
+- **目的**: 指定したセクションとキーに対応する値を型Tで取得する
+- **引数**:
+  - `section`: セクション名
+  - `name`: キー名
+- **戻り値**: T 型の値
+- **動作**:
+  1. GetSection(section) を呼び出してセクションを取得する
+  2. セクション内から指定したキーを検索する
+  3. キーが見つからない場合は例外を投げる
+  4. 型Tに応じて適切な変換を行う
+- **副作用**: なし
+
+### Parse(std::string_view content)
+- **目的**: INIファイルの内容を解析して内部データ構造に格納する
+- **引数**:
+  - `content`: INIファイルの内容
+- **戻り値**: なし
+- **動作**:
+  1. BOM (Byte Order Mark) を除去する
+  2. 行ごとに処理を行う
+  3. セクション定義 ([section]) を検出し、セクション名を設定する
+  4. キー値ペア (key=value) を検出し、内部データ構造に格納する
+  5. コメント行 (; 或 # で始まる行) は無視する
+- **副作用**: `_values` と `_error` を更新する
+
+## 6. 処理フロー図
+
+```mermaid
+graph TD
+    A[Start] --> B[Open File]
+    B --> C{File Open Success?}
+    C -->|Yes| D[Read Content]
+    C -->|No| E[Set Error -1]
+    D --> F[Parse Content]
+    F --> G[Check Parse Errors]
+    G --> H[End]
+    E --> H
+```
+
+## 7. 状態遷移・副作用
+
+| 状態 | 遷移条件 | 副作用 |
+|------|----------|--------|
+| 初期状態 | - | `_error = 0`, `_values` は空 |
+| ファイル読み込み中 | コンストラクタ呼び出し | ファイルから内容を読み込む |
+| パース中 | Parse() 呼び出し | 内容を解析して `_values` に格納する |
+| エラー状態 | パースエラー発生 | `_error` を設定し、例外を投げる |
+
+## 8. データ変換・制約
+
+### 型変換
+- `Converter<T>`: 文字列から型Tへの変換を行う。型Tが string の場合はそのまま返す。
+- `BoolConverter`: 文字列をブール値に変換する。大文字小文字を区別せず、以下の値を true とみなす:
+  - "1", "true", "yes", "on"
+  - その他の値は false とみなす
+
+### 値制約
+- セクション名とキー名は空文字列であってはならない
+- キーはセクション内で一意である必要がある
+- ベクター形式の値はスペース区切りで表現される
+
+## 9. 追加詳細設計情報
+
+### クラス図の補足
+- INIReader クラスは、INI ファイルの内容を `std::unordered_map<std::string, std::unordered_map<std::string, std::string>>` の形式で内部的に保持する。
+- セクションとキー値ペアの関係は、外部キー (セクション名) と内部マップ (キー値ペア) の二重マップ構造を取る。
+
+### メソッド仕様書の補足
+- `Get<T>` メソッドでは、型Tが string の場合は直接文字列を返し、その他の場合は `Converter<T>` を使用して変換を行う。
+- `InsertEntry` と `UpdateEntry` メソッドでは、同じキーが既に存在する場合は例外を投げる。
+
+### 処理フロー図の補足
+- ファイル読み込み中にエラーが発生した場合、`_error` を -1 に設定し、ParseError() が呼び出された際に例外を投げる。
+- パース中にエラーが発生した場合、`_error` を該当行番号に設定し、ParseError() が呼び出された際に例外を投げる。
+
+### 状態遷移・副作用の補足
+- `_values` は、INI ファイルの内容を解析した結果を格納するためのデータ構造であり、直接的な変更は Parse() メソッドのみが行う。
+- `_error` は、エラー状態を示すためのフラグであり、ParseError() メソッドで例外投げるかどうかを決定する。
+
+### データ変換・制約の補足
+- `V2String<T>` と `Vec2String<T>` メソッドは、値を文字列に変換するために使用される。これらは InsertEntry と UpdateEntry メソッドで内部的に呼び出される。
+- ベクター形式の値はスペース区切りで表現され、GetVector メソッドではこの形式からベクターへの変換を行う。
+
+## 10. 完全再構築台帳
+
+### クラス定義
+```cpp
+class INIReader {
+public:
+    INIReader() = default;
+    INIReader(const std::string& filename);
+    INIReader(std::FILE* file);
+    int ParseError() const;
+    std::set<std::string> Sections() const;
+    std::set<std::string> Keys(const std::string& section) const;
+    std::unordered_map<std::string, std::string> Get(
+        const std::string& section) const;
+    template <typename T = std::string>
+    T Get(const std::string& section, const std::string& name) const;
+    template <typename T>
+    T Get(const std::string& section, const std::string& name,
+          T&& default_v) const;
+    template <typename T = std::string>
+    std::vector<T> GetVector(const std::string& section,
+                             const std::string& name) const;
+    template <typename T>
+    std::vector<T> GetVector(const std::string& section,
+                             const std::string& name,
+                             const std::vector<T>& default_v) const;
+    template <typename T = std::string>
+    void InsertEntry(const std::string& section, const std::string& name,
+                     const T& v);
+    template <typename T = std::string>
+    void InsertEntry(const std::string& section, const std::string& name,
+                     const std::vector<T>& vs);
+    template <typename T = std::string>
+    void UpdateEntry(const std::string& section, const std::string& name,
+                     const T& v);
+    template <typename T = std::string>
+    void UpdateEntry(const std::string& section, const std::string& name,
+                     const std::vector<T>& vs);
+
+protected:
+    int _error = 0;
+    std::unordered_map<std::string,
+                       std::unordered_map<std::string, std::string>>
+        _values;
+
+private:
+    const std::unordered_map<std::string, std::string>& GetSection(
+        const std::string& section) const;
+    std::string& FindEntry(const std::string& section,
+                           const std::string& name);
+    void Parse(std::string_view content);
+    template <typename T>
+    T Converter(const std::string& s) const;
+    bool BoolConverter(std::string s) const;
+    template <typename T>
+    std::string V2String(const T& v) const;
+    template <typename T>
+    std::string Vec2String(const std::vector<T>& v) const;
+};
+```
+
+### メソッド実装の詳細
+- `Parse` メソッドは、BOM の除去、行ごとの処理、セクション定義の検出、キー値ペアの解析を行う。
+- `Converter<T>` メソッドは、文字列から型Tへの変換を行い、変換に失敗した場合は例外を投げる。
+- `BoolConverter` メソッドは、文字列を小文字に変換し、事前定義されたマップを使用してブール値に変換する。
+
+### テンプレートメソッドの詳細
+- `Get<T>` メソッドでは、`if constexpr` を使用して型T に応じた処理を行う。
+- `InsertEntry` と `UpdateEntry` メソッドでは、同じキーが既に存在する場合は例外を投げる。
+
+この設計仕様書は、INIReader クラスの完全な再実装に必要な情報を含んでいます。再実装時には、この仕様書に従ってコードを生成してください。

@@ -1,0 +1,122 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# Memory Class Design Specification
+
+## Overview
+This document specifies the design of the `Memory` class, which provides memory management functionality for a system. The class handles reading and writing operations at different granularities (byte, word, unsigned short) with bounds checking.
+
+## Class Structure
+
+### Public Members
+- **mem**: Array of `unsigned char` of size `MEMORY_SIZE`
+  - Primary storage for the memory contents
+- **placeholder**: Single `unsigned char` used as a fallback return value when accessing invalid addresses
+
+### Constructor
+```cpp
+Memory()
+```
+- Initializes all elements in `mem` to zero using `memset`
+
+## Methods
+
+### Address Validation
+```cpp
+bool check_addr(unsigned int addr)
+```
+- **Purpose**: Validates if an address is within bounds of the memory array
+- **Parameters**:
+  - `addr`: The address to validate (unsigned integer)
+- **Returns**:
+  - `true` if address is valid (0 ≤ addr < MEMORY_SIZE)
+  - `false` otherwise
+- **Note**: Contains commented-out assertion that could be enabled for debugging
+
+### Word Operations
+```cpp
+Immediate read_word(unsigned int addr)
+```
+- **Purpose**: Reads a word (4 bytes) from memory at given address
+- **Parameters**:
+  - `addr`: Starting address of the word to read
+- **Returns**:
+  - The word value as `Immediate` type if address is valid
+  - 0 if address is invalid
+
+```cpp
+void write_word(unsigned int addr, Immediate imm)
+```
+- **Purpose**: Writes a word (4 bytes) to memory at given address
+- **Parameters**:
+  - `addr`: Starting address for the write operation
+  - `imm`: The word value to write as `Immediate` type
+
+### Unsigned Short Operations
+```cpp
+unsigned short read_ushort(unsigned int addr)
+```
+- **Purpose**: Reads an unsigned short (2 bytes) from memory at given address
+- **Parameters**:
+  - `addr`: Starting address of the unsigned short to read
+- **Returns**:
+  - The unsigned short value if address is valid
+  - 0 if address is invalid
+
+```cpp
+void write_ushort(unsigned int addr, unsigned short imm)
+```
+- **Purpose**: Writes an unsigned short (2 bytes) to memory at given address
+- **Parameters**:
+  - `addr`: Starting address for the write operation
+  - `imm`: The unsigned short value to write
+
+### Array Access Operator
+```cpp
+unsigned char &operator[](unsigned int addr)
+```
+- **Purpose**: Provides array-like access to memory with bounds checking
+- **Parameters**:
+  - `addr`: Address to access
+- **Returns**:
+  - Reference to the byte at given address if valid
+  - Reference to `placeholder` if address is invalid
+
+### Debug Method
+```cpp
+void debug()
+```
+- **Purpose**: Outputs a hex dump of memory in range [0x20000-0x10, 0x20000]
+- **Output**:
+  - Prints each byte as hexadecimal value separated by spaces
+  - Ends with newline
+
+## Implementation Notes
+1. All read operations return zero for invalid addresses rather than throwing exceptions
+2. Write operations silently fail for invalid addresses (no exception thrown)
+3. The `Immediate` type is used but not defined in this specification (assumed to be a 4-byte integer type)
+4. `MEMORY_SIZE` must be defined elsewhere in the codebase
+
+## Dependencies
+- `<cstring>` for `memset`
+- `<iostream>` for debug output
+- Assumes existence of `Immediate` type definition
+
+This specification provides all necessary information to reimplement the `Memory` class while preserving its exact behavior and interface.

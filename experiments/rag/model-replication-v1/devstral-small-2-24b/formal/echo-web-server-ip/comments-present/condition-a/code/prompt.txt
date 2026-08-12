@@ -1,0 +1,144 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# IP Address Interface Design Specification
+
+## Overview
+This document specifies the design of an IP address interface for handling both IPv4 and IPv6 addresses in a network application. The implementation provides a common base class (`IPAddr`) with two derived classes (`IPv4Addr` and `IPv6Addr`) that implement specific functionality for each address family.
+
+## Class Hierarchy
+
+### Base Class: `ws::IPAddr`
+An abstract interface class defining the common operations for IP addresses.
+
+#### Public Interface
+- **Virtual Destructor**: `~IPAddr() noexcept = default`
+  - Ensures proper cleanup of derived classes
+- **Version()**: `virtual int Version() const noexcept = 0`
+  - Returns the IP version (AF_INET or AF_INET6)
+- **Size()**: `virtual std::size_t Size() const noexcept = 0`
+  - Returns the size of the socket address structure
+- **Raw()**: `virtual const sockaddr* Raw() const noexcept = 0`
+  - Returns a pointer to the raw socket address structure
+- **Port()**: `virtual std::uint16_t Port() const noexcept = 0`
+  - Returns the port number in host byte order
+- **IPAddress()**: `virtual std::string IPAddress() const noexcept = 0`
+  - Returns the IP address as a string
+
+### Derived Class: `ws::IPv4Addr`
+Implements IPv4-specific functionality.
+
+#### Constants
+- `version`: AF_INET (4)
+- `loop_back`: "127.0.0.1"
+- `any`: "0.0.0.0"
+- `max_length`: 15
+
+#### Public Interface
+- **Constructors**:
+  - From `sockaddr_in`: Converts existing socket address to IPv4Addr
+  - From string and port: Creates new IPv4 address from components
+- Inherited virtual methods (implemented):
+  - Version()
+  - Size()
+  - Raw()
+  - Port()
+  - IPAddress()
+
+#### Private Members
+- `ip_`: Stores the IP address as a string
+- `raw_`: Stores the raw socket address structure
+
+### Derived Class: `ws::IPv6Addr`
+Implements IPv6-specific functionality.
+
+#### Constants
+- `version`: AF_INET6 (10)
+- `loop_back`: "::1"
+- `any`: "::"
+- `max_length`: 45
+
+#### Public Interface
+- **Constructors**:
+  - From `sockaddr_in6`: Converts existing socket address to IPv6Addr
+  - From string and port: Creates new IPv6 address from components
+- Inherited virtual methods (implemented):
+  - Version()
+  - Size()
+  - Raw()
+  - Port()
+  - IPAddress()
+
+#### Private Members
+- `ip_`: Stores the IP address as a string
+- `raw_`: Stores the raw socket address structure
+
+## Concepts
+- **ValidIPAddr**: A concept that checks if a type is either IPv4Addr or IPv6Addr
+  - Used for template constraints where IP address types are required
+
+## Implementation Details
+
+### Construction from sockaddr_in/sockaddr_in6
+1. Store the raw address in the member variable
+2. Convert the binary address to string representation using `inet_ntop()`
+3. Throw an exception if conversion fails (using `ThrowLastSystemError()`)
+
+### Construction from IP string and port
+1. Store the IP string in the member variable
+2. Set up the raw socket address structure:
+   - Family: AF_INET or AF_INET6
+   - Port: Convert to network byte order using `htons()`
+3. Validate the IP string using `inet_pton()`
+4. Throw an exception if validation fails
+
+### Port Handling
+- All port numbers are stored in network byte order in the raw structure
+- The `Port()` method converts from network to host byte order before returning
+
+## Error Handling
+- Uses `ThrowLastSystemError()` for system call failures
+- No exceptions thrown from const methods (marked noexcept)
+
+## Dependencies
+- `<concepts>`: For type constraints
+- `<cstdint>`: For fixed-width integer types
+- `<string>` and `<string_view>`: For string handling
+- `<netinet/in.h>`: For socket address structures
+- `<arpa/inet.h>`: For IP address conversion functions
+
+## Usage Example
+```cpp
+ws::IPv4Addr addr1("192.168.1.1", 8080);
+std::cout << "Version: " << addr1.Version() << std::endl;
+std::cout << "Address: " << addr1.IPAddress() << std::endl;
+std::cout << "Port: " << addr1.Port() << std::endl;
+
+ws::IPv6Addr addr2("::1", 443);
+std::cout << "Version: " << addr2.Version() << std::endl;
+```
+
+## Design Considerations
+1. **Immutability**: Once created, IP addresses cannot be modified (no setters)
+2. **String Storage**: IP strings are stored for easy access and comparison
+3. **Raw Access**: Provides direct access to socket structures for system calls
+4. **Portability**: Uses standard POSIX functions for IP address manipulation
+
+This specification provides all necessary information for a complete reimplementation of the IP address interface while preserving all target-owned identifiers and structure.

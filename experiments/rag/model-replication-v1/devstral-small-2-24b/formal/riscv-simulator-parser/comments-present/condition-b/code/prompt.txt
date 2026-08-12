@@ -1,0 +1,163 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+以下は、与えられたC++ソースコードを解析し、再実装に必要な詳細設計仕様書です。この仕様書は、元のコードから確認できる事実のみを記述しており、推測や補完は行っていません。
+
+---
+
+# 詳細設計仕様書
+
+## 1. クラス図
+```mermaid
+classDiagram
+    class Parser {
+        +static unsigned parse_hex(const std::string &hex)
+        +static void parse(std::istream &in, Memory &mem)
+        +static void parse_hex(std::istream &in, Memory &mem)
+    }
+```
+
+## 2. クラス・メソッド・インターフェース詳細
+| メソッド名 | 戻り値型 | 引数 | 可視性 | const | 副作用 |
+|-------------|----------|-------|--------|-------|--------|
+| `parse_hex` | `unsigned` | `const std::string &hex` | public | static | なし |
+| `parse` | `void` | `std::istream &in`, `Memory &mem` | public | static | `mem`の更新 |
+| `parse_hex` | `void` | `std::istream &in`, `Memory &mem` | public | static | `mem`の更新 |
+
+## 3. シーケンス図
+```mermaid
+sequenceDiagram
+    participant Parser
+    participant std::istream
+    participant Memory
+
+    Note over Parser: parse(std::istream &in, Memory &mem)
+    loop while (in)
+        Parser->>std::istream: getline(line)
+        alt line[0] == '@'
+            Parser->>Parser: base_addr = strtol(line.c_str() + 1, NULL, 16)
+        else
+            Parser->>std::stringstream: ss(line)
+            loop while (ss >> hex)
+                Parser->>Parser: data = parse_hex(hex)
+                Parser->>Memory: mem[base_addr++] = data
+            end
+        end
+    end
+
+    Note over Parser: parse_hex(std::istream &in, Memory &mem)
+    loop while (in >> hex)
+        Parser->>Parser: word = parse_hex(hex)
+        Parser->>Memory: write_word(base_addr, word)
+        Parser->>Parser: base_addr += 4
+    end
+```
+
+## 4. メソッド仕様書
+
+### `parse_hex(const std::string &hex)`
+- **目的**: 16進数文字列を`unsigned`整数に変換する。
+- **引数**:
+  - `hex`: 16進数文字列（例: `"A1"`）。
+- **戻り値**: 変換後の`unsigned`整数。
+- **副作用**: なし。
+- **エラー処理**: `strtol`の動作に依存する。
+
+### `parse(std::istream &in, Memory &mem)`
+- **目的**: 入力ストリームから16進数データを読み込み、`Memory`に書き込む。
+- **引数**:
+  - `in`: 入力ストリーム（例: ファイルや`std::cin`）。
+  - `mem`: データを書き込む`Memory`オブジェクト。
+- **動作**:
+  1. `@`で始まる行はアドレス指定として扱う。
+  2. その他の行は16進数データとして扱い、`mem[base_addr]`に書き込む。
+- **副作用**: `mem`の更新。
+- **エラー処理**: 入力ストリームが無効な場合、エラーメッセージを出力する。
+
+### `parse_hex(std::istream &in, Memory &mem)`
+- **目的**: 入力ストリームから16進数データを読み込み、`Memory`に4バイト単位で書き込む。
+- **引数**:
+  - `in`: 入力ストリーム（例: ファイルや`std::cin`）。
+  - `mem`: データを書き込む`Memory`オブジェクト。
+- **動作**:
+  1. 各行から16進数データを読み込み、`parse_hex`で変換する。
+  2. `write_word(base_addr, word)`で4バイト単位で書き込む。
+- **副作用**: `mem`の更新。
+- **エラー処理**: 入力ストリームが無効な場合、エラーメッセージを出力する。
+
+## 5. 処理フロー図
+```mermaid
+graph TD
+    A[開始] --> B{inが有効か?}
+    B -->|Yes| C[getline(line)]
+    C --> D{line[0] == '@'?}
+    D -->|Yes| E[base_addr = strtol(line.c_str() + 1, NULL, 16)]
+    D -->|No| F[ss << line]
+    F --> G{ss >> hex?}
+    G -->|Yes| H[data = parse_hex(hex)]
+    H --> I[mem[base_addr++] = data]
+    G -->|No| J[終了]
+    E --> C
+    I --> C
+
+    K[開始] --> L[in >> hex?]
+    L -->|Yes| M[word = parse_hex(hex)]
+    M --> N[write_word(base_addr, word)]
+    N --> O[base_addr += 4]
+    O --> L
+    L -->|No| P[終了]
+```
+
+## 6. 状態遷移・副作用
+| 状態 | 更新条件 | 変更対象 | 副作用 |
+|------|-----------|-----------|--------|
+| `base_addr` | `@`で始まる行が読み込まれた場合 | `base_addr = strtol(line.c_str() + 1, NULL, 16)` | なし |
+| `mem[base_addr]` | 16進数データが読み込まれた場合 | `mem[base_addr++] = data` | `mem`の更新 |
+| `base_addr` | `parse_hex`で4バイト書き込んだ場合 | `base_addr += 4` | `mem`の更新 |
+
+## 7. データ変換・制約
+| 入力 | 出力 | 変換規則 | 制約 |
+|------|------|-----------|-------|
+| 16進数文字列 (`std::string`) | `unsigned`整数 | `strtol(hex.c_str(), NULL, 16)` | なし |
+| `@<アドレス>`形式の行 | アドレス値 (`unsigned`) | `strtol(line.c_str() + 1, NULL, 16)` | なし |
+| 16進数データ (`std::string`) | `mem[base_addr]` | `parse_hex(hex)` | `mem`のサイズ制限（`MEMORY_SIZE = 0x400000`） |
+
+## 追加詳細設計情報
+
+### 完全再構築台帳
+- **クラス名**: `Parser`
+- **メソッド**:
+  - `static unsigned parse_hex(const std::string &hex)`
+  - `static void parse(std::istream &in, Memory &mem)`
+  - `static void parse_hex(std::istream &in, Memory &mem)`
+- **依存関係**:
+  - `std::string`, `std::istream`, `Memory`（外部ヘッダーから利用）。
+- **型・定数**:
+  - `unsigned char`（`Memory`のメンバーとして使用）。
+  - `MEMORY_SIZE = 0x400000`（`Memory`クラスで定義）。
+
+### 注意事項
+- `parse_hex`は2つ存在するが、引数と動作が異なるため注意。
+- `strtol`の使用により、16進数文字列の解析に失敗した場合の挙動は未定義（エラー処理なし）。
+- `Memory`クラスの`write_word`メソッドは4バイト単位で書き込むため、`parse_hex`でも4バイト単位で処理する。
+
+---
+
+この仕様書を基に、別のLLMが再実装を行うことが可能です。

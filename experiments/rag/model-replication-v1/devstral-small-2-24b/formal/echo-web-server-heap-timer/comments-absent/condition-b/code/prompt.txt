@@ -1,0 +1,344 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# HeapTimer クラスの詳細設計仕様書
+
+## 1. 概要
+
+`HeapTimer` クラスは、優先度付きキュー（ヒープ）を使用してタイムアウトイベントを管理するためのコンテナです。各アイテムにはキー、期限時刻、およびコールバック関数が関連付けられています。このクラスは、非同期処理やタイマーイベントの管理に適しています。
+
+## 2. クラス図
+
+```mermaid
+classDiagram
+    class HeapTimer {
+        -Clock::duration expiration
+        -TimeOutCallback callback
+        +HeapTimer(logger)
+        +Push(key, duration, callback)
+        +Push(key, time_point, callback)
+        +Adjust(key, duration)
+        +Adjust(key, time_point)
+        +Tick()
+        +Remove(key)
+        +Pop()
+        +Clear()
+        +Contain(key)
+        +Empty()
+        +Size()
+        +ToNextTick()
+    }
+
+    class Node {
+        -Key key
+        -Clock::time_point expiration
+        -TimeOutCallback callback
+        +Expired() bool
+        +Swap(Node&) void
+    }
+
+    HeapTimer "1" *-- "0..*" Node : contains
+```
+
+## 3. クラス・メソッド・インターフェース詳細
+
+| メンバ | 型 | 説明 |
+|--------|------|-------|
+| `Clock` | `std::chrono::steady_clock` | 使用する時計型 |
+| `TimeOutCallback` | `std::function<void(const Key&)>` | コールバック関数型 |
+| `logger_` | `log::Logger::Ptr` | ロガーインスタンス |
+| `key_to_idx_` | `std::unordered_map<Key, std::size_t>` | キーからインデックスへのマッピング |
+| `nodes_` | `std::deque<Node>` | ヒープノードの配列 |
+
+### コンストラクタ
+
+```cpp
+HeapTimer(log::Logger::Ptr logger = log::RootLogger()) noexcept;
+```
+
+- パラメータ: `logger` - ロガーインスタンス（デフォルトはルートロガー）
+- 副作用: `logger_` を初期化する
+
+### メソッド
+
+| メソッド | シグネチャ | 説明 |
+|----------|------------|-------|
+| `Push` | `void Push(const Key& key, Clock::duration expiration, TimeOutCallback callback) noexcept` | 新しいタイムアウトイベントを追加する（期間指定） |
+| `Push` | `void Push(const Key& key, Clock::time_point expiration, TimeOutCallback callback) noexcept` | 新しいタイムアウトイベントを追加する（時刻指定） |
+| `Adjust` | `void Adjust(const Key& key, Clock::duration expiration)` | 既存のタイムアウトイベントの期限を更新する（期間指定） |
+| `Adjust` | `void Adjust(const Key& key, Clock::time_point expiration)` | 既存のタイムアウトイベントの期限を更新する（時刻指定） |
+| `Tick` | `void Tick() noexcept` | 期限切れのイベントを実行する |
+| `Remove` | `bool Remove(const Key& key) noexcept` | 指定したキーのイベントを削除する |
+| `Pop` | `Key Pop() noexcept` | 最も近い期限のイベントを取り出す |
+| `Clear` | `void Clear() noexcept` | 全てのイベントをクリアする |
+| `Contain` | `bool Contain(const Key& key) const noexcept` | 指定したキーが存在するか確認する |
+| `Empty` | `bool Empty() const noexcept` | イベントが空であるか確認する |
+| `Size` | `std::size_t Size() const noexcept` | イベントの数を取得する |
+| `ToNextTick` | `Clock::duration ToNextTick() noexcept` | 次のイベントまでの待機時間を取得する |
+
+## 4. シーケンス図
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant HeapTimer
+    participant Node
+
+    Client->>HeapTimer: Push(key, duration, callback)
+    HeapTimer->>Node: Create new node
+    HeapTimer->>HeapTimer: ShiftUp()
+    HeapTimer-->>Client: Success
+
+    Client->>HeapTimer: Tick()
+    HeapTimer->>Node: Check expiration
+    alt Expired
+        HeapTimer->>Node: Execute callback
+        HeapTimer->>HeapTimer: Remove node
+    else Not expired
+        HeapTimer-->>Client: No action
+    end
+
+    Client->>HeapTimer: Pop()
+    HeapTimer->>HeapTimer: RemoveByIndex(0)
+    HeapTimer-->>Client: Return key
+```
+
+## 5. メソッド仕様書
+
+### Push
+
+```cpp
+void Push(const Key& key, Clock::duration expiration,
+          TimeOutCallback callback) noexcept;
+```
+
+- **目的**: 新しいタイムアウトイベントを追加する
+- **引数**:
+  - `key`: イベントの一意識別子
+  - `expiration`: 期限までの期間（現在時刻から）
+  - `callback`: 期限切れ時に実行されるコールバック関数
+- **戻り値**: なし
+- **副作用**:
+  - 新しいノードをヒープに追加する
+  - キーとインデックスのマッピングを更新する
+  - ヒープ構造を維持するためにShiftUpを行う
+- **例外**: 投げない
+
+### Tick
+
+```cpp
+void Tick() noexcept;
+```
+
+- **目的**: 期限切れのイベントを実行する
+- **引数**: なし
+- **戻り値**: なし
+- **副作用**:
+  - 期限切れのイベントのコールバックを実行する
+  - 実行されたイベントをヒープから削除する
+  - コールバック実行中に例外が発生した場合はログに記録する
+- **例外**: 投げない
+
+### Adjust
+
+```cpp
+void Adjust(const Key& key, Clock::time_point expiration);
+```
+
+- **目的**: 既存のタイムアウトイベントの期限を更新する
+- **引数**:
+  - `key`: 更新対象のイベントのキー
+  - `expiration`: 新しい期限時刻
+- **戻り値**: なし
+- **副作用**:
+  - 指定したキーのノードの期限を更新する
+  - 期限が短くなった場合はShiftUpを行う
+  - 期限が長くなった場合はShiftDownを行う
+- **例外**: `std::out_of_range`（キーが存在しない場合）
+
+## 6. 処理フロー図
+
+```mermaid
+flowchart TD
+    A[Push開始] --> B{キー存在?}
+    B -- Yes --> C[Adjust呼び出し]
+    B -- No --> D[新規ノード作成]
+    D --> E[key_to_idx_更新]
+    E --> F[nodes_追加]
+    F --> G[ShiftUp]
+    G --> H[Push終了]
+
+    I[Tick開始] --> J{空?}
+    J -- Yes --> K[Tick終了]
+    J -- No --> L[先頭ノード取得]
+    L --> M{期限切れ?}
+    M -- Yes --> N[コールバック実行]
+    N --> O[Pop呼び出し]
+    O --> P{空?}
+    P -- Yes --> K
+    P -- No --> J
+    M -- No --> K
+
+    Q[Adjust開始] --> R[key_to_idx_からインデックス取得]
+    R --> S{コールバック指定?}
+    S -- Yes --> T[コールバック更新]
+    S -- No --> U[期限更新]
+    U --> V{期限短縮?}
+    V -- Yes --> W[ShiftUp]
+    V -- No --> X[ShiftDown]
+    X --> Y[Adjust終了]
+```
+
+## 7. 状態遷移・副作用
+
+| 状態 | 遷移条件 | 副作用 |
+|------|----------|--------|
+| 空 | `Clear()` または全てのイベントが削除された時 | `nodes_` と `key_to_idx_` をクリアする |
+| 追加前 | 新規キーで `Push()` が呼ばれた時 | 新しいノードを作成し、ヒープに挿入する |
+| 更新前 | 既存キーで `Adjust()` が呼ばれた時 | ノードの期限を更新し、必要に応じてヒープ構造を修正する |
+| 実行前 | `Tick()` が呼ばれた時 | 期限切れノードのコールバックを実行し、削除する |
+
+## 8. データ変換・制約
+
+### ヒープ操作
+
+- **ShiftUp**: ノードを親と比較し、必要に応じて上方向へ移動させる
+  - 比較基準: `expiration` の小さい方が優先（最小ヒープ）
+  - 終了条件: 親よりも大きい場合またはルートに到達した場合
+
+- **ShiftDown**: ノードを子と比較し、必要に応じて下方向へ移動させる
+  - 比較基準: `expiration` の小さい方が優先（最小ヒープ）
+  - 終了条件: 両方の子よりも小さい場合または葉に到達した場合
+
+### 制約
+
+- キーは一意である必要がある
+- `Clock::duration` は正の値であること
+- コールバック関数は例外を投げる可能性があるため、呼び出し側で適切な例外処理を行う必要がある
+
+## 9. 完全再構築台帳
+
+### ファイル構造
+
+```cpp
+#pragma once
+
+#include "log.h"
+#include "util.h"
+
+#include <algorithm>
+#include <cassert>
+#include <chrono>
+#include <compare>
+#include <deque>
+#include <functional>
+#include <optional>
+#include <stdexcept>
+#include <unordered_map>
+
+namespace ws {
+
+template <typename Key>
+class HeapTimer {
+public:
+    using Clock = std::chrono::steady_clock;
+    using TimeOutCallback = std::function<void(const Key&)>;
+
+    // コンストラクタ、メソッドの完全なシグネチャと実装
+    // ...（省略）
+
+private:
+    struct Node {
+        Key key;
+        Clock::time_point expiration;
+        TimeOutCallback callback;
+
+        bool Expired() const noexcept;
+        void Swap(Node&) noexcept;
+        friend std::weak_ordering operator<=>(const Node& lhs,
+                                              const Node& rhs) noexcept;
+    };
+
+    // プライベートメソッドの完全なシグネチャと実装
+    // ...（省略）
+
+    log::Logger::Ptr logger_;
+    std::unordered_map<Key, std::size_t> key_to_idx_;
+    std::deque<Node> nodes_;
+};
+
+} // namespace ws
+```
+
+### 型定義
+
+| 型名 | 種別 | 実体 |
+|------|------|-------|
+| `Clock` | typedef | `std::chrono::steady_clock` |
+| `TimeOutCallback` | typedef | `std::function<void(const Key&)>` |
+
+### メンバ変数
+
+| 名前 | 型 | 初期値 | 説明 |
+|------|------|--------|-------|
+| `logger_` | `log::Logger::Ptr` | `log::RootLogger()` | ロガーインスタンス |
+| `key_to_idx_` | `std::unordered_map<Key, std::size_t>` | 空マップ | キーからインデックスへのマッピング |
+| `nodes_` | `std::deque<Node>` | 空デック | ヒープノードの配列 |
+
+### メソッド実装
+
+- 全てのメソッドは、元コードと同じシグネチャ、戻り値型、例外指定を持つ
+- `noexcept` 指定が付いているメソッドは副作用がないことを保証する
+- `assert` を使用した不変条件のチェックが含まれる
+
+## 10. 追加詳細設計情報
+
+### ヒープ構造の具体的な動作
+
+1. **挿入**:
+   - 新しいノードをデックの末尾に追加する
+   - `ShiftUp` を呼び出してヒープ構造を修正する
+   - `ShiftUp` は親と比較し、必要に応じて上方向へ移動させる
+
+2. **削除**:
+   - 削除対象のノードを末尾のノードと交換する
+   - 末尾のノードを削除する
+   - `ShiftDown` を呼び出してヒープ構造を修正する
+   - `ShiftDown` は子と比較し、必要に応じて下方向へ移動させる
+
+3. **更新**:
+   - ノードの期限を更新する
+   - 期限が短くなった場合は `ShiftUp` を呼び出す
+   - 期限が長くなった場合は `ShiftDown` を呼び出す
+
+### エラー処理
+
+- コールバック実行中に例外が発生した場合、ログに記録される
+- キーが存在しない場合、`Adjust` は `std::out_of_range` を投げる
+- `Pop` は空のヒープから呼び出された場合に `assert` する（デバッグ時のみ）
+
+### パフォーマンス特性
+
+- `Push`: O(log n) - ヒープへの挿入とShiftUpによる修正
+- `Adjust`: O(log n) - ノードの更新と必要な方向への移動
+- `Tick`: O(k log n) - k個の期限切れイベントを処理する場合
+- `Remove`: O(log n) - ヒープからの削除とShiftDownによる修正
+
+この設計仕様書は、元コードから確認できる事実のみを記述しており、再実装に必要な情報が網羅されています。

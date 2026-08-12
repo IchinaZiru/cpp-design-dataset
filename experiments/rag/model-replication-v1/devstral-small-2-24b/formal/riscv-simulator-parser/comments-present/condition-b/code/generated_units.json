@@ -1,0 +1,1 @@
+{"units":[{"content":"#pragma once\n#include <string>\n#include <istream>\n#include \"Memory.hpp\"\n\nclass Parser {\npublic:\n    static unsigned parse_hex(const std::string &hex);\n    static void parse(std::istream &in, Memory &mem);\n    static void parse_hex(std::istream &in, Memory &mem);\n};","file_id":"F01","unit_id":"U01"}]}

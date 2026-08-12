@@ -1,0 +1,170 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+以下は、与えられたC++ソースコードを基にした詳細な設計仕様書です。この仕様書は、別のLLMが再実装できるように作成されています。
+
+---
+
+# 設計仕様書: I/O オブジェクト
+
+## 概要
+この仕様書は、`ws::io` 名前空間内のI/Oオブジェクトを定義します。これらのオブジェクトはバッファとの読み書き操作をサポートします。
+
+## 依存関係
+- `include/util.h`: エラーハンドリング機能（`ThrowLastSystemError()`）を提供する。
+- `src/containers/buffer.h`: バッファクラスを定義する。
+
+## 名前空間構造
+```cpp
+namespace ws {
+    class Buffer;  // 前方宣言
+
+    namespace io {
+        // I/Oインターフェースと実装クラス
+    }
+}
+```
+
+## クラス定義
+
+### `IReader`
+**役割**: バッファからの読み取り操作を抽象化するインターフェース。
+
+```cpp
+class IReader {
+public:
+    virtual ~IReader() noexcept = default;
+    virtual std::size_t ReadFrom(Buffer& buf) = 0;
+};
+```
+
+### `IWriter`
+**役割**: バッファへの書き込み操作を抽象化するインターフェース。
+
+```cpp
+class IWriter {
+public:
+    virtual ~IWriter() noexcept = default;
+    virtual std::size_t WriteTo(Buffer& buf) = 0;
+};
+```
+
+### `IReadWriter`
+**役割**: 読み書き両方の操作をサポートするインターフェース。
+
+```cpp
+class IReadWriter : public virtual IReader, public virtual IWriter {};
+```
+
+---
+
+## 実装クラス
+
+### `Null`
+**役割**: バッファの読み書きスペースを消費するだけで、実際にはデータを読み書きしないダミーI/O。
+
+```cpp
+class Null : public virtual IReadWriter {
+public:
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+};
+```
+
+#### メソッド仕様
+- `WriteTo`: バッファの書き込み可能サイズを消費し、そのサイズを返す。
+- `ReadFrom`: バッファから読み取り可能なデータを全て取得し、そのサイズを返す。
+
+---
+
+### `StringStream`
+**役割**: `std::istream`/`std::ostream`とバッファ間のI/O操作を橋渡しする。
+
+```cpp
+class StringStream : public virtual IReadWriter {
+public:
+    explicit StringStream(std::istream& read, std::ostream& write) noexcept;
+    // コピー/ムーブ禁止
+
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+
+private:
+    std::istream& read_;
+    std::ostream& write_;
+};
+```
+
+#### メソッド仕様
+- `WriteTo`:
+  - `read_`から文字列を読み取り、バッファに追加する。
+  - 読み取った文字数を返す。
+- `ReadFrom`:
+  - バッファから全てのデータを文字列として取得し、`write_`に書き込む。
+  - 書き込んだ文字数を返す。
+
+---
+
+### `FileDescriptor`
+**役割**: ファイルディスクリプタとバッファ間のI/O操作を橋渡しする。
+
+```cpp
+class FileDescriptor : public virtual IReadWriter {
+public:
+    explicit FileDescriptor(ws::FileDescriptor read, ws::FileDescriptor write) noexcept;
+    // コピー/ムーブ禁止
+
+    std::size_t WriteTo(Buffer& buf) override;
+    std::size_t ReadFrom(Buffer& buf) override;
+
+private:
+    ws::FileDescriptor read_;
+    ws::FileDescriptor write_;
+};
+```
+
+#### メソッド仕様
+- `WriteTo`:
+  - バッファの書き込み可能領域を読み取り、データをバッファに追加する。
+  - 読み取ったバイト数を返す。
+  - 追加バッファ (`ext_bytes`) を使用して、バッファが小さい場合でもデータを読み取る。
+- `ReadFrom`:
+  - バッファから読み取り可能なデータを書き込む。
+  - 書き込んだバイト数を返す。
+
+---
+
+## 注意事項
+1. **名前の保持**: `Fxx/Uxx`識別子はそのまま使用する。
+2. **依存関係**: `Buffer`クラスは前方宣言のみで、実装は外部に委ねる。
+3. **エラーハンドリング**: システムエラー発生時は`ThrowLastSystemError()`を呼び出す。
+
+---
+
+## 例
+```cpp
+// 使用例（参考）
+ws::io::StringStream io(std::cin, std::cout);
+ws::Buffer buf;
+io.WriteTo(buf);  // 標準入力からバッファに書き込む
+io.ReadFrom(buf); // バッファから標準出力に読み取る
+```
+
+この仕様書を基に、別のLLMが再実装を行うことができます。

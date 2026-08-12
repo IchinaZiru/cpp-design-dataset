@@ -1,0 +1,181 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# Design Specification for RISC-V Instruction Decoding
+
+## Overview
+This specification documents the design of a RISC-V instruction decoding system implemented in C++. The code provides structures and methods to parse, validate, and debug RISC-V machine instructions.
+
+## Core Components
+
+### 1. Basic Types and Constants
+
+#### `Instruction` Type
+- **Type**: `unsigned int`
+- **Purpose**: Represents a raw RISC-V instruction word (32 bits)
+
+#### `Immediate` Type
+- **Type**: Not explicitly defined in the code, but used as part of `InstructionBase`
+- **Purpose**: Represents immediate values for various instruction formats
+
+### 2. InstructionBase Structure
+
+#### Fields
+| Field | Type | Description |
+|-------|------|-------------|
+| `opcode` | `unsigned` | Operation code (7 bits) |
+| `rs1`, `rs2`, `rd` | `unsigned` | Source/destination registers (5 bits each) |
+| `funct3`, `funct7` | `unsigned` | Function codes (3 and 7 bits respectively) |
+| `imm` | `Immediate` | Immediate value (format varies by instruction type) |
+| `inst` | `Instruction` | Raw instruction word |
+| `t` | `Type` enum | Instruction format type |
+
+#### Type Enum
+```cpp
+enum Type {
+    R, I, S, B, U, J
+};
+```
+- **R**: Register instructions (e.g., ADD)
+- **I**: Immediate instructions (e.g., ADDI)
+- **S**: Store instructions (e.g., SW)
+- **B**: Branch instructions (e.g., BEQ)
+- **U**: Upper immediate instructions (e.g., LUI)
+- **J**: Jump instructions (e.g., JAL)
+
+#### Methods
+
+##### Constructor
+```cpp
+InstructionBase()  // Default constructor initializes all fields to 0
+InstructionBase(unsigned)  // Special constructor for NOP instruction
+```
+
+##### Static Utility Functions
+```cpp
+static constexpr unsigned int bin_mask(int digits)
+static unsigned int get_digits(unsigned int n, int hi, int lo)
+static unsigned int expand_digit(unsigned int digit, int lo)
+```
+
+##### Validation Methods
+```cpp
+bool is_valid(const std::string &key)  // Checks if field access is valid for instruction type
+void verify(const std::string &key)    // Throws exception if access would be invalid
+```
+
+##### Debugging Method
+```cpp
+void debug()  // Prints human-readable representation of instruction
+```
+
+##### Type Checking Methods
+```cpp
+bool has_op1()   // Returns true if instruction uses rs1
+bool has_op2()   // Returns true if instruction uses rs2
+```
+
+### 3. Instruction Format Structures
+
+#### InstructionR (Register Format)
+- **Fields**: Inherits all from `InstructionBase`
+- **Purpose**: Decodes R-type instructions (e.g., ADD, SUB)
+
+#### InstructionI (Immediate Format)
+- **Fields**: Inherits all from `InstructionBase`
+- **Purpose**: Decodes I-type instructions (e.g., ADDI, LW)
+
+#### InstructionS (Store Format)
+- **Fields**: Inherits all from `InstructionBase`
+- **Purpose**: Decodes S-type instructions (e.g., SW, SH)
+
+#### InstructionB (Branch Format)
+- **Fields**: Inherits all from `InstructionBase`
+- **Purpose**: Decodes B-type instructions (e.g., BEQ, BNE)
+
+#### InstructionU (Upper Immediate Format)
+- **Fields**: Inherits all from `InstructionBase`
+- **Purpose**: Decodes U-type instructions (e.g., LUI, AUIPC)
+
+#### InstructionJ (Jump Format)
+- **Fields**: Inherits all from `InstructionBase`
+- **Purpose**: Decodes J-type instructions (e.g., JAL, JALR)
+
+## Implementation Details
+
+### Field Extraction
+All instruction format structures extract fields using the same bit manipulation pattern:
+1. Extract opcode from bits [6:0]
+2. Extract register fields from their respective positions
+3. Construct immediate value according to format-specific rules
+
+### Immediate Value Construction
+Each instruction type constructs its immediate value differently:
+- **R-type**: No immediate (field unused)
+- **I-type**: Sign-extended 12-bit immediate
+- **S-type**: Complex construction from multiple bit fields
+- **B-type**: Complex construction with special handling for bit[7]
+- **U-type**: 32-bit immediate formed by shifting upper bits
+- **J-type**: Complex construction with special handling for bit[20]
+
+### Special Cases
+1. **NOP Instruction**:
+   - Created via `InstructionBase(0)`
+   - Has special `inst == -1` marker
+   - `is_nop()` method checks this condition
+
+2. **Invalid Access Handling**:
+   - Throws `InvalidAccess` exception when invalid field is accessed for instruction type
+   - Validation performed via `verify()` method
+
+## Usage Pattern
+
+```cpp
+// Decoding an instruction
+Instruction raw_inst = 0x00A50293; // Example: addi x11, x10, 10
+auto inst = InstructionI(raw_inst); // Create appropriate format object
+
+// Accessing fields (with validation)
+inst.verify("rs1"); // Throws if invalid for this instruction type
+unsigned src_reg = inst.rs1;
+
+// Debugging
+inst.debug(); // Prints human-readable representation
+```
+
+## Dependencies
+- `<utility>`: For general utilities
+- `"Common.h"`: Project-specific header (contents not specified)
+- `<string>`: For string operations in debug output
+- `<iostream>`: For debug output
+
+## Design Considerations
+1. **Type Safety**: Uses `verify()` method to prevent invalid field access
+2. **Extensibility**: Clear structure for adding new instruction formats
+3. **Debugging Support**: Built-in `debug()` method for human-readable output
+4. **NOP Handling**: Special case for NOP instructions with dedicated marker
+
+## Open Questions (Not Specified in Code)
+1. Exact definition of `Immediate` type and its operations
+2. Contents of `"Common.h"` header file
+3. Specific behavior of `expand_digit()` function beyond what's shown
+4. Complete list of valid instruction mnemonics for debug output
+
+This specification provides all necessary information to reimplement the given C++ code while preserving all target-owned identifiers and structure.

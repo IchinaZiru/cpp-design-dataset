@@ -1,0 +1,497 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# IPアドレスインターフェースの設計仕様書
+
+## 概要
+この設計仕様書は、IPv4およびIPv6アドレスを扱うためのC++クラス構造について記述します。再実装に必要なすべての情報を含み、元コードから確認できる事実のみを基にしています。
+
+## 完全再構築台帳
+
+### F01/U01 (include/ip.h)
+
+#### ファイル構造
+```cpp
+#pragma once
+
+#include <concepts>
+#include <cstdint>
+#include <string>
+#include <string_view>
+
+#include <netinet/in.h>
+
+namespace ws {
+
+// クラス定義
+class IPAddr;
+class IPv4Addr;
+class IPv6Addr;
+
+// 概念定義
+template <typename T>
+concept ValidIPAddr;
+
+} // namespace ws
+```
+
+#### 型定義
+
+| 名前 | 種別 | 実体 |
+|------|------|------|
+| `ws::IPAddr` | 抽象クラス | IPアドレスインターフェース |
+| `ws::IPv4Addr` | 具体クラス | IPv4アドレス実装 |
+| `ws::IPv6Addr` | 具体クラス | IPv6アドレス実装 |
+| `ws::ValidIPAddr<T>` | 概念 | `T`が`IPv4Addr`または`IPv6Addr`である |
+
+#### メンバ定義
+
+**IPAddr (抽象基底クラス)**
+```cpp
+virtual ~IPAddr() noexcept = default;
+virtual int Version() const noexcept = 0;
+virtual std::size_t Size() const noexcept = 0;
+virtual const sockaddr* Raw() const noexcept = 0;
+virtual std::uint16_t Port() const noexcept = 0;
+virtual std::string IPAddress() const noexcept = 0;
+```
+
+**IPv4Addr**
+```cpp
+static constexpr int version {AF_INET};
+static constexpr std::string_view loop_back {"127.0.0.1"};
+static constexpr std::string_view any {"0.0.0.0"};
+static constexpr std::size_t max_length {15};
+using RawType = sockaddr_in;
+
+explicit IPv4Addr(sockaddr_in addr);
+explicit IPv4Addr(std::string ip, std::uint16_t port);
+
+int Version() const noexcept override;
+std::size_t Size() const noexcept override;
+const sockaddr* Raw() const noexcept override;
+std::uint16_t Port() const noexcept override;
+std::string IPAddress() const noexcept override;
+
+private:
+    std::string ip_;
+    sockaddr_in raw_ {};
+```
+
+**IPv6Addr**
+```cpp
+static constexpr int version {AF_INET6};
+static constexpr std::string_view loop_back {"::1"};
+static constexpr std::string_view any {"::"};
+static constexpr std::size_t max_length {45};
+using RawType = sockaddr_in6;
+
+explicit IPv6Addr(sockaddr_in6 addr);
+explicit IPv6Addr(std::string ip, std::uint16_t port);
+
+int Version() const noexcept override;
+std::size_t Size() const noexcept override;
+const sockaddr* Raw() const noexcept override;
+std::uint16_t Port() const noexcept override;
+std::string IPAddress() const noexcept override;
+
+private:
+    std::string ip_;
+    sockaddr_in6 raw_ {};
+```
+
+**ValidIPAddr概念**
+```cpp
+template <typename T>
+concept ValidIPAddr = std::same_as<T, IPv4Addr> || std::same_as<T, IPv6Addr>;
+```
+
+### F02/U02 (src/ip/ip.cpp)
+
+#### 実装詳細
+
+**IPv4Addrコンストラクタ**
+```cpp
+IPv4Addr::IPv4Addr(sockaddr_in addr) : raw_ {std::move(addr)} {
+    std::array<char, max_length + 1> ip;
+    if (inet_ntop(version, &raw_.sin_addr, ip.data(), ip.size())) {
+        ip_ = ip.data();
+    } else {
+        ThrowLastSystemError();
+    }
+}
+
+IPv4Addr::IPv4Addr(std::string ip, const std::uint16_t port) :
+    ip_ {std::move(ip)} {
+    raw_.sin_family = version;
+    raw_.sin_port = htons(port);
+    if (inet_pton(version, ip_.data(), &raw_.sin_addr) != 1) {
+        ThrowLastSystemError();
+    }
+}
+```
+
+**IPv4Addrメソッド**
+```cpp
+int IPv4Addr::Version() const noexcept { return version; }
+
+std::size_t IPv4Addr::Size() const noexcept { return sizeof(raw_); }
+
+std::uint16_t IPv4Addr::Port() const noexcept { return ntohs(raw_.sin_port); }
+
+std::string IPv4Addr::IPAddress() const noexcept { return ip_; }
+
+const sockaddr* IPv4Addr::Raw() const noexcept {
+    return reinterpret_cast<const sockaddr*>(&raw_);
+}
+```
+
+**IPv6Addrコンストラクタ**
+```cpp
+IPv6Addr::IPv6Addr(sockaddr_in6 addr) : raw_ {std::move(addr)} {
+    std::array<char, max_length + 1> ip;
+    if (inet_ntop(version, &raw_.sin6_addr, ip.data(), ip.size())) {
+        ip_ = ip.data();
+    } else {
+        ThrowLastSystemError();
+    }
+}
+
+IPv6Addr::IPv6Addr(std::string ip, const std::uint16_t port) :
+    ip_ {std::move(ip)} {
+    raw_.sin6_family = version;
+    raw_.sin6_port = htons(port);
+    if (inet_pton(version, ip_.data(), &raw_.sin6_addr) != 1) {
+        ThrowLastSystemError();
+    }
+}
+```
+
+**IPv6Addrメソッド**
+```cpp
+int IPv6Addr::Version() const noexcept { return version; }
+
+std::size_t IPv6Addr::Size() const noexcept { return sizeof(raw_); }
+
+std::uint16_t IPv6Addr::Port() const noexcept { return ntohs(raw_.sin6_port); }
+
+std::string IPv6Addr::IPAddress() const noexcept { return ip_; }
+
+const sockaddr* IPv6Addr::Raw() const noexcept {
+    return reinterpret_cast<const sockaddr*>(&raw_);
+}
+```
+
+## クラス図
+
+```mermaid
+classDiagram
+    class IPAddr {
+        <<interface>>
+        +Version() int
+        +Size() size_t
+        +Raw() const sockaddr*
+        +Port() uint16_t
+        +IPAddress() string
+    }
+
+    class IPv4Addr {
+        -ip_ string
+        -raw_ sockaddr_in
+        +version int
+        +loop_back string_view
+        +any string_view
+        +max_length size_t
+        +RawType type
+        +IPv4Addr(sockaddr_in)
+        +IPv4Addr(string, uint16_t)
+        +Version() int
+        +Size() size_t
+        +Raw() const sockaddr*
+        +Port() uint16_t
+        +IPAddress() string
+    }
+
+    class IPv6Addr {
+        -ip_ string
+        -raw_ sockaddr_in6
+        +version int
+        +loop_back string_view
+        +any string_view
+        +max_length size_t
+        +RawType type
+        +IPv6Addr(sockaddr_in6)
+        +IPv6Addr(string, uint16_t)
+        +Version() int
+        +Size() size_t
+        +Raw() const sockaddr*
+        +Port() uint16_t
+        +IPAddress() string
+    }
+
+    IPAddr <|-- IPv4Addr
+    IPAddr <|-- IPv6Addr
+```
+
+## クラス・メソッド・インターフェース詳細
+
+### IPAddr (抽象基底クラス)
+
+| メンバ | 型 | 属性 | 説明 |
+|--------|----|-------|------|
+| `~IPAddr()` | - | virtual, noexcept | デストラクタ |
+| `Version()` | int | virtual, const, noexcept | IPバージョンを返す (AF_INETまたはAF_INET6) |
+| `Size()` | size_t | virtual, const, noexcept | ソケットアドレスのサイズをバイト単位で返す |
+| `Raw()` | const sockaddr* | virtual, const, noexcept | 生のソケットアドレス構造体へのポインタを返す |
+| `Port()` | uint16_t | virtual, const, noexcept | ポート番号をホストバイトオーダーで返す |
+| `IPAddress()` | string | virtual, const, noexcept | IPアドレス文字列を返す |
+
+### IPv4Addr
+
+| メンバ | 型 | 属性 | 説明 |
+|--------|----|-------|------|
+| `version` | int | static, constexpr | AF_INET (2) |
+| `loop_back` | string_view | static, constexpr | "127.0.0.1" |
+| `any` | string_view | static, constexpr | "0.0.0.0" |
+| `max_length` | size_t | static, constexpr | 15 (IPv4アドレス文字列の最大長) |
+| `RawType` | - | using | sockaddr_in型のエイリアス |
+| `ip_` | string | private | IPアドレス文字列 |
+| `raw_` | sockaddr_in | private | 生のソケットアドレス構造体 |
+| `IPv4Addr(sockaddr_in)` | - | explicit | sockaddr_inから生成 |
+| `IPv4Addr(string, uint16_t)` | - | explicit | IP文字列とポートから生成 |
+| `Version()` | int | override, const, noexcept | 2を返す |
+| `Size()` | size_t | override, const, noexcept | sizeof(sockaddr_in)を返す |
+| `Raw()` | const sockaddr* | override, const, noexcept | &raw_をsockaddr*にキャストして返す |
+| `Port()` | uint16_t | override, const, noexcept | ntohs(raw_.sin_port)を返す |
+| `IPAddress()` | string | override, const, noexcept | ip_を返す |
+
+### IPv6Addr
+
+| メンバ | 型 | 属性 | 説明 |
+|--------|----|-------|------|
+| `version` | int | static, constexpr | AF_INET6 (10) |
+| `loop_back` | string_view | static, constexpr | "::1" |
+| `any` | string_view | static, constexpr | "::" |
+| `max_length` | size_t | static, constexpr | 45 (IPv6アドレス文字列の最大長) |
+| `RawType` | - | using | sockaddr_in6型のエイリアス |
+| `ip_` | string | private | IPアドレス文字列 |
+| `raw_` | sockaddr_in6 | private | 生のソケットアドレス構造体 |
+| `IPv6Addr(sockaddr_in6)` | - | explicit | sockaddr_in6から生成 |
+| `IPv6Addr(string, uint16_t)` | - | explicit | IP文字列とポートから生成 |
+| `Version()` | int | override, const, noexcept | 10を返す |
+| `Size()` | size_t | override, const, noexcept | sizeof(sockaddr_in6)を返す |
+| `Raw()` | const sockaddr* | override, const, noexcept | &raw_をsockaddr*にキャストして返す |
+| `Port()` | uint16_t | override, const, noexcept | ntohs(raw_.sin6_port)を返す |
+| `IPAddress()` | string | override, const, noexcept | ip_を返す |
+
+### ValidIPAddr概念
+
+```cpp
+template <typename T>
+concept ValidIPAddr = std::same_as<T, IPv4Addr> || std::same_as<T, IPv6Addr>;
+```
+
+## シーケンス図
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant IPv4Addr
+    participant inet_ntop
+    participant ThrowLastSystemError
+
+    Client->>IPv4Addr: sockaddr_in addrでコンストラクタ呼び出し
+    IPv4Addr->>inet_ntop: アドレス変換実行
+    alt 成功
+        inet_ntop-->>IPv4Addr: 変換結果
+        IPv4Addr->>Client: 初期化完了
+    else 失敗
+        inet_ntop-->>IPv4Addr: エラー
+        IPv4Addr->>ThrowLastSystemError: システムエラースロー
+        ThrowLastSystemError-->>Client: 例外発生
+    end
+
+    Client->>IPv4Addr: string ip, uint16_t portでコンストラクタ呼び出し
+    IPv4Addr->>inet_pton: アドレスパース実行
+    alt 成功
+        inet_pton-->>IPv4Addr: パース結果
+        IPv4Addr->>Client: 初期化完了
+    else 失敗
+        inet_pton-->>IPv4Addr: エラー
+        IPv4Addr->>ThrowLastSystemError: システムエラースロー
+        ThrowLastSystemError-->>Client: 例外発生
+    end
+
+    Client->>IPv4Addr: Port()呼び出し
+    IPv4Addr->>ntohs: ネットワークバイトオーダー変換
+    ntohs-->>IPv4Addr: ホストバイトオーダー値
+    IPv4Addr-->>Client: ポート番号返却
+
+    Client->>IPv4Addr: Raw()呼び出し
+    IPv4Addr-->>Client: reinterpret_cast<sockaddr*>(&raw_)返却
+```
+
+## メソッド仕様書
+
+### IPv4Addr::IPv4Addr(sockaddr_in addr)
+- **目的**: sockaddr_in構造体からIPv4アドレスオブジェクトを生成する
+- **引数**:
+  - `addr`: 生のsockaddr_in構造体
+- **動作**:
+  1. raw_にaddrを移動代入
+  2. inet_ntopでアドレスを文字列に変換
+  3. 成功時はip_に結果を格納、失敗時は例外をスロー
+- **副作用**: ip_とraw_の初期化
+- **エラー処理**: inet_ntop失敗時にThrowLastSystemError()を呼び出し
+
+### IPv4Addr::IPv4Addr(string ip, uint16_t port)
+- **目的**: IP文字列とポートからIPv4アドレスオブジェクトを生成する
+- **引数**:
+  - `ip`: IPアドレス文字列 (例: "192.168.1.1")
+  - `port`: ポート番号 (ホストバイトオーダー)
+- **動作**:
+  1. ip_にipを移動代入
+  2. raw_.sin_family = AF_INET
+  3. raw_.sin_port = htons(port) (ネットワークバイトオーダーへ変換)
+  4. inet_ptonで文字列をアドレス構造体にパース
+- **副作用**: ip_とraw_の初期化
+- **エラー処理**: inet_pton失敗時にThrowLastSystemError()を呼び出し
+
+### Port()メソッド (IPv4Addr/IPv6Addr)
+- **目的**: ポート番号をホストバイトオーダーで取得する
+- **戻り値**: ホストバイトオーダーのポート番号
+- **動作**:
+  - IPv4: ntohs(raw_.sin_port)を返す
+  - IPv6: ntohs(raw_.sin6_port)を返す
+- **副作用**: なし
+
+### Raw()メソッド (IPv4Addr/IPv6Addr)
+- **目的**: 生のsockaddr構造体へのポインタを取得する
+- **戻り値**: reinterpret_cast<sockaddr*>(&raw_)でキャストしたポインタ
+- **動作**:
+  - raw_のアドレスをsockaddr*型にキャストして返す
+- **副作用**: なし
+
+## 処理フロー図
+
+```mermaid
+flowchart TD
+    A[IPv4Addrコンストラクタ呼び出し] --> B{inet_ntop成功?}
+    B -- Yes --> C[ip_に結果格納]
+    B -- No --> D[ThrowLastSystemErrorスロー]
+    C --> E[初期化完了]
+
+    F[IPv4Addrコンストラクタ呼び出し] --> G{inet_pton成功?}
+    G -- Yes --> H[raw_初期化完了]
+    G -- No --> I[ThrowLastSystemErrorスロー]
+    H --> J[初期化完了]
+
+    K[Port()呼び出し] --> L[ntohs変換]
+    L --> M[ホストバイトオーダー値返却]
+
+    N[Raw()呼び出し] --> O[reinterpret_cast<sockaddr*>]
+    O --> P[sockaddr*ポインタ返却]
+```
+
+## 状態遷移・副作用
+
+| 状態 | 遷移条件 | 副作用 |
+|------|----------|--------|
+| 未初期化 | コンストラクタ呼び出し | ip_とraw_の初期化 |
+| 初期化完了 | inet_ntop/inet_pton成功 | - |
+| エラー状態 | inet_ntop/inet_pton失敗 | ThrowLastSystemError()による例外スロー |
+
+- **不変条件**:
+  - raw_.sin_family (IPv4)またはraw_.sin6_family (IPv6)は常にversionと一致
+  - ip_は常に有効なIPアドレス文字列を保持
+  - Port()の戻り値は常に0-65535の範囲内
+
+## データ変換・制約
+
+| 変換 | 入力型 | 出力型 | 制約 |
+|------|--------|--------|------|
+| inet_ntop | sockaddr_in/sockaddr_in6 | char[] | バッファサイズはmax_length+1 |
+| inet_pton | string | sockaddr_in/sockaddr_in6 | 戻り値が1でなければエラー |
+| htons | uint16_t (ホスト) | uint16_t (ネットワーク) | ポート番号変換 |
+| ntohs | uint16_t (ネットワーク) | uint16_t (ホスト) | ポート番号変換 |
+
+- **制約**:
+  - IPv4アドレス文字列の最大長: 15バイト
+  - IPv6アドレス文字列の最大長: 45バイト
+  - ポート番号は常に0-65535の範囲内
+  - sockaddr構造体のサイズはsizeof(sockaddr_in)またはsizeof(sockaddr_in6)
+
+## 追加詳細設計情報
+
+### 直接依存インターフェースと利用方法
+
+| 関数 | 呼び出し元 | 引数 | 戻り値 | 使用方法 |
+|------|-----------|------|--------|----------|
+| inet_ntop | IPv4Addr/IPv6Addrコンストラクタ | version, &raw_.sin_addr/sin6_addr, ip.data(), ip.size() | const char* | アドレスを文字列に変換し、ip_に格納 |
+| inet_pton | IPv4Addr/IPv6Addrコンストラクタ | version, ip_.data(), &raw_.sin_addr/sin6_addr | int | 文字列をアドレス構造体にパース |
+| htons | コンストラクタ | port | uint16_t | ポート番号をネットワークバイトオーダーに変換 |
+| ntohs | Port()メソッド | raw_.sin_port/sin6_port | uint16_t | ポート番号をホストバイトオーダーに変換 |
+| ThrowLastSystemError | コンストラクタ (エラー時) | - | void | システムエラーオブジェクトをスロー |
+
+### 使用データ・更新データ
+
+| データ | アクセス型 | 初期値 | 更新条件 |
+|--------|------------|--------|----------|
+| ip_ (IPv4Addr/IPv6Addr) | private, string | コンストラクタ引数またはinet_ntop結果 | コンストラクタ時のみ |
+| raw_.sin_family (IPv4Addr) | private, int | AF_INET | コンストラクタ時のみ |
+| raw_.sin_port (IPv4Addr) | private, uint16_t | htons(port) | コンストラクタ時のみ |
+| raw_.sin_addr (IPv4Addr) | private, in_addr | inet_pton結果 | コンストラクタ時のみ |
+| raw_.sin6_family (IPv6Addr) | private, int | AF_INET6 | コンストラクタ時のみ |
+| raw_.sin6_port (IPv6Addr) | private, uint16_t | htons(port) | コンストラクタ時のみ |
+| raw_.sin6_addr (IPv6Addr) | private, in6_addr | inet_pton結果 | コンストラクタ時のみ |
+
+### 具体値と式
+
+| 値/式 | 意味 | 使用場所 |
+|-------|------|----------|
+| AF_INET (2) | IPv4アドレスファミリー | version定数、raw_.sin_family初期化 |
+| AF_INET6 (10) | IPv6アドレスファミリー | version定数、raw_.sin6_family初期化 |
+| max_length (15) | IPv4アドレス文字列最大長 | inet_ntopバッファサイズ計算 |
+| max_length (45) | IPv6アドレス文字列最大長 | inet_ntopバッファサイズ計算 |
+| "127.0.0.1" | Loopbackアドレス (IPv4) | loop_back定数 |
+| "::1" | Loopbackアドレス (IPv6) | loop_back定数 |
+| "0.0.0.0" | Anyアドレス (IPv4) | any定数 |
+| "::" | Anyアドレス (IPv6) | any定数 |
+| htons(port) | ポート番号ネットワークバイトオーダー変換 | コンストラクタ |
+| ntohs(raw_.sin_port) | ポート番号ホストバイトオーダー変換 | Port()メソッド |
+
+### エラー処理
+
+- inet_ntop/inet_ptonの戻り値が0または-1の場合、ThrowLastSystemError()を呼び出し
+- ThrowLastSystemError()はstd::system_error例外をスローする
+- ポート番号は常に0-65535の範囲内であると仮定（入力検証なし）
+
+### メモリ管理
+
+- クラスメンバーはすべて値セマンティクスで管理
+- raw_構造体は直接メンバーとして保持
+- ip_文字列はstd::stringとして所有権を保持
+- デストラクタはデフォルト実装（noexcept指定あり）
+
+### 並行性
+
+- クラスは状態レスメソッドのみ提供（Port(), Size(), Raw()など）
+- コンストラクタのみ状態を変更
+- スレッドセーフ: インスタンスごとに独立した状態を保持するため、同時アクセスがあればスレッドセーフ

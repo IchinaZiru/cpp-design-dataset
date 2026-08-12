@@ -1,0 +1,255 @@
+以下は、与えられたC++ソースコードを解析し、別のLLMが再実装できるように設計仕様書を作成したものです。この仕様書は、元のコードから確認できる事実のみを記述しており、推測や補完は行っていません。
+
+---
+
+# 設計仕様書
+
+## 1. 概要
+この設計仕様書は、`IPAddr`クラスとその派生クラスである`IPv4Addr`および`IPv6Addr`の実装に関する詳細な仕様を記述します。これらのクラスは、IPアドレスを表現し、ネットワークプログラミングにおいて使用される構造体（`sockaddr_in`および`sockaddr_in6`）と連携して動作します。
+
+## 2. 完全再構築台帳
+
+### 2.1 ファイル構成
+- **include/ip.h**: `IPAddr`クラス、およびその派生クラスである`IPv4Addr`および`IPv6Addr`の宣言を記述します。
+- **src/ip/ip.cpp**: 上記クラスの実装を記述します。
+
+### 2.2 依存関係
+- `include/util.h`: `ThrowLastSystemError()`関数を使用しています。
+- `<netinet/in.h>`: `sockaddr_in`および`sockaddr_in6`構造体を使用しています。
+- `<arpa/inet.h>`: `inet_ntop()`および`inet_pton()`関数を使用しています。
+
+### 2.3 型定義
+| 型名 | 種別 | 実体 |
+|------|------|------|
+| `IPAddr` | 抽象クラス | IPアドレスの基底クラス |
+| `IPv4Addr` | クラス | IPv4アドレスを表現するクラス |
+| `IPv6Addr` | クラス | IPv6アドレスを表現するクラス |
+| `ValidIPAddr` | コンセプト | `IPv4Addr`または`IPv6Addr`であることを示すコンセプト |
+
+### 2.4 メソッド仕様
+
+#### `IPAddr`クラス
+| メソッド名 | 戻り値型 | 引数 | 説明 |
+|-------------|----------|------|------|
+| `~IPAddr()` | - | - | デストラクタ（仮想関数） |
+| `Version()` | `int` | - | IPアドレスのバージョンを返します。 |
+| `Size()` | `std::size_t` | - | `sockaddr`構造体のサイズを返します。 |
+| `Raw()` | `const sockaddr*` | - | `sockaddr`構造体へのポインタを返します。 |
+| `Port()` | `std::uint16_t` | - | ポート番号を返します。 |
+| `IPAddress()` | `std::string` | - | IPアドレス文字列を返します。 |
+
+#### `IPv4Addr`クラス
+| メソッド名 | 戻り値型 | 引数 | 説明 |
+|-------------|----------|------|------|
+| `IPv4Addr(sockaddr_in)` | - | `sockaddr_in addr` | `sockaddr_in`から`IPv4Addr`を構築します。 |
+| `IPv4Addr(std::string, std::uint16_t)` | - | `std::string ip`, `std::uint16_t port` | IPアドレス文字列とポート番号から`IPv4Addr`を構築します。 |
+| `Version()` | `int` | - | IPv4のバージョン（`AF_INET`）を返します。 |
+| `Size()` | `std::size_t` | - | `sockaddr_in`のサイズを返します。 |
+| `Raw()` | `const sockaddr*` | - | `sockaddr_in`へのポインタを返します。 |
+| `Port()` | `std::uint16_t` | - | ポート番号をネットワークバイトオーダーからホストバイトオーダーに変換して返します。 |
+| `IPAddress()` | `std::string` | - | IPアドレス文字列を返します。 |
+
+#### `IPv6Addr`クラス
+| メソッド名 | 戻り値型 | 引数 | 説明 |
+|-------------|----------|------|------|
+| `IPv6Addr(sockaddr_in6)` | - | `sockaddr_in6 addr` | `sockaddr_in6`から`IPv6Addr`を構築します。 |
+| `IPv6Addr(std::string, std::uint16_t)` | - | `std::string ip`, `std::uint16_t port` | IPアドレス文字列とポート番号から`IPv6Addr`を構築します。 |
+| `Version()` | `int` | - | IPv6のバージョン（`AF_INET6`）を返します。 |
+| `Size()` | `std::size_t` | - | `sockaddr_in6`のサイズを返します。 |
+| `Raw()` | `const sockaddr*` | - | `sockaddr_in6`へのポインタを返します。 |
+| `Port()` | `std::uint16_t` | - | ポート番号をネットワークバイトオーダーからホストバイトオーダーに変換して返します。 |
+| `IPAddress()` | `std::string` | - | IPアドレス文字列を返します。 |
+
+### 2.5 定数
+| クラス名 | 定数名 | 値 | 説明 |
+|----------|---------|----|------|
+| `IPv4Addr` | `version` | `AF_INET` | IPv4のバージョン番号 |
+| `IPv4Addr` | `loop_back` | `"127.0.0.1"` | Loopbackアドレス |
+| `IPv4Addr` | `any` | `"0.0.0.0"` | Anyアドレス |
+| `IPv4Addr` | `max_length` | `15` | IPv4アドレス文字列の最大長さ |
+| `IPv6Addr` | `version` | `AF_INET6` | IPv6のバージョン番号 |
+| `IPv6Addr` | `loop_back` | `"::1"` | Loopbackアドレス |
+| `IPv6Addr` | `any` | `"::"` | Anyアドレス |
+| `IPv6Addr` | `max_length` | `45` | IPv6アドレス文字列の最大長さ |
+
+### 2.6 メンバ変数
+| クラス名 | メンバ変数名 | 型 | 説明 |
+|----------|---------------|----|------|
+| `IPv4Addr` | `ip_` | `std::string` | IPアドレス文字列 |
+| `IPv4Addr` | `raw_` | `sockaddr_in` | `sockaddr_in`構造体 |
+| `IPv6Addr` | `ip_` | `std::string` | IPアドレス文字列 |
+| `IPv6Addr` | `raw_` | `sockaddr_in6` | `sockaddr_in6`構造体 |
+
+## 3. クラス図
+```mermaid
+classDiagram
+    class IPAddr {
+        <<interface>>
+        +Version() int
+        +Size() std::size_t
+        +Raw() const sockaddr*
+        +Port() std::uint16_t
+        +IPAddress() std::string
+    }
+
+    class IPv4Addr {
+        -ip_ std::string
+        -raw_ sockaddr_in
+        +version static constexpr int
+        +loop_back static constexpr std::string_view
+        +any static constexpr std::string_view
+        +max_length static constexpr std::size_t
+        +IPv4Addr(sockaddr_in)
+        +IPv4Addr(std::string, std::uint16_t)
+    }
+
+    class IPv6Addr {
+        -ip_ std::string
+        -raw_ sockaddr_in6
+        +version static constexpr int
+        +loop_back static constexpr std::string_view
+        +any static constexpr std::string_view
+        +max_length static constexpr std::size_t
+        +IPv6Addr(sockaddr_in6)
+        +IPv6Addr(std::string, std::uint16_t)
+    }
+
+    IPAddr <|-- IPv4Addr
+    IPAddr <|-- IPv6Addr
+```
+
+## 4. メソッド仕様書
+
+### `IPv4Addr::IPv4Addr(sockaddr_in addr)`
+- **目的**: `sockaddr_in`構造体から`IPv4Addr`を構築します。
+- **引数**:
+  - `addr`: `sockaddr_in`構造体
+- **動作**:
+  1. `raw_`に`addr`を移動代入します。
+  2. `inet_ntop()`を使用してIPアドレス文字列を取得し、`ip_`に格納します。
+  3. `inet_ntop()`が失敗した場合、`ThrowLastSystemError()`を呼び出します。
+
+### `IPv4Addr::IPv4Addr(std::string ip, std::uint16_t port)`
+- **目的**: IPアドレス文字列とポート番号から`IPv4Addr`を構築します。
+- **引数**:
+  - `ip`: IPアドレス文字列
+  - `port`: ポート番号（ホストバイトオーダー）
+- **動作**:
+  1. `ip_`に`ip`を移動代入します。
+  2. `raw_.sin_family`に`version`（`AF_INET`）を設定します。
+  3. `raw_.sin_port`に`htons(port)`を設定します。
+  4. `inet_pton()`を使用してIPアドレス文字列を`sockaddr_in`構造体に変換します。
+  5. `inet_pton()`が失敗した場合、`ThrowLastSystemError()`を呼び出します。
+
+### `IPv6Addr::IPv6Addr(sockaddr_in6 addr)`
+- **目的**: `sockaddr_in6`構造体から`IPv6Addr`を構築します。
+- **引数**:
+  - `addr`: `sockaddr_in6`構造体
+- **動作**:
+  1. `raw_`に`addr`を移動代入します。
+  2. `inet_ntop()`を使用してIPアドレス文字列を取得し、`ip_`に格納します。
+  3. `inet_ntop()`が失敗した場合、`ThrowLastSystemError()`を呼び出します。
+
+### `IPv6Addr::IPv6Addr(std::string ip, std::uint16_t port)`
+- **目的**: IPアドレス文字列とポート番号から`IPv6Addr`を構築します。
+- **引数**:
+  - `ip`: IPアドレス文字列
+  - `port`: ポート番号（ホストバイトオーダー）
+- **動作**:
+  1. `ip_`に`ip`を移動代入します。
+  2. `raw_.sin6_family`に`version`（`AF_INET6`）を設定します。
+  3. `raw_.sin6_port`に`htons(port)`を設定します。
+  4. `inet_pton()`を使用してIPアドレス文字列を`sockaddr_in6`構造体に変換します。
+  5. `inet_pton()`が失敗した場合、`ThrowLastSystemError()`を呼び出します。
+
+## 5. 処理フロー図
+```mermaid
+flowchart TD
+    A[IPv4Addr::IPv4Addr(sockaddr_in addr)] --> B[raw_ = std::move(addr)]
+    B --> C[inet_ntop(version, &raw_.sin_addr, ip.data(), ip.size())]
+    C --> D{成功?}
+    D -->|Yes| E[ip_ = ip.data()]
+    D -->|No| F[ThrowLastSystemError()]
+
+    G[IPv4Addr::IPv4Addr(std::string ip, std::uint16_t port)] --> H[ip_ = std::move(ip)]
+    H --> I[raw_.sin_family = version]
+    I --> J[raw_.sin_port = htons(port)]
+    J --> K[inet_pton(version, ip_.data(), &raw_.sin_addr) != 1]
+    K --> L{成功?}
+    L -->|Yes| M[終了]
+    L -->|No| N[ThrowLastSystemError()]
+
+    O[IPv6Addr::IPv6Addr(sockaddr_in6 addr)] --> P[raw_ = std::move(addr)]
+    P --> Q[inet_ntop(version, &raw_.sin6_addr, ip.data(), ip.size())]
+    Q --> R{成功?}
+    R -->|Yes| S[ip_ = ip.data()]
+    R -->|No| T[ThrowLastSystemError()]
+
+    U[IPv6Addr::IPv6Addr(std::string ip, std::uint16_t port)] --> V[ip_ = std::move(ip)]
+    V --> W[raw_.sin6_family = version]
+    W --> X[raw_.sin6_port = htons(port)]
+    X --> Y[inet_pton(version, ip_.data(), &raw_.sin6_addr) != 1]
+    Y --> Z{成功?}
+    Z -->|Yes| AA[終了]
+    Z -->|No| AB[ThrowLastSystemError()]
+```
+
+## 6. データ変換・制約
+| 変換元 | 変換先 | 変換方法 | 制約 |
+|---------|---------|----------|------|
+| `sockaddr_in` | `std::string` | `inet_ntop()`を使用してIPアドレス文字列に変換 | `inet_ntop()`が失敗した場合、例外を投げる |
+| `std::string` | `sockaddr_in` | `inet_pton()`を使用して`sockaddr_in`構造体に変換 | `inet_pton()`が1以外の値を返した場合、例外を投げる |
+| `sockaddr_in6` | `std::string` | `inet_ntop()`を使用してIPアドレス文字列に変換 | `inet_ntop()`が失敗した場合、例外を投げる |
+| `std::string` | `sockaddr_in6` | `inet_pton()`を使用して`sockaddr_in6`構造体に変換 | `inet_pton()`が1以外の値を返した場合、例外を投げる |
+
+## 7. 状態遷移・副作用
+- **副作用**: `ip_`および`raw_`メンバ変数が初期化されます。
+- **不変条件**:
+  - `Version()`は常に`AF_INET`（IPv4）または`AF_INET6`（IPv6）を返します。
+  - `Size()`は常に`sockaddr_in`または`sockaddr_in6`のサイズを返します。
+  - `Raw()`は常に`sockaddr_in`または`sockaddr_in6`へのポインタを返します。
+
+## 8. シーケンス図
+```mermaid
+sequenceDiagram
+    participant Client
+    participant IPv4Addr
+
+    Client->>IPv4Addr: IPv4Addr(sockaddr_in addr)
+    activate IPv4Addr
+    IPv4Addr-->>Client: インスタンス作成完了
+    deactivate IPv4Addr
+
+    Client->>IPv4Addr: Version()
+    activate IPv4Addr
+    IPv4Addr-->>Client: AF_INET
+    deactivate IPv4Addr
+
+    Client->>IPv4Addr: Size()
+    activate IPv4Addr
+    IPv4Addr-->>Client: sizeof(sockaddr_in)
+    deactivate IPv4Addr
+
+    Client->>IPv4Addr: Raw()
+    activate IPv4Addr
+    IPv4Addr-->>Client: reinterpret_cast<const sockaddr*>(&raw_)
+    deactivate IPv4Addr
+
+    Client->>IPv4Addr: Port()
+    activate IPv4Addr
+    IPv4Addr-->>Client: ntohs(raw_.sin_port)
+    deactivate IPv4Addr
+
+    Client->>IPv4Addr: IPAddress()
+    activate IPv4Addr
+    IPv4Addr-->>Client: ip_
+    deactivate IPv4Addr
+```
+
+## 9. 注意事項
+- `inet_ntop()`および`inet_pton()`の使用は、システムエラーが発生した場合に`ThrowLastSystemError()`を呼び出す必要があります。
+- ポート番号はホストバイトオーダーからネットワークバイトオーダーへ変換されて格納され、`Port()`メソッドでは逆の変換が行われます。
+
+---
+
+この設計仕様書は、元のコードから確認できる事実のみを記述しており、再実装に必要な情報を網羅的に提供します。

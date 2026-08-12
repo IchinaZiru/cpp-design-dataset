@@ -1,0 +1,1 @@
+{"artifact_schema_version":"roundtrip-ab-aggregate-run-entry-v1","condition":"A","result_path":"result.json","result_sha256":"63fc1fc93a668a97545603a84abd7a862d4abba6fc167a13b3704f29aef18477","status":"fail","target_id":"ini-cpp-inireader"}

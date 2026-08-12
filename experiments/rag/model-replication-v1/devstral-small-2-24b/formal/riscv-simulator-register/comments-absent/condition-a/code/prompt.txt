@@ -1,0 +1,102 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# Register Class Design Specification
+
+## Overview
+This document provides a detailed specification for the `Register` class, which is a template-based data structure used to model a register in a processor or similar system. The class maintains two values (`prev` and `next`) representing the current and next state of the register, with stalling capability.
+
+## Class Definition
+
+### Template Parameter
+- **T**: Arbitrary type (must support default construction and assignment)
+
+### Public Members
+1. **Data Members**:
+   - `T prev`: Previous value of the register
+   - `T next`: Next value to be written
+   - `bool _stall`: Stall flag indicating whether writes should be blocked
+
+2. **Methods**:
+   - Constructor: Default constructor initializing both values to 0 (cast from T) and stall flag to false
+   - Constructor: Parameterized constructor taking initial value for both prev and next, stall flag set to false
+   - `T read()`: Returns the current value (prev)
+   - `T current()`: Returns the next value (next)
+   - `void write(const T &t)`: Updates the next value
+   - `void tick()`: Updates prev from next if not stalled
+   - `void stall(bool stall)`: Sets the stall flag
+   - Conversion operator to T: Equivalent to read()
+   - Assignment operator from T: Equivalent to write()
+
+## Behavior Specification
+
+### State Transitions
+1. **Normal Operation**:
+   - On tick(), prev is updated with next's value unless stalled
+   - write() updates next without affecting current state until next tick
+
+2. **Stalled Operation**:
+   - When stalled, tick() does not update prev
+   - write() still updates next during stall period
+   - Stall can be toggled at any time via stall()
+
+### Thread Safety
+- The class is not thread-safe by default (no synchronization mechanisms)
+- Concurrent access should be externally synchronized if needed
+
+## Usage Examples
+
+```cpp
+// Basic usage
+Register<int> reg;
+reg.write(42);
+reg.tick();  // Now read() returns 42
+int value = reg;  // Uses conversion operator
+
+// Stalling behavior
+Register<float> stallReg(3.14f);
+stallReg.stall(true);
+stallReg.write(2.71f);  // next is updated but prev remains 3.14f
+stallReg.tick();        // prev still 3.14f (no update due to stall)
+stallReg.stall(false);
+stallReg.tick();        // prev now updates to 2.71f
+```
+
+## Implementation Notes
+
+1. **Type Safety**:
+   - The template parameter T must support:
+     - Default construction (for initialization with 0)
+     - Copy assignment
+     - Comparison operations if used in conditional contexts
+
+2. **Memory Management**:
+   - No dynamic memory allocation within the class
+   - All members are value types (no pointers)
+
+3. **Performance Characteristics**:
+   - All operations are O(1) time complexity
+   - Minimal overhead for basic register operations
+
+## Dependencies
+- None (header-only implementation)
+- Standard C++ template mechanisms
+
+This specification provides all necessary information to reimplement the Register class while preserving its exact behavior and interface.

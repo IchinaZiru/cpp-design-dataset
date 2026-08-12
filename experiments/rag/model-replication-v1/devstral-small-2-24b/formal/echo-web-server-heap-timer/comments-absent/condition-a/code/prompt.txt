@@ -1,0 +1,194 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# HeapTimer 設計仕様書
+
+## 概要
+`HeapTimer` は、キーバリュー型のキーとタイムアウトコールバックを管理する優先度付きキュー（ヒープ）を実装したクラスです。このクラスは、指定された時間が経過すると自動的にコールバック関数を呼び出す機能を提供します。
+
+## クラス構造
+
+### テンプレートパラメータ
+- `Key`: キーの型（任意の型）
+
+### 依存関係
+- `log::Logger::Ptr`: ロギング機能のためのポインタ
+- `std::chrono::steady_clock`: 時間測定に使用するクロック
+
+## パブリックインターフェース
+
+### コンストラクタとデストラクタ
+```cpp
+explicit HeapTimer(log::Logger::Ptr logger = log::RootLogger()) noexcept;
+```
+- ロガーを受け取り、初期化します。
+- デフォルトではルートロガーが使用されます。
+
+### メソッド
+
+#### Push
+```cpp
+void Push(const Key& key, Clock::duration expiration,
+          TimeOutCallback callback) noexcept;
+
+void Push(const Key& key, Clock::time_point expiration,
+          TimeOutCallback callback) noexcept;
+```
+- 新しいタイマーをキューに追加します。
+- 同じキーが既に存在する場合は、そのタイマーの設定を更新します。
+
+#### Adjust
+```cpp
+void Adjust(const Key& key, Clock::duration expiration);
+
+void Adjust(const Key& key, Clock::time_point expiration);
+```
+- 既存のタイマーの有効期限を変更します。
+- コールバックは変更しません。
+
+#### Tick
+```cpp
+void Tick() noexcept;
+```
+- 有効期限が切れたすべてのタイマーのコールバックを実行します。
+- 実行中に例外が発生した場合、エラーログを記録します。
+
+#### Remove
+```cpp
+bool Remove(const Key& key) noexcept;
+```
+- 指定されたキーのタイマーを削除します。
+- 削除に成功した場合は `true` を返します。
+
+#### Invoke
+```cpp
+void Invoke(const Key& key);
+```
+- 指定されたキーのタイマーのコールバックを即座に実行し、そのタイマーを削除します。
+
+#### Pop
+```cpp
+Key Pop() noexcept;
+```
+- 最も近い有効期限のタイマーをキューから取り出し、そのキーを返します。
+- キューが空の場合は未定義動作となります。
+
+#### Clear
+```cpp
+void Clear() noexcept;
+```
+- すべてのタイマーを削除します。
+
+#### Contain
+```cpp
+bool Contain(const Key& key) const noexcept;
+```
+- 指定されたキーのタイマーが存在するかどうかを返します。
+
+#### Empty
+```cpp
+bool Empty() const noexcept;
+```
+- キューが空であるかどうかを返します。
+
+#### Size
+```cpp
+std::size_t Size() const noexcept;
+```
+- キューに含まれるタイマーの数を返します。
+
+#### ToNextTick
+```cpp
+Clock::duration ToNextTick() noexcept;
+```
+- 次の `Tick()` を呼び出すまでの時間（最も近い有効期限のタイマーまでの時間）を返します。
+- 有効期限が切れたタイマーがある場合は、それらを処理した後で計算します。
+
+## プライベートメンバー
+
+### Node 構造体
+```cpp
+struct Node {
+    Key key;
+    Clock::time_point expiration;
+    TimeOutCallback callback;
+
+    bool Expired() const noexcept;
+    void Swap(Node&) noexcept;
+};
+```
+- `Expired()`: 現在の時間が有効期限を過ぎているかどうかを返します。
+- `Swap()`: 2つのノードの内容を交換します。
+
+### ヒープ操作
+```cpp
+void ShiftUp(std::size_t idx) noexcept;
+void ShiftDown(std::size_t idx) noexcept;
+std::optional<std::size_t> Parent(std::size_t idx) const noexcept;
+std::optional<std::size_t> SmallChild(std::size_t idx) const noexcept;
+```
+- `ShiftUp()`: 指定されたインデックスのノードを親と比較し、必要に応じて上方向へ移動します。
+- `ShiftDown()`: 指定されたインデックスのノードを子と比較し、必要に応じて下方向へ移動します。
+- `Parent()`: 指定されたインデックスの親のインデックスを返します。
+- `SmallChild()`: 指定されたインデックスの最小の子のインデックスを返します。
+
+### ヘルパーメソッド
+```cpp
+void Swap(std::size_t idx1, std::size_t idx2) noexcept;
+bool ValidIndex(std::size_t idx) const noexcept;
+Key RemoveByIndex(std::size_t idx) noexcept;
+```
+- `Swap()`: 2つのノードを交換し、インデックスマップも更新します。
+- `ValidIndex()`: 指定されたインデックスが有効かどうかを返します。
+- `RemoveByIndex()`: 指定されたインデックスのノードを削除し、そのキーを返します。
+
+### データメンバー
+```cpp
+log::Logger::Ptr logger_;
+std::unordered_map<Key, std::size_t> key_to_idx_;
+std::deque<Node> nodes_;
+```
+- `logger_`: ロギングのためのポインタ。
+- `key_to_idx_`: キーからノードのインデックスへのマッピング。
+- `nodes_`: ヒープデータ構造を格納するコンテナ。
+
+## 実装注意事項
+
+1. **ヒーププロパティ**: ノードは常に最小ヒープとして維持されます（有効期限が最も早いノードがルート）。
+2. **例外処理**: コールバックの実行中に発生した例外はキャッチされ、エラーログを記録します。
+3. **スレッドセーフティ**: このクラス自体はスレッドセーフではありません。使用側で適切な同期を施す必要があります。
+4. **アサーション**: デバッグビルドでは内部状態の整合性をチェックするためにアサーションが使用されています。
+
+## 使用例
+
+```cpp
+HeapTimer<int> timer;
+timer.Push(1, std::chrono::seconds(5), [](int key) {
+    std::cout << "Timeout for key: " << key << std::endl;
+});
+
+while (!timer.Empty()) {
+    auto next = timer.ToNextTick();
+    std::this_thread::sleep_for(next);
+    timer.Tick();
+}
+```
+
+この設計仕様書は、与えられたソースコードを忠実に再現できるように作成されています。具体的な実装詳細（例外処理の方法など）については、元のソースコードを参照してください。

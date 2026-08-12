@@ -1,0 +1,2110 @@
+与えられたC++ソースコードを解析し、このソースコードを参照できない別のLLMが再実装できるように、詳細な設計仕様書を作成してください。
+
+入力から確認できない情報は推測しないでください。
+
+TARGET-OWNED INPUTS
+Fxx/Uxx identifiers are opaque. Preserve names, types, signatures, namespaces, and replacement boundaries in the final specification.
+
+REPLACEMENT UNIT CONTRACT
+Only replacement_required=true units will be regenerated. Reference-only units must inform the design but must not become output units.
+REPLACEMENT UNITS: F01/U01, F02/U02, F03/U03, F04/U04, F05/U05, F06/U06
+REFERENCE-ONLY INPUTS: none
+
+===== BEGIN F01/U01 =====
+path: include/http.h
+role: complete target-owned implementation/declaration file
+replacement_required: true
+/**
+ * @file http.h
+ * @brief The HTTP connection.
+ *
+ * @author Zhenshuo Chen (chenzs108@outlook.com)
+ * @author Liu Guowen (liu.guowen@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-06-10
+ */
+
+#pragma once
+
+#include "containers/buffer.h"
+#include "ip.h"
+#include "util.h"
+
+#include <filesystem>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+
+
+namespace ws::http {
+
+//! HTTP version: 1.1
+inline constexpr std::string_view version {"1.1"};
+
+//! HTTP parameters consisting of key-value pairs.
+using Parameters = std::unordered_map<std::string, std::string>;
+
+//! HTTP status codes.
+enum class StatusCode : std::uint32_t {
+    OK = 200,
+    BadRequest = 400,
+    Forbidden = 403,
+    NotFound = 404
+};
+
+//! Convert an HTTP status code into a message.
+std::string_view StatusCodeToMessage(StatusCode code) noexcept;
+
+//! Convert an HTTP status code into an integer.
+std::uint32_t StatusCodeToInteger(StatusCode code) noexcept;
+
+std::ostream& operator<<(std::ostream& os, StatusCode code) noexcept;
+
+//! HTTP methods.
+enum class Method { Get, Post, Put, Patch, Delete };
+
+//! Convert an HTTP method into a string.
+std::string_view MethodToString(Method method) noexcept;
+
+std::string to_string(Method method) noexcept;
+
+/**
+ * @brief Convert a string into an HTTP method.
+ *
+ * @exception std::invalid_argument The string does not represent an HTTP method.
+ */
+Method StringToMethod(std::string str);
+
+std::ostream& operator<<(std::ostream& os, Method method) noexcept;
+
+//! HTTP uses @p CRLF as the line separator.
+inline constexpr std::string_view new_line {"\r\n"};
+
+/**
+ * @brief
+ * Get a file's content type.
+ * @p application/octet-stream is used to indicate that a file contains arbitrary binary data.
+ */
+std::string_view ContentTypeByFileName(std::string_view name) noexcept;
+
+/**
+ * @brief
+ * Decode an URL-encoded character.
+ * They start with a @p %, followed by a pair of hexadecimal digits.
+ *
+ * @exception std::invalid_argument The string does not represent an URL-encoded character.
+ */
+char DecodeURLEncodedCharacter(const std::string& str);
+
+/**
+ * @brief
+ * Decode an URL-encoded string.
+ * URL-encoded characters start with a @p %, followed by a pair of hexadecimal digits.
+ *
+ * @exception std::invalid_argument The string contains invalid URL-encoded characters.
+ */
+std::string DecodeURLEncodedString(const std::string& str);
+
+/**
+ * @brief
+ * Get the HTML placeholder for an HTTP parameter.
+ * It can be used to insert actual data into an HTML page.
+ */
+std::string HTMLPlaceholder(std::string_view key) noexcept;
+
+/**
+ * @brief
+ * Put HTTP parameters into an HTML template in place of the corresponding placeholders.
+ *
+ * @warning
+ * This method will ignore parameters that do not have a corresponding placeholder in the template.
+ */
+std::string PutParamIntoHTML(std::string html, const Parameters& params);
+
+/**
+ * @brief The core implementation of HTTP connection.
+ *
+ * @details
+ * A valid HTTP request must use @p POST method and contain two variables:
+ * - @p user: A user name.
+ * - @p msg: A message.
+ *
+ * @warning
+ * This class is an internal implementation class.
+ * Developers should use @p Connection instead of this.
+ */
+class ConnectionImpl {
+public:
+    using Ptr = std::shared_ptr<ConnectionImpl>;
+
+    //! Set the root directory.
+    static void SetRootDirectory(std::filesystem::path dir) noexcept;
+
+    //! Get the root directory.
+    static std::filesystem::path GetRootDirectory() noexcept;
+
+    ConnectionImpl(const ConnectionImpl&) = delete;
+
+    ConnectionImpl(ConnectionImpl&&) = delete;
+
+    ConnectionImpl& operator=(const ConnectionImpl&) = delete;
+
+    ConnectionImpl& operator=(ConnectionImpl&&) = delete;
+
+    //! Close the connection.
+    void Close() noexcept;
+
+    //! Whether the connection is valid.
+    bool Valid() const noexcept;
+
+    //! Get the socket.
+    FileDescriptor Socket() const noexcept;
+
+    //! Receive an HTTP request.
+    std::size_t Receive();
+
+    //! Send an HTTP response.
+    std::size_t Send();
+
+    //! Whether the connection keeps alive.
+    bool KeepAlive() const noexcept;
+
+    /**
+     * @brief Process the HTTP request.
+     *
+     * @details
+     * For the first request that does not contain a user's input,
+     * It will reply with a form for user input.
+     * Otherwise, it will reply both a user's previous input and a form for new input.
+     *
+     * @return @p false if the reading buffer for request is empty, otherwise @p true.
+     */
+    bool Process() noexcept;
+
+protected:
+    static constexpr std::string_view true_tag {"true"};
+
+    static constexpr std::string_view false_tag {"false"};
+
+    explicit ConnectionImpl(FileDescriptor socket) noexcept;
+
+    virtual ~ConnectionImpl() noexcept;
+
+    static std::filesystem::path root_dir_;
+
+    FileDescriptor socket_ {invalid_file_descriptor};
+    bool keep_alive_ {false};
+
+    IOBuffer read_buf_;
+    IOBuffer write_buf_;
+
+    //! The requested file.
+    MappedReadOnlyFile file_;
+};
+
+//! The HTTP connection.
+template <ValidIPAddr IPAddr>
+class Connection : public ConnectionImpl {
+public:
+    using Ptr = std::shared_ptr<Connection>;
+
+    explicit Connection(const FileDescriptor socket, IPAddr addr) noexcept :
+        ConnectionImpl {socket}, addr_ {std::move(addr)} {}
+
+    std::string IPAddress() const noexcept {
+        return addr_.IPAddress();
+    }
+
+    std::uint16_t Port() const noexcept {
+        return addr_.Port();
+    }
+
+private:
+    IPAddr addr_;
+};
+
+}  // namespace ws::http
+===== END F01/U01 =====
+
+===== BEGIN F02/U02 =====
+path: src/http/http.cpp
+role: complete target-owned implementation/declaration file
+replacement_required: true
+#include "http.h"
+#include "io.h"
+#include "request.h"
+#include "response.h"
+
+#include <cassert>
+#include <filesystem>
+#include <sstream>
+
+
+namespace ws::http {
+
+namespace {
+
+std::optional<Parameters> ExtractUserMessage(const Request& request) noexcept {
+    static constexpr std::string_view user_tag {"user"};
+    static constexpr std::string_view msg_tag {"msg"};
+
+    const auto user {request.Post(user_tag).value_or("")};
+    const auto msg {request.Post(msg_tag).value_or("")};
+    if (!user.empty() && !user.empty()) {
+        return Parameters {{user_tag.data(), user.data()},
+                           {msg_tag.data(), msg.data()}};
+    } else {
+        return std::nullopt;
+    }
+}
+
+}  // namespace
+
+std::string_view ContentTypeByFileName(const std::string_view name) noexcept {
+    static const std::unordered_map<std::string_view, std::string_view> types {
+        {".html", "text/html"},
+        {".xml", "text/xml"},
+        {".xhtml", "application/xhtml+xml"},
+        {".txt", "text/plain"},
+        {".rtf", "application/rtf"},
+        {".pdf", "application/pdf"},
+        {".word", "application/nsword"},
+        {".png", "image/png"},
+        {".gif", "image/gif"},
+        {".jpg", "image/jpeg"},
+        {".jpeg", "image/jpeg"},
+        {".au", "audio/basic"},
+        {".mpeg", "video/mpeg"},
+        {".mpg", "video/mpeg"},
+        {".avi", "video/x-msvideo"},
+        {".gz", "application/x-gzip"},
+        {".tar", "application/x-tar"},
+        {".css", "text/css"},
+        {".js", "text/javascript"},
+    };
+
+    const auto extension {
+        StringToLower(std::filesystem::path {name}.extension())};
+    return types.contains(extension.c_str()) ? types.at(extension.c_str())
+                                             : "application/octet-stream";
+}
+
+std::string_view StatusCodeToMessage(const StatusCode code) noexcept {
+    static const std::unordered_map<StatusCode, std::string_view> msgs {
+        {StatusCode::OK, "OK"},
+        {StatusCode::BadRequest, "Bad Request"},
+        {StatusCode::Forbidden, "Forbidden"},
+        {StatusCode::NotFound, "Not Found"}};
+
+    return msgs.at(code);
+}
+
+std::ostream& operator<<(std::ostream& os, const StatusCode code) noexcept {
+    return os << StatusCodeToMessage(code);
+}
+
+std::uint32_t StatusCodeToInteger(const StatusCode code) noexcept {
+    return static_cast<std::uint32_t>(code);
+}
+
+std::string_view MethodToString(const Method method) noexcept {
+    static const std::unordered_map<Method, std::string_view> methods {
+        {Method::Get, "GET"},
+        {Method::Patch, "PATCH"},
+        {Method::Post, "POST"},
+        {Method::Delete, "DELETE"},
+        {Method::Put, "PUT"}};
+
+    return methods.at(method);
+}
+
+std::string to_string(const Method method) noexcept {
+    return MethodToString(method).data();
+}
+
+Method StringToMethod(std::string str) {
+    static const std::unordered_map<std::string_view, Method> methods {
+        {"GET", Method::Get},
+        {"PATCH", Method::Patch},
+        {"POST", Method::Post},
+        {"DELETE", Method::Delete},
+        {"PUT", Method::Put}};
+
+    str = StringToUpper(str);
+    if (const auto method {methods.find(str)}; method != methods.cend()) {
+        return method->second;
+    } else {
+        throw std::invalid_argument {
+            fmt::format("Invalid HTTP method: '{}'", str)};
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, const Method method) noexcept {
+    return os << MethodToString(method);
+}
+
+char DecodeURLEncodedCharacter(const std::string& str) {
+    static constexpr std::size_t encoded_length {3};
+    if (str.length() == encoded_length && str.front() == '%') {
+        const auto ascii {std::stoi(str.substr(1), nullptr, 16)};
+        return static_cast<char>(ascii);
+    } else {
+        throw std::invalid_argument {
+            fmt::format("Invalid HTTP URL-encoding character: '{}'", str)};
+    }
+}
+
+std::string DecodeURLEncodedString(const std::string& str) {
+    static constexpr std::size_t encoded_length {3};
+    std::ostringstream ss;
+    std::size_t i {0};
+    while (i < str.size()) {
+        if (str[i] == '%') {
+            if (const auto encoded {str.substr(i, encoded_length)};
+                encoded.length() == encoded_length) {
+                ss << DecodeURLEncodedCharacter(encoded);
+                i += encoded_length;
+            } else {
+                throw std::invalid_argument {fmt::format(
+                    "Invalid HTTP URL-encoding strings: '{}'", str)};
+            }
+        } else {
+            ss << str[i++];
+        }
+    }
+
+    return ss.str();
+}
+
+std::string HTMLPlaceholder(const std::string_view key) noexcept {
+    return fmt::format("<${}$>", key);
+}
+
+std::string PutParamIntoHTML(std::string html, const Parameters& params) {
+    for (const auto& [key, val] : params) {
+        html = ReplaceAllSubstring(html, HTMLPlaceholder(key), val);
+    }
+
+    return html;
+}
+
+std::filesystem::path ConnectionImpl::root_dir_;
+
+void ConnectionImpl::SetRootDirectory(std::filesystem::path dir) noexcept {
+    root_dir_ = std::move(dir);
+}
+
+std::filesystem::path ConnectionImpl::GetRootDirectory() noexcept {
+    return root_dir_;
+}
+
+ConnectionImpl::ConnectionImpl(const FileDescriptor socket) noexcept :
+    socket_ {socket} {
+    assert(IsValidFileDescriptor(socket_));
+}
+
+ConnectionImpl::~ConnectionImpl() noexcept {
+    Close();
+}
+
+void ConnectionImpl::Close() noexcept {
+    if (IsValidFileDescriptor(socket_)) {
+        close(socket_);
+        socket_ = invalid_file_descriptor;
+    }
+}
+
+FileDescriptor ConnectionImpl::Socket() const noexcept {
+    return socket_;
+}
+
+bool ConnectionImpl::KeepAlive() const noexcept {
+    return keep_alive_;
+}
+
+bool ConnectionImpl::Valid() const noexcept {
+    return IsValidFileDescriptor(socket_);
+}
+
+std::size_t ConnectionImpl::Receive() {
+    io::FileDescriptor io {socket_, socket_};
+    std::size_t size {0};
+
+    try {
+        while (true) {
+            size += read_buf_.ReadFrom(io);
+        }
+    } catch (const std::system_error& err) {
+        if (err.code() != std::errc::resource_unavailable_try_again) {
+            throw;
+        }
+    }
+
+    return size;
+}
+
+std::size_t ConnectionImpl::Send() {
+    io::FileDescriptor io {socket_, socket_};
+    std::size_t header_size {0};
+    while (!write_buf_.Empty()) {
+        header_size += write_buf_.WriteTo(io);
+    }
+
+    std::size_t file_size {0};
+    while (file_size < file_.Size()) {
+        if (const auto size {write(socket_, file_.Data() + file_size,
+                                   file_.Size() - file_size)};
+            size >= 0) {
+            file_size += size;
+        } else {
+            ThrowLastSystemError();
+        }
+    }
+
+    return header_size + file_size;
+}
+
+bool ConnectionImpl::Process() noexcept {
+    static constexpr std::string_view index_page {"/index.html"};
+    static constexpr std::string_view hide_msg_tag {"hide-msg"};
+
+    file_.Unmap();
+    if (read_buf_.ReadableSize() == 0) {
+        return false;
+    }
+
+    Request request;
+    Response response {root_dir_};
+    std::optional<std::string> error_msg;
+
+    try {
+        request.Parse(read_buf_);
+    } catch (const std::exception& err) {
+        error_msg = err.what();
+    }
+
+    keep_alive_ = request.KeepAlive();
+    response.SetKeepAlive(keep_alive_);
+    if (!error_msg.has_value()) {
+        std::string path {request.Path()};
+        if (path.empty() || path == "/") {
+            path = index_page;
+        }
+
+        StatusCode status_code {StatusCode::OK};
+        if (path == index_page) {
+            auto params {ExtractUserMessage(request).value_or(Parameters {})};
+            params.insert({hide_msg_tag.data(), params.empty()
+                                                    ? true_tag.data()
+                                                    : false_tag.data()});
+            response.Build(write_buf_, index_page, params, status_code);
+        } else {
+            if (auto file {
+                    response.Build(write_buf_, std::move(path), status_code)};
+                file.has_value()) {
+                file_ = std::move(*file);
+            }
+        }
+    } else {
+        response.Build(write_buf_, StatusCode::BadRequest, *error_msg);
+    }
+
+    return true;
+}
+
+}  // namespace ws::http
+===== END F02/U02 =====
+
+===== BEGIN F03/U03 =====
+path: src/http/request.h
+role: complete target-owned implementation/declaration file
+replacement_required: true
+/**
+ * @file request.h
+ * @brief The HTTP request parser.
+ *
+ * @author Zhenshuo Chen (chenzs108@outlook.com)
+ * @author Liu Guowen (liu.guowen@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-06-14
+ */
+
+#pragma once
+
+#include "containers/buffer.h"
+#include "http.h"
+
+#include <memory>
+#include <optional>
+
+
+namespace ws::http {
+
+//! The HTTP request parser.
+class Request {
+public:
+    class State;
+
+    Request() noexcept;
+
+    /**
+     * @brief Create a parser and parse an HTTP request.
+     *
+     * @exception std::invalid_argument The HTTP request is invalid.
+     */
+    explicit Request(Buffer& buf);
+
+    ~Request() noexcept;
+
+    /**
+     * @brief Parse an HTTP request.
+     *
+     * @exception std::invalid_argument The HTTP request is invalid.
+     */
+    void Parse(Buffer& buf);
+
+    /**
+     * @brief Get an HTTP header by its key.
+     *
+     * @warning The query is case-sensitive.
+     */
+    std::optional<std::string_view> Header(std::string_view key) const noexcept;
+
+    /**
+     * @brief Get an HTTP @p POST variable by its key.
+     *
+     * @warning The query is case-sensitive.
+     */
+    std::optional<std::string_view> Post(std::string_view key) const noexcept;
+
+    //! Get the number of HTTP @p POST variables.
+    std::size_t PostSize() const noexcept;
+
+    //! Get the HTTP method.
+    http::Method Method() const noexcept;
+
+    //! Get the path.
+    std::string_view Path() const noexcept;
+
+    //! Get the HTTP version.
+    std::string_view Version() const noexcept;
+
+    //! Whether the request keeps alive.
+    bool KeepAlive() const noexcept;
+
+private:
+    friend class NotStarted;
+    friend class Header;
+    friend class Body;
+
+    //! Set a new parsing state.
+    void SetState(std::unique_ptr<State> state) noexcept;
+
+    //! Clear the cache.
+    void Clear() noexcept;
+
+    std::unique_ptr<State> state_;
+
+    http::Method method_ {Method::Get};
+    std::string version_;
+    std::string path_;
+
+    Parameters headers_;
+    Parameters post_;
+};
+
+}  // namespace ws::http
+===== END F03/U03 =====
+
+===== BEGIN F04/U04 =====
+path: src/http/request.cpp
+role: complete target-owned implementation/declaration file
+replacement_required: true
+#include "request.h"
+#include "util.h"
+
+#include <cassert>
+#include <regex>
+#include <stdexcept>
+
+
+namespace ws::http {
+
+//! The interface of parsing state.
+class Request::State {
+public:
+    explicit State(Request& parser) noexcept : parser_ {parser} {}
+
+    virtual ~State() noexcept = default;
+
+    virtual void Parse(const std::string& content) = 0;
+
+protected:
+    Request& parser_;
+};
+
+//! The parsing has not started yet.
+class NotStarted : public Request::State {
+public:
+    using State::State;
+
+    /**
+     * @brief Parse the HTTP status line.
+     *
+     * @exception std::invalid_argument The HTTP status line is invalid.
+     */
+    void Parse(const std::string& line) override {
+        ParseStatusLine(line);
+    }
+
+private:
+    void ParseStatusLine(const std::string& line);
+};
+
+//! The parser is processing HTTP headers.
+class Header : public Request::State {
+public:
+    using State::State;
+
+    /**
+     * @brief Parse an HTTP header.
+     *
+     * @exception std::invalid_argument No empty line between HTTP headers and the body.
+     */
+    void Parse(const std::string& line) override;
+};
+
+//! The parser is processing the HTTP body.
+class Body : public Request::State {
+public:
+    using State::State;
+
+    /**
+     * @brief Parse the HTTP body.
+     *
+     * @exception std::invalid_argument Unsupported HTTP method.
+     */
+    void Parse(const std::string& body) override;
+
+private:
+    /**
+     * @brief Parse an HTTP @p POST body.
+     *
+     * @exception std::invalid_argument Unsupported HTTP content type.
+     */
+    void ParsePost(const std::string& body);
+
+    /**
+     * @brief
+     * Parse an HTTP @p POST body with content type @p application/x-www-form-urlencoded.
+     *
+     * @exception std::invalid_argument Invalid HTTP @p POST data.
+     */
+    void ParseURLEncodedPost(const std::string& body);
+};
+
+//! The parsing has finished.
+class Finished : public Request::State {
+public:
+    using State::State;
+
+    //! Throw a @p std::invalid_argument exception because the parsing shoud have finished.
+    [[noreturn]] void Parse(const std::string& content) override {
+        throw std::invalid_argument {"The parsing shoud have finished"};
+    }
+};
+
+Request::Request() noexcept = default;
+
+Request::~Request() noexcept = default;
+
+Request::Request(Buffer& buf) {
+    Parse(buf);
+}
+
+void Request::Parse(Buffer& buf) {
+    Clear();
+    if (buf.Empty()) {
+        throw std::invalid_argument {"The buffer is empty"};
+    }
+
+    auto content {buf.ReadableString()};
+    while (!content.empty()) {
+        const auto line_end {content.find(new_line)};
+        const auto line {content.substr(0, line_end)};
+
+        assert(state_);
+        state_->Parse(line);
+
+        buf.Retrieve(line.length());
+        content = content.substr(line.length());
+        if (line_end != std::string::npos) {
+            content = content.substr(new_line.length());
+            buf.Retrieve(new_line.length());
+        }
+    }
+}
+
+void Request::SetState(std::unique_ptr<State> state) noexcept {
+    state_ = std::move(state);
+}
+
+void Request::Clear() noexcept {
+    SetState(std::make_unique<NotStarted>(*this));
+    method_ = Method::Get;
+    version_.clear();
+    path_.clear();
+    headers_.clear();
+    post_.clear();
+}
+
+std::size_t Request::PostSize() const noexcept {
+    return post_.size();
+}
+
+bool Request::KeepAlive() const noexcept {
+    if (const auto conn {headers_.find("Connection")};
+        conn != headers_.cend()) {
+        return version_ == "1.1" && conn->second == "keep-alive";
+    } else {
+        return false;
+    }
+}
+
+std::string_view Request::Version() const noexcept {
+    return version_;
+}
+
+std::string_view Request::Path() const noexcept {
+    return path_;
+}
+
+http::Method Request::Method() const noexcept {
+    return method_;
+}
+
+std::optional<std::string_view> Request::Post(
+    const std::string_view key) const noexcept {
+    if (const auto val {post_.find(key.data())}; val != post_.cend()) {
+        return val->second;
+    } else {
+        return std::nullopt;
+    }
+}
+
+std::optional<std::string_view> Request::Header(
+    const std::string_view key) const noexcept {
+    if (const auto val {headers_.find(key.data())}; val != headers_.cend()) {
+        return val->second;
+    } else {
+        return std::nullopt;
+    }
+}
+
+void NotStarted::ParseStatusLine(const std::string& line) {
+    const std::regex pattern {"^([^ ]*) ([^ ]*) HTTP/([^ ]*)$"};
+    std::smatch matches;
+    if (std::regex_match(line, matches, pattern)) {
+        parser_.method_ = StringToMethod(matches[1]);
+        parser_.path_ = matches[2];
+        parser_.version_ = matches[3];
+        parser_.SetState(std::make_unique<Header>(parser_));
+    } else {
+        throw std::invalid_argument {
+            fmt::format("Invalid HTTP status line: '{}'", line)};
+    }
+}
+
+void Header::Parse(const std::string& line) {
+    const std::regex pattern {"^([^:]*): ?(.*)$"};
+    std::smatch matches;
+    if (std::regex_match(line, matches, pattern)) {
+        parser_.headers_.emplace(matches[1], matches[2]);
+    } else if (line.empty()) {
+        parser_.SetState(std::make_unique<Body>(parser_));
+    } else {
+        throw std::invalid_argument {
+            "There must be an empty line between HTTP headers and the body"};
+    }
+}
+
+void Body::Parse(const std::string& body) {
+    const auto method {parser_.Method()};
+    switch (method) {
+        case Method::Post: {
+            ParsePost(body);
+            break;
+        }
+        default: {
+            throw std::invalid_argument {fmt::format(
+                "Unsupported HTTP method: '{}'", to_string(method))};
+        }
+    }
+
+    parser_.SetState(std::make_unique<Finished>(parser_));
+}
+
+void Body::ParsePost(const std::string& body) {
+    if (const auto content_type {parser_.Header("Content-Type").value_or("")};
+        content_type == "application/x-www-form-urlencoded") {
+        ParseURLEncodedPost(body);
+    } else {
+        throw std::invalid_argument {
+            fmt::format("Unsupported HTTP content type: '{}'", content_type)};
+    }
+}
+
+void Body::ParseURLEncodedPost(const std::string& body) {
+    auto& post {parser_.post_};
+    auto decoded_body {DecodeURLEncodedString(body)};
+    std::string_view view {decoded_body};
+    std::string key, val;
+    std::size_t begin {0}, end {0};
+    for (; end < view.size(); ++end) {
+        switch (view[end]) {
+            case '=': {
+                key = view.substr(begin, end - begin);
+                begin = end + 1;
+                break;
+            }
+            case '+': {
+                decoded_body[end] = ' ';
+                break;
+            }
+            case '&': {
+                val = view.substr(begin, end - begin);
+                begin = end + 1;
+                if (!key.empty()) {
+                    post.emplace(std::move(key), std::move(val));
+                } else {
+                    throw std::invalid_argument {
+                        fmt::format("Invalid HTTP POST data: '{}'", body)};
+                }
+
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+
+    // Save the last key-value pair.
+    assert(begin <= end);
+    val = view.substr(begin, end - begin);
+    if (!key.empty() && !post.contains(key) && !val.empty()) {
+        post.emplace(std::move(key), std::move(val));
+    } else {
+        throw std::invalid_argument {
+            fmt::format("Invalid HTTP POST data: '{}'", body)};
+    }
+}
+
+}  // namespace ws::http
+===== END F04/U04 =====
+
+===== BEGIN F05/U05 =====
+path: src/http/response.h
+role: complete target-owned implementation/declaration file
+replacement_required: true
+/**
+ * @file response.h
+ * @brief The HTTP response.
+ *
+ * @author Zhenshuo Chen (chenzs108@outlook.com)
+ * @author Liu Guowen (liu.guowen@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-06-09
+ */
+
+#pragma once
+
+#include "containers/buffer.h"
+#include "http.h"
+#include "util.h"
+
+#include <filesystem>
+#include <optional>
+
+
+namespace ws::http {
+
+//! The HTTP response builder.
+class Response {
+public:
+    /**
+     * @brief Create an HTTP response builder.
+     *
+     * @param root_dir
+     * A root directory.
+     * If using a relative path to access a file when making response,
+     * that path will be relative to the root directory.
+     */
+    explicit Response(std::filesystem::path root_dir) noexcept;
+
+    ~Response() noexcept;
+
+    Response(const Response&) = delete;
+
+    Response(Response&&) = delete;
+
+    Response& operator=(const Response&) = delete;
+
+    Response& operator=(Response&&) = delete;
+
+    //! Whether the connection should keep alive.
+    Response& SetKeepAlive(bool set) noexcept;
+
+    /**
+     * @brief Build an HTTP response from a file request.
+     *
+     * @param[out] buf An output buffer where the response content will be written to.
+     * @param file A file path. If it is a relative path, it will be relative to the root directory.
+     * @param[out] code The HTTP status code representing the file request.
+     * @return
+     * A read-only mapped file.  @p std::nullopt if the file request failed.
+     * If this method returns a valid mapped file,
+     * developers should send file content after sending the response header in the buffer.
+     */
+    std::optional<MappedReadOnlyFile> Build(Buffer& buf,
+                                            std::filesystem::path file,
+                                            StatusCode& code) noexcept;
+
+    /**
+     * @brief Build an HTTP response from a file request.
+     *
+     * @param[out] buf An output buffer where the response content will be written to.
+     * @param html
+     * The path of an HTML page.
+     * If it is a relative path, it will be relative to the root directory.
+     * @param params
+     * HTTP parameters.
+     * If @p html contains placeholders, those parameters can be used for replacement.
+     * @param[out] code The HTTP status code representing the file request.
+     *
+     * @warning
+     * - This method does not check whether all placeholders in an HTML page have been replaced with parameters.
+     * - The parameter name is case-sensitive.
+     */
+    void Build(Buffer& buf, std::filesystem::path html,
+               const Parameters& params, StatusCode& code) noexcept;
+
+    /**
+     * @brief Build a response from HTTP status.
+     *
+     * @param[out] buf An output buffer where the response content will be written to.
+     * @param code An HTTP status code.
+     * @param msg An optional message.
+     */
+    void Build(Buffer& buf, StatusCode code, std::string msg = "") noexcept;
+
+private:
+    //! Clear settings.
+    void Clear() noexcept;
+
+    //! Build an HTTP response from the current settings.
+    void Build(Buffer& buf, const Parameters* params = nullptr) noexcept;
+
+    //! Check the file status if there is a file request.
+    void CheckFile();
+
+    //! Map the file into memory if there is a valid file request.
+    void MapFile();
+
+    //! Add an HTTP status line.
+    void AddStatusLine(Buffer& buf) const noexcept;
+
+    //! Add HTTP headers that are not relevant to the content of the response.
+    void AddHeaders(Buffer& buf) const noexcept;
+
+    /**
+     * @brief Add HTTP headers that are relevant to the mapped read-only file.
+     *
+     * @note
+     * This method does not append file content to the buffer,
+     * because the base address of file content will be returned to developers.
+     */
+    void AddMappedContent(Buffer& buf) noexcept;
+
+    //! Add HTTP headers and generated HTML content from parameters.
+    void AddParamContent(Buffer& buf, const Parameters& params) const noexcept;
+
+    //! Add HTTP headers and a predefined error-handling HTML page.
+    void AddPredefinedErrorContent(Buffer& buf,
+                                   std::string_view msg = "") noexcept;
+
+    std::filesystem::path root_dir_;
+    std::filesystem::path file_path_;
+
+    MappedReadOnlyFile file_;
+
+    bool keep_alive_ {false};
+    StatusCode status_code_ {StatusCode::OK};
+};
+
+}  // namespace ws::http
+===== END F05/U05 =====
+
+===== BEGIN F06/U06 =====
+path: src/http/response.cpp
+role: complete target-owned implementation/declaration file
+replacement_required: true
+#include "response.h"
+
+#include <cassert>
+#include <sstream>
+
+
+namespace ws::http {
+
+Response::Response(std::filesystem::path root_dir) noexcept :
+    root_dir_ {std::move(root_dir)} {}
+
+Response::~Response() noexcept {
+    Clear();
+}
+
+void Response::Clear() noexcept {
+    file_.Unmap();
+    status_code_ = StatusCode::OK;
+    file_path_.clear();
+}
+
+Response& Response::SetKeepAlive(const bool set) noexcept {
+    keep_alive_ = set;
+    return *this;
+}
+
+std::optional<MappedReadOnlyFile> Response::Build(Buffer& buf,
+                                                  std::filesystem::path file,
+                                                  StatusCode& code) noexcept {
+    Clear();
+    file_path_ = std::move(file);
+    status_code_ = StatusCode::OK;
+    Build(buf);
+    code = status_code_;
+    return file_.Data() ? std::optional {std::move(file_)} : std::nullopt;
+}
+
+void Response::Build(Buffer& buf, std::filesystem::path file,
+                     const Parameters& params, StatusCode& code) noexcept {
+    Clear();
+    file_path_ = std::move(file);
+    status_code_ = StatusCode::OK;
+    Build(buf, &params);
+    code = status_code_;
+}
+
+void Response::Build(Buffer& buf, const StatusCode code,
+                     std::string msg) noexcept {
+    static constexpr std::string_view http_status_page {"/http-status.html"};
+    static constexpr std::string_view status_code_tag {"status-code"};
+    static constexpr std::string_view status_tag {"status"};
+    static constexpr std::string_view msg_tag {"msg"};
+
+    Clear();
+    status_code_ = code;
+    file_path_ = http_status_page;
+
+    const Parameters params {
+        {status_code_tag.data(), std::to_string(StatusCodeToInteger(status_code_))},
+        {status_tag.data(), StatusCodeToMessage(status_code_).data()},
+        {msg_tag.data(), std::move(msg)}
+    };
+
+    Build(buf, &params);
+}
+
+void Response::Build(Buffer& buf, const Parameters* const params) noexcept {
+    std::optional<std::string> error_msg;
+
+    try {
+        if (!root_dir_.empty()) {
+            // The form of an HTTP path is "/path/to/file".
+            // Using `relative_path` can get its relative path which is "path/to/file".
+            // Otherwise `root_dir_ / file_path_` only returns `file_path_`,
+            // because `file_path_` is considered as an absolute path.
+            file_.Map(root_dir_ / file_path_.relative_path());
+        } else {
+            file_.Map(file_path_);
+        }
+    } catch (const std::exception& err) {
+        status_code_ = StatusCode::BadRequest;
+        error_msg = err.what();
+    }
+
+    AddStatusLine(buf);
+    AddHeaders(buf);
+    if (!error_msg.has_value()) {
+        if (params) {
+            AddParamContent(buf, *params);
+        } else {
+            AddMappedContent(buf);
+        }
+    } else {
+        AddPredefinedErrorContent(buf, *error_msg);
+    }
+}
+
+void Response::AddStatusLine(Buffer& buf) const noexcept {
+    buf.Append(
+        fmt::format("HTTP/{} {} {}", version, StatusCodeToInteger(status_code_),
+                    StatusCodeToMessage(status_code_)),
+        NewLine::CRLF);
+}
+
+void Response::AddHeaders(Buffer& buf) const noexcept {
+    buf.Append("Connection: ");
+    if (keep_alive_) {
+        buf.Append("keep-alive", NewLine::CRLF);
+        buf.Append("keep-alive: max=6, timeout=120", NewLine::CRLF);
+    } else {
+        buf.Append("close", NewLine::CRLF);
+    }
+}
+
+void Response::AddMappedContent(Buffer& buf) noexcept {
+    assert(file_.Data());
+
+    buf.Append(fmt::format("Content-type: {}",
+                           ContentTypeByFileName(file_path_.c_str())),
+               NewLine::CRLF);
+    buf.Append(fmt::format("Content-length: {}", file_.Size()), NewLine::CRLF);
+    buf.Append(new_line);
+}
+
+void Response::AddParamContent(Buffer& buf,
+                               const Parameters& params) const noexcept {
+    assert(file_.Data());
+
+    buf.Append(fmt::format("Content-type: {}",
+                           ContentTypeByFileName(file_path_.c_str())),
+               NewLine::CRLF);
+
+    std::string content {reinterpret_cast<const char*>(file_.Data()),
+                         file_.Size()};
+    for (const auto& [key, val] : params) {
+        content = ReplaceAllSubstring(content, HTMLPlaceholder(key), val);
+    }
+
+    const auto lines {SplitStringToLines(content)};
+    std::size_t length {new_line.length() * (lines.size() - 1)};
+    std::for_each(lines.cbegin(), lines.cend(),
+                  [&length](const auto& line) { length += line.size(); });
+
+    buf.Append(fmt::format("Content-length: {}", length), NewLine::CRLF);
+    buf.Append(new_line);
+
+    for (auto i {0}; i != lines.size(); ++i) {
+        if (i != lines.size() - 1) {
+            buf.Append(lines[i], NewLine::CRLF);
+        } else {
+            buf.Append(lines[i]);
+        }
+    }
+}
+
+void Response::AddPredefinedErrorContent(Buffer& buf,
+                                         const std::string_view msg) noexcept {
+    buf.Append("Content-type: text/html", NewLine::CRLF);
+
+    std::ostringstream ss;
+    ss << "<html>" << new_line;
+    ss << "<title>ERROR</title>" << new_line;
+    ss << "<body>" << new_line;
+    ss << fmt::format("<p>{} : {}</p>", StatusCodeToInteger(status_code_),
+                      StatusCodeToMessage(status_code_))
+       << new_line;
+    if (!msg.empty()) {
+        ss << fmt::format("<p>{}</p>", msg) << new_line;
+    }
+    ss << "</body>" << new_line;
+    ss << "</html>";
+
+    const auto body {ss.str()};
+    buf.Append(fmt::format("Content-length: {}", body.size()), NewLine::CRLF);
+    buf.Append(new_line);
+    buf.Append(body);
+}
+
+}  // namespace ws::http
+===== END F06/U06 =====
+
+===== BEGIN TREATMENT DESIGN KNOWLEDGE =====
+----- BEGIN V4/V5 DETAILED-DESIGN GUIDANCE -----
+# RAGによる追加詳細設計（内容必須・Markdown階層は柔軟）
+基本9項目に加えて、以下7項目の内容を設計文書に含めてください。
+`追加詳細設計情報`というまとめ見出しを使用しても構いませんが、見出しlevel、順序、追加見出しは固定しません。
+各成果物は基本9項目の言い換えだけで終わらせず、構造・関係・順序・制約・再実装に必要な具体的事実を記述してください。
+該当しない場合は「該当なし」、確認できない場合は「確認不能」としてください。
+図はMermaidを推奨しますが、形式より内容の正確性を優先してください。
+
+- クラス図
+- クラス・メソッド・インターフェース詳細
+- シーケンス図
+- メソッド仕様書
+- 処理フロー図
+- 状態遷移・副作用
+- データ変換・制約
+
+----- BEGIN RETRIEVED CONTEXT -----
+# 汎用詳細設計知識 v4
+
+## 目的
+
+対象コードから、再実装に必要な実装上の事実を失わない詳細設計情報を生成する。
+v3のクラス図・インターフェース詳細・シーケンス図・メソッド仕様・処理フロー・状態遷移・データ変換の観点は維持するが、単なる情報量の増加ではなく、再生成に必要な正確性を優先する。
+
+## 共通記述規則
+
+- 元コードと与えられた文脈から確認できる事実だけを記述する。
+- 元コードにない機能、API、型、状態、初期値、例外、依存関係、制約を推測で追加しない。
+- 確認できない情報は推測せず「確認不能」と記述する。
+- ソースコード全文を複製しない。再実装に必要な事実を、表、短い式、疑似コード、図、自然言語へ変換して記述する。
+- 識別子、型名、関数名、メソッド名、メンバ名、定数名、条件、演算子、数値は、再実装結果に影響する場合は元コードの表記と意味を保つ。
+- 同じsymbolを複数の表・図で記述する場合、型、可視性、const、副作用、呼び出し先、状態更新を互いに矛盾させない。矛盾が生じる場合は元コードで確認できる事実を正とする。
+- 対象に該当しない成果物は「該当なし」と簡潔な根拠を記述する。
+- 図はMarkdown内のMermaidで記述することを推奨するが、図の形式より設計内容の正確性を優先する。
+
+## 再実装忠実度の必須観点
+
+### 1. 正確な定義
+
+再実装に影響する `using`、`typedef`、`enum`、`concept`、`requires`、macro、定数、nested/base class、構造体フィールドについて、確認できる場合は名前だけでなく実体・値・構造を記述する。
+
+ソース全文の引用は不要であり、例えば型別名は「型名 / 種別 / 実体」の表として記述してよい。
+
+### 2. 直接依存インターフェースと利用方法
+
+対象が直接利用する関数・メソッド・型について、確認できる範囲で以下を記述する。
+
+- qualified name / namespace
+- 引数名と型
+- 戻り値型
+- `const`、`noexcept`、`static`、`virtual`
+- 参照・ポインタの区別
+- 実際に渡す値や型変換
+- 戻り値の消費方法
+- 呼び出し順序
+
+「Loggerを使う」「Memoryへ書く」のような抽象的記述だけで終わらせず、元コードから確認できる場合はどのAPIをどのように利用するかまで設計情報として残す。
+
+### 3. 結果を決める式・具体値
+
+次のような値や式が実装結果を決める場合、自然言語へ丸めず正確に保持する。
+
+- 条件式、比較演算子、switch case
+- bit位置、bit幅、mask、shift量、符号拡張
+- byte数、サイズ単位、長さ制約
+- 配列index、offset、アドレス増分
+- loop境界、増分値
+- literal、sentinel、default値、error code
+- 文字列・改行・encodingなどの変換規則
+
+関数本体全体を貼る必要はなく、表や短い式、疑似コードとして記述してよい。
+
+### 4. 使用データ・更新データ
+
+処理が参照・更新するデータについて、再実装に必要であれば具体的なアクセス対象を記述する。
+
+- `object.member.submember` のような参照先
+- 入力 / 出力 / 内部状態の区別
+- 初期値と更新後の値
+- 更新条件と更新順序
+- コピー元 / コピー先
+- データの所有権・寿命
+
+### 5. 状態・副作用・不変条件
+
+状態更新、所有権、寿命、lock範囲、wait predicate、notify、close、error contractなど、動作の正当性に必要な制約を記述する。
+
+「副作用なし」と記述する場合は、メンバ・外部資源・出力引数・ログ・I/Oの変更が本当にないことを元コードから確認する。
+
+## クラス図
+
+クラス、構造体、インターフェース相当の型が対象または対象に直接関係する場合、クラス・構造体、属性、主要メソッド、継承、所有・参照・直接依存関係を表す。
+可視性や型を推測で補正しない。
+
+## クラス・メソッド・インターフェース詳細
+
+対象のクラス、構造体、関数、メソッドについて、再実装に必要なインターフェース情報を表形式で記述する。
+完全な名前、属性、引数名と型、戻り値型、可視性、`const`、参照、ポインタ、`static`、`virtual`、`noexcept`、型別名、列挙型、定数、直接依存を確認できる範囲で含める。
+
+## シーケンス図
+
+複数の関数、メソッド、オブジェクト間の相互作用を元コードから確認できる場合、呼び出し順序、受け渡す値、戻り値の利用、条件分岐、状態変更、エラー経路を表す。
+確認できない応答や呼び出しを創作しない。
+
+## メソッド仕様書
+
+対象関数または主要メソッドについて、目的、引数、戻り値、動作、副作用、エラー処理、必要に応じて前提条件、事後条件、境界条件、不変条件を記述する。
+実際の利用方法を確認できる場合は短い利用例を記述し、確認できない場合は「確認不能」とする。
+
+## 処理フロー図
+
+主要処理について、分岐、反復、早期終了、主要な呼び出し、状態更新、処理順序を表す。
+条件や具体値が結果を左右する場合は、抽象的な「条件判定」だけでなく、その条件を識別可能な形で残す。
+
+## 状態遷移・副作用
+
+状態を保持または変更する処理について、更新前状態、遷移条件、変更対象、更新後状態、更新順序、外部資源への副作用を表形式で記述する。
+リソース取得・解放、並行処理上の制約、所有・寿命が存在する場合は、それらも確認できる範囲で記述する。
+
+## データ変換・制約
+
+入力から出力への変換、型変換、加工規則、値域、境界値、単位、精度、encoding、検証条件、特殊値・欠損値の扱いを表形式で記述する。
+bit幅、符号、byte数、index、offset、アドレス増分など、再実装結果を左右する具体値は正確に保持する。
+----- END RETRIEVED CONTEXT -----
+----- END V4/V5 DETAILED-DESIGN GUIDANCE -----
+
+----- BEGIN ROUND-TRIP COMPLETENESS KNOWLEDGE -----
+# Round-trip completeness knowledge v1
+
+これは個別targetの実装情報ではなく、再実装可能な設計仕様書を作るための汎用知識である。図や要約を作る前に、入力の各replacement unitについて「完全再構築台帳」を作成すること。
+
+## 完全再構築台帳
+
+- full-file/module-file unitでは、ファイル先頭から末尾までを再構築できるように、include guardまたはpragma、すべてのincludeを綴りと順序を保って記録し、すべてのtop-level宣言を出現順に列挙する。
+- `struct`/`class`、`typedef`/`using`、scoped/unscoped enum、継承、access、型、名前、const/static/constexpr、引数名、default値を別表現へ言い換えず記録する。
+- constructor、conversion、operator、method、free functionを一つも省略せず、完全なsignatureと、body内の各statement、式、literal、条件、比較演算子、分岐順、更新順、戻り値を入力どおり記録する。「同様」「各fieldを設定」「必要に応じて」のような要約で置き換えない。
+- 宣言数、型数、callable数を入力と台帳で照合し、代表例だけになっていないことを設計書内で確認する。
+- dependency headerの内容は参照情報であり、replacement unitの一部ではない。targetがそのheaderをincludeしている場合はincludeを保持し、dependency側のalias、enum、class、functionをtarget内へ再定義しない。どの外部symbolをどのincludeから利用するかを記録する。
+- 入力から確認できない項目は推測しない。確認できる構文や処理を一般化、簡略化、最適化、等価変形しない。
+
+最終設計仕様書では、図や説明より完全再構築台帳を優先し、別のLLMがreplacement unit全体を欠落なく生成できる粒度で記録すること。
+----- END ROUND-TRIP COMPLETENESS KNOWLEDGE -----
+===== END TREATMENT DESIGN KNOWLEDGE =====
+
+===== BEGIN RAG_CONTEXT =====
+RAG_CONTEXT repository-dependencies-v1
+
+### PATH: include/containers/buffer.h
+SOURCE_SHA256: 94807866681c70598b716d810ffd2bfe0d9cf3406f459b51f2d33013c37b9a09
+CONTENT_SHA256: 8f0b0648f537d9c07ca6323e8f3d6c2a7400651d4319a96f683a60c64b6473d8
+----- BEGIN DEPENDENCY HEADER CONTENT: include/containers/buffer.h -----
+/**
+ * @file buffer.h
+ * @brief The auto-expandable buffer, supporting storing bytes and strings.
+ *
+ * @author Chen Zhenshuo (chenzs108@outlook.com)
+ * @author Liu Guowen (liu.guowen@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-05-03
+ *
+ * @example tests/containers/buffer_test.cpp
+ */
+
+#pragma once
+
+#include <atomic>
+#include <optional>
+#include <span>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace ws {
+
+namespace io {
+
+class IReadWriter;
+
+}
+
+//! New-line characters
+enum class NewLine {
+    //! @p \n
+    LF,
+
+    //! @p \r\n
+    CRLF
+};
+
+/**
+ * @brief An auto-expandable buffer, supporting storing bytes and strings.
+ *
+ * @details
+ * @code
+ *                 Writing Offset ──────┐
+ * Reading Offset ─────┐                │
+ *                     │                │
+ *                     │                │
+ * ┌───────────────────▼────────────────▼────────────────┐
+ * │ Prependable Bytes │ Readable Bytes │ Writable Bytes │
+ * └───────────────────┴────────────────┴────────────────┘
+ * @endcode
+ *
+ * Prependable space can be reused.
+ */
+class Buffer {
+public:
+    //! Create a buffer with an initial size.
+    explicit Buffer(std::size_t size = 1000) noexcept;
+
+    //! Create a buffer with bytes.
+    explicit Buffer(std::span<const std::byte> bytes) noexcept;
+
+    //! Create a buffer with bytes.
+    explicit Buffer(std::initializer_list<std::byte> bytes) noexcept;
+
+    //! Create a buffer with a string.
+    explicit Buffer(std::string_view str) noexcept;
+
+    Buffer(const Buffer&) noexcept;
+
+    Buffer(Buffer&&) noexcept;
+
+    Buffer& operator=(const Buffer&) noexcept;
+
+    Buffer& operator=(Buffer&&) noexcept;
+
+    //! Get the current writable size without expanding.
+    std::size_t WritableSize() const noexcept;
+
+    //! Get the readable size.
+    std::size_t ReadableSize() const noexcept;
+
+    //! Peek the first byte without moving the reading offset.
+    std::optional<std::byte> Peek() const noexcept;
+
+    //! Get readable bytes without moving the reading offset.
+    std::span<const std::byte> ReadableBytes() const noexcept;
+
+    /**
+     * @brief Get a readable string without moving the reading offset.
+     *
+     * @warning Developers should ensure that the stored bytes are printable.
+     */
+    std::string ReadableString() const noexcept;
+
+    /**
+     * @brief Get writable space for editing.
+     *
+     * @warning
+     * If developers directly write data using the base address of writable space,
+     * they must manually adjust the writing offset with @p HasWritten.
+     */
+    std::span<std::byte> WritableBytes() const noexcept;
+
+    //! Append bytes to the buffer and move forward the writing offset.
+    void Append(std::span<const std::byte> bytes) noexcept;
+
+    //! Append bytes to the buffer and move forward the writing offset.
+    void Append(std::initializer_list<std::byte> bytes) noexcept;
+
+    //! Append a string and an optional new-line character to the buffer and move forward the writing offset.
+    void Append(std::string_view str,
+                std::optional<NewLine> new_line = std::nullopt) noexcept;
+
+    //! Append data to the buffer and move forward the writing offset.
+    void Append(const void* data, std::size_t size) noexcept;
+
+    //! Append another buffer to the buffer and move forward the writing offset.
+    void Append(const Buffer& buf) noexcept;
+
+    //! Ensure the buffer has enough writable space.
+    void EnsureWriteableSize(std::size_t size) noexcept;
+
+    //! Manually move forward the writing offset by a specific size.
+    void HasWritten(std::size_t size) noexcept;
+
+    //! Manually move forward the reading offset by a specific size.
+    void Retrieve(std::size_t size) noexcept;
+
+    //! Manually move forward the reading offset until it reaches the destination.
+    std::size_t RetrieveUntil(const void* addr) noexcept;
+
+    //! Manually move forward the reading offset to the end.
+    std::size_t RetrieveAll() noexcept;
+
+    /**
+     * @brief Manually move forward the reading offset to the end and extract a string from the rest.
+     *
+     * @warning Developers should ensure that the stored bytes are printable.
+     */
+    std::string RetrieveAllToString() noexcept;
+
+    //! Clear the buffer.
+    void Clear() noexcept;
+
+    //! Whether the buffer is empty.
+    bool Empty() const noexcept;
+
+protected:
+    //! Get the prependable size which can be reused.
+    std::size_t PrependableSize() const noexcept;
+
+    //! Make the buffer have enough writable space.
+    void MakeSpace(std::size_t size) noexcept;
+
+    //! Get the reading offset.
+    std::vector<std::byte>::iterator ReadIter() const noexcept;
+
+    //! Get the writing offset.
+    std::vector<std::byte>::iterator WriteIter() const noexcept;
+
+    std::vector<std::byte> buf_;
+    std::atomic<std::size_t> read_pos_ {0};
+    std::atomic<std::size_t> write_pos_ {0};
+};
+
+//! An enhanced buffer supporting I/O reading and writing.
+class IOBuffer : public Buffer {
+public:
+    using Buffer::Buffer;
+
+    //! Read data from an I/O object.
+    std::size_t ReadFrom(io::IReadWriter& io);
+
+    //! Write data to an I/O object.
+    std::size_t WriteTo(io::IReadWriter& io);
+};
+
+//! Write a string to a buffer.
+Buffer& operator<<(Buffer& buf, std::string_view str) noexcept;
+
+//! Write a buffer to another buffer.
+Buffer& operator<<(Buffer& to, const Buffer& from) noexcept;
+
+//! Write bytes to a buffer.
+Buffer& operator<<(Buffer& buf, std::span<const std::byte> bytes) noexcept;
+
+//! Write bytes to a buffer.
+Buffer& operator<<(Buffer& buf,
+                   std::initializer_list<std::byte> bytes) noexcept;
+
+}  // namespace ws
+----- END DEPENDENCY HEADER CONTENT: include/containers/buffer.h -----
+
+### PATH: include/io.h
+SOURCE_SHA256: 760667b1cffc40eec1ce29f41591bf825b99ae69c77336b80cd00fb942be4241
+CONTENT_SHA256: c17433f843772db49f268a1cbc452b2996ce8b1484ede3b651d3525a6b67360c
+----- BEGIN DEPENDENCY HEADER CONTENT: include/io.h -----
+/**
+ * @file io.h
+ * @brief I/O objects supporting reading and writing from buffers.
+ *
+ * @author Chen Zhenshuo (chenzs108@outlook.com)
+ * @author Liu Guowen (liu.guowen@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-05-06
+ *
+ * @example tests/io_test.cpp
+ */
+
+#pragma once
+
+#include "util.h"
+
+#include <iostream>
+
+
+namespace ws {
+
+class Buffer;
+
+namespace io {
+
+//! An I/O reading interface interacting with buffers.
+class IReader {
+public:
+    virtual ~IReader() noexcept = default;
+
+    //! Read data from a buffer.
+    virtual std::size_t ReadFrom(Buffer& buf) = 0;
+};
+
+//! An I/O writing interface interacting with buffers.
+class IWriter {
+public:
+    virtual ~IWriter() noexcept = default;
+
+    //! Write data to a buffer.
+    virtual std::size_t WriteTo(Buffer& buf) = 0;
+};
+
+//! An I/O interface interacting with buffers.
+class IReadWriter : public virtual IReader, public virtual IWriter {};
+
+/**
+ * @brief Null I/O.
+ *
+ * @details
+ * It simply consumes a buffer's all readable or writable space,
+ * without reading or writing anything.
+ */
+class Null : public virtual IReadWriter {
+public:
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+};
+
+//! I/O for string streams.
+class StringStream : public virtual IReadWriter {
+public:
+    /**
+     * @brief Create an I/O object with string stream references.
+     *
+     * @param read
+     * A string stream for reading.
+     * Data will be read from it to a buffer.
+     * @param write
+     * A string stream for writing.
+     * Data will be written to it from a buffer.
+     *
+     * @warning
+     * The I/O does not maintain a copy of the stream.
+     * Developers must ensure the stream is valid when reading or writing.
+     */
+    explicit StringStream(std::istream& read, std::ostream& write) noexcept;
+
+    StringStream(const StringStream&) = delete;
+
+    StringStream(StringStream&&) = delete;
+
+    StringStream& operator=(const StringStream&) = delete;
+
+    StringStream& operator=(StringStream&&) = delete;
+
+    std::size_t WriteTo(Buffer& buf) noexcept override;
+
+    std::size_t ReadFrom(Buffer& buf) noexcept override;
+
+private:
+    std::istream& read_;
+    std::ostream& write_;
+};
+
+//! I/O for file descriptors.
+class FileDescriptor : public virtual IReadWriter {
+public:
+    /**
+     * @brief Create an I/O object with file descriptors.
+     *
+     * @param read
+     * A file descriptor for reading.
+     * Data will be read from it to a buffer.
+     * @param write
+     * A file descriptor for writing.
+     * Data will be written to it from a buffer.
+     *
+     * @note
+     * A file descriptor uses the same offset for reading and writing.
+     * So the constructor needs two descriptors for reading and writing respectively.
+     */
+    explicit FileDescriptor(ws::FileDescriptor read,
+                            ws::FileDescriptor write) noexcept;
+
+    FileDescriptor(const FileDescriptor&) = delete;
+
+    FileDescriptor(FileDescriptor&&) = delete;
+
+    FileDescriptor& operator=(const FileDescriptor&) = delete;
+
+    FileDescriptor& operator=(FileDescriptor&&) = delete;
+
+    std::size_t WriteTo(Buffer& buf) override;
+
+    std::size_t ReadFrom(Buffer& buf) override;
+
+private:
+    ws::FileDescriptor read_;
+    ws::FileDescriptor write_;
+};
+
+}  // namespace io
+
+}  // namespace ws
+----- END DEPENDENCY HEADER CONTENT: include/io.h -----
+
+### PATH: include/ip.h
+SOURCE_SHA256: 82e66975d0e2cc9e6be8e552de6c382ec34ae9f5d4349885c5547d5fc67558c1
+CONTENT_SHA256: 6a2d6d8f9dac2133366304948e58212d248c04ef9714e2088a41fbadf70b23d0
+----- BEGIN DEPENDENCY HEADER CONTENT: include/ip.h -----
+/**
+ * @file ip.h
+ * @brief The IP address interface.
+ *
+ * @author Zhenshuo Chen (chenzs108@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-06-06
+ */
+
+#pragma once
+
+#include <concepts>
+#include <cstdint>
+#include <string>
+#include <string_view>
+
+#include <netinet/in.h>
+
+
+namespace ws {
+
+//! The interface of IP address.
+class IPAddr {
+public:
+    virtual ~IPAddr() noexcept = default;
+
+    //! Get the IP version.
+    virtual int Version() const noexcept = 0;
+
+    //! Get the size of socket address.
+    virtual std::size_t Size() const noexcept = 0;
+
+    //! Get the socket address.
+    virtual const sockaddr* Raw() const noexcept = 0;
+
+    virtual std::uint16_t Port() const noexcept = 0;
+
+    virtual std::string IPAddress() const noexcept = 0;
+};
+
+//! The IPv4 address.
+class IPv4Addr : public IPAddr {
+public:
+    static constexpr int version {AF_INET};
+
+    static constexpr std::string_view loop_back {"127.0.0.1"};
+
+    static constexpr std::string_view any {"0.0.0.0"};
+
+    static constexpr std::size_t max_length {15};
+
+    using RawType = sockaddr_in;
+
+    explicit IPv4Addr(sockaddr_in addr);
+
+    explicit IPv4Addr(std::string ip, std::uint16_t port);
+
+    int Version() const noexcept override;
+
+    std::size_t Size() const noexcept override;
+
+    const sockaddr* Raw() const noexcept override;
+
+    std::uint16_t Port() const noexcept override;
+
+    std::string IPAddress() const noexcept override;
+
+private:
+    std::string ip_;
+    sockaddr_in raw_ {};
+};
+
+//! The IPv6 address.
+class IPv6Addr : public IPAddr {
+public:
+    static constexpr int version {AF_INET6};
+
+    static constexpr std::string_view loop_back {"::1"};
+
+    static constexpr std::string_view any {"::"};
+
+    static constexpr std::size_t max_length {45};
+
+    using RawType = sockaddr_in6;
+
+    explicit IPv6Addr(sockaddr_in6 addr);
+
+    explicit IPv6Addr(std::string ip, std::uint16_t port);
+
+    int Version() const noexcept override;
+
+    std::size_t Size() const noexcept override;
+
+    const sockaddr* Raw() const noexcept override;
+
+    std::uint16_t Port() const noexcept override;
+
+    std::string IPAddress() const noexcept override;
+
+private:
+    std::string ip_;
+    sockaddr_in6 raw_ {};
+};
+
+template <typename T>
+concept ValidIPAddr = std::same_as<T, IPv4Addr> || std::same_as<T, IPv6Addr>;
+
+}  // namespace ws
+----- END DEPENDENCY HEADER CONTENT: include/ip.h -----
+
+### PATH: include/util.h
+SOURCE_SHA256: bac4d995b6e2a36657e76fef372a32577b330f8576e395c0fe7402c68e969e85
+CONTENT_SHA256: b55d0fd816eb63e37e57892a9a362293851d5f6702d3784aa3a82055c4753270
+----- BEGIN DEPENDENCY HEADER CONTENT: include/util.h -----
+/**
+ * @file util.h
+ * @brief Commonly used utilities.
+ *
+ * @author Chen Zhenshuo (chenzs108@outlook.com)
+ * @par GitHub
+ * https://github.com/Zhuagenborn
+ * @version 1.0
+ * @date 2022-04-23
+ *
+ * @example tests/util_test.cpp
+ *
+ * @todo Replace @p fmt with C++20 @p format.
+ */
+
+#pragma once
+
+#include <fmt/format.h>
+#include <yaml-cpp/yaml.h>
+
+#include <sys/stat.h>
+
+#include <concepts>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+#include <regex>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+//! @p ws means "web server".
+namespace ws {
+
+//! The underlying type of file descriptors.
+using FileDescriptor = int;
+
+//! A constant value representing invalid file descriptors.
+inline constexpr FileDescriptor invalid_file_descriptor {-1};
+
+//! Convert a string into lower-case.
+std::string StringToLower(std::string str) noexcept;
+
+//! Convert a string into upper-case.
+std::string StringToUpper(std::string str) noexcept;
+
+//! Replace all occurrences of a sub-string in a string.
+std::string ReplaceAllSubstring(std::string_view str, std::string_view from,
+                                std::string_view to) noexcept;
+
+//! Split a string by a regex pattern.
+std::vector<std::string> SplitString(const std::string& str,
+                                     const std::regex& pattern) noexcept;
+
+//! Split a string into lines.
+std::vector<std::string> SplitStringToLines(const std::string& str) noexcept;
+
+/**
+ * @brief Load a @p YAML node from a string.
+ *
+ * @param str A @p YAML string.
+ * @param required_fields Required fields.
+ *
+ * @exception std::invalid_argument The node does not contain all required fields.
+ */
+YAML::Node LoadYamlString(
+    std::string_view str,
+    std::initializer_list<std::string_view> required_fields = {});
+
+//! Throw an @p std::invalid_argument exception if a field does not exist in a @p YAML node or it is not scalar.
+void ThrowIfYamlFieldIsNotScalar(const YAML::Node& node,
+                                 std::string_view field);
+
+/**
+ * @brief Whether a file descriptor is valid.
+ *
+ * @note Assume the value of valid file descriptors should be greater than or equal to 0.
+ */
+constexpr bool IsValidFileDescriptor(FileDescriptor fd) noexcept {
+    return fd >= 0;
+}
+
+/**
+ * @brief Set a file descriptor as non-blocking.
+ *
+ * @exception std::system_error Failed to set the file descriptor.
+ */
+void SetFileDescriptorAsNonblocking(FileDescriptor fd);
+
+//! Throw a @p std::system_error exception containing the last-error.
+[[noreturn]] void ThrowLastSystemError();
+
+//! Get the ID of the current thread.
+std::uint32_t CurrentThreadId() noexcept;
+
+/**
+ * @brief Get a backtrace for the calling program.
+ *
+ * @param[out] stack An address array.
+ * @param size The maximum number of addresses.
+ * @param skip The number of addresses to ignore.
+ */
+void Backtrace(std::vector<std::string>& stack, std::size_t size,
+               std::size_t skip = 0) noexcept;
+
+/**
+ * @brief Get a backtrace for the calling program.
+ *
+ * @param size The maximum number of addresses.
+ * @param skip The number of addresses to ignore.
+ * @return A string containing the backtrace.
+ */
+std::string Backtrace(std::size_t size, std::size_t skip = 0,
+                      std::string_view prefix = "") noexcept;
+
+/**
+ * @brief The singleton pattern interface for references.
+ *
+ * @tparam T A type using the singleton pattern.
+ * @tparam Args The arguments of the singleton instance, referring to one of its constructors.
+ */
+template <typename T, typename... Args>
+class Singleton {
+public:
+    /**
+     * @brief Get the singleton instance.
+     *
+     * @tparam args The construction arguments.
+     */
+    template <Args... args>
+    static T& Instance() noexcept {
+        static T ins {std::move(args)...};
+        return ins;
+    }
+};
+
+/**
+ * @brief The singleton pattern interface for smart points.
+ *
+ * @tparam T A type using the singleton pattern.
+ * @tparam Args The argument types of the singleton instance, referring to one of its constructors.
+ */
+template <typename T, typename... Args>
+class SingletonPtr {
+public:
+    /**
+     * @brief Get the singleton instance.
+     *
+     * @tparam args The construction arguments.
+     */
+    template <Args... args>
+    static std::shared_ptr<T> Instance() noexcept {
+        static const std::shared_ptr<T> ins {
+            std::make_shared<T>(std::move(args)...)};
+        return ins;
+    }
+};
+
+template <typename T, typename Cleaner = std::function<void(T)>>
+requires std::is_invocable_v<Cleaner, T>
+class RAII {
+public:
+    /**
+     * @brief Create a RAII for an object.
+     *
+     * @param obj An object needing to be cleaned.
+     * @param cleaner A cleaner.
+     */
+    explicit RAII(T obj, Cleaner cleaner) noexcept :
+        obj_ {std::move(obj)}, cleaner_ {std::move(cleaner)} {}
+
+    RAII(const RAII&) = delete;
+
+    RAII(RAII&&) = delete;
+
+    RAII& operator=(const RAII&) = delete;
+
+    RAII& operator=(RAII&&) = delete;
+
+    ~RAII() noexcept {
+        cleaner_(obj_);
+    }
+
+    const T& Object() const noexcept {
+        return obj_;
+    }
+
+private:
+    T obj_;
+    Cleaner cleaner_;
+};
+
+/**
+ * @brief
+ * RAII for a read-only file that has been mapped into memory.
+ *
+ * @details
+ * It encapsulates @p stat, @p mmap and @p munmap of Linux system.
+ */
+class MappedReadOnlyFile {
+public:
+    MappedReadOnlyFile() noexcept;
+
+    MappedReadOnlyFile(const MappedReadOnlyFile&) = delete;
+
+    MappedReadOnlyFile(MappedReadOnlyFile&&) noexcept;
+
+    MappedReadOnlyFile& operator=(const MappedReadOnlyFile&) = delete;
+
+    MappedReadOnlyFile& operator=(MappedReadOnlyFile&&) noexcept;
+
+    ~MappedReadOnlyFile() noexcept;
+
+    /**
+     * @brief Map a file into memory.
+     *
+     * @exception std::invalid_argument The path refers to a directory.
+     * @exception std::runtime_error No permission to access the file.
+     * @exception std::system_error Failed to map the file.
+     */
+    std::byte* Map(std::string path);
+
+    //! Unmap the file.
+    void Unmap() noexcept;
+
+    //! Get the file size.
+    std::size_t Size() const noexcept;
+
+    //! Get the file data.
+    std::byte* Data() const noexcept;
+
+    //! Get the file path.
+    std::string_view Path() const noexcept;
+
+private:
+    /**
+     * @brief Check the file.
+     *
+     * @exception std::invalid_argument The path refers to a directory.
+     * @exception std::runtime_error No permission to access the file.
+     * @exception std::system_error Other system errors.
+     */
+    void Check();
+
+    std::string path_;
+    struct stat stat_ {};
+    std::byte* data_ {nullptr};
+};
+
+template <typename T, typename U, typename Ret = T>
+concept Addable = requires(T t, U u) {
+    { t + u } -> std::convertible_to<Ret>;
+};
+
+}  // namespace ws
+----- END DEPENDENCY HEADER CONTENT: include/util.h -----
+===== END RAG_CONTEXT =====

@@ -1,0 +1,201 @@
+最終設計仕様書に記載された置換unitをC++コードとして再生成してください。
+
+規則:
+- 設計仕様書に記載された名前、型、signature、namespace、修飾子を変更しないでください。
+- C++としてコンパイル可能なコードを生成してください。
+- 設計仕様書に存在しない型、API、ファイル、unitを勝手に作らないでください。
+- `replacement_required=true`と記載された置換unitだけを生成し、参照専用unitは生成しないでください。
+- 各`content`には指定された置換unit本体だけを含めてください。function/byte-span unitでは周辺の`#include`、namespace wrapper、既存の定数・型・helper定義、別unitを複製しないでください。full-file/module-file unitでは`#include`、namespace、型、inline実装を含むファイル全体がunit本体であり、この除外規則の対象外です。
+- function置換unitの`content`には、戻り値型、完全な関数名、引数list、修飾子、開閉波括弧、関数bodyを含む完全な関数定義を出力してください。関数body内の文だけを出力してはいけません。
+- full-fileまたはmodule-file置換unitの`content`には、設計仕様書に記載された完全なファイルを先頭から末尾まで出力してください。include guardまたはpragma、必要なinclude、namespace、using、すべての型宣言、すべてのメンバー、すべてのinline実装、終端を省略してはいけません。代表的な関数一つ、宣言だけ、またはファイルの一部分だけを出力してはいけません。
+- 設計仕様書で既存の周辺symbolとして示されたものは利用だけ行い、再定義しないでください。
+- 設計仕様書に記載された変数型、初期値、条件式、比較演算子、分岐順序、更新順序、戻り値、error path、境界条件を逐語的に実装し、省略や等価な書き換えをしないでください。
+- 設計仕様書で内容が確認不能とされた定数、table、型、APIを推測して作成しないでください。
+- 出力前に、設計仕様書に列挙されたすべての正常経路・異常経路・終了条件が生成コードに存在することを内部確認してください。
+- 指定されたJSON Schemaへ厳密に従ってください。
+- JSON以外の説明やMarkdownを出力しないでください。
+- C++記号をHTML entity化しないでください。
+- 文字列、文字リテラル、template、concept、requiresを正しいC++構文で生成してください。
+
+FINAL_DESIGN_SPECIFICATION:
+# BlockDeque Design Specification
+
+## Overview
+The `BlockDeque` is a thread-safe, bounded double-ended queue (deque) implementation that supports both producer and consumer operations with blocking behavior when the container is full or empty. It uses condition variables to coordinate between producers and consumers.
+
+## Class Structure
+
+### Template Parameters
+- `T`: The type of elements stored in the deque
+
+### Public Members
+
+#### Types
+- `Clock`: Alias for `std::chrono::steady_clock` used for timeout specifications
+
+#### Constructors/Destructor
+- `BlockDeque(std::size_t capacity = 1000) noexcept`
+  - Creates a new BlockDeque with specified capacity (default: 1000)
+  - Throws: None
+  - Postcondition: The deque is empty and not closed
+
+- `~BlockDeque() noexcept`
+  - Destructor that ensures proper cleanup
+  - Calls `Close()` to clean up resources
+
+#### Copy/Move Semantics
+- All copy and move operations are deleted (not allowed)
+
+#### Public Methods
+
+##### Capacity Management
+- `void Clear() noexcept`
+  - Removes all elements from the deque
+  - Thread-safe: acquires mutex lock
+
+- `bool Empty() const noexcept`
+  - Returns true if the deque is empty
+  - Thread-safe: acquires mutex lock
+
+- `bool Full() const noexcept`
+  - Returns true if the deque has reached capacity
+  - Thread-safe: acquires mutex lock
+
+- `std::size_t Size() const noexcept`
+  - Returns current number of elements in deque
+  - Thread-safe: acquires mutex lock
+
+- `std::size_t Capacity() const noexcept`
+  - Returns maximum capacity of the deque
+  - Thread-safe: no lock needed (read-only atomic operation)
+
+##### Element Access
+- `const T& Front() const noexcept`
+  - Returns reference to first element
+  - Thread-safe: acquires mutex lock
+  - Precondition: Deque is not empty
+
+- `const T& Back() const noexcept`
+  - Returns reference to last element
+  - Thread-safe: acquires mutex lock
+  - Precondition: Deque is not empty
+
+- `T& Front() noexcept`
+  - Non-const version of Front()
+  - Uses const_cast for convenience
+
+- `T& Back() noexcept`
+  - Non-const version of Back()
+  - Uses const_cast for convenience
+
+##### Modification Operations
+- `void PushBack(T item) noexcept`
+  - Adds element to the end of deque
+  - Thread-safe: acquires mutex lock
+  - Blocks if deque is full until space becomes available
+  - Moves the item into the deque
+
+- `void PushFront(T item) noexcept`
+  - Adds element to the front of deque
+  - Thread-safe: acquires mutex lock
+  - Blocks if deque is full until space becomes available
+  - Moves the item into the deque
+
+- `std::optional<T> Pop(std::optional<Clock::duration> time_out = std::nullopt) noexcept`
+  - Removes and returns first element
+  - Thread-safe: acquires mutex lock
+  - If timeout is specified, waits up to that duration for an element
+  - Returns nullopt if:
+    - Timeout occurs before element available
+    - Deque is closed
+  - Notifies producer when space becomes available
+
+- `void Flush() noexcept`
+  - Notifies one waiting consumer (if any)
+  - Used internally after push operations
+
+- `void Close() noexcept`
+  - Closes the deque, preventing further pushes
+  - Clears all elements and notifies all waiting threads
+  - Thread-safe: acquires mutex lock
+
+### Private Members
+
+#### Methods
+- `void WaitForSpace(std::unique_lock<std::mutex>& locker) noexcept`
+  - Blocks until space is available in the deque
+  - Uses producer condition variable for waiting
+
+- `void ClearNoLock() noexcept`
+  - Clears the underlying deque without acquiring lock
+  - Used by methods that already hold the lock
+
+#### Data Members
+- `mutable std::mutex mtx_`: Mutex for thread synchronization
+- `std::atomic_bool closed_`: Flag indicating if deque is closed
+- `std::size_t capacity_`: Maximum number of elements allowed
+- `std::deque<T> deq_`: Underlying storage container
+- `std::condition_variable consumer_cond_`: Condition variable for consumers waiting on elements
+- `std::condition_variable producer_cond_`: Condition variable for producers waiting on space
+
+## Thread Safety Guarantees
+
+1. All public methods are thread-safe except where noted otherwise
+2. The mutex is held during all operations that modify or read the deque state
+3. Condition variables coordinate between producers and consumers:
+   - `producer_cond_` signals when space becomes available
+   - `consumer_cond_` signals when elements become available
+
+## Behavior Specifications
+
+### Blocking Behavior
+- `PushBack`/`PushFront`: Block if deque is full until space becomes available or deque is closed
+- `Pop`: Block if deque is empty until element becomes available, timeout occurs, or deque is closed
+
+### Closure Semantics
+When `Close()` is called:
+1. All elements are removed from the deque
+2. The `closed_` flag is set to true
+3. All waiting producers and consumers are notified
+4. Subsequent push operations will not block but will return immediately (though behavior isn't specified for this case)
+
+### Timeout Handling
+- When a timeout is specified in `Pop()`, the method returns `std::nullopt` if:
+  - The timeout period elapses before an element becomes available
+  - The deque is closed during the wait
+
+## Implementation Notes
+
+1. The implementation uses move semantics (`std::move`) for push operations to avoid unnecessary copies
+2. The underlying container is a standard `std::deque`
+3. Assertions are used to verify internal invariants (e.g., size <= capacity)
+4. The destructor ensures proper cleanup by calling `Close()`
+
+## Error Handling
+
+The class uses assertions to verify internal consistency:
+- Capacity must be > 0 in constructor
+- Size must not exceed capacity when checking Full()
+- Deque must not be empty when accessing Front()/Back()
+
+No exceptions are thrown from public methods (all marked noexcept)
+
+## Usage Example
+
+```cpp
+ws::BlockDeque<int> deque(10);
+
+// Producer thread
+deque.PushBack(42);
+
+// Consumer thread
+auto item = deque.Pop();
+if (item) {
+    // Process item
+}
+
+// Close when done
+deque.Close();
+```
+
+This specification provides all necessary information for another LLM to implement an equivalent `BlockDeque` class while preserving the original interface and behavior.
