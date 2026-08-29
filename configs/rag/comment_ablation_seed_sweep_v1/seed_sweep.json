@@ -1,0 +1,18 @@
+{
+  "artifact_schema_version": "comment-ablation-seed-sweep-v1",
+  "purpose": "Exploratory comment-absent Qwen A/B seed sweep. All declared seeds are reported; no seed selection is performed by the runner.",
+  "formal_result": false,
+  "source_common_path": "configs/rag/roundtrip_ab_v1/common.json",
+  "source_common_sha256": "017d11e516cd6ed88eb1e9598a601b1b5c3f2b385b324b47e0d0c23641e7c1dd",
+  "source_comment_ablation_manifest_path": "configs/rag/comment_ablation_v1_replication_02/formal/evaluation_manifest.json",
+  "source_comment_ablation_manifest_sha256": "379614841174344139fcacaa21c9f41326e10b006e1e5e07ce9c87591b3e47db",
+  "frozen_comment_free_artifact_root": "../qwen-ca-r02",
+  "model": "qwen2.5-coder:32b",
+  "temperature": 0.1,
+  "seeds": [42, 43, 44, 45, 46],
+  "conditions": ["A", "B"],
+  "target_count": 17,
+  "one_shot": {"design_generation_count": 1, "code_generation_count": 1, "retry": false, "automatic_repair": false, "manual_patch": false, "overwrite": false},
+  "output_root": "experiments/rag/comment-ablation-seed-sweep-v1",
+  "report_root": "reports/rag/comment-ablation-seed-sweep-v1"
+}
