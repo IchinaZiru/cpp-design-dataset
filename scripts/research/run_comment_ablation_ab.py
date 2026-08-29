@@ -46,6 +46,8 @@ from scripts.research.prepare_comment_free_targets import strip_cpp_comments
 SCHEMA = "comment-ablation-formal-manifest-v1"
 AUTH_SCHEMA = "comment-ablation-execution-authorization-v1"
 TARGET_INPUT_FREEZE_COMMIT = "b668cb3018a87861bc67d45e1be7192e695af9f0"
+REPLICATION_RUN_ID = "comment-ablation-v1-replication-01"
+REPLICATES_RUN_ID = "comment-ablation-v1"
 
 DEFAULT_COMMON = Path("configs/rag/roundtrip_ab_v1/common.json")
 DEFAULT_SOURCE_MANIFEST = Path("configs/rag/roundtrip_ab_v1/formal/evaluation_manifest.json")
@@ -55,10 +57,14 @@ DEFAULT_TARGET_CF_MANIFEST = Path(
 DEFAULT_RAG_CF_MANIFEST = Path(
     "derived/comment-ablation-v1/rag-context/comment_free_rag_context_manifest.json"
 )
-DEFAULT_MANIFEST = Path("configs/rag/comment_ablation_v1/formal/evaluation_manifest.json")
-DEFAULT_AUTH = Path("configs/rag/comment_ablation_v1/formal/execution_authorization.json")
-DEFAULT_OUTPUT_ROOT = Path("experiments/rag/comment-ablation-v1/formal")
-DEFAULT_REPORT_ROOT = Path("reports/rag/comment-ablation-v1/formal")
+DEFAULT_MANIFEST = Path(
+    "configs/rag/comment_ablation_v1_replication_01/formal/evaluation_manifest.json"
+)
+DEFAULT_AUTH = Path(
+    "configs/rag/comment_ablation_v1_replication_01/formal/execution_authorization.json"
+)
+DEFAULT_OUTPUT_ROOT = Path("experiments/rag/comment-ablation-v1-replication-01/formal")
+DEFAULT_REPORT_ROOT = Path("reports/rag/comment-ablation-v1-replication-01/formal")
 
 
 def _project_path(root: Path, value: Path) -> Path:
@@ -203,7 +209,9 @@ def build_freeze_manifest(root: Path) -> dict[str, Any]:
 
     return {
         "artifact_schema_version": SCHEMA,
-        "purpose": "comment-absent sensitivity analysis using the same 17 formal-r2 targets and A/B design",
+        "purpose": "exact one-shot replication of comment-ablation-v1 using the same 17 formal-r2 targets and A/B design",
+        "replication_run_id": REPLICATION_RUN_ID,
+        "replicates_run_id": REPLICATES_RUN_ID,
         "target_input_freeze_commit": TARGET_INPUT_FREEZE_COMMIT,
         "source_common_path": DEFAULT_COMMON.as_posix(),
         "source_common_sha256": sha256_file(common_path),
@@ -586,7 +594,8 @@ def _execute_one(
         "target_id": target_id,
         "condition": condition,
         "formal": True,
-        "sensitivity_analysis": "comment-ablation-v1",
+        "sensitivity_analysis": REPLICATION_RUN_ID,
+        "replicates_run_id": REPLICATES_RUN_ID,
         "comment_condition": "absent",
         "target_comments_absent": True,
         "rag_dependency_comments_absent": condition == "B",
@@ -762,7 +771,8 @@ def _execute_one(
         "target_id": target_id,
         "condition": condition,
         "formal": True,
-        "sensitivity_analysis": "comment-ablation-v1",
+        "sensitivity_analysis": REPLICATION_RUN_ID,
+        "replicates_run_id": REPLICATES_RUN_ID,
         "comment_condition": "absent",
         "error": str(primary_error) if primary_error else (str(restore_error) if restore_error else None),
         "error_type": type(primary_error).__name__ if primary_error else (type(restore_error).__name__ if restore_error else None),
@@ -820,7 +830,8 @@ def execute_batch(root: Path, manifest_path: Path, auth_path: Path, report_root:
     summary = {
         "artifact_schema_version": "comment-ablation-batch-execution-v1",
         "status": "complete",
-        "sensitivity_analysis": "comment-ablation-v1",
+        "sensitivity_analysis": REPLICATION_RUN_ID,
+        "replicates_run_id": REPLICATES_RUN_ID,
         "comment_condition": "absent",
         "target_count": 17,
         "condition_count": 34,
