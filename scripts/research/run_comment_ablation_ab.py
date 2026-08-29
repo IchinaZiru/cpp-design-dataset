@@ -46,7 +46,7 @@ from scripts.research.prepare_comment_free_targets import strip_cpp_comments
 SCHEMA = "comment-ablation-formal-manifest-v1"
 AUTH_SCHEMA = "comment-ablation-execution-authorization-v1"
 TARGET_INPUT_FREEZE_COMMIT = "b668cb3018a87861bc67d45e1be7192e695af9f0"
-REPLICATION_RUN_ID = "comment-ablation-v1-replication-01"
+REPLICATION_RUN_ID = "comment-ablation-v1-replication-02"
 REPLICATES_RUN_ID = "comment-ablation-v1"
 
 DEFAULT_COMMON = Path("configs/rag/roundtrip_ab_v1/common.json")
@@ -58,13 +58,13 @@ DEFAULT_RAG_CF_MANIFEST = Path(
     "derived/comment-ablation-v1/rag-context/comment_free_rag_context_manifest.json"
 )
 DEFAULT_MANIFEST = Path(
-    "configs/rag/comment_ablation_v1_replication_01/formal/evaluation_manifest.json"
+    "configs/rag/comment_ablation_v1_replication_02/formal/evaluation_manifest.json"
 )
 DEFAULT_AUTH = Path(
-    "configs/rag/comment_ablation_v1_replication_01/formal/execution_authorization.json"
+    "configs/rag/comment_ablation_v1_replication_02/formal/execution_authorization.json"
 )
-DEFAULT_OUTPUT_ROOT = Path("experiments/rag/comment-ablation-v1-replication-01/formal")
-DEFAULT_REPORT_ROOT = Path("reports/rag/comment-ablation-v1-replication-01/formal")
+DEFAULT_OUTPUT_ROOT = Path("experiments/rag/comment-ablation-v1-replication-02/formal")
+DEFAULT_REPORT_ROOT = Path("reports/rag/comment-ablation-v1-replication-02/formal")
 
 
 def _project_path(root: Path, value: Path) -> Path:
