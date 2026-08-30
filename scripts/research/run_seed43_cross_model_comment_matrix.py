@@ -19,7 +19,7 @@ from scripts.research import run_comment_ablation_seed_sweep as sweep
 
 RUN_ID = "seed43-cross-model-comment-matrix-v1"
 CONFIG = Path("configs/rag/seed43_cross_model_comment_matrix_v1/matrix.json")
-STATE = Path("configs/rag/seed43_cross_model_comment_matrix_v1/runtime")
+STATE = Path("configs/rag/seed43_cross_model_comment_matrix_v1/runtime-v2")
 OUTPUT = Path("experiments/rag/seed43-cross-model-comment-matrix-v1")
 REPORT = Path("reports/rag/seed43-cross-model-comment-matrix-v1")
 FORMAL_MANIFEST = Path("configs/rag/roundtrip_ab_v1/formal/evaluation_manifest.json")
@@ -83,7 +83,8 @@ def _load(root: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], d
     matrix = _read(root / CONFIG)
     qwen_path, devstral_path, auth_path = _state_paths(root)
     qwen, devstral, auth = _read(qwen_path), _read(devstral_path), _read(auth_path)
-    if auth.get("matrix_sha256") != sha256_file(root / CONFIG) or auth.get("qwen_common_sha256") != sha256_file(qwen_path) or auth.get("devstral_common_sha256") != sha256_file(devstral_path):
+    runner = root / Path(__file__).resolve().relative_to(root.resolve())
+    if auth.get("matrix_sha256") != sha256_file(root / CONFIG) or auth.get("qwen_common_sha256") != sha256_file(qwen_path) or auth.get("devstral_common_sha256") != sha256_file(devstral_path) or auth.get("runner_sha256") != sha256_file(runner):
         raise RoundtripABError("frozen runtime binding differs")
     return matrix, qwen, devstral, auth, _read(root / ABSENT_MANIFEST)
 
@@ -141,7 +142,7 @@ def _run_present(root: Path, source: Mapping[str, Any], common: Mapping[str, Any
     config = _present_config(root, source, base)
     run = root / base / f"condition-{condition.lower()}"
     try:
-        return execute_condition_v2_once(config, common, root, condition, formal=False)
+        return execute_condition_v2_once(config, common, root, condition, formal=True)
     except Exception:
         return _terminal(run)
 
